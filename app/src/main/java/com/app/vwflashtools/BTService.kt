@@ -80,12 +80,13 @@ class BTService: Service() {
         mBluetoothAdapter.bluetoothLeScanner
     }
 
-    fun BluetoothGattCharacteristic.isReadable(): Boolean = containsProperty(BluetoothGattCharacteristic.PROPERTY_READ)
-    fun BluetoothGattCharacteristic.isWritable(): Boolean = containsProperty(BluetoothGattCharacteristic.PROPERTY_WRITE)
-    fun BluetoothGattCharacteristic.isWritableWithoutResponse(): Boolean = containsProperty(BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE)
-    fun BluetoothGattCharacteristic.isIndicatable(): Boolean = containsProperty(BluetoothGattCharacteristic.PROPERTY_INDICATE)
-    fun BluetoothGattCharacteristic.isNotifiable(): Boolean = containsProperty(BluetoothGattCharacteristic.PROPERTY_NOTIFY)
-    fun BluetoothGattCharacteristic.containsProperty(property: Int): Boolean = properties and property != 0
+    //Gatt additional properties
+    private fun BluetoothGattCharacteristic.isReadable(): Boolean = containsProperty(BluetoothGattCharacteristic.PROPERTY_READ)
+    private fun BluetoothGattCharacteristic.isWritable(): Boolean = containsProperty(BluetoothGattCharacteristic.PROPERTY_WRITE)
+    private fun BluetoothGattCharacteristic.isWritableWithoutResponse(): Boolean = containsProperty(BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE)
+    private fun BluetoothGattCharacteristic.isIndicatable(): Boolean = containsProperty(BluetoothGattCharacteristic.PROPERTY_INDICATE)
+    private fun BluetoothGattCharacteristic.isNotifiable(): Boolean = containsProperty(BluetoothGattCharacteristic.PROPERTY_NOTIFY)
+    private fun BluetoothGattCharacteristic.containsProperty(property: Int): Boolean = properties and property != 0
 
     override fun onCreate() {
         super.onCreate()
@@ -686,41 +687,3 @@ class BTService: Service() {
         }
     }
 }
-
-/*if(mState == STATE_CONNECTED) {
-    when (mTask) {
-        TASK_NONE -> {
-            //Broadcast a new message
-            val intentMessage = Intent(MESSAGE_READ.toString())
-            intentMessage.putExtra("readBuffer", value)
-            sendBroadcast(intentMessage)
-
-            setTaskState(TASK_NONE)
-        }
-        TASK_LOGGING -> {
-            mTaskCount++
-
-
-            val bleHeader = BLEHeader()
-            bleHeader.fromByteArray(value)
-            val actualTime = (bleHeader.rxID.toUnsigned() shl 16) + bleHeader.txID.toUnsigned()
-            LogFile.add("$actualTime")
-
-
-            //Broadcast a new message
-            val intentMessage = Intent(MESSAGE_READ_LOG.toString())
-            intentMessage.putExtra("readBuffer", value)
-            intentMessage.putExtra("readCount", mTaskCount)
-            intentMessage.putExtra("readTime", System.currentTimeMillis() - mTaskTime)
-            sendBroadcast(intentMessage)
-        }
-        TASK_RD_VIN -> {
-            //Broadcast a new message
-            val intentMessage = Intent(MESSAGE_READ_VIN.toString())
-            intentMessage.putExtra("readBuffer", value)
-            sendBroadcast(intentMessage)
-
-            setTaskState(TASK_NONE)
-        }
-    }
-}*/
