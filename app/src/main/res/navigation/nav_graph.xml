@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/FirstFragment">
+
+    <fragment
+        android:id="@+id/FirstFragment"
+        android:name="com.app.vwflashtools.FirstFragment"
+        android:label="@string/first_fragment"
+        tools:layout="@layout/fragment_first">
+
+        <action
+            android:id="@+id/action_FirstFragment_to_FlashFragment"
+            app:destination="@id/FlashingFragment" />
+
+        <action
+            android:id="@+id/action_FirstFragment_to_LogFragment"
+            app:destination="@id/LoggingFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/FlashingFragment"
+        android:name="com.app.vwflashtools.FlashingFragment"
+        android:label="@string/flashing_fragment"
+        tools:layout="@layout/fragment_flashing">
+
+        <action
+            android:id="@+id/action_FlashingFragment_to_FirstFragment"
+            app:destination="@id/FirstFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/LoggingFragment"
+        android:name="com.app.vwflashtools.LoggingFragment"
+        android:label="@string/logging_fragment"
+        tools:layout="@layout/fragment_logging">
+
+        <action
+            android:id="@+id/action_LoggingFragment_to_FirstFragment"
+            app:destination="@id/FirstFragment" />
+    </fragment>
+</navigation>

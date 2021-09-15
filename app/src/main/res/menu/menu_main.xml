@@ -1,0 +1,17 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.switchback.MainActivity">
+    <item
+        android:id="@+id/action_connect"
+        android:checkable="false"
+        android:orderInCategory="100"
+        android:title="@string/action_connect"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/settings_connect"
+        android:orderInCategory="100"
+        android:title="@string/action_settings"
+        app:showAsAction="never" />
+</menu>
