@@ -8,18 +8,15 @@ import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.content.Intent
-import android.os.*
+import android.os.Handler
+import android.os.IBinder
+import android.os.Looper
+import android.os.ParcelUuid
 import android.util.Log
 import android.widget.Toast
 import java.io.IOException
-import android.bluetooth.BluetoothGattDescriptor
-import android.bluetooth.BluetoothGatt
-import java.util.concurrent.Semaphore
-import android.app.NotificationManager
-import android.app.NotificationChannel
-import android.app.PendingIntent
 import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.Semaphore
 
 // Header we expect to receive on BLE packets
 class BLEHeader {
@@ -72,13 +69,6 @@ class BTService: Service() {
     private var mBluetoothGatt: BluetoothGatt? = null
     private var mBluetoothDevice: BluetoothDevice? = null
     private var mConnectionThread: ConnectionThread? = null
-    private val mBluetoothAdapter: BluetoothAdapter by lazy {
-        val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        bluetoothManager.adapter
-    }
-    private val mBLEScanner by lazy {
-        mBluetoothAdapter.bluetoothLeScanner
-    }
 
     //Gatt additional properties
     private fun BluetoothGattCharacteristic.isReadable(): Boolean = containsProperty(BluetoothGattCharacteristic.PROPERTY_READ)
@@ -87,10 +77,6 @@ class BTService: Service() {
     private fun BluetoothGattCharacteristic.isIndicatable(): Boolean = containsProperty(BluetoothGattCharacteristic.PROPERTY_INDICATE)
     private fun BluetoothGattCharacteristic.isNotifiable(): Boolean = containsProperty(BluetoothGattCharacteristic.PROPERTY_NOTIFY)
     private fun BluetoothGattCharacteristic.containsProperty(property: Int): Boolean = properties and property != 0
-
-    override fun onCreate() {
-        super.onCreate()
-    }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
@@ -370,7 +356,7 @@ class BTService: Service() {
     private fun stopScanning() {
         Log.i(TAG, "Stop Scanning")
         if (mScanning) {
-            mBLEScanner.stopScan(mScanCallback)
+            (getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter.bluetoothLeScanner.stopScan(mScanCallback)
             mScanning = false
         }
     }
@@ -406,6 +392,7 @@ class BTService: Service() {
     @Synchronized
     private fun doConnect() {
         doDisconnect()
+
         Log.w(TAG, "Searching for BLE device.")
 
         val filter = listOf(
@@ -422,7 +409,8 @@ class BTService: Service() {
         //Set new connection status
         setConnectionState(STATE_CONNECTING)
 
-        mBLEScanner.startScan(filter, settings, mScanCallback)
+        //Start scanning for BLE devices
+        (getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter.bluetoothLeScanner.startScan(filter, settings, mScanCallback)
         mScanning = true
     }
 
@@ -571,6 +559,7 @@ class BTService: Service() {
                                 val intentMessage = Intent(MESSAGE_READ_LOG.toString())
                                 intentMessage.putExtra("readBuffer", buff)
                                 intentMessage.putExtra("readCount", mTaskCount)
+                                intentMessage.putExtra("readTime", mTaskTime)
                                 sendBroadcast(intentMessage)
                             }
                         }
@@ -666,3 +655,4 @@ class BTService: Service() {
         }
     }
 }
+

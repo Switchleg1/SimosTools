@@ -36,7 +36,7 @@ val DIDList: List<DIDStruct> = listOf(
     DIDStruct(0x202f, 2, 2, "Engine oil temperature", "°C"),
 )
 
-object DIDClass {
+object DIDs {
     fun getDID(address: Int): DIDStruct? {
         for (i in 0 until DIDList.count()) {
             if(DIDList[i].address == address) {
@@ -85,4 +85,8 @@ object DIDClass {
 
         return data
     }
+}
+
+object UDS22Logger {
+
 }

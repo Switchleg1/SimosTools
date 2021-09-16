@@ -79,7 +79,6 @@ class LoggingFragment : Fragment() {
                 }
                 MESSAGE_READ_LOG.toString() -> {
                     val buff = intent.getByteArrayExtra("readBuffer")
-                    val logCount = intent.getIntExtra("readCount", 0)
 
                     if(buff == null)
                         return
@@ -98,7 +97,7 @@ class LoggingFragment : Fragment() {
                     val newPIDS = FloatArray(8)
                     val newStrs = arrayOfNulls<String>(8)
                     while(i < bleHeader.cmdSize) {
-                        val did: DIDStruct? = DIDClass.getDID(((bData[i] and 0xFF) shl 8) + (bData[i+1] and 0xFF))
+                        val did: DIDStruct? = DIDs.getDID(((bData[i] and 0xFF) shl 8) + (bData[i+1] and 0xFF))
                         if(did == null) {
                             val textViewPackCount = view?.findViewById<TextView>(R.id.textViewPackCount)!!
                             textViewPackCount.text = "Invalid DID " + (((bData[i] and 0xFF) shl 8) + (bData[i+1] and 0xFF))
@@ -114,7 +113,7 @@ class LoggingFragment : Fragment() {
                             f = ((bData[i+2] and 0xFF) shl 8 + (bData[i+3] and 0xFF)).toFloat()
                             i += 4
                         }
-                        newPIDS[i] = DIDClass.getValue(did, f)
+                        newPIDS[i] = DIDs.getValue(did, f)
                         newStrs[i] = "${did.name}: $f ${did.unit}"
                     }
 

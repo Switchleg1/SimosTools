@@ -1,5 +1,6 @@
 package com.app.vwflashtools
 
+import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -11,12 +12,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat.startForegroundService
 
 class FlashingFragment : Fragment() {
-
-    private val PICKFILE_RESULT_CODE = 0
-
     private var mConversationArrayAdapter: ArrayAdapter<String>? = null
     private var mConnectedDeviceName: String? = null
 
@@ -52,29 +51,24 @@ class FlashingFragment : Fragment() {
             //    var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
             //    chooseFile.type = "*/*"
             //    chooseFile = Intent.createChooser(chooseFile, "Choose a bin")
-           //     startActivityForResult(chooseFile, PICKFILE_RESULT_CODE)
+           //     resultPickLauncher.launch(intent)
             //}
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-            PICKFILE_RESULT_CODE -> {
-                /*if (resultCode == Activity.RESULT_OK) {
-                    val uri: Uri? = data?.data
-                    var fileStream: InputStream? = null
+    var resultPickLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            /*val uri: Uri? = data?.data
+            var fileStream: InputStream? = null
 
-                    if(uri != null)
-                        fileStream = activity?.contentResolver?.openInputStream(uri);
+            if(uri != null)
+                fileStream = activity?.contentResolver?.openInputStream(uri);
 
-                    if(uri != null && BTService.getState() == STATE_CONNECTED) {
-                        Toast.makeText(activity, "Upload started", Toast.LENGTH_SHORT).show()
-                        mConversationArrayAdapter?.add("Upload started.")
-                        //BTService.upload(fileStream)
-                    }
-                }*/
-            }
+            if(uri != null && BTService.getState() == STATE_CONNECTED) {
+                Toast.makeText(activity, "Upload started", Toast.LENGTH_SHORT).show()
+                mConversationArrayAdapter?.add("Upload started.")
+                //BTService.upload(fileStream)
+            }*/
         }
     }
 

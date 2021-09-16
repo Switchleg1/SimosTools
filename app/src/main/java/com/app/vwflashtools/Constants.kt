@@ -17,6 +17,7 @@
 package com.app.vwflashtools
 
 import java.util.*
+import kotlin.properties.ReadOnlyProperty
 
 
 // Message types sent from the BluetoothChatService Handler
@@ -51,10 +52,9 @@ val BT_CMD_RX_UUID  = UUID.fromString("0000abf4-0000-1000-8000-00805f9b34fb")
 val GATT_MAX_MTU_SIZE = 64
 
 //Intent constants
-val REQUEST_ENABLE_BT = 1
-val REQUEST_LOCATION_PERMISSION = 2
-val REQUEST_READ_STORAGE = 3
-val REQUEST_WRITE_STORAGE = 4
+val REQUEST_LOCATION_PERMISSION = 1
+val REQUEST_READ_STORAGE = 2
+val REQUEST_WRITE_STORAGE = 3
 
 //Timers
 val SCAN_PERIOD = 10000L

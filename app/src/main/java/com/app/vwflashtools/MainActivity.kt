@@ -15,6 +15,7 @@ import android.content.pm.PackageManager
 import android.os.*
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
@@ -23,11 +24,6 @@ class MainActivity : AppCompatActivity() {
     private val TAG = "MainActivity"
     private var mState: Int = STATE_NONE
     private var mTask: Int = TASK_NONE
-
-    private val mBluetoothAdapter: BluetoothAdapter by lazy {
-        val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        bluetoothManager.adapter
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -119,19 +115,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode) {
-            REQUEST_ENABLE_BT -> {
-                if (resultCode == Activity.RESULT_OK) {
-                    doConnect()
-                }
-                super.onActivityResult(requestCode, resultCode, data)
-            }
-            else -> super.onActivityResult(requestCode, resultCode, data)
-        }
-    }
-
     private val mBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             when (intent.action) {
@@ -187,10 +170,16 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
+    var resultBTLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            doConnect()
+        }
+    }
+
     private fun doConnect() {
-        if (!mBluetoothAdapter.isEnabled) {
-            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
+        if (!(getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter.isEnabled) {
+            val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+            resultBTLauncher.launch(intent)
             return
         }
 
