@@ -86,71 +86,78 @@ class LoggingFragment : Fragment() {
 
                     val bleHeader = BLEHeader()
                     bleHeader.fromByteArray(buff)
-                    if(!bleHeader.isValid()) {
-                        val textViewPackCount = view?.findViewById<TextView>(R.id.textViewPackCount)!!
-                        textViewPackCount.text = "Invalid Header " + bleHeader.hdID.toString()
-                        textViewPackCount.setTextColor(Color.RED)
-                    }
-
-                    if(buff.size != 39) {
-                        val textViewPackCount = view?.findViewById<TextView>(R.id.textViewPackCount)!!
-                        textViewPackCount.text = "Invalid buffer size " + buff.size.toString()
-                        textViewPackCount.setTextColor(Color.RED)
-                    }
-
                     val bData = Arrays.copyOfRange(buff, 8, buff.size);
-                    if(bData[0].toInt() == 0x62) {
-                        val newPIDS = FloatArray(8)
-                        newPIDS[0] = (((bData[3] and 0xFF) shl 8) + (bData[4] and 0xFF)).toFloat() / 4.0f
-                        newPIDS[1] = (((bData[7] and 0xFF) shl 8) + (bData[8] and 0xFF)).toFloat() / 1000.0f
-                        newPIDS[2] = (((bData[11] and 0xFF) shl 8) + (bData[12] and 0xFF)).toFloat() / 100.0f
-                        newPIDS[3] = (((bData[15] and 0xFF) shl 8) + (bData[16] and 0xFF)).toFloat() * 0.0078125f
-                        newPIDS[4] = (bData[19] and 0xFF).toFloat() * 0.75f - 48.0f
-                        newPIDS[5] = (((bData[22] and 0xFF) shl 8) + (bData[23] and 0xFF)).toFloat() * 6.103515f
-                        newPIDS[6] = (bData[26] and 0xFF).toFloat() / 1.28f - 100.0f
-                        newPIDS[7] = (((bData[29] and 0xFF) shl 8) + (bData[30] and 0xFF)).toFloat()
-
-                        view?.findViewById<TextView>(R.id.textViewPID1)!!.text = getString(R.string.textPID1, newPIDS[0].toString())
-                        view?.findViewById<TextView>(R.id.textViewPID2)!!.text = getString(R.string.textPID2, newPIDS[1].toString())
-                        view?.findViewById<TextView>(R.id.textViewPID3)!!.text = getString(R.string.textPID3, newPIDS[2].toString())
-                        view?.findViewById<TextView>(R.id.textViewPID4)!!.text = getString(R.string.textPID4, newPIDS[3].toString())
-                        view?.findViewById<TextView>(R.id.textViewPID5)!!.text = getString(R.string.textPID5, newPIDS[4].toString())
-                        view?.findViewById<TextView>(R.id.textViewPID6)!!.text = getString(R.string.textPID6, newPIDS[5].toString())
-                        view?.findViewById<TextView>(R.id.textViewPID7)!!.text = getString(R.string.textPID7, newPIDS[6].toString())
-                        view?.findViewById<TextView>(R.id.textViewPID8)!!.text = getString(R.string.textPID8, newPIDS[7].toString())
-
-                        view?.findViewById<ProgressBar>(R.id.progressBar1)!!.progress = newPIDS[0].toInt()
-                        view?.findViewById<ProgressBar>(R.id.progressBar2)!!.progress = (newPIDS[1]*1000.0f).toInt()
-                        view?.findViewById<ProgressBar>(R.id.progressBar3)!!.progress = newPIDS[2].toInt()
-                        view?.findViewById<ProgressBar>(R.id.progressBar4)!!.progress = newPIDS[3].toInt()
-                        view?.findViewById<ProgressBar>(R.id.progressBar5)!!.progress = newPIDS[4].toInt()
-                        view?.findViewById<ProgressBar>(R.id.progressBar6)!!.progress = newPIDS[5].toInt()
-                        view?.findViewById<ProgressBar>(R.id.progressBar7)!!.progress = newPIDS[6].toInt()
-
-                        if(newPIDS[7] != 0.0.toFloat()) {
-                            if(mLastState == 0) {
-                                val currentDateTime = LocalDateTime.now()
-
-                                LogFile.create("vwflashtools-${currentDateTime.format(DateTimeFormatter.ofPattern("yyyy_MM_dd-HH_mm_ss"))}.csv", context)
-                                LogFile.add("Time,Engine Speed,MAP,Ignition Timing Average,Vehicle Speed,IAT,Turbo,STFT")
-                            }
-                            mLastState = 1
-                            val textViewPackCount = view?.findViewById<TextView>(R.id.textViewPackCount)!!
-                            textViewPackCount.text = logCount.toString()
-                            textViewPackCount.setTextColor(Color.RED)
-
-                            val actualTime = (bleHeader.tickCount).toFloat() / 1000.0f
-                            LogFile.add("${actualTime},${newPIDS[0]},${newPIDS[1]},${newPIDS[2]},${newPIDS[3]},${newPIDS[4]},${newPIDS[5]},${newPIDS[6]}")
-                        } else {
-                            if(mLastState == 1) {
-                                LogFile.close()
-                            }
-                            mLastState = 0
-                            val textViewPackCount = view?.findViewById<TextView>(R.id.textViewPackCount)!!
-                            textViewPackCount.text = logCount.toString()
-                            textViewPackCount.setTextColor(Color.BLACK)
-                        }
+                    if(!bleHeader.isValid() || bleHeader.cmdSize != bData.size || bData[0] != 0x62.toByte() || bData[1] != 0x22.toByte()) {
+                        val textViewPackCount = view?.findViewById<TextView>(R.id.textViewPackCount)!!
+                        textViewPackCount.text = "Invalid Header ${bleHeader.hdID} [${bleHeader.cmdSize}:${bData.size}] ${bData[0]} ${bData[1]}"
+                        textViewPackCount.setTextColor(Color.RED)
+                        return
                     }
+
+                    var i = 2
+                    val newPIDS = FloatArray(8)
+                    val newStrs = arrayOfNulls<String>(8)
+                    while(i < bleHeader.cmdSize) {
+                        val did: DIDStruct? = DIDClass.getDID(((bData[i] and 0xFF) shl 8) + (bData[i+1] and 0xFF))
+                        if(did == null) {
+                            val textViewPackCount = view?.findViewById<TextView>(R.id.textViewPackCount)!!
+                            textViewPackCount.text = "Invalid DID " + (((bData[i] and 0xFF) shl 8) + (bData[i+1] and 0xFF))
+                            textViewPackCount.setTextColor(Color.RED)
+                            i = bleHeader.cmdSize
+                            break
+                        }
+                        var f = 0f
+                        if(did.length == 1) {
+                            f = (bData[i+2] and 0xFF).toFloat()
+                            i += 3
+                        } else if(did.length == 2) {
+                            f = ((bData[i+2] and 0xFF) shl 8 + (bData[i+3] and 0xFF)).toFloat()
+                            i += 4
+                        }
+                        newPIDS[i] = DIDClass.getValue(did, f)
+                        newStrs[i] = "${did.name}: $f ${did.unit}"
+                    }
+
+                    view?.findViewById<TextView>(R.id.textViewPID1)!!.text = newStrs[0]
+                    view?.findViewById<TextView>(R.id.textViewPID2)!!.text = newStrs[1]
+                    view?.findViewById<TextView>(R.id.textViewPID3)!!.text = newStrs[2]
+                    view?.findViewById<TextView>(R.id.textViewPID4)!!.text = newStrs[3]
+                    view?.findViewById<TextView>(R.id.textViewPID5)!!.text = newStrs[4]
+                    view?.findViewById<TextView>(R.id.textViewPID6)!!.text = newStrs[5]
+                    view?.findViewById<TextView>(R.id.textViewPID7)!!.text = newStrs[6]
+                    view?.findViewById<TextView>(R.id.textViewPID8)!!.text = newStrs[7]
+
+                    view?.findViewById<ProgressBar>(R.id.progressBar1)!!.progress = newPIDS[0].toInt()
+                    view?.findViewById<ProgressBar>(R.id.progressBar2)!!.progress = newPIDS[1].toInt()
+                    view?.findViewById<ProgressBar>(R.id.progressBar3)!!.progress = newPIDS[2].toInt()
+                    view?.findViewById<ProgressBar>(R.id.progressBar4)!!.progress = newPIDS[3].toInt()
+                    view?.findViewById<ProgressBar>(R.id.progressBar5)!!.progress = newPIDS[4].toInt()
+                    view?.findViewById<ProgressBar>(R.id.progressBar6)!!.progress = newPIDS[5].toInt()
+                    view?.findViewById<ProgressBar>(R.id.progressBar7)!!.progress = newPIDS[6].toInt()
+
+                    /*if(newPIDS[7] != 0.0.toFloat()) {
+                        if(mLastState == 0) {
+                            val currentDateTime = LocalDateTime.now()
+
+                            LogFile.create("vwflashtools-${currentDateTime.format(DateTimeFormatter.ofPattern("yyyy_MM_dd-HH_mm_ss"))}.csv", context)
+                            LogFile.add("Time,Engine Speed,MAP,Ignition Timing Average,Vehicle Speed,IAT,Turbo,STFT")
+                        }
+                        mLastState = 1
+                        val textViewPackCount = view?.findViewById<TextView>(R.id.textViewPackCount)!!
+                        textViewPackCount.text = logCount.toString()
+                        textViewPackCount.setTextColor(Color.RED)
+
+                        val actualTime = (bleHeader.tickCount).toFloat() / 1000.0f
+                        LogFile.add("${actualTime},${newPIDS[0]},${newPIDS[1]},${newPIDS[2]},${newPIDS[3]},${newPIDS[4]},${newPIDS[5]},${newPIDS[6]},${newPIDS[7]}")
+                    } else {
+                        if(mLastState == 1) {
+                            LogFile.close()
+                        }
+                        mLastState = 0
+                        val textViewPackCount = view?.findViewById<TextView>(R.id.textViewPackCount)!!
+                        textViewPackCount.text = logCount.toString()
+                        textViewPackCount.setTextColor(Color.BLACK)
+                    }*/
                 }
                 MESSAGE_TOAST.toString() -> {
                     val nToast = intent.getStringExtra("newToast")

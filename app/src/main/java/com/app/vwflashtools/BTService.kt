@@ -38,12 +38,12 @@ class BLEHeader {
         val bArray = ByteArray(8)
         bArray[0] = (hdID and 0xFF).toByte()
         bArray[1] = (cmdFlags and 0xFF).toByte()
-        bArray[2] = ((rxID and 0xFF) shr 0).toByte()
-        bArray[3] = ((rxID and 0xFF) shr 8).toByte()
-        bArray[4] = ((txID and 0xFF) shr 0).toByte()
-        bArray[5] = ((txID and 0xFF) shr 8).toByte()
-        bArray[6] = ((cmdSize and 0xFF) shr 0).toByte()
-        bArray[7] = ((cmdSize and 0xFF) shr 8).toByte()
+        bArray[2] = (rxID and 0xFF).toByte()
+        bArray[3] = ((rxID and 0xFF00) shr 8).toByte()
+        bArray[4] = (txID and 0xFF).toByte()
+        bArray[5] = ((txID and 0xFF00) shr 8).toByte()
+        bArray[6] = (cmdSize and 0xFF).toByte()
+        bArray[7] = ((cmdSize and 0xFF00) shr 8).toByte()
 
         return bArray
     }
@@ -548,21 +548,15 @@ class BTService: Service() {
                     try {
                         when (mTask) {
                             TASK_NONE -> {
-                                val buff = mReadQueue.poll()
-                                val bleHeader = BLEHeader()
-                                bleHeader.fromByteArray(buff!!)
-
                                 //Broadcast a new message
+                                val buff = mReadQueue.poll()
                                 val intentMessage = Intent(MESSAGE_READ.toString())
                                 intentMessage.putExtra("readBuffer", buff)
                                 sendBroadcast(intentMessage)
                             }
                             TASK_RD_VIN -> {
-                                val buff = mReadQueue.poll()
-                                val bleHeader = BLEHeader()
-                                bleHeader.fromByteArray(buff!!)
-
                                 //Broadcast a new message
+                                val buff = mReadQueue.poll()
                                 val intentMessage = Intent(MESSAGE_READ_VIN.toString())
                                 intentMessage.putExtra("readBuffer", buff)
                                 sendBroadcast(intentMessage)
@@ -572,18 +566,11 @@ class BTService: Service() {
                             TASK_LOGGING -> {
                                 mTaskCount++
 
-                                val buff = mReadQueue.poll()
-                                val bleHeader = BLEHeader()
-                                bleHeader.fromByteArray(buff!!)
-
                                 //Broadcast a new message
+                                val buff = mReadQueue.poll()
                                 val intentMessage = Intent(MESSAGE_READ_LOG.toString())
                                 intentMessage.putExtra("readBuffer", buff)
                                 intentMessage.putExtra("readCount", mTaskCount)
-                                intentMessage.putExtra(
-                                    "readTime",
-                                    System.currentTimeMillis() - mTaskTime
-                                )
                                 sendBroadcast(intentMessage)
                             }
                         }
@@ -620,39 +607,31 @@ class BTService: Service() {
             when (mTask) {
                 TASK_LOGGING -> {
                     val bleHeader = BLEHeader()
-                    /*bleHeader.cmdSize = 17
+                    bleHeader.cmdSize = 1
                     bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_ADD or BLE_COMMAND_FLAG_PER_CLEAR
 
-                    val dataBytes1 = byteArrayOf(
-                        0x22.toByte(),
-                        0xF4.toByte(), 0x0C.toByte(),   //Engine RPM,,Engine RPM,,,
-                        0x39.toByte(), 0xC0.toByte(),   //Intake_manifold_air_pressure_corrected_value,bar,Ansaugluftdruck (korrigierter Wert)F40B (IDE00594) entspricht MAP_MES (Rohwert),A_UINT32,2,( 1.0 * X + 0.0 ) / 1000.0
-                        0x29.toByte(), 0x49.toByte(),   //Average of ignition retard,°,"Für Neuprojekte nicht zu verwenden, 20.03.2012",A_INT32,2,( 1.0 * X + 0.0 ) / 100.0
-                        0x15.toByte(), 0xD3.toByte(),   //km/h,Filtered vehicle speed,A_UINT32,2,( 0.0078125 * X + -0.0 ) / 1
-                        0x10.toByte(), 0x01.toByte(),   //°C,Intake air temperature,A_UINT32,1,( 0.75 * X + -48.0 ) / 1
-                        0x10.toByte(), 0x40.toByte(),   //Turbo charger rotational speed,A_UINT32,2,( 6.103515624994278 * X + 0.0 ) / 1
-                        0xF4.toByte(), 0x06.toByte(),   //Short Term Fuel Trim - Bank 1/3,,Short Term Fuel Trim - Bank 1/3,,,
-                        0x20.toByte(), 0x3C.toByte()    //Cruise_control_switch,,Cruise_control_switch,A_UINT32,2,
-                    )
-                    val buf1 = bleHeader.toByteArray() + dataBytes1
-                    mWriteQueue.add(buf1)*/
+                    var buff: ByteArray = byteArrayOf(0x22.toByte())
+                    for(i in 8 until 16) {
+                        val did: DIDStruct = DIDList[i]
+                        bleHeader.cmdSize += 2
+                        buff += ((did.address and 0xFF00)shr 8).toByte()
+                        buff += (did.address and 0xFF).toByte()
+                    }
+                    buff = bleHeader.toByteArray() + buff
+                    mWriteQueue.add(buff)
 
-                    bleHeader.cmdSize = 17
+                    bleHeader.cmdSize = 1
                     bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_ADD or BLE_COMMAND_FLAG_PER_ENABLE
 
-                    val dataBytes2 = byteArrayOf(
-                        0x22.toByte(),
-                        0xF4.toByte(), 0x0C.toByte(),   //Engine RPM,,Engine RPM,,,
-                        0x39.toByte(), 0xC0.toByte(),   //Intake_manifold_air_pressure_corrected_value,bar,Ansaugluftdruck (korrigierter Wert)F40B (IDE00594) entspricht MAP_MES (Rohwert),A_UINT32,2,( 1.0 * X + 0.0 ) / 1000.0
-                        0x29.toByte(), 0x49.toByte(),   //Average of ignition retard,°,"Für Neuprojekte nicht zu verwenden, 20.03.2012",A_INT32,2,( 1.0 * X + 0.0 ) / 100.0
-                        0x15.toByte(), 0xD3.toByte(),   //km/h,Filtered vehicle speed,A_UINT32,2,( 0.0078125 * X + -0.0 ) / 1
-                        0x10.toByte(), 0x01.toByte(),   //°C,Intake air temperature,A_UINT32,1,( 0.75 * X + -48.0 ) / 1
-                        0x10.toByte(), 0x40.toByte(),   //Turbo charger rotational speed,A_UINT32,2,( 6.103515624994278 * X + 0.0 ) / 1
-                        0xF4.toByte(), 0x06.toByte(),   //Short Term Fuel Trim - Bank 1/3,,Short Term Fuel Trim - Bank 1/3,,,
-                        0x20.toByte(), 0x3C.toByte()    //Cruise_control_switch,,Cruise_control_switch,A_UINT32,2,
-                    )
-                    val buf2 = bleHeader.toByteArray() + dataBytes2
-                    mWriteQueue.add(buf2)
+                    buff = byteArrayOf(0x22.toByte())
+                    for(i in 8 until 16) {
+                        val did: DIDStruct = DIDList[i]
+                        bleHeader.cmdSize += 2
+                        buff += ((did.address and 0xFF00)shr 8).toByte()
+                        buff += (did.address and 0xFF).toByte()
+                    }
+                    buff = bleHeader.toByteArray() + buff
+                    mWriteQueue.add(buff)
                 }
                 TASK_RD_VIN -> {
                     val bleHeader = BLEHeader()
