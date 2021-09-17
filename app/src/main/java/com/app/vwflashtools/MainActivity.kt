@@ -35,6 +35,56 @@ class MainActivity : AppCompatActivity() {
         val serviceIntent = Intent(this, BTService::class.java)
         serviceIntent.action = BT_START_SERVICE.toString()
         ContextCompat.startForegroundService(this, serviceIntent)
+
+
+        /*// Send test
+        UDS22Logger.didEnable = DIDs.getDID(0x203c)
+        UDS22Logger.didEnable?.value = 2f
+        UDS22Logger.didList = byteArrayOf(8, 9, 10, 11, 12, 13, 14, 15)
+
+        val bleHeader = BLEHeader()
+        bleHeader.cmdSize = 1
+        bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_ADD or BLE_COMMAND_FLAG_PER_ENABLE
+
+        var buff = byteArrayOf(0x22.toByte())
+        for(i in 8 until 16) {
+            val did: DIDStruct = DIDList[i]
+            bleHeader.cmdSize += 2
+            buff += ((did.address and 0xFF00)shr 8).toByte()
+            buff += (did.address and 0xFF).toByte()
+        }
+        buff = bleHeader.toByteArray() + buff
+
+        var sData = "Sending:"
+        for(i in 0 until buff.count()) {
+            sData += buff[i].toHexS()
+        }
+        Log.i(TAG, sData)
+
+        //Receive test
+        bleHeader.cmdSize = 31
+        buff = bleHeader.toByteArray() + byteArrayOf(0x62, 0x20, 0x27, 0x0F, 0x0F,
+                                                        0x20, 0x3c, 0x0F, 0x0F,
+                                                        0x20, 0x3f, 0x0F, 0x0F,
+                                                        0x20, 0x6d, 0x0F, 0x0F,
+                                                        0x29, 0x3b, 0x0F, 0x0F,
+                                                        0x29, 0x5c, 0x0F,
+                                                        0x29, 0x5d, 0x0F,
+                                                        0x29, 0x32, 0x0F, 0x0F)
+
+        sData = "Receiving:"
+        for(i in 0 until buff.count()) {
+            sData += buff[i].toHexS()
+        }
+        Log.i(TAG, sData)
+
+        val result = UDS22Logger.processFrame(buff)
+        Log.i(TAG, "result: $result")
+
+        val intentMessage = Intent(MESSAGE_READ_LOG.toString())
+        intentMessage.putExtra("readCount", 100)
+        intentMessage.putExtra("readResult", result)
+        sendBroadcast(intentMessage)*/
     }
 
     override fun onResume() {
@@ -65,7 +115,7 @@ class MainActivity : AppCompatActivity() {
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         val item = menu.findItem(R.id.action_connect)
 
-        if (mState != STATE_NONE) {
+        if (mState > STATE_NONE) {
             item.title = getString(R.string.action_disconnect)
         } else {
             item.title = getString(R.string.action_connect)
@@ -151,6 +201,7 @@ class MainActivity : AppCompatActivity() {
                             mState = STATE_ERROR
                         }
                     }
+                    invalidateOptionsMenu()
                 }
             }
         }

@@ -17,7 +17,6 @@
 package com.app.vwflashtools
 
 import java.util.*
-import kotlin.properties.ReadOnlyProperty
 
 
 // Message types sent from the BluetoothChatService Handler
@@ -72,7 +71,7 @@ val BT_DO_CHECK_VIN     = 5
 val BT_DO_CHECK_PID     = 6
 val BT_DO_STOP_PID      = 7
 
-//
+// BLE Header defaults
 val BLE_HEADER_ID = 0xF1
 val BLE_HEADER_TX = 0x7E0
 val BLE_HEADER_RX = 0x7E8
@@ -84,9 +83,24 @@ val BLE_COMMAND_FLAG_PER_ADD		= 4
 val BLE_COMMAND_FLAG_MULT_PK		= 8
 val BLE_COMMAND_FLAG_MULT_END		= 16
 
+// UDS22Logger errors
+val UDS_OK              = 0
+val UDS_ERROR_RESPONSE  = 1
+val UDS_ERROR_NULL      = 2
+val UDS_ERROR_HEADER    = 3
+val UDS_ERROR_CMDSIZE   = 4
+val UDS_ERROR_UNKNOWN   = 5
+val UDS_NOT_ENABLED     = 6
+
+//Additional properties
 infix fun Byte.shl(that: Int): Int = this.toInt().shl(that)
 infix fun Short.shl(that: Int): Int = this.toInt().shl(that)
 infix fun Byte.shr(that: Int): Int = this.toInt().shr(that)
 infix fun Short.shr(that: Int): Int = this.toInt().shr(that)
 infix fun Byte.and(that: Int): Int = this.toInt().and(that)
 infix fun Short.and(that: Int): Int = this.toInt().and(that)
+fun Byte.toHex(): String = "%02x".format(this)
+fun Byte.toHexS(): String = " %02x".format(this)
+fun ByteArray.toHex(): String = joinToString(separator = " ") { eachByte -> "%02x".format(eachByte) }
+
+

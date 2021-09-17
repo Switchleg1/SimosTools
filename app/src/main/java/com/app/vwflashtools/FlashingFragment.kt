@@ -90,8 +90,6 @@ class FlashingFragment : Fragment() {
         this.activity?.unregisterReceiver(mBroadcastReceiver)
     }
 
-    fun ByteArray.toHex(): String = joinToString(separator = " ") { eachByte -> "%02x".format(eachByte) }
-
     private val mBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             when (intent.action) {
@@ -103,7 +101,6 @@ class FlashingFragment : Fragment() {
                         }
                     }
                 }
-
                 MESSAGE_WRITE.toString() -> {
                     val writeBuff = intent.getByteArrayExtra("writeBuffer")
 
@@ -116,7 +113,6 @@ class FlashingFragment : Fragment() {
                         btMessage.setSelection(btMessage.adapter.count - 1);
                     }
                 }
-
                 MESSAGE_READ.toString() -> {
                     val readBuff = intent.getByteArrayExtra("readBuffer")
 
@@ -128,7 +124,17 @@ class FlashingFragment : Fragment() {
                         btMessage.setSelection(btMessage.adapter.count - 1);
                     }
                 }
+                MESSAGE_READ_VIN.toString() -> {
+                    val readBuff = intent.getByteArrayExtra("readBuffer")
 
+                    // construct a string from the valid bytes in the buffer
+                    if(readBuff != null) {
+                        mConversationArrayAdapter?.add(mConnectedDeviceName.toString() + ":  $readBuff")
+
+                        val btMessage = view?.findViewById<ListView>(R.id.bt_message)!!
+                        btMessage.setSelection(btMessage.adapter.count - 1);
+                    }
+                }
                 MESSAGE_TOAST.toString() -> {
                     val nToast = intent.getStringExtra("newToast")
                     Toast.makeText(activity, nToast, Toast.LENGTH_SHORT).show()

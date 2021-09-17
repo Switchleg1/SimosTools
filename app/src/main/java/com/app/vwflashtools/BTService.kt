@@ -556,10 +556,13 @@ class BTService: Service() {
 
                                 //Broadcast a new message
                                 val buff = mReadQueue.poll()
+                                val result = UDS22Logger.processFrame(buff)
+
                                 val intentMessage = Intent(MESSAGE_READ_LOG.toString())
                                 intentMessage.putExtra("readBuffer", buff)
                                 intentMessage.putExtra("readCount", mTaskCount)
                                 intentMessage.putExtra("readTime", mTaskTime)
+                                intentMessage.putExtra("readResult", result)
                                 sendBroadcast(intentMessage)
                             }
                         }
@@ -595,19 +598,23 @@ class BTService: Service() {
 
             when (mTask) {
                 TASK_LOGGING -> {
+                    //Make sure we enable be using cruise control PID
+                    UDS22Logger.didEnable = DIDs.getDID(0x203c)
+                    UDS22Logger.didList = byteArrayOf(8, 9, 10, 11, 12, 13, 14, 15)
+
                     val bleHeader = BLEHeader()
                     bleHeader.cmdSize = 1
                     bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_ADD or BLE_COMMAND_FLAG_PER_CLEAR
 
                     var buff: ByteArray = byteArrayOf(0x22.toByte())
-                    for(i in 8 until 16) {
+                    for(i in 0 until 8) {
                         val did: DIDStruct = DIDList[i]
                         bleHeader.cmdSize += 2
                         buff += ((did.address and 0xFF00)shr 8).toByte()
                         buff += (did.address and 0xFF).toByte()
                     }
-                    buff = bleHeader.toByteArray() + buff
-                    mWriteQueue.add(buff)
+                    //buff = bleHeader.toByteArray() + buff
+                    //mWriteQueue.add(buff)
 
                     bleHeader.cmdSize = 1
                     bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_ADD or BLE_COMMAND_FLAG_PER_ENABLE
@@ -633,11 +640,13 @@ class BTService: Service() {
                     mWriteQueue.add(buf)
                 }
                 TASK_NONE -> {
+                    UDS22Logger.didEnable = null
+                    UDS22Logger.didList = null
+
                     val bleHeader = BLEHeader()
                     bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_CLEAR
 
                     val buf = bleHeader.toByteArray()
-                    mWriteQueue.add(buf)
                     mWriteQueue.add(buf)
                 }
             }

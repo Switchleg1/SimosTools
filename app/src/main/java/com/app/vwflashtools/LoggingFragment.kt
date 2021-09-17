@@ -18,13 +18,10 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
 
 
 class LoggingFragment : Fragment() {
-    var mLastState: Int = 0
-    var mLogCurrentTime: Int = 0
-    var mLogLastTime: Int = 0
+    private var mLastEnabled = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -58,7 +55,6 @@ class LoggingFragment : Fragment() {
         super.onResume()
 
         val filter = IntentFilter()
-        filter.addAction(MESSAGE_READ_VIN.toString())
         filter.addAction(MESSAGE_READ_LOG.toString())
         filter.addAction(MESSAGE_TOAST.toString())
         this.activity?.registerReceiver(mBroadcastReceiver, filter)
@@ -78,85 +74,91 @@ class LoggingFragment : Fragment() {
                     view?.findViewById<TextView>(R.id.textViewPID1)!!.text = getString(R.string.textVIN, buff.toString())
                 }
                 MESSAGE_READ_LOG.toString() -> {
-                    val buff = intent.getByteArrayExtra("readBuffer")
+                    //val readBuff = intent.getByteArrayExtra("readBuffer") ?: return
+                    val readCount = intent.getIntExtra("readCount", 0)
+                    //val readTime = intent.getIntExtra("readTime", 0)
+                    val readResult = intent.getIntExtra("readResult", UDS_ERROR_NULL)
 
-                    if(buff == null)
+                    val textViewPackCount = view?.findViewById<TextView>(R.id.textViewPackCount)!!
+                    textViewPackCount.text = readResult.toString()
+
+                    if(readResult != UDS_OK)
                         return
 
-                    val bleHeader = BLEHeader()
-                    bleHeader.fromByteArray(buff)
-                    val bData = Arrays.copyOfRange(buff, 8, buff.size);
-                    if(!bleHeader.isValid() || bleHeader.cmdSize != bData.size || bData[0] != 0x62.toByte() || bData[1] != 0x22.toByte()) {
-                        val textViewPackCount = view?.findViewById<TextView>(R.id.textViewPackCount)!!
-                        textViewPackCount.text = "Invalid Header ${bleHeader.hdID} [${bleHeader.cmdSize}:${bData.size}] ${bData[0]} ${bData[1]}"
-                        textViewPackCount.setTextColor(Color.RED)
-                        return
+                    UDS22Logger.didList?.let { dList ->
+                        if(dList.count() == 0)
+                            return
+
+                        if(dList.count() >= 1) {
+                            view?.findViewById<TextView>(R.id.textViewPID1)!!.text = getString(R.string.textPID, DIDList[dList[0].toInt()].name, DIDList[dList[0].toInt()].value, DIDList[dList[0].toInt()].unit)
+                            view?.findViewById<ProgressBar>(R.id.progressBar1)!!.progress = DIDList[dList[0].toInt()].value.toInt()
+                        }
+                        if(dList.count() >= 2) {
+                            view?.findViewById<TextView>(R.id.textViewPID2)!!.text = getString(R.string.textPID, DIDList[dList[1].toInt()].name, DIDList[dList[1].toInt()].value, DIDList[dList[1].toInt()].unit)
+                            view?.findViewById<ProgressBar>(R.id.progressBar2)!!.progress = DIDList[dList[1].toInt()].value.toInt()
+                        }
+                        if(dList.count() >= 3) {
+                            view?.findViewById<TextView>(R.id.textViewPID3)!!.text = getString(R.string.textPID, DIDList[dList[2].toInt()].name, DIDList[dList[2].toInt()].value, DIDList[dList[2].toInt()].unit)
+                            view?.findViewById<ProgressBar>(R.id.progressBar3)!!.progress = DIDList[dList[2].toInt()].value.toInt()
+                        }
+                        if(dList.count() >= 4) {
+                            view?.findViewById<TextView>(R.id.textViewPID4)!!.text = getString(R.string.textPID, DIDList[dList[3].toInt()].name, DIDList[dList[3].toInt()].value, DIDList[dList[3].toInt()].unit)
+                            view?.findViewById<ProgressBar>(R.id.progressBar4)!!.progress = DIDList[dList[3].toInt()].value.toInt()
+                        }
+                        if(dList.count() >= 5) {
+                            view?.findViewById<TextView>(R.id.textViewPID5)!!.text = getString(R.string.textPID, DIDList[dList[4].toInt()].name, DIDList[dList[4].toInt()].value, DIDList[dList[4].toInt()].unit)
+                            view?.findViewById<ProgressBar>(R.id.progressBar5)!!.progress = DIDList[dList[4].toInt()].value.toInt()
+                        }
+                        if(dList.count() >= 6) {
+                            view?.findViewById<TextView>(R.id.textViewPID6)!!.text = getString(R.string.textPID, DIDList[dList[5].toInt()].name, DIDList[dList[5].toInt()].value, DIDList[dList[5].toInt()].unit)
+                            view?.findViewById<ProgressBar>(R.id.progressBar6)!!.progress = DIDList[dList[5].toInt()].value.toInt()
+                        }
+                        if(dList.count() >= 7) {
+                            view?.findViewById<TextView>(R.id.textViewPID7)!!.text = getString(R.string.textPID, DIDList[dList[6].toInt()].name, DIDList[dList[6].toInt()].value, DIDList[dList[6].toInt()].unit)
+                            view?.findViewById<ProgressBar>(R.id.progressBar7)!!.progress = DIDList[dList[6].toInt()].value.toInt()
+                        }
+                        if(dList.count() >= 8) {
+                            view?.findViewById<TextView>(R.id.textViewPID8)!!.text = getString(R.string.textPID, DIDList[dList[7].toInt()].name, DIDList[dList[7].toInt()].value, DIDList[dList[7].toInt()].unit)
+                            view?.findViewById<ProgressBar>(R.id.progressBar8)!!.progress = DIDList[dList[7].toInt()].value.toInt()
+                        }
+
+                        //Write packet count
+                        textViewPackCount.text = readCount.toString()
+
+                        UDS22Logger.didEnable?.let { dEnable ->
+                            if(dEnable.value != 0f) {
+                                //If we were not enabled before we must open a log to start writing
+                                if(!mLastEnabled) {
+                                    val currentDateTime = LocalDateTime.now()
+                                    LogFile.create("vwflashtools-${currentDateTime.format(DateTimeFormatter.ofPattern("yyyy_MM_dd-HH_mm_ss"))}.csv", context)
+                                    var strItems: String? = DIDList[dList[0].toInt()].name
+                                    for(i in 1 until dList.count()) {
+                                        strItems += ",${DIDList[dList[i].toInt()].name}"
+                                    }
+                                    LogFile.add(strItems)
+                                }
+                                mLastEnabled = true
+
+                                //Write new values to log
+                                var strItems: String? = "${DIDList[dList[0].toInt()].value}"
+                                for(i in 1 until dList.count()) {
+                                    strItems += ",${DIDList[dList[i].toInt()].value}"
+                                }
+                                LogFile.add(strItems)
+
+                                //Highlight packet count in red since we are logging
+                                textViewPackCount.setTextColor(Color.RED)
+                            } else {
+                                if(mLastEnabled) {
+                                    LogFile.close()
+                                }
+                                mLastEnabled = false
+
+                                //Not logging set packet count to black
+                                textViewPackCount.setTextColor(Color.BLACK)
+                            }
+                        }
                     }
-
-                    var i = 2
-                    val newPIDS = FloatArray(8)
-                    val newStrs = arrayOfNulls<String>(8)
-                    while(i < bleHeader.cmdSize) {
-                        val did: DIDStruct? = DIDs.getDID(((bData[i] and 0xFF) shl 8) + (bData[i+1] and 0xFF))
-                        if(did == null) {
-                            val textViewPackCount = view?.findViewById<TextView>(R.id.textViewPackCount)!!
-                            textViewPackCount.text = "Invalid DID " + (((bData[i] and 0xFF) shl 8) + (bData[i+1] and 0xFF))
-                            textViewPackCount.setTextColor(Color.RED)
-                            i = bleHeader.cmdSize
-                            break
-                        }
-                        var f = 0f
-                        if(did.length == 1) {
-                            f = (bData[i+2] and 0xFF).toFloat()
-                            i += 3
-                        } else if(did.length == 2) {
-                            f = ((bData[i+2] and 0xFF) shl 8 + (bData[i+3] and 0xFF)).toFloat()
-                            i += 4
-                        }
-                        newPIDS[i] = DIDs.getValue(did, f)
-                        newStrs[i] = "${did.name}: $f ${did.unit}"
-                    }
-
-                    view?.findViewById<TextView>(R.id.textViewPID1)!!.text = newStrs[0]
-                    view?.findViewById<TextView>(R.id.textViewPID2)!!.text = newStrs[1]
-                    view?.findViewById<TextView>(R.id.textViewPID3)!!.text = newStrs[2]
-                    view?.findViewById<TextView>(R.id.textViewPID4)!!.text = newStrs[3]
-                    view?.findViewById<TextView>(R.id.textViewPID5)!!.text = newStrs[4]
-                    view?.findViewById<TextView>(R.id.textViewPID6)!!.text = newStrs[5]
-                    view?.findViewById<TextView>(R.id.textViewPID7)!!.text = newStrs[6]
-                    view?.findViewById<TextView>(R.id.textViewPID8)!!.text = newStrs[7]
-
-                    view?.findViewById<ProgressBar>(R.id.progressBar1)!!.progress = newPIDS[0].toInt()
-                    view?.findViewById<ProgressBar>(R.id.progressBar2)!!.progress = newPIDS[1].toInt()
-                    view?.findViewById<ProgressBar>(R.id.progressBar3)!!.progress = newPIDS[2].toInt()
-                    view?.findViewById<ProgressBar>(R.id.progressBar4)!!.progress = newPIDS[3].toInt()
-                    view?.findViewById<ProgressBar>(R.id.progressBar5)!!.progress = newPIDS[4].toInt()
-                    view?.findViewById<ProgressBar>(R.id.progressBar6)!!.progress = newPIDS[5].toInt()
-                    view?.findViewById<ProgressBar>(R.id.progressBar7)!!.progress = newPIDS[6].toInt()
-
-                    /*if(newPIDS[7] != 0.0.toFloat()) {
-                        if(mLastState == 0) {
-                            val currentDateTime = LocalDateTime.now()
-
-                            LogFile.create("vwflashtools-${currentDateTime.format(DateTimeFormatter.ofPattern("yyyy_MM_dd-HH_mm_ss"))}.csv", context)
-                            LogFile.add("Time,Engine Speed,MAP,Ignition Timing Average,Vehicle Speed,IAT,Turbo,STFT")
-                        }
-                        mLastState = 1
-                        val textViewPackCount = view?.findViewById<TextView>(R.id.textViewPackCount)!!
-                        textViewPackCount.text = logCount.toString()
-                        textViewPackCount.setTextColor(Color.RED)
-
-                        val actualTime = (bleHeader.tickCount).toFloat() / 1000.0f
-                        LogFile.add("${actualTime},${newPIDS[0]},${newPIDS[1]},${newPIDS[2]},${newPIDS[3]},${newPIDS[4]},${newPIDS[5]},${newPIDS[6]},${newPIDS[7]}")
-                    } else {
-                        if(mLastState == 1) {
-                            LogFile.close()
-                        }
-                        mLastState = 0
-                        val textViewPackCount = view?.findViewById<TextView>(R.id.textViewPackCount)!!
-                        textViewPackCount.text = logCount.toString()
-                        textViewPackCount.setTextColor(Color.BLACK)
-                    }*/
                 }
                 MESSAGE_TOAST.toString() -> {
                     val nToast = intent.getStringExtra("newToast")
