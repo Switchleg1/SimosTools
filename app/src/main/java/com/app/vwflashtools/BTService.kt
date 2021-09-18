@@ -455,7 +455,7 @@ class BTService: Service() {
     @Synchronized
     private fun createConnectionThread() {
         mConnectionThread = ConnectionThread()
-        mConnectionThread?.priority = Thread.NORM_PRIORITY
+        mConnectionThread?.priority = THREAD_PRIORITY_CONNECTION
         mConnectionThread?.start()
     }
 
@@ -532,7 +532,7 @@ class BTService: Service() {
                 }
 
                 //See if there are any packets waiting to be sent
-                if (!mReadQueue.isEmpty()) {
+                while (!mReadQueue.isEmpty()) {
                     try {
                         when (mTask) {
                             TASK_NONE -> {
@@ -600,34 +600,13 @@ class BTService: Service() {
                 TASK_LOGGING -> {
                     //Make sure we enable be using cruise control PID
                     UDS22Logger.didEnable = DIDs.getDID(0x203c)
-                    UDS22Logger.didList = byteArrayOf(8, 9, 10, 11, 12, 13, 14, 15)
-
-                    val bleHeader = BLEHeader()
-                    bleHeader.cmdSize = 1
-                    bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_ADD or BLE_COMMAND_FLAG_PER_CLEAR
-
-                    var buff: ByteArray = byteArrayOf(0x22.toByte())
-                    for(i in 0 until 8) {
-                        val did: DIDStruct = DIDList[i]
-                        bleHeader.cmdSize += 2
-                        buff += ((did.address and 0xFF00)shr 8).toByte()
-                        buff += (did.address and 0xFF).toByte()
-                    }
-                    //buff = bleHeader.toByteArray() + buff
-                    //mWriteQueue.add(buff)
-
-                    bleHeader.cmdSize = 1
-                    bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_ADD or BLE_COMMAND_FLAG_PER_ENABLE
-
-                    buff = byteArrayOf(0x22.toByte())
-                    for(i in 8 until 16) {
-                        val did: DIDStruct = DIDList[i]
-                        bleHeader.cmdSize += 2
-                        buff += ((did.address and 0xFF00)shr 8).toByte()
-                        buff += (did.address and 0xFF).toByte()
-                    }
-                    buff = bleHeader.toByteArray() + buff
-                    mWriteQueue.add(buff)
+                    UDS22Logger.didList = byteArrayOf(0, 1, 2, 3, 4, 5, 6, 7,
+                                                        8, 9, 10, 11, 12, 13, 14, 15,
+                                                        16, 17, 18, 19, 20, 21, 22, 23,
+                                                        24, 25, 26, 27, 28, 29, 30, 31)
+                    val frames = UDS22Logger.frameCount()
+                    for(i in 0 until frames)
+                        mWriteQueue.add(UDS22Logger.buildFrame(i))
                 }
                 TASK_RD_VIN -> {
                     val bleHeader = BLEHeader()

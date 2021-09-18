@@ -14,11 +14,19 @@ import androidx.navigation.fragment.findNavController
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat.startForegroundService
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProviders
+
+import android.R.attr.name
+import androidx.fragment.app.viewModels
+
+
+class FlashingViewModel : ViewModel() {
+    var mConversationArrayAdapter: ArrayAdapter<String>? = null
+    var mConnectedDeviceName: String? = null
+}
 
 class FlashingFragment : Fragment() {
-    private var mConversationArrayAdapter: ArrayAdapter<String>? = null
-    private var mConnectedDeviceName: String? = null
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -30,10 +38,11 @@ class FlashingFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if(mConversationArrayAdapter == null)
-            mConversationArrayAdapter = ArrayAdapter(requireActivity(), R.layout.message)
+        val mViewModel: FlashingViewModel by viewModels()
+        if(mViewModel.mConversationArrayAdapter == null)
+            mViewModel.mConversationArrayAdapter = ArrayAdapter(requireActivity(), R.layout.message)
+        view.findViewById<ListView>(R.id.bt_message).adapter = mViewModel.mConversationArrayAdapter
 
-        view.findViewById<ListView>(R.id.bt_message).adapter = mConversationArrayAdapter
 
         view.findViewById<Button>(R.id.button_back2).setOnClickListener {
             findNavController().navigate(R.id.action_FlashingFragment_to_FirstFragment)
@@ -97,7 +106,8 @@ class FlashingFragment : Fragment() {
                     when (intent.getIntExtra("newState", -1)) {
                         STATE_CONNECTED -> {
                             val cDevice = intent.getStringExtra("cDevice")
-                            mConnectedDeviceName = cDevice
+                            val mViewModel: FlashingViewModel by viewModels()
+                            mViewModel.mConnectedDeviceName = cDevice
                         }
                     }
                 }
@@ -108,7 +118,8 @@ class FlashingFragment : Fragment() {
                     if(writeBuff != null) {
                         val writeString = String(writeBuff)
 
-                        mConversationArrayAdapter?.add("Me:  $writeString")
+                        val mViewModel: FlashingViewModel by viewModels()
+                        mViewModel.mConversationArrayAdapter?.add("Me:  $writeString")
                         val btMessage = view?.findViewById<ListView>(R.id.bt_message)!!
                         btMessage.setSelection(btMessage.adapter.count - 1);
                     }
@@ -118,7 +129,8 @@ class FlashingFragment : Fragment() {
 
                     // construct a string from the valid bytes in the buffer
                     if(readBuff != null) {
-                        mConversationArrayAdapter?.add(mConnectedDeviceName.toString() + ":  $readBuff")
+                        val mViewModel: FlashingViewModel by viewModels()
+                        mViewModel.mConversationArrayAdapter?.add(mViewModel.mConnectedDeviceName.toString() + ":  $readBuff")
 
                         val btMessage = view?.findViewById<ListView>(R.id.bt_message)!!
                         btMessage.setSelection(btMessage.adapter.count - 1);
@@ -129,7 +141,8 @@ class FlashingFragment : Fragment() {
 
                     // construct a string from the valid bytes in the buffer
                     if(readBuff != null) {
-                        mConversationArrayAdapter?.add(mConnectedDeviceName.toString() + ":  $readBuff")
+                        val mViewModel: FlashingViewModel by viewModels()
+                        mViewModel.mConversationArrayAdapter?.add(mViewModel.mConnectedDeviceName.toString() + ":  $readBuff")
 
                         val btMessage = view?.findViewById<ListView>(R.id.bt_message)!!
                         btMessage.setSelection(btMessage.adapter.count - 1);

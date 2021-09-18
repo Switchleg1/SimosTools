@@ -1,5 +1,7 @@
 package com.app.vwflashtools
 
+import android.util.Log
+
 //Equation list
 //  0: none
 //  1: ( 0.375 * X + -48.0 ) / 1
@@ -12,35 +14,48 @@ package com.app.vwflashtools
 //  8: ( 1.0 * X + 0.0 ) / 10.0
 //  9: ( 1.0 * X + 0.0 ) / 100.0
 // 10: ( 1.0 * X + 0.0 ) / 1000.0
+// 11: ( 0.03125 * X + 0.0 ) / 1
+// 12: ( 0.08291752498664835 * X + 0.0 ) / 1
 
-data class DIDStruct(val address: Int, val length: Int, val equation: Int, val name: String, val unit: String, var value: Float)
+data class DIDStruct(val address: Int, val length: Int, val equation: Int, var value: Float, val min: Float, val max: Float, val warnMin: Float, val warnMax: Float, val format: String, val name: String, val unit: String)
 
 val DIDList: List<DIDStruct> = listOf(
-    DIDStruct(0x1001, 1, 7, "IAT", "°C", 0f),
-    DIDStruct(0x1040, 2, 7, "Turbo Speed", "rpm", 0f),
-    DIDStruct(0x13f2, 1, 1, "Retard cylinder 1", "°", 0f),
-    DIDStruct(0x13f3, 1, 1, "Retard cylinder 2", "°", 0f),
-    DIDStruct(0x13f4, 1, 1, "Retard cylinder 3", "°", 0f),
-    DIDStruct(0x13f5, 1, 1, "Retard cylinder 4", "°", 0f),
-    DIDStruct(0x15d3, 2, 5, "Speed", "km/hr", 0f),
-    DIDStruct(0x2025, 2, 10, "LFP Actual", "bar", 0f),
-    DIDStruct(0x2027, 2, 8, "HFP Actual", "bar", 0f),
-    DIDStruct(0x203c, 2, 0, "Cruise control status", "", 0f),
-    DIDStruct(0x203f, 2, 8, "Torque limit", "Nm", 0f),
-    DIDStruct(0x206d, 2, 9, "Throttle", "%", 0f),
-    DIDStruct(0x293b, 2, 10, "HFP Command", "bar", 0f),
-    DIDStruct(0x295c, 1, 0, "Flaps Actual", "", 0f),
-    DIDStruct(0x295d, 1, 0, "Flaps Command", "", 0f),
-    DIDStruct(0x2932, 2, 8, "LFP Command", "bar", 0f),
-    DIDStruct(0x39a9, 2, 9, "Ignition angle", "°", 0f),
-    DIDStruct(0x39c0, 2, 10, "MAP","bar", 0f),
-    DIDStruct(0x39c2, 2, 10, "PUT","bar", 0f),
-    DIDStruct(0x3d97, 2, 0, "O2","l", 0f),
-    DIDStruct(0x3e0a, 2, 9, "Coolant temp","°C", 0f),
-    DIDStruct(0xf406, 1, 3, "STFT","%", 0f),
-    DIDStruct(0xf456, 1, 3, "LTFT","%", 0f),
-    DIDStruct(0xf40C, 2, 6, "RPM","rpm", 0f),
-    DIDStruct(0x202f, 2, 2, "Oil temp", "°C", 0f),
+    //P1
+    DIDStruct(0x15d3, 2, 5, 0f, 0f, 220f, -20f, 200f,"%03.2f","Speed", "km/hr"),
+    DIDStruct(0xf40C, 2, 6, 0f, 0f, 7000f, -1f, 6000f,"%04.2f","RPM","rpm"),
+    DIDStruct(0x1040, 2, 4, 0f, 0f, 190000f, 0f, 185000f,"%06.2f","Turbo Speed", "rpm"),
+    DIDStruct(0x39c0, 2, 10, 0f, 0f, 3f, 0f, 2.6f,"%02.3f","MAP Actual","bar"),
+    DIDStruct(0x39c2, 2, 10, 0f, 0f, 3f, 0f, 2.6f,"%02.3f","PUT Actual","bar"),
+    DIDStruct(0x3d97, 2, 9, 0f, 0f, 2f, 0.7f, 4f,"%01.3f","Lambda SAE","l"),
+    DIDStruct(0x39a9, 2, 9, 0f, -10f, 40f, -6f, 50f,"%03.2f","Ignition angle", "°"),
+    DIDStruct(0x206d, 2, 9, 0f, 0f, 100f, -1f, 101f,"%03.2f","Throttle", "%"),
+    //P2
+    DIDStruct(0x13f2, 1, 1, 0f, -10f, 0f, -4f, 1f,"%02.2f","Retard cylinder 1", "°"),
+    DIDStruct(0x13f3, 1, 1, 0f, -10f, 0f, -4f, 1f,"%02.2f","Retard cylinder 2", "°"),
+    DIDStruct(0x13f4, 1, 1, 0f, -10f, 0f, -4f, 1f,"%02.2f","Retard cylinder 3", "°"),
+    DIDStruct(0x13f5, 1, 1, 0f, -10f, 0f, -4f, 1f,"%02.2f","Retard cylinder 4", "°"),
+    DIDStruct(0x2025, 2, 10, 0f, 0f, 15f, 6f, 15f,"%03.2f","LFP Actual", "bar"),
+    DIDStruct(0x2027, 2, 8, 0f, 0f, 250f, 10f, 250f,"%03.2f","HFP Actual", "bar"),
+    DIDStruct(0xf406, 1, 3, 0f,-25f, 25f, -20f, 20f,"%02.2f","STFT","%"),
+    DIDStruct(0x1001, 1, 7, 0f, -40f, 55f, -35f, 50f,"%03.2f","IAT", "°C"),
+    //P3
+    DIDStruct(0x203c, 2, 0, 0f, 0f, 2f, -1f, 3f,"%01.0f","Cruise control status", ""),
+    DIDStruct(0x293b, 2, 10, 0f, 0f, 250f, 10f, 250f,"%03.2f","HFP Command", "bar"),
+    DIDStruct(0x295c, 1, 0, 0f, 0f, 1f, -1f, 2f,"%01.0f","Flaps Actual", ""),
+    DIDStruct(0x295d, 1, 0, 0f, 0f, 1f, -1f, 2f,"%01.0f","Flaps Command", ""),
+    DIDStruct(0x2932, 2, 8, 0f, 0f, 5f, 6f, 15f,"%03.2f","LFP Command", "bar"),
+    DIDStruct(0x3e0a, 2, 9, 0f,-50f, 130f, -50f, 130f,"%03.2f","Coolant temp","°C"),
+    DIDStruct(0xf456, 1, 3, 0f,-25f, 25f, -20f, 20f,"%02.2f","LTFT","%"),
+    DIDStruct(0x202f, 2, 2, 0f,-50f, 130f, 0f, 112f,"%03.2f","Oil temp", "°C"),
+
+    DIDStruct(0x15ac, 2, 11, 0f,-50f, 130f, 0f, 500f,"%03.2f","Converter torque", "Nm"),
+    DIDStruct(0x13ca, 2, 12, 0f,-50f, 130f, 0f, 500f,"%07.2f","Ambient pressure (measured or adapted)", "hPa"),
+    DIDStruct(0x1004, 2, 5, 0f,-50f, 130f, 0f, 500f,"%07.2f","Ambient air temperature", "°C"),
+    DIDStruct(0x2019, 2, 8, 0f,-50f, 50f, -50f, 50f,"%03.2f","Exhaust commanded angle", "°"),
+    DIDStruct(0x201a, 2, 8, 0f,-50f, 50f, -50f, 50f,"%03.2f","Exhaust actual angle", "°"),
+    DIDStruct(0x201d, 2, 8, 0f,-50f, 50f, -50f, 50f,"%03.2f","Intake commanded angle", "°"),
+    DIDStruct(0x201e, 2, 8, 0f,-50f, 50f, -50f, 50f,"%03.2f","Intake actual angle", "°"),
+    DIDStruct(0x4380, 2, 8, 0f,0f, 500f, -10f, 500f,"%03.2f","Driver desired torque", "Nm"),
 )
 
 object DIDs {
@@ -53,44 +68,62 @@ object DIDs {
         return null
     }
 
-    fun getValue(did: DIDStruct, data: Float): Float {
+    fun setValue(did: DIDStruct?, data: Int): Float {
+        if(did == null)
+            return 0f
+
+        Log.i("DID", data.toString())
+
         when(did.equation) {
             0 -> {
-                return data
+                did.value = data.toFloat()
             }
             1 -> {
-                return 0.375f * data - 48.0f
+                did.value = 0.375f * data.toFloat() - 48.0f
             }
             2 -> {
-                return 0.375f * data - 48.0f
+                did.value = 0.375f * data.toFloat() - 48.0f
             }
             3 -> {
-                return data / 1.28f - 100.0f
+                did.value = data.toFloat() / 1.28f - 100.0f
             }
             4 -> {
-                return 6.1035f * data
+                did.value = 6.103515624994278f * data.toFloat()
             }
             5 -> {
-                return 0.0078125f * data
+                did.value = 0.0078125f * data.toFloat()
             }
             6 -> {
-                return data / 4.0f
+                did.value = data.toFloat() / 4.0f
             }
             7 -> {
-                return 0.75f * data - 48.0f
+                did.value = 0.75f * data.toFloat() - 48.0f
             }
             8 -> {
-                return data / 10.0f
+                did.value = data.toFloat() / 10.0f
             }
             9 -> {
-                return data / 100.0f
+                did.value = data.toFloat() / 100.0f
             }
             10 -> {
-                return data / 1000.0f
+                did.value = data.toFloat() / 1000.0f
+            }
+            11 -> {
+                did.value = 0.03125f * data.toFloat()
+            }
+            12 -> {
+                did.value = 0.08291752498664835f * data.toFloat()
             }
         }
 
-        return data
+        return did.value
+    }
+
+    fun getValue(did: DIDStruct?): Float {
+        if (did == null)
+            return 0f
+
+        return did.value
     }
 }
 
@@ -98,6 +131,54 @@ object UDS22Logger {
 
     var didList: ByteArray? = null
     var didEnable: DIDStruct? = null
+
+    fun frameCount(): Int {
+        return 8
+    }
+
+    fun buildFrame(index: Int): ByteArray? {
+        val bleHeader = BLEHeader()
+        bleHeader.cmdSize = 1
+        if(index == 0) {
+            bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_ADD or BLE_COMMAND_FLAG_PER_CLEAR
+        } else if(index == frameCount()-1) {
+            bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_ADD or BLE_COMMAND_FLAG_PER_ENABLE
+        } else {
+            bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_ADD
+        }
+
+        var buff: ByteArray = byteArrayOf(0x22.toByte())
+        if(index % 2 == 0) {
+            //Write P1 PIDS
+            for (i in 0 until 8) {
+                val did: DIDStruct = DIDList[i]
+                bleHeader.cmdSize += 2
+                buff += ((did.address and 0xFF00) shr 8).toByte()
+                buff += (did.address and 0xFF).toByte()
+            }
+        } else {
+            //Write P2 PIDS
+            var startIndex = 8 + ((index % 4) / 2 * 4)
+            var endIndex = startIndex + 4
+            for (i in startIndex until endIndex) {
+                val did: DIDStruct = DIDList[i]
+                bleHeader.cmdSize += 2
+                buff += ((did.address and 0xFF00) shr 8).toByte()
+                buff += (did.address and 0xFF).toByte()
+            }
+            //Write P3 PIDS
+            startIndex = 16 + ((index % 8) / 2 * 4)
+            endIndex = startIndex + 4
+            for (i in startIndex until endIndex) {
+                val did: DIDStruct = DIDList[i]
+                bleHeader.cmdSize += 2
+                buff += ((did.address and 0xFF00) shr 8).toByte()
+                buff += (did.address and 0xFF).toByte()
+            }
+        }
+
+        return bleHeader.toByteArray() + buff
+    }
 
     fun processFrame(buff: ByteArray?): Int {
         // if the buffer is null abort
@@ -126,16 +207,18 @@ object UDS22Logger {
         // process the data in the buffer
         var i = 1
         while(i < bleHeader.cmdSize-3) {
-            val did: DIDStruct = DIDs.getDID(((bData[i] and 0xFF) shl 8) + (bData[i+1] and 0xFF)) ?: return UDS_ERROR_UNKNOWN
+            val did: DIDStruct = DIDs.getDID(((bData[i++] and 0xFF) shl 8) + (bData[i++] and 0xFF)) ?: return UDS_ERROR_UNKNOWN
             if(did.length == 1) {
-                did.value = (bData[i+2] and 0xFF).toFloat()
-                i += 3
+                DIDs.setValue(did, (bData[i++] and 0xFF))
             } else {
-                did.value = ((bData[i+2] and 0xFF) shl 8 + (bData[i+3] and 0xFF)).toFloat()
-                i += 4
+                DIDs.setValue(did, ((bData[i++] and 0xFF) shl 8) + (bData[i++] and 0xFF))
             }
         }
 
         return UDS_OK
+    }
+
+    fun readConfig() {
+
     }
 }

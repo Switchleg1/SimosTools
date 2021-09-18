@@ -16,26 +16,30 @@ import android.os.*
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModel
 
+class MainViewModel : ViewModel() {
+    var mState: Int = STATE_NONE
+    var mTask: Int = TASK_NONE
+    var mDeviceName: String? = ""
+    var mConnectionError: String? = ""
+}
 
 class MainActivity : AppCompatActivity() {
     private val TAG = "MainActivity"
-    private var mState: Int = STATE_NONE
-    private var mTask: Int = TASK_NONE
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
-
         getPermissions()
 
         val serviceIntent = Intent(this, BTService::class.java)
         serviceIntent.action = BT_START_SERVICE.toString()
         ContextCompat.startForegroundService(this, serviceIntent)
-
 
         /*// Send test
         UDS22Logger.didEnable = DIDs.getDID(0x203c)
@@ -63,7 +67,8 @@ class MainActivity : AppCompatActivity() {
 
         //Receive test
         bleHeader.cmdSize = 31
-        buff = bleHeader.toByteArray() + byteArrayOf(0x62, 0x20, 0x27, 0x0F, 0x0F,
+        buff = bleHeader.toByteArray() + byteArrayOf(0x62,
+                                                        0x20, 0x27, 0x0F, 0x0F,
                                                         0x20, 0x3c, 0x0F, 0x0F,
                                                         0x20, 0x3f, 0x0F, 0x0F,
                                                         0x20, 0x6d, 0x0F, 0x0F,
@@ -81,23 +86,31 @@ class MainActivity : AppCompatActivity() {
         val result = UDS22Logger.processFrame(buff)
         Log.i(TAG, "result: $result")
 
+        sData = "Processed:"
+        for(i in 0 until 25) {
+            sData += DIDList[i].name + ": " + DIDList[i].format.format(DIDList[i].value) + " " + DIDList[i].unit + "\n"
+        }
+        Log.i(TAG, sData)
+
         val intentMessage = Intent(MESSAGE_READ_LOG.toString())
         intentMessage.putExtra("readCount", 100)
         intentMessage.putExtra("readResult", result)
         sendBroadcast(intentMessage)*/
+
+        //writeDefaultConfig("logging.cfg", applicationContext)
+        //ConfigFile.read("logging.cfg", applicationContext)
+        //UDS22Logger.readConfig()
     }
 
     override fun onResume() {
         super.onResume()
 
+        setStatus()
+
         val filter = IntentFilter()
         filter.addAction(MESSAGE_STATE_CHANGE.toString())
         filter.addAction(MESSAGE_TASK_CHANGE.toString())
         registerReceiver(mBroadcastReceiver, filter)
-
-        val serviceIntent = Intent(baseContext, BTService::class.java)
-        serviceIntent.action = BT_DO_SEND_STATUS.toString()
-        startForegroundService(serviceIntent)
     }
 
     override fun onPause() {
@@ -115,7 +128,8 @@ class MainActivity : AppCompatActivity() {
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         val item = menu.findItem(R.id.action_connect)
 
-        if (mState > STATE_NONE) {
+        val mViewModel: MainViewModel by viewModels()
+        if (mViewModel.mState > STATE_NONE) {
             item.title = getString(R.string.action_disconnect)
         } else {
             item.title = getString(R.string.action_connect)
@@ -127,9 +141,10 @@ class MainActivity : AppCompatActivity() {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
+        val mViewModel: MainViewModel by viewModels()
         return when (item.itemId) {
             R.id.action_connect -> {
-                when(mState) {
+                when(mViewModel.mState) {
                     STATE_ERROR -> {
                         doConnect()
                     }
@@ -171,37 +186,39 @@ class MainActivity : AppCompatActivity() {
                 MESSAGE_TASK_CHANGE.toString() -> {
                     when (intent.getIntExtra("newTask", -1)) {
                         TASK_RD_VIN -> {
-                            setStatus("Getting VIN")
-                            mTask= TASK_RD_VIN
+                            val mViewModel: MainViewModel by viewModels()
+                            mViewModel.mTask= TASK_RD_VIN
                         }
                         TASK_LOGGING -> {
-                            setStatus("Logging")
-                            mTask = TASK_LOGGING
+                            val mViewModel: MainViewModel by viewModels()
+                            mViewModel.mTask = TASK_LOGGING
                         }
                     }
+                    setStatus()
                 }
                 MESSAGE_STATE_CHANGE.toString() -> {
                     when (intent.getIntExtra("newState", -1)) {
                         STATE_CONNECTED -> {
-                            val cDevice = intent.getStringExtra("cDevice")
-                            setStatus(getString(R.string.title_connected_to, cDevice))
-                            mState = STATE_CONNECTED
+                            val mViewModel: MainViewModel by viewModels()
+                            mViewModel.mDeviceName = intent.getStringExtra("cDevice")
+                            mViewModel.mState = STATE_CONNECTED
                         }
                         STATE_CONNECTING -> {
-                            setStatus(getString(R.string.title_connecting))
-                            mState = STATE_CONNECTING
+                            val mViewModel: MainViewModel by viewModels()
+                            mViewModel.mState = STATE_CONNECTING
                         }
                         STATE_NONE -> {
-                            setStatus(getString(R.string.title_not_connected))
-                            mState = STATE_NONE
+                            val mViewModel: MainViewModel by viewModels()
+                            mViewModel.mState = STATE_NONE
                         }
                         STATE_ERROR -> {
-                            val newError = intent.getStringExtra("newError")
-                            setStatus(getString(R.string.title_error, newError))
-                            mState = STATE_ERROR
+                            val mViewModel: MainViewModel by viewModels()
+                            mViewModel.mConnectionError = intent.getStringExtra("newError")
+                            mViewModel.mState = STATE_ERROR
                         }
                     }
                     invalidateOptionsMenu()
+                    setStatus()
                 }
             }
         }
@@ -249,9 +266,34 @@ class MainActivity : AppCompatActivity() {
         startForegroundService(serviceIntent)
     }
 
-    private fun setStatus(string: String)
-    {
-        supportActionBar?.title = getString(R.string.app_name) + " - " + string
+    private fun setStatus() {
+        var newString = ""
+        val mViewModel: MainViewModel by viewModels()
+        when(mViewModel.mTask) {
+            TASK_NONE -> {
+                when(mViewModel.mState) {
+                    STATE_CONNECTED -> {
+                        newString = getString(R.string.title_connected_to, mViewModel.mDeviceName)
+                    }
+                    STATE_CONNECTING -> {
+                        newString = getString(R.string.title_connecting)
+                    }
+                    STATE_NONE -> {
+                        newString = getString(R.string.title_not_connected)
+                    }
+                    STATE_ERROR -> {
+                        newString = getString(R.string.title_error, mViewModel.mConnectionError)
+                    }
+                }
+            }
+            TASK_LOGGING -> {
+                newString = "Logging"
+            }
+            TASK_RD_VIN -> {
+                newString = "Getting VIN"
+            }
+        }
+        supportActionBar?.title = getString(R.string.app_name) + " - " + newString
     }
 
     private fun getPermissions() {
