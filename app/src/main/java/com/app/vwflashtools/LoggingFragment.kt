@@ -153,85 +153,97 @@ class LoggingFragment : Fragment() {
                     //val readTime = intent.getIntExtra("readTime", 0)
                     val readResult = intent.getIntExtra("readResult", UDS_ERROR_NULL)
 
-                    mPackCount?.text = readResult.toString()
-
-                    if(readResult != UDS_OK)
+                    if(readResult != UDS_OK) {
+                        mPackCount?.text = readResult.toString()
                         return
+                    }
 
                     UDS22Logger.didList?.let { dList ->
                         if(dList.count() == 0)
                             return
 
-                        if(dList.count() >= 1) {
-                            mPIDText1?.text = getString(R.string.textPID, DIDList[dList[0].toInt()].name, DIDList[dList[0].toInt()].format.format(DIDList[dList[0].toInt()].value), DIDList[dList[0].toInt()].unit)
-                            mPIDProg1?.progress = DIDList[dList[0].toInt()].value.toInt()
-                        }
-                        if(dList.count() >= 2) {
-                            mPIDText2?.text = getString(R.string.textPID, DIDList[dList[1].toInt()].name, DIDList[dList[1].toInt()].format.format(DIDList[dList[1].toInt()].value), DIDList[dList[1].toInt()].unit)
-                            mPIDProg2?.progress = DIDList[dList[1].toInt()].value.toInt()
-                        }
-                        if(dList.count() >= 3) {
-                            mPIDText3?.text = getString(R.string.textPID, DIDList[dList[2].toInt()].name, DIDList[dList[2].toInt()].format.format(DIDList[dList[2].toInt()].value), DIDList[dList[2].toInt()].unit)
-                            mPIDProg3?.progress = DIDList[dList[2].toInt()].value.toInt()
-                        }
-                        if(dList.count() >= 4) {
-                            mPIDText4?.text = getString(R.string.textPID, DIDList[dList[3].toInt()].name, DIDList[dList[3].toInt()].format.format(DIDList[dList[3].toInt()].value), DIDList[dList[3].toInt()].unit)
-                            mPIDProg4?.progress = DIDList[dList[3].toInt()].value.toInt()
-                        }
-                        if(dList.count() >= 5) {
-                            mPIDText5?.text = getString(R.string.textPID, DIDList[dList[4].toInt()].name, DIDList[dList[4].toInt()].format.format(DIDList[dList[4].toInt()].value), DIDList[dList[4].toInt()].unit)
-                            mPIDProg5?.progress = DIDList[dList[4].toInt()].value.toInt()
-                        }
-                        if(dList.count() >= 6) {
-                            mPIDText6?.text = getString(R.string.textPID, DIDList[dList[5].toInt()].name, DIDList[dList[5].toInt()].format.format(DIDList[dList[5].toInt()].value), DIDList[dList[5].toInt()].unit)
-                            mPIDProg6?.progress = DIDList[dList[5].toInt()].value.toInt()
-                        }
-                        if(dList.count() >= 7) {
-                            mPIDText7?.text = getString(R.string.textPID, DIDList[dList[6].toInt()].name, DIDList[dList[6].toInt()].format.format(DIDList[dList[6].toInt()].value), DIDList[dList[6].toInt()].unit)
-                            mPIDProg7?.progress = DIDList[dList[6].toInt()].value.toInt()
-                        }
-                        if(dList.count() >= 8) {
-                            mPIDText8?.text = getString(R.string.textPID, DIDList[dList[7].toInt()].name, DIDList[dList[7].toInt()].format.format(DIDList[dList[7].toInt()].value), DIDList[dList[7].toInt()].unit)
-                            mPIDProg8?.progress = DIDList[dList[7].toInt()].value.toInt()
+                        //Update UI every 4th tick
+                        if(readCount % 4 == 0) {
+                            if (dList.count() >= 1) {
+                                mPIDText1?.text = getString(R.string.textPID, DIDList[dList[0].toInt()].name, DIDList[dList[0].toInt()].format.format(DIDList[dList[0].toInt()].value), DIDList[dList[0].toInt()].unit)
+                                mPIDProg1?.progress = DIDList[dList[0].toInt()].value.toInt()
+                            }
+                            if (dList.count() >= 2) {
+                                mPIDText2?.text = getString(R.string.textPID, DIDList[dList[1].toInt()].name, DIDList[dList[1].toInt()].format.format(DIDList[dList[1].toInt()].value), DIDList[dList[1].toInt()].unit)
+                                mPIDProg2?.progress = DIDList[dList[1].toInt()].value.toInt()
+                            }
+                            if (dList.count() >= 3) {
+                                mPIDText3?.text = getString(R.string.textPID, DIDList[dList[2].toInt()].name, DIDList[dList[2].toInt()].format.format(DIDList[dList[2].toInt()].value), DIDList[dList[2].toInt()].unit)
+                                mPIDProg3?.progress = DIDList[dList[2].toInt()].value.toInt()
+                            }
+                            if (dList.count() >= 4) {
+                                mPIDText4?.text = getString(R.string.textPID, DIDList[dList[3].toInt()].name, DIDList[dList[3].toInt()].format.format(DIDList[dList[3].toInt()].value), DIDList[dList[3].toInt()].unit)
+                                mPIDProg4?.progress = DIDList[dList[3].toInt()].value.toInt()
+                            }
+                            if (dList.count() >= 5) {
+                                mPIDText5?.text = getString(R.string.textPID, DIDList[dList[4].toInt()].name, DIDList[dList[4].toInt()].format.format(DIDList[dList[4].toInt()].value), DIDList[dList[4].toInt()].unit)
+                                mPIDProg5?.progress = DIDList[dList[4].toInt()].value.toInt()
+                            }
+                            if (dList.count() >= 6) {
+                                mPIDText6?.text = getString(R.string.textPID, DIDList[dList[5].toInt()].name, DIDList[dList[5].toInt()].format.format(DIDList[dList[5].toInt()].value), DIDList[dList[5].toInt()].unit)
+                                mPIDProg6?.progress = DIDList[dList[5].toInt()].value.toInt()
+                            }
+                            if (dList.count() >= 7) {
+                                mPIDText7?.text = getString(R.string.textPID, DIDList[dList[6].toInt()].name, DIDList[dList[6].toInt()].format.format(DIDList[dList[6].toInt()].value), DIDList[dList[6].toInt()].unit)
+                                mPIDProg7?.progress = DIDList[dList[6].toInt()].value.toInt()
+                            }
+                            if (dList.count() >= 8) {
+                                mPIDText8?.text = getString(R.string.textPID, DIDList[dList[7].toInt()].name, DIDList[dList[7].toInt()].format.format(DIDList[dList[7].toInt()].value), DIDList[dList[7].toInt()].unit)
+                                mPIDProg8?.progress = DIDList[dList[7].toInt()].value.toInt()
+                            }
                         }
 
                         //Write packet count
                         mPackCount?.text = readCount.toString()
 
-                        UDS22Logger.didEnable?.let { dEnable ->
-                            mPackCount?.text = dEnable.value.toString() + " " + mPackCount?.text
-                            if(dEnable.value != 0.0f) {
-                                //If we were not enabled before we must open a log to start writing
-                                if(!mLastEnabled) {
-                                    val currentDateTime = LocalDateTime.now()
-                                    LogFile.create("vwflashtools-${currentDateTime.format(DateTimeFormatter.ofPattern("yyyy_MM_dd-HH_mm_ss"))}.csv", context)
-                                    var strItems: String? = "Time"
-                                    for(i in 0 until dList.count()) {
-                                        strItems += ",${DIDList[dList[i].toInt()].name}"
+                        //Update Log every 2nd tick
+                        if(readCount % 2 == 0) {
+                            UDS22Logger.didEnable?.let { dEnable ->
+                                mPackCount?.text = dEnable.value.toString() + " " + mPackCount?.text
+                                if (dEnable.value != 0.0f) {
+                                    //If we were not enabled before we must open a log to start writing
+                                    if (!mLastEnabled) {
+                                        val currentDateTime = LocalDateTime.now()
+                                        LogFile.create(
+                                            "vwflashtools-${
+                                                currentDateTime.format(
+                                                    DateTimeFormatter.ofPattern("yyyy_MM_dd-HH_mm_ss")
+                                                )
+                                            }.csv", context
+                                        )
+                                        var strItems: String? = "Time"
+                                        for (i in 0 until dList.count()) {
+                                            strItems += ",${DIDList[dList[i].toInt()].name}"
+                                        }
+                                        LogFile.add(strItems)
+                                    }
+                                    mLastEnabled = true
+
+                                    //Write new values to log
+                                    val bleHeader = BLEHeader()
+                                    bleHeader.fromByteArray(readBuff)
+                                    var strItems: String? = (bleHeader.tickCount / 1000).toString()
+                                    for (i in 0 until dList.count()) {
+                                        strItems += ",${DIDList[dList[i].toInt()].value}"
                                     }
                                     LogFile.add(strItems)
-                                }
-                                mLastEnabled = true
 
-                                //Write new values to log
-                                val bleHeader = BLEHeader()
-                                bleHeader.fromByteArray(readBuff)
-                                var strItems: String? = bleHeader.tickCount.toString()
-                                for(i in 0 until dList.count()) {
-                                    strItems += ",${DIDList[dList[i].toInt()].value}"
-                                }
-                                LogFile.add(strItems)
+                                    //Highlight packet count in red since we are logging
+                                    mPackCount?.setTextColor(Color.RED)
+                                } else {
+                                    if (mLastEnabled) {
+                                        LogFile.close()
+                                    }
+                                    mLastEnabled = false
 
-                                //Highlight packet count in red since we are logging
-                                mPackCount?.setTextColor(Color.RED)
-                            } else {
-                                if(mLastEnabled) {
-                                    LogFile.close()
+                                    //Not logging set packet count to black
+                                    mPackCount?.setTextColor(Color.BLACK)
                                 }
-                                mLastEnabled = false
-
-                                //Not logging set packet count to black
-                                mPackCount?.setTextColor(Color.BLACK)
                             }
                         }
                     }
