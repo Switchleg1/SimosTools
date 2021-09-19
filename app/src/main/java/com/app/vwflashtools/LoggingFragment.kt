@@ -121,7 +121,7 @@ class LoggingFragment : Fragment() {
                 MESSAGE_READ_LOG.toString() -> {
                     val readBuff = intent.getByteArrayExtra("readBuffer") ?: return
                     val readCount = intent.getIntExtra("readCount", 0)
-                    //val readTime = intent.getIntExtra("readTime", 0)
+                    val readTime = intent.getIntExtra("readTime", 0)
                     val readResult = intent.getIntExtra("readResult", UDS_ERROR_NULL)
 
                     if(readResult != UDS_OK) {
@@ -135,6 +135,7 @@ class LoggingFragment : Fragment() {
 
                         //Set the UI values
                         for(i in 0..7) {
+                            mPIDText[i]?.text = getString(R.string.textPID, DIDList[i].name, DIDList[i].format.format(DIDList[i].value), DIDList[i].unit)
                             mPIDProgress[i]?.progress = (DIDList[i].value * mPIDMultiplier[i]).toInt()
                             if((DIDList[i].value > DIDList[i].warnMax) or (DIDList[i].value < DIDList[i].warnMin)) {
                                 mPIDProgress[i]?.progressTintList = ColorStateList.valueOf(Color.RED)
@@ -144,6 +145,7 @@ class LoggingFragment : Fragment() {
                             }
                         }
 
+                        //If any visible PIDS are in warning state set background color to warn
                         if(anyWarning) {
                             view?.setBackgroundColor(Color.rgb(127, 127, 255))
                         } else {
@@ -153,7 +155,8 @@ class LoggingFragment : Fragment() {
                         //Update Log every 2nd tick
                         if(readCount % 2 == 0) {
                             val dEnable = DIDList[DIDList.count()-1]
-                            mPackCount?.text = dEnable.value.toString() + " " + mPackCount?.text
+                            val fps = readCount / (System.currentTimeMillis()-readTime)
+                            mPackCount?.text = "${dEnable.value} $fps"
                             if (dEnable.value != 0.0f) {
                                 //If we were not enabled before we must open a log to start writing
                                 if (!mLastEnabled) {

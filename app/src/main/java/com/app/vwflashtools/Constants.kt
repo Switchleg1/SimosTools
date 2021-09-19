@@ -58,8 +58,8 @@ val REQUEST_WRITE_STORAGE = 3
 //Timers
 val SCAN_PERIOD = 10000L
 
-//Priority
-val THREAD_PRIORITY_CONNECTION = 3
+//Priority (max is 10)
+val THREAD_PRIORITY_CONNECTION = 6
 
 val CHANNEL_ID = "BTService"
 val CHANNEL_NAME = "BTService"
