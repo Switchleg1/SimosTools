@@ -209,7 +209,7 @@
         android:layout_marginEnd="8dp"
         android:max="7000"
         android:min="0"
-        android:progress="0"
+        android:progress="2000"
         android:scaleY="5"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

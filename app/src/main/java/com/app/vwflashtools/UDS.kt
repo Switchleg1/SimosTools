@@ -20,45 +20,56 @@ import android.util.Log
 // 14: X / 2.0 – 64.0
 // 15: ( 0.0009765625 * X + 0.0 ) / 1
 
-data class DIDStruct(val address: Int, val length: Int, val equation: Int, var value: Float, val min: Float, val max: Float, val warnMin: Float, val warnMax: Float, val format: String, val name: String, val unit: String)
+data class DIDStruct(val address: Int,
+                     val length: Int,
+                     val equation: Int,
+                     val signed: Boolean,
+                     val min: Float,
+                     val max: Float,
+                     val warnMin: Float,
+                     val warnMax: Float,
+                     var value: Float,
+                     val format: String,
+                     val name: String,
+                     val unit: String)
 
 val DIDList: List<DIDStruct> = listOf(
     //P1
-    DIDStruct(0x15d3, 2, 5, 0f, 0f, 220f, -20f, 200f,"%06.2f","Speed", "km/hr"),
-    DIDStruct(0xf40C, 2, 6, 0f, 0f, 7000f, -1f, 6000f,"%06.1f","RPM","rpm"),
-    DIDStruct(0x1040, 2, 4, 0f, 0f, 190000f, 0f, 185000f,"%08.1f","Turbo Speed", "rpm"),
-    DIDStruct(0x39c0, 2, 10, 0f, 0f, 3f, 0f, 2.6f,"%05.3f","MAP Actual","bar"),
-    DIDStruct(0x39c2, 2, 10, 0f, 0f, 3f, 0f, 2.6f,"%05.3f","PUT Actual","bar"),
-    DIDStruct(0x10c0, 2, 15, 0f, 0f, 2f, 0.7f, 4f,"%05.3f","Lambda SAE","l"),
-    DIDStruct(0xf40e, 1, 14, 0f, -10f, 40f, -6f, 50f,"%05.2f","Ignition angle", "°"),
-    DIDStruct(0x20ba, 2, 8, 0f, 0f, 100f, -1f, 101f,"%05.1f","Throttle", "%"),
+    DIDStruct(0x15d3, 2, 5, false, 0f, 220f, -20f, 200f, 0f, "%06.2f","Speed", "km/hr"),
+    DIDStruct(0xf40C, 2, 6, false, 0f, 7000f, -1f, 6000f,0f, "%06.1f","RPM","rpm"),
+    DIDStruct(0x1040, 2, 4, false, 0f, 190000f, 0f, 185000f,0f, "%08.1f","Turbo Speed", "rpm"),
+    DIDStruct(0x39c0, 2, 10, false, 0f, 3f, 0f, 2.6f,0f, "%05.3f","MAP Actual","bar"),
+    DIDStruct(0x39c2, 2, 10, false, 0f, 3f, 0f, 2.6f,0f, "%05.3f","PUT Actual","bar"),
+    DIDStruct(0x10c0, 2, 15, false, 0f,  2f, 0.7f, 4f,0f, "%05.3f","Lambda SAE","l"),
+    DIDStruct(0xf40e, 1, 14, false, -10f, 10f, -6f, 60f,0f, "%05.2f","Ignition angle", "°"),
+    DIDStruct(0x20ba, 2, 8, true, 0f, 100f, -1f, 101f,0f, "%05.1f","Throttle", "%"),
     //P2
-    DIDStruct(0x13f2, 1, 1, 0f, -10f, 0f, -4f, 1f,"%05.3f","Retard cylinder 1", "°"),
-    DIDStruct(0x13f3, 1, 1, 0f, -10f, 0f, -4f, 1f,"%05.3f","Retard cylinder 2", "°"),
-    DIDStruct(0x13f4, 1, 1, 0f, -10f, 0f, -4f, 1f,"%05.3f","Retard cylinder 3", "°"),
-    DIDStruct(0x13f5, 1, 1, 0f, -10f, 0f, -4f, 1f,"%05.3f","Retard cylinder 4", "°"),
-    DIDStruct(0x2025, 2, 10, 0f, 0f, 15f, 6f, 15f,"%03.2f","LFP Actual", "bar"),
-    DIDStruct(0x2027, 2, 8, 0f, 0f, 250f, 10f, 250f,"%03.2f","HFP Actual", "bar"),
-    DIDStruct(0xf406, 1, 3, 0f,-25f, 25f, -20f, 20f,"%02.2f","STFT","%"),
-    DIDStruct(0x1001, 1, 7, 0f, -40f, 55f, -35f, 50f,"%03.2f","IAT", "°C"),
+    DIDStruct(0x13f2, 1, 1, false, -10f, 0f, -4f, 1f,0f, "%05.3f","Retard cylinder 1", "°"),
+    DIDStruct(0x13f3, 1, 1, false, -10f, 0f, -4f, 1f,0f, "%05.3f","Retard cylinder 2", "°"),
+    DIDStruct(0x13f4, 1, 1, false, -10f, 0f, -4f, 1f,0f, "%05.3f","Retard cylinder 3", "°"),
+    DIDStruct(0x13f5, 1, 1, false, -10f, 0f, -4f, 1f,0f, "%05.3f","Retard cylinder 4", "°"),
+    DIDStruct(0x2025, 2, 10, false, 0f, 15f, 6f, 15f,0f, "%03.2f","LFP Actual", "bar"),
+    DIDStruct(0x2027, 2, 8, false, 0f, 250f, 10f, 250f,0f, "%03.2f","HFP Actual", "bar"),
+    DIDStruct(0xf406, 1, 3, false, -25f, 25f, -20f, 20f,0f, "%02.2f","STFT","%"),
+    DIDStruct(0x1001, 1, 7, false, -40f, 55f, -35f, 50f,0f, "%03.2f","IAT", "°C"),
     //P3
-    DIDStruct(0x203c, 2, 0, 0f, 0f, 2f, -1f, 3f,"%01.0f","Cruise control status", ""),
-    DIDStruct(0x293b, 2, 10, 0f, 0f, 250f, 10f, 250f,"%03.2f","HFP Command", "bar"),
-    DIDStruct(0x295c, 1, 0, 0f, 0f, 1f, -1f, 2f,"%01.0f","Flaps Actual", ""),
-    DIDStruct(0x295d, 1, 0, 0f, 0f, 1f, -1f, 2f,"%01.0f","Flaps Command", ""),
-    DIDStruct(0x2932, 2, 8, 0f, 0f, 5f, 6f, 15f,"%03.2f","LFP Command", "bar"),
-    DIDStruct(0x40e1, 2, 10, 0f,-50f, 130f, -50f, 130f,"%03.2f","Coolant temp","°C"),
-    DIDStruct(0xf456, 1, 3, 0f,-25f, 25f, -20f, 20f,"%02.2f","LTFT","%"),
-    DIDStruct(0x202f, 2, 2, 0f,-50f, 130f, 0f, 112f,"%03.2f","Oil temp", "°C"),
+    DIDStruct(0x203c, 2, 0, false, 0f, 2f, -1f, 3f,0f, "%01.0f","Cruise control status", ""),
+    DIDStruct(0x293b, 2, 8, false, 0f, 250f, 10f, 250f,0f, "%03.2f","HFP Command", "bar"),
+    DIDStruct(0x295c, 1, 0, false, 0f, 1f, -1f, 2f,0f, "%01.0f","Flaps Actual", ""),
+    DIDStruct(0x295d, 1, 0, false, 0f, 1f, -1f, 2f,0f, "%01.0f","Flaps Command", ""),
+    DIDStruct(0x2932, 2, 10, false, 0f, 5f, 6f, 15f,0f, "%03.2f","LFP Command", "bar"),
+    DIDStruct(0x40e1, 2, 10, false, -50f, 130f, -50f, 130f,0f, "%03.2f","Coolant temp","°C"),
+    DIDStruct(0xf456, 1, 3, false, -25f, 25f, -20f, 20f,0f, "%02.2f","LTFT","%"),
+    DIDStruct(0x202f, 2, 2, false, -50f, 130f, 0f, 112f,0f, "%03.2f","Oil temp", "°C"),
 
-    DIDStruct(0x15ac, 2, 11, 0f,-50f, 130f, 0f, 500f,"%03.2f","Converter torque", "Nm"),
-    DIDStruct(0x13ca, 2, 12, 0f,-50f, 130f, 0f, 500f,"%07.2f","Ambient pressure (measured or adapted)", "bar"),
-    DIDStruct(0x1004, 2, 5, 0f,-50f, 130f, 0f, 500f,"%07.2f","Ambient air temperature", "°C"),
-    DIDStruct(0x2019, 2, 8, 0f,-50f, 50f, -50f, 50f,"%03.2f","Exhaust commanded angle", "°"),
-    DIDStruct(0x201a, 2, 8, 0f,-50f, 50f, -50f, 50f,"%03.2f","Exhaust actual angle", "°"),
-    DIDStruct(0x201d, 2, 8, 0f,-50f, 50f, -50f, 50f,"%03.2f","Intake commanded angle", "°"),
-    DIDStruct(0x201e, 2, 8, 0f,-50f, 50f, -50f, 50f,"%03.2f","Intake actual angle", "°"),
-    DIDStruct(0x4380, 2, 8, 0f,0f, 500f, -10f, 500f,"%03.2f","Driver desired torque", "Nm"),
+    DIDStruct(0x15ac, 2, 11, true, -50f, 130f, 0f, 500f,0f, "%03.2f","Converter torque", "Nm"),
+    DIDStruct(0x13ca, 2, 12, false, -50f, 130f, 0f, 500f,0f, "%07.2f","Ambient pressure (measured or adapted)", "bar"),
+    DIDStruct(0x1004, 2, 5, true, -50f, 130f, 0f, 500f,0f, "%07.2f","Ambient air temperature", "°C"),
+    DIDStruct(0x2019, 2, 8, true, -50f, 50f, -50f, 50f,0f, "%03.2f","Exhaust commanded angle", "°"),
+    DIDStruct(0x201a, 2, 8, true, -50f, 50f, -50f, 50f,0f, "%03.2f","Exhaust actual angle", "°"),
+    DIDStruct(0x201d, 2, 8, true, -50f, 50f, -50f, 50f,0f, "%03.2f","Intake commanded angle", "°"),
+    DIDStruct(0x201e, 2, 8, true, -50f, 50f, -50f, 50f,0f, "%03.2f","Intake actual angle", "°"),
+    DIDStruct(0x4380, 2, 8, true, 0f, 500f, -10f, 500f,0f, "%03.2f","Driver desired torque", "Nm"),
 )
 
 object DIDs {
@@ -85,7 +96,7 @@ object DIDs {
                 did.value = 0.375f * data.toFloat() - 48.0f
             }
             2 -> {
-                did.value = 0.375f * data.toFloat() - 48.0f
+                did.value = (data.toFloat() -2731.4f) / 10.0f
             }
             3 -> {
                 did.value = data.toFloat() / 1.28f - 100.0f
@@ -151,12 +162,11 @@ object UDS22Logger {
     fun buildFrame(index: Int): ByteArray? {
         val bleHeader = BLEHeader()
         bleHeader.cmdSize = 1
+        bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_ADD
         if(index == 0) {
             bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_ADD or BLE_COMMAND_FLAG_PER_CLEAR
         } else if(index == frameCount()-1) {
             bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_ADD or BLE_COMMAND_FLAG_PER_ENABLE
-        } else {
-            bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_ADD
         }
 
         var buff: ByteArray = byteArrayOf(0x22.toByte())
@@ -221,9 +231,17 @@ object UDS22Logger {
         while(i < bleHeader.cmdSize-3) {
             val did: DIDStruct = DIDs.getDID(((bData[i++] and 0xFF) shl 8) + (bData[i++] and 0xFF)) ?: return UDS_ERROR_UNKNOWN
             if(did.length == 1) {
-                DIDs.setValue(did, (bData[i++] and 0xFF))
+                if(did.signed) {
+                    DIDs.setValue(did, (bData[i++] and 0xFF).toByte().toInt())
+                } else {
+                    DIDs.setValue(did, (bData[i++] and 0xFF))
+                }
             } else {
-                DIDs.setValue(did, ((bData[i++] and 0xFF) shl 8) + (bData[i++] and 0xFF))
+                if(did.signed) {
+                    DIDs.setValue(did, (((bData[i++] and 0xFF) shl 8) + (bData[i++] and 0xFF)).toShort().toInt())
+                } else {
+                    DIDs.setValue(did, ((bData[i++] and 0xFF) shl 8) + (bData[i++] and 0xFF))
+                }
             }
         }
 
