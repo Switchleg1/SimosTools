@@ -89,7 +89,6 @@ object ConfigFile {
                     val mAddress = pAddress.matcher(value)
                     if(mAddress.matches() and (value.length == 4)) {
                         DIDList[pidNumber].address = Integer.decode("0x$value")
-                        Log.i(TAG, DIDList[pidNumber].address.toHex())
                     }
                 }
                 "Length" -> {
