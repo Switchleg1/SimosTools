@@ -110,17 +110,17 @@ object ConfigFile {
 
     private fun writeDefaultConfig(filename: String?, context: Context?) {
         for(i in 0 until DIDList.count()) {
-            mProperties["PID$i.Address"] = DIDList[i].address.toShort().toHex()
-            mProperties["PID$i.Length"] = DIDList[i].length.toString()
-            mProperties["PID$i.Equation"] = DIDList[i].equation.toString()
-            mProperties["PID$i.Signed"] = DIDList[i].signed.toString()
-            mProperties["PID$i.Min"] = DIDList[i].min.toString()
-            mProperties["PID$i.Max"] = DIDList[i].max.toString()
-            mProperties["PID$i.WarnMin"] = DIDList[i].warnMin.toString()
-            mProperties["PID$i.WarnMax"] = DIDList[i].warnMax.toString()
-            mProperties["PID$i.Format"] = DIDList[i].format
-            mProperties["PID$i.Name"] = DIDList[i].name
-            mProperties["PID$i.Unit"] = DIDList[i].unit
+            mProperties["PID${i.toTwo()}.Address"] = DIDList[i].address.toShort().toHex()
+            mProperties["PID${i.toTwo()}.Length"] = DIDList[i].length.toString()
+            mProperties["PID${i.toTwo()}.Equation"] = DIDList[i].equation.toString()
+            mProperties["PID${i.toTwo()}.Signed"] = DIDList[i].signed.toString()
+            mProperties["PID${i.toTwo()}.Min"] = DIDList[i].min.toString()
+            mProperties["PID${i.toTwo()}.Max"] = DIDList[i].max.toString()
+            mProperties["PID${i.toTwo()}.WarnMin"] = DIDList[i].warnMin.toString()
+            mProperties["PID${i.toTwo()}.WarnMax"] = DIDList[i].warnMax.toString()
+            mProperties["PID${i.toTwo()}.Format"] = DIDList[i].format
+            mProperties["PID${i.toTwo()}.Name"] = DIDList[i].name
+            mProperties["PID${i.toTwo()}.Unit"] = DIDList[i].unit
         }
 
         write(filename, context)
