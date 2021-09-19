@@ -15,7 +15,10 @@ import android.util.Log
 //  9: ( 1.0 * X + 0.0 ) / 100.0
 // 10: ( 1.0 * X + 0.0 ) / 1000.0
 // 11: ( 0.03125 * X + 0.0 ) / 1
-// 12: ( 0.08291752498664835 * X + 0.0 ) / 1
+// 12: ( 0.08291752498664835 * X + 0.0 ) / 1000.0
+// 13: X * 100.0 / 255.0
+// 14: X / 2.0 – 64.0
+// 15: ( 0.0009765625 * X + 0.0 ) / 1
 
 data class DIDStruct(val address: Int, val length: Int, val equation: Int, var value: Float, val min: Float, val max: Float, val warnMin: Float, val warnMax: Float, val format: String, val name: String, val unit: String)
 
@@ -26,9 +29,9 @@ val DIDList: List<DIDStruct> = listOf(
     DIDStruct(0x1040, 2, 4, 0f, 0f, 190000f, 0f, 185000f,"%08.1f","Turbo Speed", "rpm"),
     DIDStruct(0x39c0, 2, 10, 0f, 0f, 3f, 0f, 2.6f,"%05.3f","MAP Actual","bar"),
     DIDStruct(0x39c2, 2, 10, 0f, 0f, 3f, 0f, 2.6f,"%05.3f","PUT Actual","bar"),
-    DIDStruct(0x3d97, 2, 9, 0f, 0f, 2f, 0.7f, 4f,"%05.3f","Lambda SAE","l"),
-    DIDStruct(0x39a9, 2, 9, 0f, -10f, 40f, -6f, 50f,"%05.2f","Ignition angle", "°"),
-    DIDStruct(0x206d, 2, 9, 0f, 0f, 100f, -1f, 101f,"%05.1f","Throttle", "%"),
+    DIDStruct(0x10c0, 2, 15, 0f, 0f, 2f, 0.7f, 4f,"%05.3f","Lambda SAE","l"),
+    DIDStruct(0xf40e, 1, 14, 0f, -10f, 40f, -6f, 50f,"%05.2f","Ignition angle", "°"),
+    DIDStruct(0x20ba, 2, 8, 0f, 0f, 100f, -1f, 101f,"%05.1f","Throttle", "%"),
     //P2
     DIDStruct(0x13f2, 1, 1, 0f, -10f, 0f, -4f, 1f,"%05.3f","Retard cylinder 1", "°"),
     DIDStruct(0x13f3, 1, 1, 0f, -10f, 0f, -4f, 1f,"%05.3f","Retard cylinder 2", "°"),
@@ -44,12 +47,12 @@ val DIDList: List<DIDStruct> = listOf(
     DIDStruct(0x295c, 1, 0, 0f, 0f, 1f, -1f, 2f,"%01.0f","Flaps Actual", ""),
     DIDStruct(0x295d, 1, 0, 0f, 0f, 1f, -1f, 2f,"%01.0f","Flaps Command", ""),
     DIDStruct(0x2932, 2, 8, 0f, 0f, 5f, 6f, 15f,"%03.2f","LFP Command", "bar"),
-    DIDStruct(0x3e0a, 2, 9, 0f,-50f, 130f, -50f, 130f,"%03.2f","Coolant temp","°C"),
+    DIDStruct(0x40e1, 2, 10, 0f,-50f, 130f, -50f, 130f,"%03.2f","Coolant temp","°C"),
     DIDStruct(0xf456, 1, 3, 0f,-25f, 25f, -20f, 20f,"%02.2f","LTFT","%"),
     DIDStruct(0x202f, 2, 2, 0f,-50f, 130f, 0f, 112f,"%03.2f","Oil temp", "°C"),
 
     DIDStruct(0x15ac, 2, 11, 0f,-50f, 130f, 0f, 500f,"%03.2f","Converter torque", "Nm"),
-    DIDStruct(0x13ca, 2, 12, 0f,-50f, 130f, 0f, 500f,"%07.2f","Ambient pressure (measured or adapted)", "hPa"),
+    DIDStruct(0x13ca, 2, 12, 0f,-50f, 130f, 0f, 500f,"%07.2f","Ambient pressure (measured or adapted)", "bar"),
     DIDStruct(0x1004, 2, 5, 0f,-50f, 130f, 0f, 500f,"%07.2f","Ambient air temperature", "°C"),
     DIDStruct(0x2019, 2, 8, 0f,-50f, 50f, -50f, 50f,"%03.2f","Exhaust commanded angle", "°"),
     DIDStruct(0x201a, 2, 8, 0f,-50f, 50f, -50f, 50f,"%03.2f","Exhaust actual angle", "°"),
@@ -112,7 +115,16 @@ object DIDs {
                 did.value = 0.03125f * data.toFloat()
             }
             12 -> {
-                did.value = 0.08291752498664835f * data.toFloat()
+                did.value = 0.08291752498664835f * data.toFloat() / 1000.0f
+            }
+            13 -> {
+                did.value = data.toFloat() * 100.0f / 255.0f
+            }
+            14 -> {
+                did.value = (data.toFloat() / 2.0f) - 64.0f
+            }
+            15 -> {
+                did.value = data.toFloat() * 0.0009765625f
             }
         }
 
