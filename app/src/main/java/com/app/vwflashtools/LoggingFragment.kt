@@ -92,6 +92,8 @@ class LoggingFragment : Fragment() {
             mPIDProgress[i]?.max = (DIDList[i].max * mPIDMultiplier[i]).toInt()
             mPIDProgress[i]?.progressTintList = ColorStateList.valueOf(Color.GREEN)
         }
+
+        view.setBackgroundColor(Color.rgb(255, 255, 255))
     }
 
     override fun onResume() {
@@ -133,15 +135,23 @@ class LoggingFragment : Fragment() {
 
                         //Update UI every 4th tick
                         if(readCount % 4 == 0) {
+                            var anyWarning = false
 
                             //Set the UI values
                             for(i in 0..7) {
                                 mPIDProgress[i]?.progress = (DIDList[i].value * mPIDMultiplier[i]!!).toInt()
                                 if((DIDList[i].value > DIDList[i].warnMax) or (DIDList[i].value < DIDList[i].warnMin)) {
                                     mPIDProgress[i]?.progressTintList = ColorStateList.valueOf(Color.RED)
+                                    anyWarning = true
                                 } else {
                                     mPIDProgress[i]?.progressTintList = ColorStateList.valueOf(Color.GREEN)
                                 }
+                            }
+
+                            if(anyWarning) {
+                                view?.setBackgroundColor(Color.rgb(127, 127, 255))
+                            } else {
+                                view?.setBackgroundColor(Color.rgb(255, 255, 255))
                             }
                         }
 

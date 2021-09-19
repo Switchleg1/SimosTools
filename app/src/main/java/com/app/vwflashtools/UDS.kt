@@ -19,6 +19,8 @@ import android.util.Log
 // 13: X * 100.0 / 255.0
 // 14: X / 2.0 – 64.0
 // 15: ( 0.0009765625 * X + 0.0 ) / 1
+// 16: X / 2.4
+// 17: X * 0.005
 
 data class DIDStruct(val address: Int,
                      val length: Int,
@@ -37,39 +39,49 @@ val DIDList: List<DIDStruct> = listOf(
     //P1
     DIDStruct(0x15d3, 2, 5, false, 0f, 220f, -20f, 200f, 0f, "%06.2f","Speed", "km/hr"),
     DIDStruct(0xf40C, 2, 6, false, 0f, 7000f, -1f, 6000f,0f, "%06.1f","RPM","rpm"),
-    DIDStruct(0x1040, 2, 4, false, 0f, 190000f, 0f, 185000f,0f, "%08.1f","Turbo Speed", "rpm"),
     DIDStruct(0x39c0, 2, 10, false, 0f, 3f, 0f, 2.6f,0f, "%05.3f","MAP Actual","bar"),
     DIDStruct(0x39c2, 2, 10, false, 0f, 3f, 0f, 2.6f,0f, "%05.3f","PUT Actual","bar"),
-    DIDStruct(0x10c0, 2, 15, false, 0f,  2f, 0.7f, 4f,0f, "%05.3f","Lambda SAE","l"),
-    DIDStruct(0xf40e, 1, 14, false, -10f, 10f, -6f, 60f,0f, "%05.2f","Ignition angle", "°"),
-    DIDStruct(0x20ba, 2, 8, true, 0f, 100f, -1f, 101f,0f, "%05.1f","Throttle", "%"),
+    DIDStruct(0x10c0, 2, 15, false, 0f,  2f, 0.7f, 4f,0f, "%05.3f","Lambda Actual","l"),
+    DIDStruct(0x2004, 2, 9, true, -10f, 10f, -6f, 60f,0f, "%05.2f","Ignition angle", "°"),
+    DIDStruct(0x39a2, 2, 8, false, 0f, 100f, -1f, 100f,0f, "%02.2f","Wastegate Position","%"),
+    DIDStruct(0x2032, 2, 16, false, -50f, 50f, -50f, 50f,0f, "%03.2f","Mass Airflow", "g/s"),
     //P2
-    DIDStruct(0x13f2, 1, 1, false, -10f, 0f, -4f, 1f,0f, "%05.3f","Retard cylinder 1", "°"),
-    DIDStruct(0x13f3, 1, 1, false, -10f, 0f, -4f, 1f,0f, "%05.3f","Retard cylinder 2", "°"),
-    DIDStruct(0x13f4, 1, 1, false, -10f, 0f, -4f, 1f,0f, "%05.3f","Retard cylinder 3", "°"),
-    DIDStruct(0x13f5, 1, 1, false, -10f, 0f, -4f, 1f,0f, "%05.3f","Retard cylinder 4", "°"),
-    DIDStruct(0x2025, 2, 10, false, 0f, 15f, 6f, 15f,0f, "%03.2f","LFP Actual", "bar"),
+    DIDStruct(0x1456, 2, 15, false, 0f,  2f, 0.7f, 4f,0f, "%05.3f","Lambda Specified","l"),
+    DIDStruct(0x13a0, 2, 17, false, 0f, 190000f, 0f, 185000f,0f, "%05.2f","Injector PW Cyl 1 DI", "ms"),
+    DIDStruct(0x437C, 2, 8, true, -50f, 450f, -100f, 500f,0f, "%03.2f","Engine torque", "Nm"),
     DIDStruct(0x2027, 2, 8, false, 0f, 250f, 10f, 250f,0f, "%03.2f","HFP Actual", "bar"),
     DIDStruct(0xf406, 1, 3, false, -25f, 25f, -20f, 20f,0f, "%02.2f","STFT","%"),
-    DIDStruct(0x1001, 1, 7, false, -40f, 55f, -35f, 50f,0f, "%03.2f","IAT", "°C"),
+    DIDStruct(0x20ba, 2, 8, true, 0f, 100f, -1f, 101f,0f, "%05.1f","Throttle", "%"),
+    DIDStruct(0x1040, 2, 4, false, 0f, 190000f, 0f, 185000f,0f, "%08.1f","Turbo Speed", "rpm"),
+    DIDStruct(0x209a, 2, 9, false, 0f, 100f, -1f, 100f,0f, "%03.2f","HPFP Effective Volume", "%"),
     //P3
-    DIDStruct(0x203c, 2, 0, false, 0f, 2f, -1f, 3f,0f, "%01.0f","Cruise control status", ""),
+    DIDStruct(0x200a, 2, 9, true, -10f, 0f, -4f, 1f,0f, "%05.3f","Retard cylinder 1", "°"),
+    DIDStruct(0x200b, 2, 9, true, -10f, 0f, -4f, 1f,0f, "%05.3f","Retard cylinder 2", "°"),
+    DIDStruct(0x200c, 2, 9, true, -10f, 0f, -4f, 1f,0f, "%05.3f","Retard cylinder 3", "°"),
+    DIDStruct(0x200d, 2, 9, true, -10f, 0f, -4f, 1f,0f, "%05.3f","Retard cylinder 4", "°"),
+    DIDStruct(0x2904, 2, 0, false, 0f, 20f, -1f, 10f,0f, "%03.0f","Misfire Sum Global", ""),
+    DIDStruct(0x1001, 1, 7, false, -40f, 55f, -35f, 50f,0f, "%03.2f","IAT", "°C"),
+    DIDStruct(0x2025, 2, 10, false, 0f, 15f, 6f, 15f,0f, "%03.2f","LFP Actual", "bar"),
     DIDStruct(0x293b, 2, 8, false, 0f, 250f, 10f, 250f,0f, "%03.2f","HFP Command", "bar"),
+
+    DIDStruct(0x2028, 2, 8, false, 0f,  2f, 0.7f, 4f,0f, "%05.3f","LPFP Duty","%"),
     DIDStruct(0x295c, 1, 0, false, 0f, 1f, -1f, 2f,0f, "%01.0f","Flaps Actual", ""),
-    DIDStruct(0x295d, 1, 0, false, 0f, 1f, -1f, 2f,0f, "%01.0f","Flaps Command", ""),
-    DIDStruct(0x2932, 2, 10, false, 0f, 5f, 6f, 15f,0f, "%03.2f","LFP Command", "bar"),
-    DIDStruct(0x40e1, 2, 10, false, -50f, 130f, -50f, 130f,0f, "%03.2f","Coolant temp","°C"),
     DIDStruct(0xf456, 1, 3, false, -25f, 25f, -20f, 20f,0f, "%02.2f","LTFT","%"),
     DIDStruct(0x202f, 2, 2, false, -50f, 130f, 0f, 112f,0f, "%03.2f","Oil temp", "°C"),
-
-    DIDStruct(0x15ac, 2, 11, true, -50f, 130f, 0f, 500f,0f, "%03.2f","Converter torque", "Nm"),
-    DIDStruct(0x13ca, 2, 12, false, -50f, 130f, 0f, 500f,0f, "%07.2f","Ambient pressure (measured or adapted)", "bar"),
-    DIDStruct(0x1004, 2, 5, true, -50f, 130f, 0f, 500f,0f, "%07.2f","Ambient air temperature", "°C"),
-    DIDStruct(0x2019, 2, 8, true, -50f, 50f, -50f, 50f,0f, "%03.2f","Exhaust commanded angle", "°"),
-    DIDStruct(0x201a, 2, 8, true, -50f, 50f, -50f, 50f,0f, "%03.2f","Exhaust actual angle", "°"),
-    DIDStruct(0x201d, 2, 8, true, -50f, 50f, -50f, 50f,0f, "%03.2f","Intake commanded angle", "°"),
-    DIDStruct(0x201e, 2, 8, true, -50f, 50f, -50f, 50f,0f, "%03.2f","Intake actual angle", "°"),
-    DIDStruct(0x4380, 2, 8, true, 0f, 500f, -10f, 500f,0f, "%03.2f","Driver desired torque", "Nm"),
+    DIDStruct(0x13ca, 2, 12, false, 0.5f, 1.3f, 0.7f, 1.2f,0f, "%07.2f","Ambient pressure", "bar"),
+    DIDStruct(0x1004, 2, 5, true, -40f, 50f, -30f, 45f,0f, "%07.2f","Ambient air temperature", "°C"),
+    DIDStruct(0x4380, 2, 8, true, 0f, 500f, -10f, 500f,0f, "%03.2f","Engine torque requested", "Nm"),
+    DIDStruct(0x203c, 2, 0, false, 0f, 2f, -1f, 3f,0f, "%01.0f","Cruise control status", ""),
+    /*
+    DIDStruct(0x13ac, 2, 17, false, 0f, 190000f, 0f, 185000f,0f, "%05.2f","Injector PW Cyl 1 MPI", "ms"),
+    DIDStruct(0x2966, 2, 0, false, 0f, 20f, -1f, 10f,0f, "%03.0f","Misfire Sum 1", ""),
+    DIDStruct(0x2967, 2, 0, false, 0f, 20f, -1f, 10f,0f, "%03.0f","Misfire Sum 2", ""),
+    DIDStruct(0x2968, 2, 0, false, 0f, 20f, -1f, 10f,0f, "%03.0f","Misfire Sum 3", ""),
+    DIDStruct(0x2969, 2, 0, false, 0f, 20f, -1f, 10f,0f, "%03.0f","Misfire Sum 4", ""),
+    DIDStruct(0x40e1, 2, 10, false, -50f, 130f, -50f, 130f,0f, "%03.2f","Coolant temp","°C"),
+    DIDStruct(0x2932, 2, 10, false, 0f, 5f, 6f, 15f,0f, "%03.2f","LFP Command", "bar"),
+    DIDStruct(0x295d, 1, 0, false, 0f, 1f, -1f, 2f,0f, "%01.0f","Flaps Command", ""),
+    */
 )
 
 object DIDs {
@@ -96,7 +108,7 @@ object DIDs {
                 did.value = 0.375f * data.toFloat() - 48.0f
             }
             2 -> {
-                did.value = (data.toFloat() -2731.4f) / 10.0f
+                did.value = (data.toFloat() - 2731.4f) / 10.0f
             }
             3 -> {
                 did.value = data.toFloat() / 1.28f - 100.0f
@@ -136,6 +148,12 @@ object DIDs {
             }
             15 -> {
                 did.value = data.toFloat() * 0.0009765625f
+            }
+            16 -> {
+                did.value = data.toFloat() / 2.4f
+            }
+            17 -> {
+                did.value = data.toFloat() * 0.005f
             }
         }
 
