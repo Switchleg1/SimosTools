@@ -8,13 +8,8 @@ import java.io.FileOutputStream
 import java.util.*
 import java.util.regex.Pattern
 import java.util.TreeSet
-
 import java.util.Collections
-
 import java.util.Enumeration
-
-
-
 
 class SProperties: Properties() {
     @Synchronized
@@ -38,10 +33,6 @@ object ConfigFile {
         mProperties.store(propertiesOutputStream, "save to properties file")
     }
 
-    fun put(key: String, value: String) {
-        mProperties[key] = value
-    }
-
     fun read(fileName: String?, context: Context?) {
         val path = context?.getExternalFilesDir("")
         val propertiesFile = File(path, "/$fileName")
@@ -56,14 +47,6 @@ object ConfigFile {
         mProperties.forEach{(k, v) ->
             processKey(k.toString(), v.toString())
         }
-    }
-
-    fun get(key: String): String {
-        return mProperties[key].toString()
-    }
-
-    fun count(): Int {
-        return mProperties.count()
     }
 
     private fun processKey(key: String, value: String) {
@@ -127,17 +110,17 @@ object ConfigFile {
 
     private fun writeDefaultConfig(filename: String?, context: Context?) {
         for(i in 0 until DIDList.count()) {
-            put("PID$i.Address", DIDList[i].address.toShort().toHex())
-            put("PID$i.Length", DIDList[i].length.toString())
-            put("PID$i.Equation", DIDList[i].equation.toString())
-            put("PID$i.Signed", DIDList[i].signed.toString())
-            put("PID$i.Min", DIDList[i].min.toString())
-            put("PID$i.Max", DIDList[i].max.toString())
-            put("PID$i.WarnMin", DIDList[i].warnMin.toString())
-            put("PID$i.WarnMax", DIDList[i].warnMax.toString())
-            put("PID$i.Format", DIDList[i].format)
-            put("PID$i.Name", DIDList[i].name)
-            put("PID$i.Unit", DIDList[i].unit)
+            mProperties["PID$i.Address"] = DIDList[i].address.toShort().toHex()
+            mProperties["PID$i.Length"] = DIDList[i].length.toString()
+            mProperties["PID$i.Equation"] = DIDList[i].equation.toString()
+            mProperties["PID$i.Signed"] = DIDList[i].signed.toString()
+            mProperties["PID$i.Min"] = DIDList[i].min.toString()
+            mProperties["PID$i.Max"] = DIDList[i].max.toString()
+            mProperties["PID$i.WarnMin"] = DIDList[i].warnMin.toString()
+            mProperties["PID$i.WarnMax"] = DIDList[i].warnMax.toString()
+            mProperties["PID$i.Format"] = DIDList[i].format
+            mProperties["PID$i.Name"] = DIDList[i].name
+            mProperties["PID$i.Unit"] = DIDList[i].unit
         }
 
         write(filename, context)

@@ -44,7 +44,7 @@ val DIDList: List<DIDStruct> = listOf(
     DIDStruct(0x10c0, 2, 15,false,0f,  2f,     0.7f, 4f,     0f, "%05.3f","Lambda Actual",          "l"),
     DIDStruct(0x2004, 2, 9, true, -10f,10f,    -6f,  60f,    0f, "%05.2f","Ignition angle",         "°"),
     DIDStruct(0x39a2, 2, 8, false,0f,  100f,   -1f,  100f,   0f, "%02.2f","Wastegate Position",     "%"),
-    DIDStruct(0x2032, 2, 16,false,-50f,50f,    -50f, 50f,    0f, "%03.2f","Mass Airflow",           "g/s"),
+    DIDStruct(0x2032, 2, 16,false,0f,  1500f,  -1f,  1500f,  0f, "%07.2f","Mass Airflow",           "g/s"),
     //P2
     DIDStruct(0x1456, 2, 15,false,0f,  2f,     0.7f, 4f,     0f, "%05.3f","Lambda Specified",       "l"),
     DIDStruct(0x13a0, 2, 17,false,0f,  190000f,0f,   185000f,0f, "%05.2f","Injector PW Cyl 1 DI",   "ms"),
