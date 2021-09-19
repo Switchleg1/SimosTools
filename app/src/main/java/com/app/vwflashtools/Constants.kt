@@ -104,6 +104,8 @@ infix fun Byte.and(that: Int): Int = this.toInt().and(that)
 infix fun Short.and(that: Int): Int = this.toInt().and(that)
 fun Byte.toHex(): String = "%02x".format(this)
 fun Byte.toHexS(): String = " %02x".format(this)
+fun Short.toHex(): String = "%04x".format(this)
+fun Int.toHex(): String = "%08x".format(this)
 fun ByteArray.toHex(): String = joinToString(separator = " ") { eachByte -> "%02x".format(eachByte) }
 
 

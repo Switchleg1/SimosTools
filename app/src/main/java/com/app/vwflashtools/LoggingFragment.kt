@@ -129,82 +129,72 @@ class LoggingFragment : Fragment() {
                         return
                     }
 
-                    UDS22Logger.didList?.let { dList ->
-                        if(dList.count() == 0)
-                            return
+                    //Update UI every 4th tick
+                    if(readCount % 4 == 0) {
+                        var anyWarning = false
 
-                        //Update UI every 4th tick
-                        if(readCount % 4 == 0) {
-                            var anyWarning = false
-
-                            //Set the UI values
-                            for(i in 0..7) {
-                                mPIDProgress[i]?.progress = (DIDList[i].value * mPIDMultiplier[i]!!).toInt()
-                                if((DIDList[i].value > DIDList[i].warnMax) or (DIDList[i].value < DIDList[i].warnMin)) {
-                                    mPIDProgress[i]?.progressTintList = ColorStateList.valueOf(Color.RED)
-                                    anyWarning = true
-                                } else {
-                                    mPIDProgress[i]?.progressTintList = ColorStateList.valueOf(Color.GREEN)
-                                }
-                            }
-
-                            if(anyWarning) {
-                                view?.setBackgroundColor(Color.rgb(127, 127, 255))
+                        //Set the UI values
+                        for(i in 0..7) {
+                            mPIDProgress[i]?.progress = (DIDList[i].value * mPIDMultiplier[i]).toInt()
+                            if((DIDList[i].value > DIDList[i].warnMax) or (DIDList[i].value < DIDList[i].warnMin)) {
+                                mPIDProgress[i]?.progressTintList = ColorStateList.valueOf(Color.RED)
+                                anyWarning = true
                             } else {
-                                view?.setBackgroundColor(Color.rgb(255, 255, 255))
+                                mPIDProgress[i]?.progressTintList = ColorStateList.valueOf(Color.GREEN)
                             }
+                        }
+
+                        if(anyWarning) {
+                            view?.setBackgroundColor(Color.rgb(127, 127, 255))
+                        } else {
+                            view?.setBackgroundColor(Color.rgb(255, 255, 255))
                         }
 
                         //Update Log every 2nd tick
                         if(readCount % 2 == 0) {
-                            UDS22Logger.didEnable?.let { dEnable ->
-                                mPackCount?.text = dEnable.value.toString() + " " + mPackCount?.text
-                                if (dEnable.value != 0.0f) {
-                                    //If we were not enabled before we must open a log to start writing
-                                    if (!mLastEnabled) {
-                                        val currentDateTime = LocalDateTime.now()
-                                        LogFile.create(
-                                            "vwflashtools-${
-                                                currentDateTime.format(
-                                                    DateTimeFormatter.ofPattern("yyyy_MM_dd-HH_mm_ss")
-                                                )
-                                            }.csv", context
-                                        )
-                                        var strItems: String? = "Time"
-                                        for (i in 0 until dList.count()) {
-                                            strItems += ",${DIDList[dList[i].toInt()].name}"
-                                        }
-                                        LogFile.add(strItems)
-                                    }
-                                    mLastEnabled = true
-
-                                    //Write new values to log
-                                    val bleHeader = BLEHeader()
-                                    bleHeader.fromByteArray(readBuff)
-                                    var strItems: String? = (bleHeader.tickCount.toFloat() / 1000.0f).toString()
-                                    for (i in 0 until dList.count()) {
-                                        strItems += ",${DIDList[dList[i].toInt()].value}"
+                            val dEnable = DIDList[DIDList.count()-1]
+                            mPackCount?.text = dEnable.value.toString() + " " + mPackCount?.text
+                            if (dEnable.value != 0.0f) {
+                                //If we were not enabled before we must open a log to start writing
+                                if (!mLastEnabled) {
+                                    val currentDateTime = LocalDateTime.now()
+                                    LogFile.create(
+                                        "vwflashtools-${
+                                            currentDateTime.format(
+                                                DateTimeFormatter.ofPattern("yyyy_MM_dd-HH_mm_ss")
+                                            )
+                                        }.csv", context
+                                    )
+                                    var strItems: String? = "Time"
+                                    for (i in 0 until DIDList.count()) {
+                                        strItems += ",${DIDList[i].name}"
                                     }
                                     LogFile.add(strItems)
-
-                                    //Highlight packet count in red since we are logging
-                                    mPackCount?.setTextColor(Color.RED)
-                                } else {
-                                    if (mLastEnabled) {
-                                        LogFile.close()
-                                    }
-                                    mLastEnabled = false
-
-                                    //Not logging set packet count to black
-                                    mPackCount?.setTextColor(Color.BLACK)
                                 }
+                                mLastEnabled = true
+
+                                //Write new values to log
+                                val bleHeader = BLEHeader()
+                                bleHeader.fromByteArray(readBuff)
+                                var strItems: String? = (bleHeader.tickCount.toFloat() / 1000.0f).toString()
+                                for (i in 0 until DIDList.count()) {
+                                    strItems += ",${DIDList[i].value}"
+                                }
+                                LogFile.add(strItems)
+
+                                //Highlight packet count in red since we are logging
+                                mPackCount?.setTextColor(Color.RED)
+                            } else {
+                                if (mLastEnabled) {
+                                    LogFile.close()
+                                }
+                                mLastEnabled = false
+
+                                //Not logging set packet count to black
+                                mPackCount?.setTextColor(Color.BLACK)
                             }
                         }
                     }
-                }
-                MESSAGE_TOAST.toString() -> {
-                    val nToast = intent.getStringExtra("newToast")
-                    Toast.makeText(activity, nToast, Toast.LENGTH_SHORT).show()
                 }
             }
         }

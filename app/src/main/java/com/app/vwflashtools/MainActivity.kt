@@ -40,6 +40,8 @@ class MainActivity : AppCompatActivity() {
         val serviceIntent = Intent(this, BTService::class.java)
         serviceIntent.action = BT_START_SERVICE.toString()
         ContextCompat.startForegroundService(this, serviceIntent)
+
+        ConfigFile.read("logging.cfg", applicationContext)
     }
 
     override fun onResume() {

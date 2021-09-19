@@ -22,56 +22,56 @@ import android.util.Log
 // 16: X / 2.4
 // 17: X * 0.005
 
-data class DIDStruct(val address: Int,
-                     val length: Int,
-                     val equation: Int,
-                     val signed: Boolean,
-                     val min: Float,
-                     val max: Float,
-                     val warnMin: Float,
-                     val warnMax: Float,
+data class DIDStruct(var address: Int,
+                     var length: Int,
+                     var equation: Int,
+                     var signed: Boolean,
+                     var min: Float,
+                     var max: Float,
+                     var warnMin: Float,
+                     var warnMax: Float,
                      var value: Float,
-                     val format: String,
-                     val name: String,
-                     val unit: String)
+                     var format: String,
+                     var name: String,
+                     var unit: String)
 
 val DIDList: List<DIDStruct> = listOf(
     //P1
-    DIDStruct(0x15d3, 2, 5, false, 0f, 220f, -20f, 200f, 0f, "%06.2f","Speed", "km/hr"),
-    DIDStruct(0xf40C, 2, 6, false, 0f, 7000f, -1f, 6000f,0f, "%06.1f","RPM","rpm"),
-    DIDStruct(0x39c0, 2, 10, false, 0f, 3f, 0f, 2.6f,0f, "%05.3f","MAP Actual","bar"),
-    DIDStruct(0x39c2, 2, 10, false, 0f, 3f, 0f, 2.6f,0f, "%05.3f","PUT Actual","bar"),
-    DIDStruct(0x10c0, 2, 15, false, 0f,  2f, 0.7f, 4f,0f, "%05.3f","Lambda Actual","l"),
-    DIDStruct(0x2004, 2, 9, true, -10f, 10f, -6f, 60f,0f, "%05.2f","Ignition angle", "°"),
-    DIDStruct(0x39a2, 2, 8, false, 0f, 100f, -1f, 100f,0f, "%02.2f","Wastegate Position","%"),
-    DIDStruct(0x2032, 2, 16, false, -50f, 50f, -50f, 50f,0f, "%03.2f","Mass Airflow", "g/s"),
+    DIDStruct(0x15d3, 2, 5, false,0f,  220f,   -20f, 200f,   0f, "%06.2f","Speed",                  "km/hr"),
+    DIDStruct(0xf40C, 2, 6, false,0f,  7000f,  -1f,  6000f,  0f, "%06.1f","RPM",                    "rpm"),
+    DIDStruct(0x39c0, 2, 10,false,0f,  3f,     0f,   2.6f,   0f, "%05.3f","MAP Actual",             "bar"),
+    DIDStruct(0x39c2, 2, 10,false,0f,  3f,     0f,   2.6f,   0f, "%05.3f","PUT Actual",             "bar"),
+    DIDStruct(0x10c0, 2, 15,false,0f,  2f,     0.7f, 4f,     0f, "%05.3f","Lambda Actual",          "l"),
+    DIDStruct(0x2004, 2, 9, true, -10f,10f,    -6f,  60f,    0f, "%05.2f","Ignition angle",         "°"),
+    DIDStruct(0x39a2, 2, 8, false,0f,  100f,   -1f,  100f,   0f, "%02.2f","Wastegate Position",     "%"),
+    DIDStruct(0x2032, 2, 16,false,-50f,50f,    -50f, 50f,    0f, "%03.2f","Mass Airflow",           "g/s"),
     //P2
-    DIDStruct(0x1456, 2, 15, false, 0f,  2f, 0.7f, 4f,0f, "%05.3f","Lambda Specified","l"),
-    DIDStruct(0x13a0, 2, 17, false, 0f, 190000f, 0f, 185000f,0f, "%05.2f","Injector PW Cyl 1 DI", "ms"),
-    DIDStruct(0x437C, 2, 8, true, -50f, 450f, -100f, 500f,0f, "%03.2f","Engine torque", "Nm"),
-    DIDStruct(0x2027, 2, 8, false, 0f, 250f, 10f, 250f,0f, "%03.2f","HFP Actual", "bar"),
-    DIDStruct(0xf406, 1, 3, false, -25f, 25f, -20f, 20f,0f, "%02.2f","STFT","%"),
-    DIDStruct(0x20ba, 2, 8, true, 0f, 100f, -1f, 101f,0f, "%05.1f","Throttle", "%"),
-    DIDStruct(0x1040, 2, 4, false, 0f, 190000f, 0f, 185000f,0f, "%08.1f","Turbo Speed", "rpm"),
-    DIDStruct(0x209a, 2, 9, false, 0f, 100f, -1f, 100f,0f, "%03.2f","HPFP Effective Volume", "%"),
+    DIDStruct(0x1456, 2, 15,false,0f,  2f,     0.7f, 4f,     0f, "%05.3f","Lambda Specified",       "l"),
+    DIDStruct(0x13a0, 2, 17,false,0f,  190000f,0f,   185000f,0f, "%05.2f","Injector PW Cyl 1 DI",   "ms"),
+    DIDStruct(0x437C, 2, 8, true, -50f,450f,   -100f,500f,   0f, "%03.2f","Engine torque",          "Nm"),
+    DIDStruct(0x2027, 2, 8, false,0f,  250f,   10f,  250f,   0f, "%03.2f","HFP Actual",             "bar"),
+    DIDStruct(0xf406, 1, 3, false,-25f,25f,    -20f, 20f,    0f, "%02.2f","STFT",                   "%"),
+    DIDStruct(0x20ba, 2, 8, true, 0f,  100f,   -1f,  101f,   0f, "%05.1f","Throttle",               "%"),
+    DIDStruct(0x1040, 2, 4, false,0f,  190000f,0f,   185000f,0f, "%08.1f","Turbo Speed",            "rpm"),
+    DIDStruct(0x209a, 2, 9, false,0f,  100f,   -1f,  100f,   0f, "%03.2f","HPFP Effective Volume",  "%"),
     //P3
-    DIDStruct(0x200a, 2, 9, true, -10f, 0f, -4f, 1f,0f, "%05.3f","Retard cylinder 1", "°"),
-    DIDStruct(0x200b, 2, 9, true, -10f, 0f, -4f, 1f,0f, "%05.3f","Retard cylinder 2", "°"),
-    DIDStruct(0x200c, 2, 9, true, -10f, 0f, -4f, 1f,0f, "%05.3f","Retard cylinder 3", "°"),
-    DIDStruct(0x200d, 2, 9, true, -10f, 0f, -4f, 1f,0f, "%05.3f","Retard cylinder 4", "°"),
-    DIDStruct(0x2904, 2, 0, false, 0f, 20f, -1f, 10f,0f, "%03.0f","Misfire Sum Global", ""),
-    DIDStruct(0x1001, 1, 7, false, -40f, 55f, -35f, 50f,0f, "%03.2f","IAT", "°C"),
-    DIDStruct(0x2025, 2, 10, false, 0f, 15f, 6f, 15f,0f, "%03.2f","LFP Actual", "bar"),
-    DIDStruct(0x293b, 2, 8, false, 0f, 250f, 10f, 250f,0f, "%03.2f","HFP Command", "bar"),
+    DIDStruct(0x200a, 2, 9, true, -10f,0f,     -4f,  1f,     0f, "%05.3f","Retard cylinder 1",      "°"),
+    DIDStruct(0x200b, 2, 9, true, -10f,0f,     -4f,  1f,     0f, "%05.3f","Retard cylinder 2",      "°"),
+    DIDStruct(0x200c, 2, 9, true, -10f,0f,     -4f,  1f,     0f, "%05.3f","Retard cylinder 3",      "°"),
+    DIDStruct(0x200d, 2, 9, true, -10f,0f,     -4f,  1f,     0f, "%05.3f","Retard cylinder 4",      "°"),
+    DIDStruct(0x2904, 2, 0, false,0f,  20f,    -1f,  10f,    0f, "%03.0f","Misfire Sum Global",     ""),
+    DIDStruct(0x1001, 1, 7, false,-40f,55f,    -35f, 50f,    0f, "%03.2f","IAT",                    "°C"),
+    DIDStruct(0x2025, 2, 10,false,0f,  15f,    6f,   15f,    0f, "%03.2f","LFP Actual",             "bar"),
+    DIDStruct(0x293b, 2, 8, false,0f,  250f,   10f,  250f,   0f, "%03.2f","HFP Command",            "bar"),
 
-    DIDStruct(0x2028, 2, 8, false, 0f,  2f, 0.7f, 4f,0f, "%05.3f","LPFP Duty","%"),
-    DIDStruct(0x295c, 1, 0, false, 0f, 1f, -1f, 2f,0f, "%01.0f","Flaps Actual", ""),
-    DIDStruct(0xf456, 1, 3, false, -25f, 25f, -20f, 20f,0f, "%02.2f","LTFT","%"),
-    DIDStruct(0x202f, 2, 2, false, -50f, 130f, 0f, 112f,0f, "%03.2f","Oil temp", "°C"),
-    DIDStruct(0x13ca, 2, 12, false, 0.5f, 1.3f, 0.7f, 1.2f,0f, "%07.2f","Ambient pressure", "bar"),
-    DIDStruct(0x1004, 2, 5, true, -40f, 50f, -30f, 45f,0f, "%07.2f","Ambient air temperature", "°C"),
-    DIDStruct(0x4380, 2, 8, true, 0f, 500f, -10f, 500f,0f, "%03.2f","Engine torque requested", "Nm"),
-    DIDStruct(0x203c, 2, 0, false, 0f, 2f, -1f, 3f,0f, "%01.0f","Cruise control status", ""),
+    DIDStruct(0x2028, 2, 8, false,0f,  2f,     0.7f, 4f,     0f, "%05.3f","LPFP Duty",              "%"),
+    DIDStruct(0x295c, 1, 0, false,0f,  1f,     -1f,  2f,     0f, "%01.0f","Flaps Actual",           ""),
+    DIDStruct(0xf456, 1, 3, false,-25f,25f,    -20f, 20f,    0f, "%02.2f","LTFT",                   "%"),
+    DIDStruct(0x202f, 2, 2, false,-50f,130f,   0f,   112f,   0f, "%03.2f","Oil temp",               "°C"),
+    DIDStruct(0x13ca, 2, 12,false,0.5f,1.3f,   0.7f, 1.2f,   0f, "%07.2f","Ambient pressure",       "bar"),
+    DIDStruct(0x1004, 2, 5, true, -40f,50f,    -30f, 45f,    0f, "%07.2f","Ambient air temperature","°C"),
+    DIDStruct(0x4380, 2, 8, true, 0f,  500f,   -10f, 500f,   0f, "%03.2f","Engine torque requested","Nm"),
+    DIDStruct(0x203c, 2, 0, false,0f,  2f,     -1f,  3f,     0f, "%01.0f","Cruise control status",  ""),
     /*
     DIDStruct(0x13ac, 2, 17, false, 0f, 190000f, 0f, 185000f,0f, "%05.2f","Injector PW Cyl 1 MPI", "ms"),
     DIDStruct(0x2966, 2, 0, false, 0f, 20f, -1f, 10f,0f, "%03.0f","Misfire Sum 1", ""),
@@ -169,15 +169,11 @@ object DIDs {
 }
 
 object UDS22Logger {
-
-    var didList: ByteArray? = null
-    var didEnable: DIDStruct? = null
-
     fun frameCount(): Int {
         return 8
     }
 
-    fun buildFrame(index: Int): ByteArray? {
+    fun buildFrame(index: Int): ByteArray {
         val bleHeader = BLEHeader()
         bleHeader.cmdSize = 1
         bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_ADD

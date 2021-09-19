@@ -598,12 +598,6 @@ class BTService: Service() {
 
             when (mTask) {
                 TASK_LOGGING -> {
-                    //Make sure we enable be using cruise control PID
-                    UDS22Logger.didEnable = DIDs.getDID(0x203c)
-                    UDS22Logger.didList = byteArrayOf(0, 1, 2, 3, 4, 5, 6, 7,
-                                                        8, 9, 10, 11, 12, 13, 14, 15,
-                                                        16, 17, 18, 19, 20, 21, 22, 23,
-                                                        24, 25, 26, 27, 28, 29, 30, 31)
                     val frames = UDS22Logger.frameCount()
                     for(i in 0 until frames)
                         mWriteQueue.add(UDS22Logger.buildFrame(i))
@@ -619,9 +613,6 @@ class BTService: Service() {
                     mWriteQueue.add(buf)
                 }
                 TASK_NONE -> {
-                    UDS22Logger.didEnable = null
-                    UDS22Logger.didList = null
-
                     val bleHeader = BLEHeader()
                     bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_CLEAR
 
