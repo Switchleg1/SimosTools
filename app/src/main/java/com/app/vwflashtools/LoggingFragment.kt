@@ -127,79 +127,76 @@ class LoggingFragment : Fragment() {
                 MESSAGE_READ_LOG.toString() -> {
                     //val readBuff = intent.getByteArrayExtra("readBuffer") ?: return
                     val readCount = intent.getIntExtra("readCount", 0)
-                    val readTime = intent.getIntExtra("readTime", 0)
+                    val readTime = intent.getLongExtra("readTime", 0)
                     val readResult = intent.getIntExtra("readResult", UDS_ERROR_NULL)
 
+                    //Make sure we received an ok
                     if(readResult != UDS_OK) {
                         mPackCount?.text = readResult.toString()
                         return
                     }
 
-                    //Update UI every 4th tick
-                    if(readCount % 4 == 0) {
-                        var anyWarning = false
+                    //Set the UI values
+                    var anyWarning = false
+                    for(i in 0..7) {
+                        //Update text
+                        mPIDText[i]?.text = getString(R.string.textPID, DIDList[i].name, DIDList[i].format.format(DIDList[i].value), DIDList[i].unit)
 
-                        //Set the UI values
-                        for(i in 0..7) {
-                            //Update text
-                            mPIDText[i]?.text = getString(R.string.textPID, DIDList[i].name, DIDList[i].format.format(DIDList[i].value), DIDList[i].unit)
-
-                            //Update progress is the value is different
-                            val newProgress = (DIDList[i].value * mPIDMultiplier[i]).toInt()
-                            if(newProgress != mPIDProgress[i]?.progress) {
-                                mPIDProgress[i]?.progress = newProgress
-                            }
-
-                            //Check to see if we should be warning user
-                            if((DIDList[i].value > DIDList[i].warnMax) or (DIDList[i].value < DIDList[i].warnMin)) {
-
-                                if(!mLastColor[i]) {
-                                    mPIDProgress[i]?.progressTintList = ColorStateList.valueOf(Color.RED)
-                                }
-
-                                mLastColor[i] = true
-                                anyWarning = true
-                            } else {
-                                if(mLastColor[i]) {
-                                    mPIDProgress[i]?.progressTintList = ColorStateList.valueOf(Color.GREEN)
-                                }
-
-                                mLastColor[i] = false
-                            }
+                        //Update progress is the value is different
+                        val newProgress = (DIDList[i].value * mPIDMultiplier[i]).toInt()
+                        if(newProgress != mPIDProgress[i]?.progress) {
+                            mPIDProgress[i]?.progress = newProgress
                         }
 
-                        //If any visible PIDS are in warning state set background color to warn
-                        if(anyWarning) {
-                            if(!mLastWarning) {
-                                view?.setBackgroundColor(mColorWarn)
+                        //Check to see if we should be warning user
+                        if((DIDList[i].value > DIDList[i].warnMax) or (DIDList[i].value < DIDList[i].warnMin)) {
+
+                            if(!mLastColor[i]) {
+                                mPIDProgress[i]?.progressTintList = ColorStateList.valueOf(Color.RED)
                             }
 
-                            mLastWarning = true
+                            mLastColor[i] = true
+                            anyWarning = true
                         } else {
-                            if(mLastWarning) {
-                                view?.setBackgroundColor(mColorNormal)
+                            if(mLastColor[i]) {
+                                mPIDProgress[i]?.progressTintList = ColorStateList.valueOf(Color.GREEN)
                             }
 
-                            mLastWarning = false
+                            mLastColor[i] = false
+                        }
+                    }
+
+                    //If any visible PIDS are in warning state set background color to warn
+                    if(anyWarning) {
+                        if(!mLastWarning) {
+                            view?.setBackgroundColor(mColorWarn)
                         }
 
-                        //Update fps
-                        val dEnable = DIDList[DIDList.count()-1]
-                        val fps = readCount.toFloat() / (readTime.toFloat() / 1000.0f)
-                        mPackCount?.text = "${fps}fps"
-                        if (dEnable.value != 0.0f) {
-                            //Highlight packet count in red since we are logging
-                            if(!mLastEnabled) {
-                                mPackCount?.setTextColor(Color.RED)
-                            }
-                            mLastEnabled = true
-                        } else {
-                            //Not logging set packet count to black
-                            if(mLastEnabled) {
-                                mPackCount?.setTextColor(Color.BLACK)
-                            }
-                            mLastEnabled = false
+                        mLastWarning = true
+                    } else {
+                        if(mLastWarning) {
+                            view?.setBackgroundColor(mColorNormal)
                         }
+
+                        mLastWarning = false
+                    }
+
+                    //Update fps
+                    val dEnable = DIDList[DIDList.count()-1]
+                    val fps = readCount.toFloat() / (readTime.toFloat() / 1000.0f)
+                    mPackCount?.text = "${fps}fps"
+                    if (dEnable.value != 0.0f) {
+                        //Highlight packet count in red since we are logging
+                        if(!mLastEnabled) {
+                            mPackCount?.setTextColor(Color.RED)
+                        }
+                        mLastEnabled = true
+                    } else {
+                        //Not logging set packet count to black
+                        if(mLastEnabled) {
+                            mPackCount?.setTextColor(Color.BLACK)
+                        }
+                        mLastEnabled = false
                     }
                 }
             }

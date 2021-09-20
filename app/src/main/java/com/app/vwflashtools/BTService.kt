@@ -558,11 +558,13 @@ class BTService: Service() {
                                 val buff = mReadQueue.poll()
                                 val result = UDS22Logger.processFrame(mTaskCount, buff, applicationContext)
 
-                                val intentMessage = Intent(MESSAGE_READ_LOG.toString())
-                                intentMessage.putExtra("readCount", mTaskCount)
-                                intentMessage.putExtra("readTime", System.currentTimeMillis()-mTaskTime)
-                                intentMessage.putExtra("readResult", result)
-                                sendBroadcast(intentMessage)
+                                if((mTaskCount % 4 == 0) or (result != UDS_OK)) {
+                                    val intentMessage = Intent(MESSAGE_READ_LOG.toString())
+                                    intentMessage.putExtra("readCount", mTaskCount)
+                                    intentMessage.putExtra("readTime", System.currentTimeMillis() - mTaskTime)
+                                    intentMessage.putExtra("readResult", result)
+                                    sendBroadcast(intentMessage)
+                                }
                             }
                         }
                     } catch (e: IOException) {
@@ -584,8 +586,11 @@ class BTService: Service() {
 
         fun setTaskState(newTask: Int)
         {
-            if (mState != STATE_CONNECTED)
+            if (mState != STATE_CONNECTED) {
+                mTask = TASK_NONE
                 return
+            }
+
 
             //Broadcast a new message
             mTaskCount = 0

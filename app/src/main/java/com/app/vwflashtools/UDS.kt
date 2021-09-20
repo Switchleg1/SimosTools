@@ -25,6 +25,7 @@ import java.time.format.DateTimeFormatter
 // 15: ( 0.0009765625 * X + 0.0 ) / 1
 // 16: X / 2.4
 // 17: X * 0.005
+// 18: X * 0.002874
 
 data class DIDStruct(var address: Int,
                      var length: Int,
@@ -41,13 +42,13 @@ data class DIDStruct(var address: Int,
 
 val DIDList: List<DIDStruct> = listOf(
     //P1
-    DIDStruct(0x15d3, 2, 5, false,0f,  220f,   -20f, 200f,   0f, "%06.2f","Speed",                  "km/hr"),
+    DIDStruct(0x2033, 2, 18,false,0f,  220f,   -20f, 200f,   0f, "%06.2f","Speed",                  "km/hr"),
     DIDStruct(0xf40C, 2, 6, false,0f,  7000f,  -1f,  6000f,  0f, "%06.1f","RPM",                    "rpm"),
     DIDStruct(0x39c0, 2, 10,false,0f,  3f,     0f,   2.6f,   0f, "%05.3f","MAP Actual",             "bar"),
     DIDStruct(0x39c2, 2, 10,false,0f,  3f,     0f,   2.6f,   0f, "%05.3f","PUT Actual",             "bar"),
     DIDStruct(0x10c0, 2, 15,false,0f,  2f,     0.7f, 4f,     0f, "%05.3f","Lambda Actual",          "l"),
     DIDStruct(0x2004, 2, 9, true, -10f,10f,    -15f, 60f,    0f, "%05.2f","Ignition angle",         "°"),
-    DIDStruct(0x39a2, 2, 8, false,0f,  100f,   -1f,  100f,   0f, "%02.2f","Wastegate Position",     "%"),
+    DIDStruct(0x39a2, 2, 9, false,0f,  100f,   -1f,  100f,   0f, "%02.2f","Wastegate Position",     "%"),
     DIDStruct(0x2032, 2, 16,false,0f,  1500f,  -1f,  1500f,  0f, "%07.2f","Mass Airflow",           "g/s"),
     //P2
     DIDStruct(0x1456, 2, 15,false,0f,  2f,     0.7f, 4f,     0f, "%05.3f","Lambda Specified",       "l"),
@@ -55,7 +56,7 @@ val DIDList: List<DIDStruct> = listOf(
     DIDStruct(0x437C, 2, 8, true, -50f,450f,   -100f,500f,   0f, "%03.2f","Engine torque",          "Nm"),
     DIDStruct(0x2027, 2, 8, false,0f,  250f,   10f,  250f,   0f, "%03.2f","HFP Actual",             "bar"),
     DIDStruct(0xf406, 1, 3, false,-25f,25f,    -20f, 20f,    0f, "%02.2f","STFT",                   "%"),
-    DIDStruct(0x20ba, 2, 8, true, 0f,  100f,   -1f,  101f,   0f, "%05.1f","Throttle",               "%"),
+    DIDStruct(0x20ba, 2, 8, true, 0f,  100f,   -1f,  101f,   0f, "%05.1f","Throttle Sensor",        "%"),
     DIDStruct(0x1040, 2, 4, false,0f,  190000f,0f,   185000f,0f, "%08.1f","Turbo Speed",            "rpm"),
     DIDStruct(0x209a, 2, 9, false,0f,  100f,   -1f,  100f,   0f, "%03.2f","HPFP Effective Volume",  "%"),
     //P3
@@ -68,7 +69,7 @@ val DIDList: List<DIDStruct> = listOf(
     DIDStruct(0x2025, 2, 10,false,0f,  15f,    6f,   15f,    0f, "%03.2f","LFP Actual",             "bar"),
     DIDStruct(0x293b, 2, 8, false,0f,  250f,   10f,  250f,   0f, "%03.2f","HFP Command",            "bar"),
 
-    DIDStruct(0x2028, 2, 8, false,0f,  2f,     0.7f, 4f,     0f, "%05.3f","LPFP Duty",              "%"),
+    DIDStruct(0x2028, 2, 9, false,0f,  2f,     0.7f, 4f,     0f, "%05.3f","LPFP Duty",              "%"),
     DIDStruct(0x295c, 1, 0, false,0f,  1f,     -1f,  2f,     0f, "%01.0f","Flaps Actual",           ""),
     DIDStruct(0xf456, 1, 3, false,-25f,25f,    -20f, 20f,    0f, "%02.2f","LTFT",                   "%"),
     DIDStruct(0x202f, 2, 2, false,-50f,130f,   0f,   112f,   0f, "%03.2f","Oil temp",               "°C"),
@@ -158,6 +159,9 @@ object DIDs {
             }
             17 -> {
                 did.value = data.toFloat() * 0.005f
+            }
+            18 -> {
+                did.value = data.toFloat() * 0.002874f
             }
         }
 
