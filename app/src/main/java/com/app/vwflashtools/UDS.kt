@@ -1,6 +1,10 @@
 package com.app.vwflashtools
 
+import android.content.Context
+import android.graphics.Color
 import android.util.Log
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 //Equation list
 //  0: none
@@ -42,7 +46,7 @@ val DIDList: List<DIDStruct> = listOf(
     DIDStruct(0x39c0, 2, 10,false,0f,  3f,     0f,   2.6f,   0f, "%05.3f","MAP Actual",             "bar"),
     DIDStruct(0x39c2, 2, 10,false,0f,  3f,     0f,   2.6f,   0f, "%05.3f","PUT Actual",             "bar"),
     DIDStruct(0x10c0, 2, 15,false,0f,  2f,     0.7f, 4f,     0f, "%05.3f","Lambda Actual",          "l"),
-    DIDStruct(0x2004, 2, 9, true, -10f,10f,    -6f,  60f,    0f, "%05.2f","Ignition angle",         "°"),
+    DIDStruct(0x2004, 2, 9, true, -10f,10f,    -15f, 60f,    0f, "%05.2f","Ignition angle",         "°"),
     DIDStruct(0x39a2, 2, 8, false,0f,  100f,   -1f,  100f,   0f, "%02.2f","Wastegate Position",     "%"),
     DIDStruct(0x2032, 2, 16,false,0f,  1500f,  -1f,  1500f,  0f, "%07.2f","Mass Airflow",           "g/s"),
     //P2
@@ -169,6 +173,8 @@ object DIDs {
 }
 
 object UDS22Logger {
+    private var mLastEnabled = false
+
     fun frameCount(): Int {
         return 8
     }
@@ -216,7 +222,7 @@ object UDS22Logger {
         return bleHeader.toByteArray() + buff
     }
 
-    fun processFrame(buff: ByteArray?): Int {
+    fun processFrame(tick: Int, buff: ByteArray?, context: Context): Int {
         // if the buffer is null abort
         if(buff == null) {
             return UDS_ERROR_NULL
@@ -259,10 +265,36 @@ object UDS22Logger {
             }
         }
 
+        //Update Log every 2nd tick
+        if(tick % 2 == 0) {
+            val dEnable = DIDList[DIDList.count()-1]
+            if (dEnable.value != 0.0f) {
+                //If we were not enabled before we must open a log to start writing
+                if (!mLastEnabled) {
+                    val currentDateTime = LocalDateTime.now()
+                    LogFile.create("vwflashtools-${currentDateTime.format(DateTimeFormatter.ofPattern("yyyy_MM_dd-HH_mm_ss"))}.csv", context)
+                    var strItems: String? = "Time"
+                    for (x in 0 until DIDList.count()) {
+                        strItems += ",${DIDList[x].name}"
+                    }
+                    LogFile.add(strItems)
+                }
+                mLastEnabled = true
+
+                //Write new values to log
+                var strItems: String? = (bleHeader.tickCount.toFloat() / 1000.0f).toString()
+                for (x in 0 until DIDList.count()) {
+                    strItems += ",${DIDList[x].value}"
+                }
+                LogFile.add(strItems)
+            } else {
+                if (mLastEnabled) {
+                    LogFile.close()
+                }
+                mLastEnabled = false
+            }
+        }
+
         return UDS_OK
-    }
-
-    fun readConfig() {
-
     }
 }

@@ -15,9 +15,6 @@ import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat.startForegroundService
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProviders
-
-import android.R.attr.name
 import androidx.fragment.app.viewModels
 
 

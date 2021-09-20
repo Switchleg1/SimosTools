@@ -22,11 +22,16 @@ import java.time.format.DateTimeFormatter
 
 
 class LoggingFragment : Fragment() {
-    private var mLastEnabled = false
     private var mPackCount: TextView? = null
     private var mPIDText: Array<TextView?> = arrayOfNulls(8)
     private var mPIDProgress: Array<ProgressBar?> = arrayOfNulls(8)
     private var mPIDMultiplier: Array<Float> = arrayOf(1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f)
+    private val mColorWarn = Color.rgb(127, 127, 255)
+    private val mColorNormal = Color.rgb(255, 255, 255)
+    private var mLastColor: BooleanArray = booleanArrayOf(false, false, false, false, false, false, false, false)
+    private var mLastWarning = false
+    private var mLastEnabled = false
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -93,7 +98,8 @@ class LoggingFragment : Fragment() {
             mPIDProgress[i]?.progressTintList = ColorStateList.valueOf(Color.GREEN)
         }
 
-        view.setBackgroundColor(Color.rgb(255, 255, 255))
+        //Set background color
+        view.setBackgroundColor(mColorNormal)
     }
 
     override fun onResume() {
@@ -119,7 +125,7 @@ class LoggingFragment : Fragment() {
                     mPIDText[1]?.text = getString(R.string.textVIN, buff.toString())
                 }
                 MESSAGE_READ_LOG.toString() -> {
-                    val readBuff = intent.getByteArrayExtra("readBuffer") ?: return
+                    //val readBuff = intent.getByteArrayExtra("readBuffer") ?: return
                     val readCount = intent.getIntExtra("readCount", 0)
                     val readTime = intent.getIntExtra("readTime", 0)
                     val readResult = intent.getIntExtra("readResult", UDS_ERROR_NULL)
@@ -135,67 +141,64 @@ class LoggingFragment : Fragment() {
 
                         //Set the UI values
                         for(i in 0..7) {
+                            //Update text
                             mPIDText[i]?.text = getString(R.string.textPID, DIDList[i].name, DIDList[i].format.format(DIDList[i].value), DIDList[i].unit)
-                            mPIDProgress[i]?.progress = (DIDList[i].value * mPIDMultiplier[i]).toInt()
+
+                            //Update progress is the value is different
+                            val newProgress = (DIDList[i].value * mPIDMultiplier[i]).toInt()
+                            if(newProgress != mPIDProgress[i]?.progress) {
+                                mPIDProgress[i]?.progress = newProgress
+                            }
+
+                            //Check to see if we should be warning user
                             if((DIDList[i].value > DIDList[i].warnMax) or (DIDList[i].value < DIDList[i].warnMin)) {
-                                mPIDProgress[i]?.progressTintList = ColorStateList.valueOf(Color.RED)
+
+                                if(!mLastColor[i]) {
+                                    mPIDProgress[i]?.progressTintList = ColorStateList.valueOf(Color.RED)
+                                }
+
+                                mLastColor[i] = true
                                 anyWarning = true
                             } else {
-                                mPIDProgress[i]?.progressTintList = ColorStateList.valueOf(Color.GREEN)
+                                if(mLastColor[i]) {
+                                    mPIDProgress[i]?.progressTintList = ColorStateList.valueOf(Color.GREEN)
+                                }
+
+                                mLastColor[i] = false
                             }
                         }
 
                         //If any visible PIDS are in warning state set background color to warn
                         if(anyWarning) {
-                            view?.setBackgroundColor(Color.rgb(127, 127, 255))
+                            if(!mLastWarning) {
+                                view?.setBackgroundColor(mColorWarn)
+                            }
+
+                            mLastWarning = true
                         } else {
-                            view?.setBackgroundColor(Color.rgb(255, 255, 255))
+                            if(mLastWarning) {
+                                view?.setBackgroundColor(mColorNormal)
+                            }
+
+                            mLastWarning = false
                         }
 
-                        //Update Log every 2nd tick
-                        if(readCount % 2 == 0) {
-                            val dEnable = DIDList[DIDList.count()-1]
-                            val fps = readCount / (System.currentTimeMillis()-readTime)
-                            mPackCount?.text = "${dEnable.value} $fps"
-                            if (dEnable.value != 0.0f) {
-                                //If we were not enabled before we must open a log to start writing
-                                if (!mLastEnabled) {
-                                    val currentDateTime = LocalDateTime.now()
-                                    LogFile.create(
-                                        "vwflashtools-${
-                                            currentDateTime.format(
-                                                DateTimeFormatter.ofPattern("yyyy_MM_dd-HH_mm_ss")
-                                            )
-                                        }.csv", context
-                                    )
-                                    var strItems: String? = "Time"
-                                    for (i in 0 until DIDList.count()) {
-                                        strItems += ",${DIDList[i].name}"
-                                    }
-                                    LogFile.add(strItems)
-                                }
-                                mLastEnabled = true
-
-                                //Write new values to log
-                                val bleHeader = BLEHeader()
-                                bleHeader.fromByteArray(readBuff)
-                                var strItems: String? = (bleHeader.tickCount.toFloat() / 1000.0f).toString()
-                                for (i in 0 until DIDList.count()) {
-                                    strItems += ",${DIDList[i].value}"
-                                }
-                                LogFile.add(strItems)
-
-                                //Highlight packet count in red since we are logging
+                        //Update fps
+                        val dEnable = DIDList[DIDList.count()-1]
+                        val fps = readCount.toFloat() / (readTime.toFloat() / 1000.0f)
+                        mPackCount?.text = "${fps}fps"
+                        if (dEnable.value != 0.0f) {
+                            //Highlight packet count in red since we are logging
+                            if(!mLastEnabled) {
                                 mPackCount?.setTextColor(Color.RED)
-                            } else {
-                                if (mLastEnabled) {
-                                    LogFile.close()
-                                }
-                                mLastEnabled = false
-
-                                //Not logging set packet count to black
+                            }
+                            mLastEnabled = true
+                        } else {
+                            //Not logging set packet count to black
+                            if(mLastEnabled) {
                                 mPackCount?.setTextColor(Color.BLACK)
                             }
+                            mLastEnabled = false
                         }
                     }
                 }

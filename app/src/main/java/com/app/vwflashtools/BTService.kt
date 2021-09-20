@@ -556,12 +556,11 @@ class BTService: Service() {
 
                                 //Broadcast a new message
                                 val buff = mReadQueue.poll()
-                                val result = UDS22Logger.processFrame(buff)
+                                val result = UDS22Logger.processFrame(mTaskCount, buff, applicationContext)
 
                                 val intentMessage = Intent(MESSAGE_READ_LOG.toString())
-                                intentMessage.putExtra("readBuffer", buff)
                                 intentMessage.putExtra("readCount", mTaskCount)
-                                intentMessage.putExtra("readTime", mTaskTime)
+                                intentMessage.putExtra("readTime", System.currentTimeMillis()-mTaskTime)
                                 intentMessage.putExtra("readResult", result)
                                 sendBroadcast(intentMessage)
                             }
