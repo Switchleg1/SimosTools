@@ -14,11 +14,14 @@ import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat.getDrawable
 import androidx.core.content.ContextCompat.startForegroundService
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import android.R.attr.name
+import androidx.constraintlayout.widget.ConstraintLayout
 
 
 class LoggingFragment : Fragment() {
@@ -31,6 +34,7 @@ class LoggingFragment : Fragment() {
     private var mLastColor: BooleanArray = booleanArrayOf(false, false, false, false, false, false, false, false)
     private var mLastWarning = false
     private var mLastEnabled = false
+    private var mGraph: SwitchGraph? = null
 
 
     override fun onCreateView(
@@ -63,6 +67,14 @@ class LoggingFragment : Fragment() {
                 view.findViewById<Button>(R.id.buttonStartLog).text = getString(R.string.start_log)
             }
         }
+
+        /*val lay = view.findViewById<ConstraintLayout>(R.id.LoggingLayout)!!
+        mGraph = SwitchGraph(view.context)
+        mGraph?.layout(0,0,lay.maxWidth,lay.maxHeight)
+        mGraph?.contentDescription = getString(R.string.app_name)
+        //mGraph?.setImageDrawable(getDrawable(requireContext(), R.drawable.vw_logo))
+        mGraph?.setImageDrawable(getDrawable(requireContext(), R.drawable.graph))
+        lay.addView(mGraph)*/
 
         mPIDText[0] = view.findViewById<TextView>(R.id.textViewPID1)!!
         mPIDText[1] = view.findViewById<TextView>(R.id.textViewPID2)!!

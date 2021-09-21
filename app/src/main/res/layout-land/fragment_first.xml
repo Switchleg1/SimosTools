@@ -32,14 +32,15 @@
         android:layout_height="225dp"
         android:src="@drawable/vw_logo"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="@+id/app_name" />
 
     <Button
         android:id="@+id/buttonStopService"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="Exit"
+        android:text="@string/exit_app"
         app:layout_constraintStart_toStartOf="@+id/button_flashing"
         app:layout_constraintTop_toBottomOf="@+id/button_flashing" />
 

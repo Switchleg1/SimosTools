@@ -10,6 +10,7 @@ import android.widget.Button
 import androidx.core.content.ContextCompat.startForegroundService
 import androidx.navigation.fragment.findNavController
 
+
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
  */
@@ -21,10 +22,6 @@ class FirstFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_first, container, false)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

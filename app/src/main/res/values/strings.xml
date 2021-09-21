@@ -8,6 +8,7 @@
     <string name="flashing_fragment">Flashing Fragment</string>
     <string name="logging_fragment">Logging Fragment</string>
     <!-- Strings used for buttons -->
+    <string name="exit_app">Exit</string>
     <string name="flashing">Flashing</string>
     <string name="logging">Logging</string>
     <string name="send">Send</string>

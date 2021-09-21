@@ -532,19 +532,19 @@ class BTService: Service() {
                 }
 
                 //See if there are any packets waiting to be sent
-                while (!mReadQueue.isEmpty()) {
+                if (!mReadQueue.isEmpty()) {
                     try {
+                        val buff = mReadQueue.poll()
+                        
                         when (mTask) {
                             TASK_NONE -> {
                                 //Broadcast a new message
-                                val buff = mReadQueue.poll()
                                 val intentMessage = Intent(MESSAGE_READ.toString())
                                 intentMessage.putExtra("readBuffer", buff)
                                 sendBroadcast(intentMessage)
                             }
                             TASK_RD_VIN -> {
                                 //Broadcast a new message
-                                val buff = mReadQueue.poll()
                                 val intentMessage = Intent(MESSAGE_READ_VIN.toString())
                                 intentMessage.putExtra("readBuffer", buff)
                                 sendBroadcast(intentMessage)
@@ -554,10 +554,10 @@ class BTService: Service() {
                             TASK_LOGGING -> {
                                 mTaskCount++
 
-                                //Broadcast a new message
-                                val buff = mReadQueue.poll()
+                                //Process frame
                                 val result = UDS22Logger.processFrame(mTaskCount, buff, applicationContext)
 
+                                //Broadcast a new message
                                 if((mTaskCount % 4 == 0) or (result != UDS_OK)) {
                                     val intentMessage = Intent(MESSAGE_READ_LOG.toString())
                                     intentMessage.putExtra("readCount", mTaskCount)

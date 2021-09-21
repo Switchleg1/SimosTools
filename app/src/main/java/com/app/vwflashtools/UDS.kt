@@ -51,7 +51,7 @@ val DIDList: List<DIDStruct> = listOf(
     DIDStruct(0x39a2, 2, 9, false,0f,  100f,   -1f,  100f,   0f, "%02.2f","Wastegate Position",     "%"),
     DIDStruct(0x2032, 2, 16,false,0f,  1500f,  -1f,  1500f,  0f, "%07.2f","Mass Airflow",           "g/s"),
     //P2
-    DIDStruct(0x1456, 2, 15,false,0f,  2f,     0.7f, 4f,     0f, "%05.3f","Lambda Specified",       "l"),
+    DIDStruct(0x2950, 2, 15,false,0f,  2f,     0.7f, 4f,     0f, "%05.3f","Lambda Specified",       "l"),
     DIDStruct(0x13a0, 2, 17,false,0f,  190000f,0f,   185000f,0f, "%05.2f","Injector PW Cyl 1 DI",   "ms"),
     DIDStruct(0x437C, 2, 8, true, -50f,450f,   -100f,500f,   0f, "%03.2f","Engine torque",          "Nm"),
     DIDStruct(0x2027, 2, 8, false,0f,  250f,   10f,  250f,   0f, "%03.2f","HFP Actual",             "bar"),

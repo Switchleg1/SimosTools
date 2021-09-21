@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:keepScreenOn="true"
-    tools:context=".LoggingFragment">
+    tools:context=".LoggingFragment"
+    android:id="@+id/LoggingLayout">
 
     <ProgressBar
         android:id="@+id/progressBar3"
