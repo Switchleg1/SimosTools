@@ -97,16 +97,16 @@ class LoggingFragment : Fragment() {
 
         //Set the UI values
         for(i in 0..7) {
-            mPIDText[i]?.text = getString(R.string.textPID, DIDList[i].name, DIDList[i].format.format(DIDList[i].value), DIDList[i].unit)
+            mPIDText[i]?.text = getString(R.string.textPID, DIDs.list[i].name, DIDs.list[i].format.format(DIDs.list[i].value), DIDs.list[i].unit)
 
             //Check for low value PIDS
-            if ((DIDList[i].max - DIDList[i].min) < 100.0f) {
-                mPIDMultiplier[i] = 100.0f / (DIDList[i].max - DIDList[i].min)
+            if ((DIDs.list[i].max - DIDs.list[i].min) < 100.0f) {
+                mPIDMultiplier[i] = 100.0f / (DIDs.list[i].max - DIDs.list[i].min)
             }
 
-            mPIDProgress[i]?.progress = (DIDList[i].value * mPIDMultiplier[i]).toInt()
-            mPIDProgress[i]?.min = (DIDList[i].min * mPIDMultiplier[i]).toInt()
-            mPIDProgress[i]?.max = (DIDList[i].max * mPIDMultiplier[i]).toInt()
+            mPIDProgress[i]?.progress = (DIDs.list[i].value * mPIDMultiplier[i]).toInt()
+            mPIDProgress[i]?.min = (DIDs.list[i].min * mPIDMultiplier[i]).toInt()
+            mPIDProgress[i]?.max = (DIDs.list[i].max * mPIDMultiplier[i]).toInt()
             mPIDProgress[i]?.progressTintList = ColorStateList.valueOf(Color.GREEN)
         }
 
@@ -152,16 +152,16 @@ class LoggingFragment : Fragment() {
                     var anyWarning = false
                     for(i in 0..7) {
                         //Update text
-                        mPIDText[i]?.text = getString(R.string.textPID, DIDList[i].name, DIDList[i].format.format(DIDList[i].value), DIDList[i].unit)
+                        mPIDText[i]?.text = getString(R.string.textPID, DIDs.list[i].name, DIDs.list[i].format.format(DIDs.list[i].value), DIDs.list[i].unit)
 
                         //Update progress is the value is different
-                        val newProgress = (DIDList[i].value * mPIDMultiplier[i]).toInt()
+                        val newProgress = (DIDs.list[i].value * mPIDMultiplier[i]).toInt()
                         if(newProgress != mPIDProgress[i]?.progress) {
                             mPIDProgress[i]?.progress = newProgress
                         }
 
                         //Check to see if we should be warning user
-                        if((DIDList[i].value > DIDList[i].warnMax) or (DIDList[i].value < DIDList[i].warnMin)) {
+                        if((DIDs.list[i].value > DIDs.list[i].warnMax) or (DIDs.list[i].value < DIDs.list[i].warnMin)) {
 
                             if(!mLastColor[i]) {
                                 mPIDProgress[i]?.progressTintList = ColorStateList.valueOf(Color.RED)
@@ -194,8 +194,9 @@ class LoggingFragment : Fragment() {
                     }
 
                     //Update fps
-                    val dEnable = DIDList[DIDList.count()-1]
                     val fps = readCount.toFloat() / (readTime.toFloat() / 1000.0f)
+
+                    val dEnable = DIDs.list[DIDs.list.count()-1]
                     mPackCount?.text = "${fps}fps"
                     if (dEnable.value != 0.0f) {
                         //Highlight packet count in red since we are logging

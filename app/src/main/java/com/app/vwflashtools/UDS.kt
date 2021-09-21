@@ -26,6 +26,7 @@ import java.time.format.DateTimeFormatter
 // 16: X / 2.4
 // 17: X * 0.005
 // 18: X * 0.002874
+// 19: 100 - ( 1.0 * X + 0.0 ) / 100.0
 
 data class DIDStruct(var address: Int,
                      var length: Int,
@@ -40,60 +41,60 @@ data class DIDStruct(var address: Int,
                      var name: String,
                      var unit: String)
 
-val DIDList: List<DIDStruct> = listOf(
-    //P1
-    DIDStruct(0x2033, 2, 18,false,0f,  220f,   -20f, 200f,   0f, "%06.2f","Speed",                  "km/hr"),
-    DIDStruct(0xf40C, 2, 6, false,0f,  7000f,  -1f,  6000f,  0f, "%06.1f","RPM",                    "rpm"),
-    DIDStruct(0x39c0, 2, 10,false,0f,  3f,     0f,   2.6f,   0f, "%05.3f","MAP Actual",             "bar"),
-    DIDStruct(0x39c2, 2, 10,false,0f,  3f,     0f,   2.6f,   0f, "%05.3f","PUT Actual",             "bar"),
-    DIDStruct(0x10c0, 2, 15,false,0f,  2f,     0.7f, 4f,     0f, "%05.3f","Lambda Actual",          "l"),
-    DIDStruct(0x2004, 2, 9, true, -10f,10f,    -15f, 60f,    0f, "%05.2f","Ignition angle",         "°"),
-    DIDStruct(0x39a2, 2, 9, false,0f,  100f,   -1f,  100f,   0f, "%02.2f","Wastegate Position",     "%"),
-    DIDStruct(0x2032, 2, 16,false,0f,  1500f,  -1f,  1500f,  0f, "%07.2f","Mass Airflow",           "g/s"),
-    //P2
-    DIDStruct(0x2950, 2, 15,false,0f,  2f,     0.7f, 4f,     0f, "%05.3f","Lambda Specified",       "l"),
-    DIDStruct(0x13a0, 2, 17,false,0f,  190000f,0f,   185000f,0f, "%05.2f","Injector PW Cyl 1 DI",   "ms"),
-    DIDStruct(0x437C, 2, 8, true, -50f,450f,   -100f,500f,   0f, "%03.2f","Engine torque",          "Nm"),
-    DIDStruct(0x2027, 2, 8, false,0f,  250f,   10f,  250f,   0f, "%03.2f","HFP Actual",             "bar"),
-    DIDStruct(0xf406, 1, 3, false,-25f,25f,    -20f, 20f,    0f, "%02.2f","STFT",                   "%"),
-    DIDStruct(0x20ba, 2, 8, true, 0f,  100f,   -1f,  101f,   0f, "%05.1f","Throttle Sensor",        "%"),
-    DIDStruct(0x1040, 2, 4, false,0f,  190000f,0f,   185000f,0f, "%08.1f","Turbo Speed",            "rpm"),
-    DIDStruct(0x209a, 2, 9, false,0f,  100f,   -1f,  100f,   0f, "%03.2f","HPFP Effective Volume",  "%"),
-    //P3
-    DIDStruct(0x200a, 2, 9, true, -10f,0f,     -4f,  1f,     0f, "%05.3f","Retard cylinder 1",      "°"),
-    DIDStruct(0x200b, 2, 9, true, -10f,0f,     -4f,  1f,     0f, "%05.3f","Retard cylinder 2",      "°"),
-    DIDStruct(0x200c, 2, 9, true, -10f,0f,     -4f,  1f,     0f, "%05.3f","Retard cylinder 3",      "°"),
-    DIDStruct(0x200d, 2, 9, true, -10f,0f,     -4f,  1f,     0f, "%05.3f","Retard cylinder 4",      "°"),
-    DIDStruct(0x2904, 2, 0, false,0f,  20f,    -1f,  10f,    0f, "%03.0f","Misfire Sum Global",     ""),
-    DIDStruct(0x1001, 1, 7, false,-40f,55f,    -35f, 50f,    0f, "%03.2f","IAT",                    "°C"),
-    DIDStruct(0x2025, 2, 10,false,0f,  15f,    6f,   15f,    0f, "%03.2f","LFP Actual",             "bar"),
-    DIDStruct(0x293b, 2, 8, false,0f,  250f,   10f,  250f,   0f, "%03.2f","HFP Command",            "bar"),
-
-    DIDStruct(0x2028, 2, 9, false,0f,  2f,     0.7f, 4f,     0f, "%05.3f","LPFP Duty",              "%"),
-    DIDStruct(0x295c, 1, 0, false,0f,  1f,     -1f,  2f,     0f, "%01.0f","Flaps Actual",           ""),
-    DIDStruct(0xf456, 1, 3, false,-25f,25f,    -20f, 20f,    0f, "%02.2f","LTFT",                   "%"),
-    DIDStruct(0x202f, 2, 2, false,-50f,130f,   0f,   112f,   0f, "%03.2f","Oil temp",               "°C"),
-    DIDStruct(0x13ca, 2, 12,false,0.5f,1.3f,   0.7f, 1.2f,   0f, "%07.2f","Ambient pressure",       "bar"),
-    DIDStruct(0x1004, 2, 5, true, -40f,50f,    -30f, 45f,    0f, "%07.2f","Ambient air temperature","°C"),
-    DIDStruct(0x4380, 2, 8, true, 0f,  500f,   -10f, 500f,   0f, "%03.2f","Engine torque requested","Nm"),
-    DIDStruct(0x203c, 2, 0, false,0f,  2f,     -1f,  3f,     0f, "%01.0f","Cruise control status",  ""),
-    /*
-    DIDStruct(0x13ac, 2, 17, false, 0f, 190000f, 0f, 185000f,0f, "%05.2f","Injector PW Cyl 1 MPI", "ms"),
-    DIDStruct(0x2966, 2, 0, false, 0f, 20f, -1f, 10f,0f, "%03.0f","Misfire Sum 1", ""),
-    DIDStruct(0x2967, 2, 0, false, 0f, 20f, -1f, 10f,0f, "%03.0f","Misfire Sum 2", ""),
-    DIDStruct(0x2968, 2, 0, false, 0f, 20f, -1f, 10f,0f, "%03.0f","Misfire Sum 3", ""),
-    DIDStruct(0x2969, 2, 0, false, 0f, 20f, -1f, 10f,0f, "%03.0f","Misfire Sum 4", ""),
-    DIDStruct(0x40e1, 2, 10, false, -50f, 130f, -50f, 130f,0f, "%03.2f","Coolant temp","°C"),
-    DIDStruct(0x2932, 2, 10, false, 0f, 5f, 6f, 15f,0f, "%03.2f","LFP Command", "bar"),
-    DIDStruct(0x295d, 1, 0, false, 0f, 1f, -1f, 2f,0f, "%01.0f","Flaps Command", ""),
-    */
-)
-
 object DIDs {
+    val list: List<DIDStruct> = listOf(
+        //P1
+        DIDStruct(0x2033, 2, 18,false,0f,  220f,   -20f, 200f,   0f, "%06.2f","Speed",                  "km/hr"),
+        DIDStruct(0xf40C, 2, 6, false,0f,  7000f,  -1f,  6000f,  0f, "%06.1f","RPM",                    "rpm"),
+        DIDStruct(0x39c0, 2, 10,false,0f,  3f,     0f,   2.6f,   0f, "%05.3f","MAP Actual",             "bar"),
+        DIDStruct(0x39c2, 2, 10,false,0f,  3f,     0f,   2.6f,   0f, "%05.3f","PUT Actual",             "bar"),
+        DIDStruct(0x10c0, 2, 15,false,0f,  2f,     0.7f, 4f,     0f, "%05.3f","Lambda Actual",          "l"),
+        DIDStruct(0x2004, 2, 9, true, -10f,10f,    -15f, 60f,    0f, "%05.2f","Ignition angle",         "°"),
+        DIDStruct(0x39a2, 2, 19,false,0f,  100f,   -1f,  100f,   0f, "%02.2f","Wastegate Position",     "%"),
+        DIDStruct(0x2032, 2, 16,false,0f,  1500f,  -1f,  1500f,  0f, "%07.2f","Mass Airflow",           "g/s"),
+        //P2
+        DIDStruct(0x2950, 2, 15,false,0f,  2f,     0.7f, 4f,     0f, "%05.3f","Lambda Specified",       "l"),
+        DIDStruct(0x13a0, 2, 17,false,0f,  190000f,0f,   185000f,0f, "%05.2f","Injector PW Cyl 1 DI",   "ms"),
+        DIDStruct(0x437C, 2, 8, true, -50f,450f,   -100f,500f,   0f, "%03.2f","Engine torque",          "Nm"),
+        DIDStruct(0x2027, 2, 8, false,0f,  250f,   10f,  250f,   0f, "%03.2f","HFP Actual",             "bar"),
+        DIDStruct(0xf406, 1, 3, false,-25f,25f,    -20f, 20f,    0f, "%02.2f","STFT",                   "%"),
+        DIDStruct(0x20ba, 2, 8, true, 0f,  100f,   -1f,  101f,   0f, "%05.1f","Throttle Sensor",        "%"),
+        DIDStruct(0x1040, 2, 4, false,0f,  190000f,0f,   185000f,0f, "%08.1f","Turbo Speed",            "rpm"),
+        DIDStruct(0x209a, 2, 9, false,0f,  100f,   -1f,  100f,   0f, "%03.2f","HPFP Effective Volume",  "%"),
+        //P3
+        DIDStruct(0x200a, 2, 9, true, -10f,0f,     -4f,  1f,     0f, "%05.3f","Retard cylinder 1",      "°"),
+        DIDStruct(0x200b, 2, 9, true, -10f,0f,     -4f,  1f,     0f, "%05.3f","Retard cylinder 2",      "°"),
+        DIDStruct(0x200c, 2, 9, true, -10f,0f,     -4f,  1f,     0f, "%05.3f","Retard cylinder 3",      "°"),
+        DIDStruct(0x200d, 2, 9, true, -10f,0f,     -4f,  1f,     0f, "%05.3f","Retard cylinder 4",      "°"),
+        DIDStruct(0x2904, 2, 0, false,0f,  20f,    -1f,  10f,    0f, "%03.0f","Misfire Sum Global",     ""),
+        DIDStruct(0x1001, 1, 7, false,-40f,55f,    -35f, 50f,    0f, "%03.2f","IAT",                    "°C"),
+        DIDStruct(0x2025, 2, 10,false,0f,  15f,    6f,   15f,    0f, "%03.2f","LFP Actual",             "bar"),
+        DIDStruct(0x293b, 2, 8, false,0f,  250f,   10f,  250f,   0f, "%03.2f","HFP Command",            "bar"),
+
+        DIDStruct(0x2028, 2, 9, false,0f,  2f,     0.7f, 4f,     0f, "%05.3f","LPFP Duty",              "%"),
+        DIDStruct(0x295c, 1, 0, false,0f,  1f,     -1f,  2f,     0f, "%01.0f","Flaps Actual",           ""),
+        DIDStruct(0xf456, 1, 3, false,-25f,25f,    -20f, 20f,    0f, "%02.2f","LTFT",                   "%"),
+        DIDStruct(0x202f, 2, 2, false,-50f,130f,   0f,   112f,   0f, "%03.2f","Oil temp",               "°C"),
+        DIDStruct(0x13ca, 2, 12,false,0.5f,1.3f,   0.7f, 1.2f,   0f, "%07.2f","Ambient pressure",       "bar"),
+        DIDStruct(0x1004, 2, 5, true, -40f,50f,    -30f, 45f,    0f, "%07.2f","Ambient air temperature","°C"),
+        DIDStruct(0x4380, 2, 8, true, 0f,  500f,   -10f, 500f,   0f, "%03.2f","Engine torque requested","Nm"),
+        DIDStruct(0x203c, 2, 0, false,0f,  2f,     -1f,  3f,     0f, "%01.0f","Cruise control status",  ""),
+        /*
+        DIDStruct(0x13ac, 2, 17, false, 0f, 190000f, 0f, 185000f,0f, "%05.2f","Injector PW Cyl 1 MPI", "ms"),
+        DIDStruct(0x2966, 2, 0, false, 0f, 20f, -1f, 10f,0f, "%03.0f","Misfire Sum 1", ""),
+        DIDStruct(0x2967, 2, 0, false, 0f, 20f, -1f, 10f,0f, "%03.0f","Misfire Sum 2", ""),
+        DIDStruct(0x2968, 2, 0, false, 0f, 20f, -1f, 10f,0f, "%03.0f","Misfire Sum 3", ""),
+        DIDStruct(0x2969, 2, 0, false, 0f, 20f, -1f, 10f,0f, "%03.0f","Misfire Sum 4", ""),
+        DIDStruct(0x40e1, 2, 10, false, -50f, 130f, -50f, 130f,0f, "%03.2f","Coolant temp","°C"),
+        DIDStruct(0x2932, 2, 10, false, 0f, 5f, 6f, 15f,0f, "%03.2f","LFP Command", "bar"),
+        DIDStruct(0x295d, 1, 0, false, 0f, 1f, -1f, 2f,0f, "%01.0f","Flaps Command", ""),
+        */
+    )
+
     fun getDID(address: Int): DIDStruct? {
-        for (i in 0 until DIDList.count()) {
-            if(DIDList[i].address == address) {
-                return DIDList[i]
+        for (i in 0 until list.count()) {
+            if(list[i].address == address) {
+                return list[i]
             }
         }
         return null
@@ -163,6 +164,9 @@ object DIDs {
             18 -> {
                 did.value = data.toFloat() * 0.002874f
             }
+            19 -> {
+                did.value = 100.0f - data.toFloat() / 100.0f
+            }
         }
 
         return did.value
@@ -197,7 +201,7 @@ object UDS22Logger {
         if(index % 2 == 0) {
             //Write P1 PIDS
             for (i in 0 until 8) {
-                val did: DIDStruct = DIDList[i]
+                val did: DIDStruct = DIDs.list[i]
                 bleHeader.cmdSize += 2
                 buff += ((did.address and 0xFF00) shr 8).toByte()
                 buff += (did.address and 0xFF).toByte()
@@ -207,7 +211,7 @@ object UDS22Logger {
             var startIndex = 8 + ((index % 4) / 2 * 4)
             var endIndex = startIndex + 4
             for (i in startIndex until endIndex) {
-                val did: DIDStruct = DIDList[i]
+                val did: DIDStruct = DIDs.list[i]
                 bleHeader.cmdSize += 2
                 buff += ((did.address and 0xFF00) shr 8).toByte()
                 buff += (did.address and 0xFF).toByte()
@@ -216,7 +220,7 @@ object UDS22Logger {
             startIndex = 16 + ((index % 8) / 2 * 4)
             endIndex = startIndex + 4
             for (i in startIndex until endIndex) {
-                val did: DIDStruct = DIDList[i]
+                val did: DIDStruct = DIDs.list[i]
                 bleHeader.cmdSize += 2
                 buff += ((did.address and 0xFF00) shr 8).toByte()
                 buff += (did.address and 0xFF).toByte()
@@ -271,15 +275,15 @@ object UDS22Logger {
 
         //Update Log every 2nd tick
         if(tick % 2 == 0) {
-            val dEnable = DIDList[DIDList.count()-1]
+            val dEnable = DIDs.list[DIDs.list.count()-1]
             if (dEnable.value != 0.0f) {
                 //If we were not enabled before we must open a log to start writing
                 if (!mLastEnabled) {
                     val currentDateTime = LocalDateTime.now()
                     LogFile.create("vwflashtools-${currentDateTime.format(DateTimeFormatter.ofPattern("yyyy_MM_dd-HH_mm_ss"))}.csv", context)
                     var strItems: String? = "Time"
-                    for (x in 0 until DIDList.count()) {
-                        strItems += ",${DIDList[x].name}"
+                    for (x in 0 until DIDs.list.count()) {
+                        strItems += ",${DIDs.list[x].name}"
                     }
                     LogFile.add(strItems)
                 }
@@ -287,8 +291,8 @@ object UDS22Logger {
 
                 //Write new values to log
                 var strItems: String? = (bleHeader.tickCount.toFloat() / 1000.0f).toString()
-                for (x in 0 until DIDList.count()) {
-                    strItems += ",${DIDList[x].value}"
+                for (x in 0 until DIDs.list.count()) {
+                    strItems += ",${DIDs.list[x].value}"
                 }
                 LogFile.add(strItems)
             } else {

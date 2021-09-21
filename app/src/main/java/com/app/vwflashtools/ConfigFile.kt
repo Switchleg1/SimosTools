@@ -65,62 +65,62 @@ object ConfigFile {
 
         Log.i(TAG, "PID[$pidNumber][$pidVar]: $value")
 
-        if((pidNumber < DIDList.count()) and (pidNumber >= 0)) {
+        if((pidNumber < DIDs.list.count()) and (pidNumber >= 0)) {
             when(pidVar) {
                 "Address" -> {
                     val pAddress = Pattern.compile("^[0-9A-F]+\$", Pattern.CASE_INSENSITIVE)
                     val mAddress = pAddress.matcher(value)
                     if(mAddress.matches() and (value.length == 4)) {
-                        DIDList[pidNumber].address = Integer.decode("0x$value")
+                        DIDs.list[pidNumber].address = Integer.decode("0x$value")
                     }
                 }
                 "Length" -> {
-                    DIDList[pidNumber].length = value.toInt()
+                    DIDs.list[pidNumber].length = value.toInt()
                 }
                 "Equation" -> {
-                    DIDList[pidNumber].equation = value.toInt()
+                    DIDs.list[pidNumber].equation = value.toInt()
                 }
                 "Signed" -> {
-                    DIDList[pidNumber].signed = value.toBoolean()
+                    DIDs.list[pidNumber].signed = value.toBoolean()
                 }
                 "Min" -> {
-                    DIDList[pidNumber].min = value.toFloat()
+                    DIDs.list[pidNumber].min = value.toFloat()
                 }
                 "Max" -> {
-                    DIDList[pidNumber].max = value.toFloat()
+                    DIDs.list[pidNumber].max = value.toFloat()
                 }
                 "WarnMin" -> {
-                    DIDList[pidNumber].warnMin = value.toFloat()
+                    DIDs.list[pidNumber].warnMin = value.toFloat()
                 }
                 "WarnMax" -> {
-                    DIDList[pidNumber].warnMax = value.toFloat()
+                    DIDs.list[pidNumber].warnMax = value.toFloat()
                 }
                 "Format" -> {
-                    DIDList[pidNumber].format = value
+                    DIDs.list[pidNumber].format = value
                 }
                 "Name" -> {
-                    DIDList[pidNumber].name = value
+                    DIDs.list[pidNumber].name = value
                 }
                 "Unit" -> {
-                    DIDList[pidNumber].unit = value
+                    DIDs.list[pidNumber].unit = value
                 }
             }
         }
     }
 
     private fun writeDefaultConfig(filename: String?, context: Context?) {
-        for(i in 0 until DIDList.count()) {
-            mProperties["PID${i.toTwo()}.Address"] = DIDList[i].address.toShort().toHex()
-            mProperties["PID${i.toTwo()}.Length"] = DIDList[i].length.toString()
-            mProperties["PID${i.toTwo()}.Equation"] = DIDList[i].equation.toString()
-            mProperties["PID${i.toTwo()}.Signed"] = DIDList[i].signed.toString()
-            mProperties["PID${i.toTwo()}.Min"] = DIDList[i].min.toString()
-            mProperties["PID${i.toTwo()}.Max"] = DIDList[i].max.toString()
-            mProperties["PID${i.toTwo()}.WarnMin"] = DIDList[i].warnMin.toString()
-            mProperties["PID${i.toTwo()}.WarnMax"] = DIDList[i].warnMax.toString()
-            mProperties["PID${i.toTwo()}.Format"] = DIDList[i].format
-            mProperties["PID${i.toTwo()}.Name"] = DIDList[i].name
-            mProperties["PID${i.toTwo()}.Unit"] = DIDList[i].unit
+        for(i in 0 until DIDs.list.count()) {
+            mProperties["PID${i.toTwo()}.Address"] = DIDs.list[i].address.toShort().toHex()
+            mProperties["PID${i.toTwo()}.Length"] = DIDs.list[i].length.toString()
+            mProperties["PID${i.toTwo()}.Equation"] = DIDs.list[i].equation.toString()
+            mProperties["PID${i.toTwo()}.Signed"] = DIDs.list[i].signed.toString()
+            mProperties["PID${i.toTwo()}.Min"] = DIDs.list[i].min.toString()
+            mProperties["PID${i.toTwo()}.Max"] = DIDs.list[i].max.toString()
+            mProperties["PID${i.toTwo()}.WarnMin"] = DIDs.list[i].warnMin.toString()
+            mProperties["PID${i.toTwo()}.WarnMax"] = DIDs.list[i].warnMax.toString()
+            mProperties["PID${i.toTwo()}.Format"] = DIDs.list[i].format
+            mProperties["PID${i.toTwo()}.Name"] = DIDs.list[i].name
+            mProperties["PID${i.toTwo()}.Unit"] = DIDs.list[i].unit
         }
 
         write(filename, context)
