@@ -6,11 +6,11 @@ Currently can make connection, pull a set of PIDS from the ECU and save to .csv 
 
 https://datazap.me/u/switchleg/log-1632161044?log=0&data=2-3
 
-//Equation list for PID config file
-//  0: none
-//  1: ( 0.375 * X + -48.0 ) / 1
-//  2: ( 1.0 * X + -2731.4 ) / 10.0
-//  3: ( 1.0 * X + 0.0 ) / 1.28f - 100.0f
+Equation list for PID config file
+  0: none
+  1: ( 0.375 * X + -48.0 ) / 1
+  2: ( 1.0 * X + -2731.4 ) / 10.0
+  3: ( 1.0 * X + 0.0 ) / 1.28f - 100.0f
 //  4: ( 6.103515624994278 * X + 0.0 ) / 1
 //  5: ( 0.0078125 * X + -0.0 ) / 1
 //  6: ( 1.0 * X + 0.0 ) / 4.0
