@@ -109,8 +109,8 @@ object ConfigFile {
                 "Length"    -> pidList[pidNumber].length = value.toInt()
                 "Equation"  -> pidList[pidNumber].equation = value.toInt()
                 "Signed"    -> pidList[pidNumber].signed = value.toBoolean()
-                "Min"       -> pidList[pidNumber].min = value.toFloat()
-                "Max"       -> pidList[pidNumber].max = value.toFloat()
+                "ProgMin"   -> pidList[pidNumber].progMin = value.toFloat()
+                "ProgMax"   -> pidList[pidNumber].progMax = value.toFloat()
                 "WarnMin"   -> pidList[pidNumber].warnMin = value.toFloat()
                 "WarnMax"   -> pidList[pidNumber].warnMax = value.toFloat()
                 "Format"    -> pidList[pidNumber].format = value
@@ -132,8 +132,8 @@ object ConfigFile {
             mProperties["PID.22.${i.toTwo()}.Unit"] = DIDs.list22[i].unit
 
             if(i < 8) {
-                mProperties["PID.22.${i.toTwo()}.Min"] = DIDs.list22[i].min.toString()
-                mProperties["PID.22.${i.toTwo()}.Max"] = DIDs.list22[i].max.toString()
+                mProperties["PID.22.${i.toTwo()}.ProgMin"] = DIDs.list22[i].progMin.toString()
+                mProperties["PID.22.${i.toTwo()}.ProgMax"] = DIDs.list22[i].progMax.toString()
                 mProperties["PID.22.${i.toTwo()}.WarnMin"] = DIDs.list22[i].warnMin.toString()
                 mProperties["PID.22.${i.toTwo()}.WarnMax"] = DIDs.list22[i].warnMax.toString()
             }
@@ -149,8 +149,8 @@ object ConfigFile {
             mProperties["PID.3E.${i.toTwo()}.Unit"] = DIDs.list3E[i].unit
 
             if(i < 8) {
-                mProperties["PID.3E.${i.toTwo()}.Min"] = DIDs.list3E[i].min.toString()
-                mProperties["PID.3E.${i.toTwo()}.Max"] = DIDs.list3E[i].max.toString()
+                mProperties["PID.3E.${i.toTwo()}.ProgMin"] = DIDs.list3E[i].progMin.toString()
+                mProperties["PID.3E.${i.toTwo()}.ProgMax"] = DIDs.list3E[i].progMax.toString()
                 mProperties["PID.3E.${i.toTwo()}.WarnMin"] = DIDs.list3E[i].warnMin.toString()
                 mProperties["PID.3E.${i.toTwo()}.WarnMax"] = DIDs.list3E[i].warnMax.toString()
             }

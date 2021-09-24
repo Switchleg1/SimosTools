@@ -305,4 +305,13 @@
         app:layout_constraintTop_toBottomOf="@+id/progressBar1"
         app:layout_constraintVertical_bias="0.5" />
 
+    <Button
+        android:id="@+id/buttonReset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:text="@string/reset"
+        app:layout_constraintEnd_toStartOf="@+id/buttonStartLog"
+        app:layout_constraintTop_toTopOf="@+id/buttonStartLog" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

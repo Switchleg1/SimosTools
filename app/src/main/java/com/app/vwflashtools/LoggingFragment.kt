@@ -21,20 +21,31 @@ import androidx.navigation.fragment.findNavController
 import androidx.constraintlayout.widget.ConstraintLayout
 import java.io.IOException
 
+data class DATAStruct(var text: TextView?,
+                        var progress: ProgressBar?,
+                        var min: Float,
+                        var max: Float,
+                        var lastColor: Boolean,
+                        var multiplier: Float)
 
 class LoggingFragment : Fragment() {
     private var TAG = "LoggingFragment"
     private var mDisplayMode = DISPLAY_BARS
     private var mPackCount: TextView? = null
-    private var mPIDText: Array<TextView?> = arrayOfNulls(8)
-    private var mPIDProgress: Array<ProgressBar?> = arrayOfNulls(8)
-    private var mPIDMultiplier: Array<Float> = arrayOf(1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f)
     private val mColorWarn = Color.rgb(127, 127, 255)
     private val mColorNormal = Color.rgb(255, 255, 255)
-    private var mLastColor: BooleanArray = booleanArrayOf(false, false, false, false, false, false, false, false)
     private var mLastWarning = false
     private var mLastEnabled = false
     private var mGraph: SwitchGraph? = null
+    private var mDataList: List<DATAStruct> = listOf(DATAStruct(null, null, 0f, 0f, false, 0f),
+                                                    DATAStruct(null, null, 0f, 0f, false, 0f),
+                                                    DATAStruct(null, null, 0f, 0f, false, 0f),
+                                                    DATAStruct(null, null, 0f, 0f, false, 0f),
+                                                    DATAStruct(null, null, 0f, 0f, false, 0f),
+                                                    DATAStruct(null, null, 0f, 0f, false, 0f),
+                                                    DATAStruct(null, null, 0f, 0f, false, 0f),
+                                                    DATAStruct(null, null, 0f, 0f, false, 0f))
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -67,26 +78,38 @@ class LoggingFragment : Fragment() {
             }
         }
 
+        view.findViewById<Button>(R.id.buttonReset).setOnClickListener {
+            for(i in 0.. 7) {
+                val data = mDataList[i]
+                val did = DIDs.list()[i]
+
+                data.max = 0f
+                data.min = 0f
+
+                //Update text
+                data.text?.text = getString(R.string.textPID, did.name, did.format.format(did.value), did.format.format(data.max), did.unit)
+            }
+        }
+
         //mDisplayMode = DISPLAY_GRAPH
+        mDataList[0].text = view.findViewById<TextView>(R.id.textViewPID1)
+        mDataList[1].text = view.findViewById<TextView>(R.id.textViewPID2)
+        mDataList[2].text = view.findViewById<TextView>(R.id.textViewPID3)
+        mDataList[3].text = view.findViewById<TextView>(R.id.textViewPID4)
+        mDataList[4].text = view.findViewById<TextView>(R.id.textViewPID5)
+        mDataList[5].text = view.findViewById<TextView>(R.id.textViewPID6)
+        mDataList[6].text = view.findViewById<TextView>(R.id.textViewPID7)
+        mDataList[7].text = view.findViewById<TextView>(R.id.textViewPID8)
+        mPackCount = view.findViewById<TextView>(R.id.textViewPackCount)
 
-        mPIDText[0] = view.findViewById<TextView>(R.id.textViewPID1)!!
-        mPIDText[1] = view.findViewById<TextView>(R.id.textViewPID2)!!
-        mPIDText[2] = view.findViewById<TextView>(R.id.textViewPID3)!!
-        mPIDText[3] = view.findViewById<TextView>(R.id.textViewPID4)!!
-        mPIDText[4] = view.findViewById<TextView>(R.id.textViewPID5)!!
-        mPIDText[5] = view.findViewById<TextView>(R.id.textViewPID6)!!
-        mPIDText[6] = view.findViewById<TextView>(R.id.textViewPID7)!!
-        mPIDText[7] = view.findViewById<TextView>(R.id.textViewPID8)!!
-        mPackCount = view.findViewById<TextView>(R.id.textViewPackCount)!!
-
-        mPIDProgress[0] = view.findViewById<ProgressBar>(R.id.progressBar1)!!
-        mPIDProgress[1] = view.findViewById<ProgressBar>(R.id.progressBar2)!!
-        mPIDProgress[2] = view.findViewById<ProgressBar>(R.id.progressBar3)!!
-        mPIDProgress[3] = view.findViewById<ProgressBar>(R.id.progressBar4)!!
-        mPIDProgress[4] = view.findViewById<ProgressBar>(R.id.progressBar5)!!
-        mPIDProgress[5] = view.findViewById<ProgressBar>(R.id.progressBar6)!!
-        mPIDProgress[6] = view.findViewById<ProgressBar>(R.id.progressBar7)!!
-        mPIDProgress[7] = view.findViewById<ProgressBar>(R.id.progressBar8)!!
+        mDataList[0].progress = view.findViewById<ProgressBar>(R.id.progressBar1)
+        mDataList[1].progress = view.findViewById<ProgressBar>(R.id.progressBar2)
+        mDataList[2].progress = view.findViewById<ProgressBar>(R.id.progressBar3)
+        mDataList[3].progress = view.findViewById<ProgressBar>(R.id.progressBar4)
+        mDataList[4].progress = view.findViewById<ProgressBar>(R.id.progressBar5)
+        mDataList[5].progress = view.findViewById<ProgressBar>(R.id.progressBar6)
+        mDataList[6].progress = view.findViewById<ProgressBar>(R.id.progressBar7)
+        mDataList[7].progress = view.findViewById<ProgressBar>(R.id.progressBar8)
 
         when(mDisplayMode) {
             DISPLAY_BARS -> {
@@ -94,7 +117,7 @@ class LoggingFragment : Fragment() {
             }
             DISPLAY_GRAPH -> {
                 for(i in 0..7) {
-                    mPIDProgress[i]?.visibility = View.INVISIBLE
+                    mDataList[i].progress?.visibility = View.INVISIBLE
                 }
 
                 try {
@@ -117,17 +140,30 @@ class LoggingFragment : Fragment() {
 
         //Set the UI values
         for(i in 0..7) {
-            mPIDText[i]?.text = getString(R.string.textPID, DIDs.list()[i].name, DIDs.list()[i].format.format(DIDs.list()[i].value), DIDs.list()[i].unit)
+            //get the current did
+            val did = DIDs.list()[i]
+            val data = mDataList[i]
+
+            //set min/max
+            if(did.value > data.max)
+                data.max = did.value
+
+            if(did.value < data.min)
+                data.min = did.value
+
+            //Update text
+            data.text?.text = getString(R.string.textPID, did.name, did.format.format(did.value), did.format.format(data.max), did.unit)
 
             //Check for low value PIDS
-            if ((DIDs.list()[i].max - DIDs.list()[i].min) < 100.0f) {
-                mPIDMultiplier[i] = 100.0f / (DIDs.list()[i].max - DIDs.list()[i].min)
+            if((did.progMax - did.progMin) < 100.0f) {
+                data.multiplier = 100.0f / (did.progMax - did.progMin)
             }
 
-            mPIDProgress[i]?.progress = (DIDs.list()[i].value * mPIDMultiplier[i]).toInt()
-            mPIDProgress[i]?.min = (DIDs.list()[i].min * mPIDMultiplier[i]).toInt()
-            mPIDProgress[i]?.max = (DIDs.list()[i].max * mPIDMultiplier[i]).toInt()
-            mPIDProgress[i]?.progressTintList = ColorStateList.valueOf(Color.GREEN)
+            //Update the progress bar
+            data.progress?.progress = (did.value * data.multiplier).toInt()
+            data.progress?.min = (did.progMin * data.multiplier).toInt()
+            data.progress?.max = (did.progMax * data.multiplier).toInt()
+            data.progress?.progressTintList = ColorStateList.valueOf(Color.GREEN)
         }
 
         //Set background color
@@ -154,7 +190,7 @@ class LoggingFragment : Fragment() {
             when (intent.action) {
                 MESSAGE_READ_VIN.toString() -> {
                     val buff = intent.getByteArrayExtra("readBuffer")
-                    mPIDText[1]?.text = getString(R.string.textVIN, buff.toString())
+                    mDataList[1].text?.text = getString(R.string.textVIN, buff.toString())
                 }
                 MESSAGE_READ_LOG.toString() -> {
                     //val readBuff = intent.getByteArrayExtra("readBuffer") ?: return
@@ -171,30 +207,41 @@ class LoggingFragment : Fragment() {
                     //Set the UI values
                     var anyWarning = false
                     for(i in 0..7) {
+                        //get the current did
+                        val did = DIDs.list()[i]
+                        val data = mDataList[i]
+
+                        //set min/max
+                        if(did.value > data.max)
+                            data.max = did.value
+
+                        if(did.value < data.min)
+                            data.min = did.value
+
                         //Update text
-                        mPIDText[i]?.text = getString(R.string.textPID, DIDs.list()[i].name, DIDs.list()[i].format.format(DIDs.list()[i].value), DIDs.list()[i].unit)
+                        data.text?.text = getString(R.string.textPID, did.name, did.format.format(did.value), did.format.format(data.max), did.unit)
 
                         //Update progress is the value is different
-                        val newProgress = (DIDs.list()[i].value * mPIDMultiplier[i]).toInt()
-                        if(newProgress != mPIDProgress[i]?.progress) {
-                            mPIDProgress[i]?.progress = newProgress
+                        val newProgress = (did.value * data.multiplier).toInt()
+                        if(newProgress != data.progress?.progress) {
+                            data.progress?.progress = newProgress
                         }
 
                         //Check to see if we should be warning user
-                        if((DIDs.list()[i].value > DIDs.list()[i].warnMax) or (DIDs.list()[i].value < DIDs.list()[i].warnMin)) {
+                        if((did.value > did.warnMax) or (did.value < did.warnMin)) {
 
-                            if(!mLastColor[i]) {
-                                mPIDProgress[i]?.progressTintList = ColorStateList.valueOf(Color.RED)
+                            if(!data.lastColor) {
+                                data.progress?.progressTintList = ColorStateList.valueOf(Color.RED)
                             }
 
-                            mLastColor[i] = true
+                            data.lastColor = true
                             anyWarning = true
                         } else {
-                            if(mLastColor[i]) {
-                                mPIDProgress[i]?.progressTintList = ColorStateList.valueOf(Color.GREEN)
+                            if(data.lastColor) {
+                                data.progress?.progressTintList = ColorStateList.valueOf(Color.GREEN)
                             }
 
-                            mLastColor[i] = false
+                            data.lastColor = false
                         }
                     }
 
@@ -215,7 +262,6 @@ class LoggingFragment : Fragment() {
 
                     //Update fps
                     val fps = readCount.toFloat() / (readTime.toFloat() / 1000.0f)
-
                     val dEnable = DIDs.list()[DIDs.list().count()-1]
                     mPackCount?.text = "${fps}fps"
                     if (dEnable.value != 0.0f) {
