@@ -33,7 +33,7 @@ import java.time.format.DateTimeFormatter
 // 22: X / 655.3599999999997
 // 23: X / 2.55
 // 24: X / 16384
-// 25: X / 0.3768805207949945
+// 25: X / 376.8805207949945
 // 26: X / 2.142128661087866
 // 27: (X - 128) / 2.66666666666667
 // 28: (X - 64) / 1.33333333333333
@@ -44,7 +44,7 @@ import java.time.format.DateTimeFormatter
 // 33: X / 32767.99999999992
 // 34: X / 1024
 // 35: X / 250
-// 36: X / 0.1884402603974972
+// 36: X / 188.4402603974972
 // 37: X * 0.03125
 
 data class DIDStruct(var address: Long,
@@ -130,8 +130,8 @@ object DIDs {
         DIDStruct(0xd00135e0, 2, 14,false,-100f,100f,   -100f,100f,   0f, "%01.0f","Fuel Flow Desired",   "mg/stk"),
         DIDStruct(0xd0013636, 2, 14,false,-100f,100f,   -100f,100f,   0f, "%01.0f","Fuel Flow",           "mg/stk"),
         DIDStruct(0xd00192b1, 1, 31,false,-100f,100f,   -100f,100f,   0f, "%01.0f","Fuel Flow Split MPI", ""),
-        DIDStruct(0xd0011b26, 2, 25,false,-10f, 0f,     -4f,  1f,     0f, "%05.3f","Fuel LPFR",           "bar"),
         DIDStruct(0xd0013600, 2, 22,false,0f,   100f,   -1f,  100f,   0f, "%01.0f","Fuel LPFP Duty",      "%"),
+        DIDStruct(0xd0011b26, 2, 25,false,-10f, 0f,     -4f,  1f,     0f, "%05.3f","Fuel LPFR",           "bar"),
         DIDStruct(0xd001360c, 2, 25,false,-10f, 0f,     -4f,  1f,     0f, "%05.3f","Fuel LPFR Setpoint",  "bar"),
         DIDStruct(0xd0013640, 2, 36,false,0f,   100f,   -1f,  100f,   0f, "%03.2f","Fuel HPFR Setpoint",  "bar"),
         DIDStruct(0xd001363c, 2, 22,false,-100f,100f,   -100f,100f,   0f, "%01.0f","Fuel HPFP Volume",    "%"),
@@ -231,7 +231,7 @@ object DIDs {
             22 -> did.value = x / 655.3599999999997f
             23 -> did.value = x / 2.55f
             24 -> did.value = x / 16384f
-            25 -> did.value = x / 0.3768805207949945f
+            25 -> did.value = x / 376.8805207949945f
             26 -> did.value = x / 2.142128661087866f
             27 -> did.value = (x - 128f) / 2.66666666666667f
             28 -> did.value = (x - 64f) / 1.33333333333333f
@@ -242,7 +242,7 @@ object DIDs {
             33 -> did.value = x / 32767.99999999992f
             34 -> did.value = x / 1024f
             35 -> did.value = x / 250f
-            36 -> did.value = x / 0.1884402603974972f
+            36 -> did.value = x / 188.4402603974972f
             37 -> did.value = x * 0.03125f
         }
         return did.value

@@ -18,6 +18,10 @@
         <action
             android:id="@+id/action_FirstFragment_to_LogFragment"
             app:destination="@id/LoggingFragment" />
+
+        <action
+            android:id="@+id/action_FirstFragment_to_SettingsFragment"
+            app:destination="@id/SettingsFragment" />
     </fragment>
     <fragment
         android:id="@+id/FlashingFragment"
@@ -38,6 +42,16 @@
 
         <action
             android:id="@+id/action_LoggingFragment_to_FirstFragment"
+            app:destination="@id/FirstFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/SettingsFragment"
+        android:name="com.app.vwflashtools.SettingsFragment"
+        android:label="@string/settings_fragment"
+        tools:layout="@layout/fragment_settings">
+
+        <action
+            android:id="@+id/action_SettingsFragment_to_FirstFragment"
             app:destination="@id/FirstFragment" />
     </fragment>
 </navigation>

@@ -20,6 +20,9 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.constraintlayout.widget.ConstraintLayout
 import java.io.IOException
+import android.R.attr.name
+import android.content.res.Configuration
+
 
 data class DATAStruct(var text: TextView?,
                         var progress: ProgressBar?,
@@ -87,7 +90,13 @@ class LoggingFragment : Fragment() {
                 data.min = 0f
 
                 //Update text
-                data.text?.text = getString(R.string.textPID, did.name, did.format.format(did.value), did.format.format(data.max), did.unit)
+                val currentOrientation = resources.configuration.orientation
+                if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    data.text?.text = getString(R.string.textPIDL, did.name, did.format.format(did.value), did.unit, did.format.format(data.min), did.format.format(data.max))
+                } else {
+                    // Portrait
+                    data.text?.text = getString(R.string.textPIDP, did.name, did.format.format(did.value), did.unit, did.format.format(data.min), did.format.format(data.max))
+                }
             }
         }
 
@@ -152,11 +161,19 @@ class LoggingFragment : Fragment() {
                 data.min = did.value
 
             //Update text
-            data.text?.text = getString(R.string.textPID, did.name, did.format.format(did.value), did.format.format(data.max), did.unit)
+            val currentOrientation = resources.configuration.orientation
+            if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+                data.text?.text = getString(R.string.textPIDL, did.name, did.format.format(did.value), did.unit, did.format.format(data.min), did.format.format(data.max))
+            } else {
+                // Portrait
+                data.text?.text = getString(R.string.textPIDP, did.name, did.format.format(did.value), did.unit, did.format.format(data.min), did.format.format(data.max))
+            }
 
             //Check for low value PIDS
             if((did.progMax - did.progMin) < 100.0f) {
                 data.multiplier = 100.0f / (did.progMax - did.progMin)
+            } else {
+                data.multiplier = 1.0f
             }
 
             //Update the progress bar
@@ -219,7 +236,13 @@ class LoggingFragment : Fragment() {
                             data.min = did.value
 
                         //Update text
-                        data.text?.text = getString(R.string.textPID, did.name, did.format.format(did.value), did.format.format(data.max), did.unit)
+                        val currentOrientation = resources.configuration.orientation
+                        if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+                            data.text?.text = getString(R.string.textPIDL, did.name, did.format.format(did.value), did.unit, did.format.format(data.min), did.format.format(data.max))
+                        } else {
+                            // Portrait
+                            data.text?.text = getString(R.string.textPIDP, did.name, did.format.format(did.value), did.unit, did.format.format(data.min), did.format.format(data.max))
+                        }
 
                         //Update progress is the value is different
                         val newProgress = (did.value * data.multiplier).toInt()

@@ -3,10 +3,14 @@
     <string name="action_connect">Connect</string>
     <string name="action_disconnect">Disconnect</string>
     <string name="action_settings">Settings</string>
+    <string name="action_logging">Logging</string>
+    <string name="action_flashing">Flashing</string>
+    <string name="action_exit">Exit</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment">First Fragment</string>
     <string name="flashing_fragment">Flashing Fragment</string>
     <string name="logging_fragment">Logging Fragment</string>
+    <string name="settings_fragment">Settings Fragment</string>
     <!-- Strings used for buttons -->
     <string name="exit_app">Exit</string>
     <string name="flashing">Flashing</string>
@@ -17,6 +21,7 @@
     <string name="stop_log">Stop</string>
     <string name="start_log">Start</string>
     <string name="reset">Reset</string>
+    <string name="settings">Settings</string>
     <!-- Strings used for misc -->
     <string name="bt_status">Bluetooth: </string>
     <string name="bt_connect">Connect</string>
@@ -30,6 +35,9 @@
     <string name="title_not_connected">not connected</string>
     <string name="title_error">error <xliff:g id="error_name">%1$s</xliff:g></string>
     <string name="title_connected_to">connected to <xliff:g id="device_name">%1$s</xliff:g></string>
-    <string name="textPID"><xliff:g id="pid_str">%1$s</xliff:g>: <xliff:g id="pid_val">%2$s</xliff:g>:<xliff:g id="pid_unit">%3$s</xliff:g> <xliff:g id="pid_unit">%4$s</xliff:g></string>
+    <string name="textPIDP"><xliff:g id="pid_str">%1$s</xliff:g>: <xliff:g id="pid_val">%2$s</xliff:g> <xliff:g id="pid_unit">%3$s</xliff:g>\n[<xliff:g id="pid_unit">%4$s</xliff:g>:<xliff:g id="pid_unit">%5$s</xliff:g>]</string>
+    <string name="textPIDL"><xliff:g id="pid_str">%1$s</xliff:g>: <xliff:g id="pid_val">%2$s</xliff:g> <xliff:g id="pid_unit">%3$s</xliff:g> [<xliff:g id="pid_unit">%4$s</xliff:g>:<xliff:g id="pid_unit">%5$s</xliff:g>]</string>
     <string name="textVIN">VIN: <xliff:g id="vin_str">%1$s</xliff:g></string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

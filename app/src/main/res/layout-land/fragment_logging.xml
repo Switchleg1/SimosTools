@@ -9,11 +9,32 @@
     android:id="@+id/LoggingLayout">
 
     <ProgressBar
+        android:id="@+id/progressBar1"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="350dp"
+        android:layout_height="24dp"
+        android:max="7000"
+        android:progress="0"
+        android:scaleY="5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/textViewPID1" />
+
+    <ProgressBar
+        android:id="@+id/progressBar2"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="350dp"
+        android:layout_height="24dp"
+        android:max="2600"
+        android:progress="0"
+        android:scaleY="5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/textViewPID2" />
+
+    <ProgressBar
         android:id="@+id/progressBar3"
         style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="400dp"
+        android:layout_width="350dp"
         android:layout_height="24dp"
-        android:layout_marginEnd="8dp"
         android:max="100"
         android:progress="0"
         android:scaleY="5"
@@ -23,9 +44,8 @@
     <ProgressBar
         android:id="@+id/progressBar4"
         style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="400dp"
+        android:layout_width="350dp"
         android:layout_height="24dp"
-        android:layout_marginEnd="8dp"
         android:max="30"
         android:progress="0"
         android:scaleY="5"
@@ -35,9 +55,8 @@
     <ProgressBar
         android:id="@+id/progressBar5"
         style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="400dp"
+        android:layout_width="350dp"
         android:layout_height="24dp"
-        android:layout_marginEnd="8dp"
         android:max="60"
         android:progress="0"
         android:scaleY="5"
@@ -47,9 +66,8 @@
     <ProgressBar
         android:id="@+id/progressBar6"
         style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="400dp"
+        android:layout_width="350dp"
         android:layout_height="24dp"
-        android:layout_marginEnd="8dp"
         android:max="185000"
         android:progress="0"
         android:scaleY="5"
@@ -59,9 +77,8 @@
     <ProgressBar
         android:id="@+id/progressBar7"
         style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="400dp"
+        android:layout_width="350dp"
         android:layout_height="24dp"
-        android:layout_marginEnd="8dp"
         android:max="50"
         android:progress="0"
         android:scaleY="5"
@@ -69,32 +86,19 @@
         app:layout_constraintTop_toTopOf="@+id/textViewPID7" />
 
     <ProgressBar
-        android:id="@+id/progressBar2"
+        android:id="@+id/progressBar8"
         style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="400dp"
+        android:layout_width="350dp"
         android:layout_height="24dp"
-        android:layout_marginEnd="8dp"
-        android:max="2600"
-        android:progress="0"
         android:scaleY="5"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/textViewPID2" />
-
-    <Button
-        android:id="@+id/button_back"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
-        android:text="@string/back"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/textViewPID8" />
 
     <TextView
         android:id="@+id/textViewPID1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:text="@string/textPID"
+        android:text="@string/textPIDL"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -104,9 +108,8 @@
         android:id="@+id/textViewPID2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:text="@string/textPID"
+        android:text="@string/textPIDL"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -116,9 +119,8 @@
         android:id="@+id/textViewPID3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:text="@string/textPID"
+        android:text="@string/textPIDL"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -128,9 +130,8 @@
         android:id="@+id/textViewPID4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:text="@string/textPID"
+        android:text="@string/textPIDL"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -140,9 +141,8 @@
         android:id="@+id/textViewPID5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:text="@string/textPID"
+        android:text="@string/textPIDL"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -152,9 +152,8 @@
         android:id="@+id/textViewPID6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:text="@string/textPID"
+        android:text="@string/textPIDL"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -164,9 +163,8 @@
         android:id="@+id/textViewPID7"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:text="@string/textPID"
+        android:text="@string/textPIDL"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -176,22 +174,12 @@
         android:id="@+id/textViewPID8"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:text="@string/textPID"
+        android:text="@string/textPIDL"
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewPID7" />
-
-    <Button
-        android:id="@+id/buttonStartLog"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:text="@string/start_log"
-        app:layout_constraintBottom_toBottomOf="@+id/button_back"
-        app:layout_constraintEnd_toStartOf="@+id/button_back" />
 
     <TextView
         android:id="@+id/textViewPackCount"
@@ -203,27 +191,32 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewPID8" />
 
-    <ProgressBar
-        android:id="@+id/progressBar1"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="400dp"
-        android:layout_height="24dp"
-        android:layout_marginEnd="8dp"
-        android:max="7000"
-        android:progress="0"
-        android:scaleY="5"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/textViewPID1" />
+    <Button
+        android:id="@+id/buttonStartLog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:text="@string/start_log"
+        app:layout_constraintBottom_toBottomOf="@+id/button_back"
+        app:layout_constraintEnd_toStartOf="@+id/button_back" />
 
-    <ProgressBar
-        android:id="@+id/progressBar8"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="400dp"
-        android:layout_height="24dp"
-        android:layout_marginEnd="8dp"
-        android:scaleY="5"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/textViewPID8" />
+    <Button
+        android:id="@+id/button_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:text="@string/back"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/buttonReset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:text="@string/reset"
+        app:layout_constraintEnd_toStartOf="@+id/buttonStartLog"
+        app:layout_constraintTop_toTopOf="@+id/buttonStartLog" />
 
     <View
         android:id="@+id/divider"
@@ -304,14 +297,5 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/progressBar1"
         app:layout_constraintVertical_bias="0.5" />
-
-    <Button
-        android:id="@+id/buttonReset"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:text="@string/reset"
-        app:layout_constraintEnd_toStartOf="@+id/buttonStartLog"
-        app:layout_constraintTop_toTopOf="@+id/buttonStartLog" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

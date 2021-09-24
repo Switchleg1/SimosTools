@@ -10,7 +10,7 @@
         android:id="@+id/button_flashing"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:text="@string/flashing"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/imageView"
@@ -20,7 +20,7 @@
         android:id="@+id/button_logging"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
+        android:layout_marginTop="16dp"
         android:text="@string/logging"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/imageView"
@@ -41,6 +41,15 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:text="@string/exit_app"
+        app:layout_constraintStart_toStartOf="@+id/buttonSettings"
+        app:layout_constraintTop_toBottomOf="@+id/buttonSettings" />
+
+    <Button
+        android:id="@+id/buttonSettings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/settings"
         app:layout_constraintStart_toStartOf="@+id/button_flashing"
         app:layout_constraintTop_toBottomOf="@+id/button_flashing" />
 

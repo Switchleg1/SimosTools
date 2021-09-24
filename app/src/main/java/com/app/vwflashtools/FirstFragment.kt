@@ -35,6 +35,10 @@ class FirstFragment : Fragment() {
             findNavController().navigate(R.id.action_FirstFragment_to_LogFragment)
         }
 
+        view.findViewById<Button>(R.id.buttonSettings).setOnClickListener {
+            findNavController().navigate(R.id.action_FirstFragment_to_SettingsFragment)
+        }
+
         view.findViewById<Button>(R.id.buttonStopService).setOnClickListener {
             val serviceIntent = Intent(context, BTService::class.java)
             serviceIntent.action = BT_STOP_SERVICE.toString()

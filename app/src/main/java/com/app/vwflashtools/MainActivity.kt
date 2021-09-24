@@ -1,6 +1,7 @@
 package com.app.vwflashtools
 
 import android.Manifest
+import android.R.attr
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
@@ -20,6 +21,12 @@ import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
+import android.R.attr.fragment
+import android.widget.Button
+import androidx.fragment.app.FragmentManager
+import androidx.navigation.Navigation.findNavController
+import androidx.navigation.ui.onNavDestinationSelected
+
 
 class MainViewModel : ViewModel() {
     var mState: Int = STATE_NONE
@@ -100,6 +107,25 @@ class MainActivity : AppCompatActivity() {
                         doDisconnect()
                     }
                 }
+                return true
+            }
+            R.id.SettingsFragment -> {
+                val navController = findNavController(this, R.id.nav_host_fragment)
+                return item.onNavDestinationSelected(navController)
+            }
+            R.id.LoggingFragment -> {
+                val navController = findNavController(this, R.id.nav_host_fragment)
+                return item.onNavDestinationSelected(navController)
+            }
+            R.id.FlashingFragment -> {
+                val navController = findNavController(this, R.id.nav_host_fragment)
+                return item.onNavDestinationSelected(navController)
+            }
+            R.id.action_exit -> {
+                val serviceIntent = Intent(this, BTService::class.java)
+                serviceIntent.action = BT_STOP_SERVICE.toString()
+                ContextCompat.startForegroundService(this, serviceIntent)
+                finish()
 
                 return true
             }

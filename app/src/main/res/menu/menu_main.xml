@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.example.switchback.MainActivity">
+    tools:context="com.app.vwflashtools.MainActivity">
     <item
         android:id="@+id/action_connect"
         android:checkable="false"
@@ -10,8 +10,26 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/settings_connect"
+        android:id="@+id/SettingsFragment"
         android:orderInCategory="100"
         android:title="@string/action_settings"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/LoggingFragment"
+        android:orderInCategory="100"
+        android:title="@string/action_logging"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/FlashingFragment"
+        android:orderInCategory="100"
+        android:title="@string/action_flashing"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_exit"
+        android:orderInCategory="100"
+        android:title="@string/action_exit"
         app:showAsAction="never" />
 </menu>
