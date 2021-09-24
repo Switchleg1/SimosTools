@@ -7,24 +7,24 @@ import android.content.IntentFilter
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.content.ContextCompat.getDrawable
 import androidx.core.content.ContextCompat.startForegroundService
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import android.R.attr.name
 import androidx.constraintlayout.widget.ConstraintLayout
+import java.io.IOException
 
 
 class LoggingFragment : Fragment() {
+    private var TAG = "LoggingFragment"
+    private var mDisplayMode = DISPLAY_BARS
     private var mPackCount: TextView? = null
     private var mPIDText: Array<TextView?> = arrayOfNulls(8)
     private var mPIDProgress: Array<ProgressBar?> = arrayOfNulls(8)
@@ -35,7 +35,6 @@ class LoggingFragment : Fragment() {
     private var mLastWarning = false
     private var mLastEnabled = false
     private var mGraph: SwitchGraph? = null
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -68,13 +67,7 @@ class LoggingFragment : Fragment() {
             }
         }
 
-        /*val lay = view.findViewById<ConstraintLayout>(R.id.LoggingLayout)!!
-        mGraph = SwitchGraph(view.context)
-        mGraph?.layout(0,0,lay.maxWidth,lay.maxHeight)
-        mGraph?.contentDescription = getString(R.string.app_name)
-        //mGraph?.setImageDrawable(getDrawable(requireContext(), R.drawable.vw_logo))
-        mGraph?.setImageDrawable(getDrawable(requireContext(), R.drawable.graph))
-        lay.addView(mGraph)*/
+        //mDisplayMode = DISPLAY_GRAPH
 
         mPIDText[0] = view.findViewById<TextView>(R.id.textViewPID1)!!
         mPIDText[1] = view.findViewById<TextView>(R.id.textViewPID2)!!
@@ -95,18 +88,45 @@ class LoggingFragment : Fragment() {
         mPIDProgress[6] = view.findViewById<ProgressBar>(R.id.progressBar7)!!
         mPIDProgress[7] = view.findViewById<ProgressBar>(R.id.progressBar8)!!
 
+        when(mDisplayMode) {
+            DISPLAY_BARS -> {
+
+            }
+            DISPLAY_GRAPH -> {
+                for(i in 0..7) {
+                    mPIDProgress[i]?.visibility = View.INVISIBLE
+                }
+
+                try {
+                    val lay = view.findViewById<ConstraintLayout>(R.id.LoggingLayout)!!
+                    mGraph = SwitchGraph(view.context)
+                    mGraph!!.layout(0, 0, lay.maxWidth, lay.maxHeight)
+                    mGraph!!.contentDescription = getString(R.string.app_name)
+                    mGraph!!.setImageDrawable(getDrawable(requireContext(), R.drawable.graph))
+                    lay.addView(mGraph)
+
+                    for(i in 0 until 8) {
+                        mGraph!!.setColor(i, Color.rgb(i*20.0f, i*2.0f+100f, 150f-i*10f))
+                    }
+                } catch (e: IOException) {
+                    Log.e(TAG, "Exception when trying to setup graphview",e)
+                    return
+                }
+            }
+        }
+
         //Set the UI values
         for(i in 0..7) {
-            mPIDText[i]?.text = getString(R.string.textPID, DIDs.list[i].name, DIDs.list[i].format.format(DIDs.list[i].value), DIDs.list[i].unit)
+            mPIDText[i]?.text = getString(R.string.textPID, DIDs.list()[i].name, DIDs.list()[i].format.format(DIDs.list()[i].value), DIDs.list()[i].unit)
 
             //Check for low value PIDS
-            if ((DIDs.list[i].max - DIDs.list[i].min) < 100.0f) {
-                mPIDMultiplier[i] = 100.0f / (DIDs.list[i].max - DIDs.list[i].min)
+            if ((DIDs.list()[i].max - DIDs.list()[i].min) < 100.0f) {
+                mPIDMultiplier[i] = 100.0f / (DIDs.list()[i].max - DIDs.list()[i].min)
             }
 
-            mPIDProgress[i]?.progress = (DIDs.list[i].value * mPIDMultiplier[i]).toInt()
-            mPIDProgress[i]?.min = (DIDs.list[i].min * mPIDMultiplier[i]).toInt()
-            mPIDProgress[i]?.max = (DIDs.list[i].max * mPIDMultiplier[i]).toInt()
+            mPIDProgress[i]?.progress = (DIDs.list()[i].value * mPIDMultiplier[i]).toInt()
+            mPIDProgress[i]?.min = (DIDs.list()[i].min * mPIDMultiplier[i]).toInt()
+            mPIDProgress[i]?.max = (DIDs.list()[i].max * mPIDMultiplier[i]).toInt()
             mPIDProgress[i]?.progressTintList = ColorStateList.valueOf(Color.GREEN)
         }
 
@@ -152,16 +172,16 @@ class LoggingFragment : Fragment() {
                     var anyWarning = false
                     for(i in 0..7) {
                         //Update text
-                        mPIDText[i]?.text = getString(R.string.textPID, DIDs.list[i].name, DIDs.list[i].format.format(DIDs.list[i].value), DIDs.list[i].unit)
+                        mPIDText[i]?.text = getString(R.string.textPID, DIDs.list()[i].name, DIDs.list()[i].format.format(DIDs.list()[i].value), DIDs.list()[i].unit)
 
                         //Update progress is the value is different
-                        val newProgress = (DIDs.list[i].value * mPIDMultiplier[i]).toInt()
+                        val newProgress = (DIDs.list()[i].value * mPIDMultiplier[i]).toInt()
                         if(newProgress != mPIDProgress[i]?.progress) {
                             mPIDProgress[i]?.progress = newProgress
                         }
 
                         //Check to see if we should be warning user
-                        if((DIDs.list[i].value > DIDs.list[i].warnMax) or (DIDs.list[i].value < DIDs.list[i].warnMin)) {
+                        if((DIDs.list()[i].value > DIDs.list()[i].warnMax) or (DIDs.list()[i].value < DIDs.list()[i].warnMin)) {
 
                             if(!mLastColor[i]) {
                                 mPIDProgress[i]?.progressTintList = ColorStateList.valueOf(Color.RED)
@@ -196,7 +216,7 @@ class LoggingFragment : Fragment() {
                     //Update fps
                     val fps = readCount.toFloat() / (readTime.toFloat() / 1000.0f)
 
-                    val dEnable = DIDs.list[DIDs.list.count()-1]
+                    val dEnable = DIDs.list()[DIDs.list().count()-1]
                     mPackCount?.text = "${fps}fps"
                     if (dEnable.value != 0.0f) {
                         //Highlight packet count in red since we are logging

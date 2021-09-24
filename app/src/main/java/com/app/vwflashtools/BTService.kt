@@ -14,9 +14,21 @@ import android.os.Looper
 import android.os.ParcelUuid
 import android.util.Log
 import android.widget.Toast
+import java.io.BufferedWriter
+import java.io.File
+import java.io.FileWriter
 import java.io.IOException
+import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Semaphore
+import java.util.TimerTask
+
+import android.R.attr.name
+import android.R.attr.name
+
+
+
+
 
 // Header we expect to receive on BLE packets
 class BLEHeader {
@@ -129,18 +141,16 @@ class BTService: Service() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             super.onScanResult(callbackType, result)
             result.device?.let { device ->
+                Log.i(TAG, "Found BLE device! ${device.name}")
+
                 if (mBluetoothDevice == null) {
                     mBluetoothDevice = device
 
                     if (mScanning)
                         stopScanning()
 
-                    Log.i(TAG, "Found BLE device! ${device.name}")
-
-                    if (mBluetoothGatt == null) {
-                        mBluetoothGatt =
-                            device.connectGatt(applicationContext, false, mGattCallback, 2)
-                    }
+                    Log.i(TAG, "Initiating connection to ${device.name}")
+                    device.connectGatt(applicationContext, false, mGattCallback, 2)
                 }
             }
         }
@@ -162,35 +172,47 @@ class BTService: Service() {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     Log.w(TAG, "Successfully connected to $deviceAddress")
 
+                    //made connection, store our gatt
                     mBluetoothGatt = gatt
 
-                    Handler(Looper.getMainLooper()).post {
-                        mBluetoothGatt?.discoverServices()
+                    try {
+                        //discover gatt table
+                        mBluetoothGatt?.let { newGatt ->
+                            Handler(Looper.getMainLooper()).post {
+                                newGatt.discoverServices()
+                            }
+                        } ?: error("Gatt is invalid")
+                    } catch (e: IOException) {
+                        Log.e(TAG,"Exception requesting to discover services", e)
+                        doDisconnect()
                     }
-
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                     Log.w(TAG, "Successfully disconnected from $deviceAddress")
 
-                    //Set new connection state
-                    setConnectionState(STATE_NONE)
-
+                    //disable the read notification
                     disableNotifications(gatt.getService(BT_SERVICE_UUID).getCharacteristic(BT_DATA_RX_UUID))
 
-                    gatt.close()
-                    mBluetoothDevice = null
-                    mBluetoothGatt = null
+                    //If gatt doesn't match ours make sure we close it
+                    if(gatt != mBluetoothGatt) {
+                        gatt.close()
+                    }
+
+                    //Do a full disconnect
+                    doDisconnect()
                 }
             } else {
                 Log.w(TAG, "Error $status encountered for $deviceAddress! Disconnecting...")
 
+                //If gatt doesn't match ours make sure we close it
+                if(gatt != mBluetoothGatt) {
+                    gatt.close()
+                }
+
+                //Set new connection error state
                 mErrorStatus = status.toString()
 
-                //Set new connection state
-                setConnectionState(STATE_ERROR, true)
-
-                gatt.close()
-                mBluetoothDevice = null
-                mBluetoothGatt = null
+                //Do a full disconnect
+                doDisconnect(STATE_ERROR, true)
             }
         }
 
@@ -199,19 +221,27 @@ class BTService: Service() {
             if(status == BluetoothGatt.GATT_SUCCESS) {
                 with(gatt) {
                     Log.w(TAG, "Discovered ${services.size} services for ${device.address}")
-                    printGattTable() // See implementation just above this section
-                    mBluetoothGatt?.requestMtu(GATT_MAX_MTU_SIZE)
-                    // Consider connection setup as complete here
+                    printGattTable()
+                    try {
+                        mBluetoothGatt?.let { ourGatt ->
+                            ourGatt.requestMtu(GATT_MAX_MTU_SIZE)
+                        } ?: error("Gatt is invalid")
+                    } catch (e: IOException) {
+                        Log.e(TAG,"Exception while discovering services", e)
+                        doDisconnect()
+                    }
                 }
             } else {
+                //If gatt doesn't match ours make sure we close it
+                if(gatt != mBluetoothGatt) {
+                    gatt.close()
+                }
+
+                //Set new connection error state
                 mErrorStatus = status.toString()
 
-                //Set new connection state
-                setConnectionState(STATE_ERROR, true)
-
-                gatt.close()
-                mBluetoothDevice = null
-                mBluetoothGatt = null
+                //Do a full disconnect
+                doDisconnect(STATE_ERROR, true)
             }
         }
 
@@ -222,18 +252,26 @@ class BTService: Service() {
             if(status == BluetoothGatt.GATT_SUCCESS) {
                 //Set new connection state
                 setConnectionState(STATE_CONNECTED)
-                mBluetoothGatt?.requestConnectionPriority(BluetoothGatt.CONNECTION_PRIORITY_HIGH)
-
-                enableNotifications(mBluetoothGatt?.getService(BT_SERVICE_UUID)!!.getCharacteristic(BT_DATA_RX_UUID))
+                try {
+                    mBluetoothGatt?.let { ourGatt ->
+                        ourGatt.requestConnectionPriority(BluetoothGatt.CONNECTION_PRIORITY_HIGH)
+                        enableNotifications(ourGatt.getService(BT_SERVICE_UUID)!!.getCharacteristic(BT_DATA_RX_UUID))
+                    } ?: error("Gatt is invalid")
+                } catch (e: IOException) {
+                    Log.e(TAG,"Exception setting mtu", e)
+                    doDisconnect()
+                }
             } else {
+                //If gatt doesn't match ours make sure we close it
+                if(gatt != mBluetoothGatt) {
+                    gatt.close()
+                }
+
+                //Set new connection error state
                 mErrorStatus = status.toString()
 
-                //Set new connection state
-                setConnectionState(STATE_ERROR, true)
-
-                gatt.close()
-                mBluetoothDevice = null
-                mBluetoothGatt = null
+                //Do a full disconnect
+                doDisconnect(STATE_ERROR, true)
             }
         }
 
@@ -415,7 +453,7 @@ class BTService: Service() {
     }
 
     @Synchronized
-    private fun doDisconnect() {
+    private fun doDisconnect(newState: Int = STATE_NONE, errorMessage: Boolean = false) {
         Log.w(TAG, "Disconnecting from BLE device.")
         if (mScanning)
             stopScanning()
@@ -430,7 +468,7 @@ class BTService: Service() {
         mBluetoothDevice = null
 
         //Set new connection status
-        setConnectionState(STATE_NONE)
+        setConnectionState(newState, errorMessage)
     }
 
     @Synchronized
@@ -501,9 +539,16 @@ class BTService: Service() {
         private var mTask: Int = TASK_NONE
         private var mTaskCount: Int = 0
         private var mTaskTime: Long = 0
+        private var mLogFile: File? = null
+        private var mBufferedWriter: BufferedWriter? = null
+
+        init {
+            Log.d(TAG, "create ConnectionThread")
+        }
 
         override fun run() {
             Log.i(TAG, "BEGIN mConnectionThread")
+            logCreate()
 
             while (mState == STATE_CONNECTED && !currentThread().isInterrupted) {
                 //See if there are any packets waiting to be sent
@@ -518,6 +563,9 @@ class BTService: Service() {
                         }
 
                         val buff = mWriteQueue.poll()
+                        if(buff != null)
+                            logAdd(true, buff)
+
                         mBluetoothGatt?.let { gatt ->
                             txChar.writeType = writeType
                             txChar.value = buff
@@ -535,6 +583,8 @@ class BTService: Service() {
                 if (!mReadQueue.isEmpty()) {
                     try {
                         val buff = mReadQueue.poll()
+                        if(buff != null)
+                            logAdd(false, buff)
                         
                         when (mTask) {
                             TASK_NONE -> {
@@ -554,8 +604,12 @@ class BTService: Service() {
                             TASK_LOGGING -> {
                                 mTaskCount++
 
+                                //Are we still sending initial frames?
+                                if(mTaskCount < UDSLogger.frameCount())
+                                    mWriteQueue.add(UDSLogger.buildFrame(mTaskCount))
+
                                 //Process frame
-                                val result = UDS22Logger.processFrame(mTaskCount, buff, applicationContext)
+                                val result = UDSLogger.processFrame(mTaskCount, buff, applicationContext)
 
                                 //Broadcast a new message
                                 if((mTaskCount % 4 == 0) or (result != UDS_OK)) {
@@ -574,14 +628,11 @@ class BTService: Service() {
                     }
                 }
             }
+            logClose()
         }
 
         fun cancel() {
-            try {
-                interrupt()
-            } catch (e: IOException) {
-                Log.e(TAG, "Exception during cancel", e)
-            }
+            interrupt()
         }
 
         fun setTaskState(newTask: Int)
@@ -602,9 +653,7 @@ class BTService: Service() {
 
             when (mTask) {
                 TASK_LOGGING -> {
-                    val frames = UDS22Logger.frameCount()
-                    for(i in 0 until frames)
-                        mWriteQueue.add(UDS22Logger.buildFrame(i))
+                    mWriteQueue.add(UDSLogger.buildFrame(0))
                 }
                 TASK_RD_VIN -> {
                     val bleHeader = BLEHeader()
@@ -626,14 +675,53 @@ class BTService: Service() {
             }
         }
 
-        init {
-            Log.d(TAG, "create ConnectionThread")
+        private fun logCreate() {
+            if(!LOG_COMMUNICATIONS)
+                return
 
-            // Get the BluetoothSocket input and output streams
+            logClose()
+
+            val path = applicationContext.getExternalFilesDir("")
+            Log.i(TAG, "$path/data.log")
+            mLogFile = File(path, "/data.log")
+            if(mLogFile == null)
+                return
+
             try {
-
+                mLogFile!!.createNewFile()
+                mBufferedWriter = BufferedWriter(FileWriter(mLogFile, true))
             } catch (e: IOException) {
-                Log.e(TAG, "temp sockets not created", e)
+                // TODO Auto-generated catch block
+                e.printStackTrace()
+            }
+        }
+
+        private fun logClose() {
+            if(!LOG_COMMUNICATIONS)
+                return
+
+            if(mBufferedWriter != null) {
+                mBufferedWriter!!.close()
+                mBufferedWriter = null
+            }
+
+            mLogFile = null
+        }
+
+        private fun logAdd(from: Boolean, buff: ByteArray?) {
+            if(!LOG_COMMUNICATIONS)
+                return
+
+            if(mLogFile == null || mBufferedWriter == null || buff == null)
+                return
+
+            try {
+                if(from) mBufferedWriter!!.append("->[${buff.count()}]:${buff.toHex()}")
+                else mBufferedWriter!!.append("<-[${buff.count()}]:${buff.toHex()}")
+                mBufferedWriter!!.newLine()
+            } catch (e: IOException) {
+                // TODO Auto-generated catch block
+                e.printStackTrace()
             }
         }
     }

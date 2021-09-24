@@ -2,9 +2,11 @@ package com.app.vwflashtools
 
 import android.content.Context
 import android.util.Log
+import androidx.annotation.LongDef
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.lang.Long.parseLong
 import java.util.*
 import java.util.regex.Pattern
 import java.util.TreeSet
@@ -50,77 +52,108 @@ object ConfigFile {
     }
 
     private fun processKey(key: String, value: String) {
-        val p = Pattern.compile("^PID(\\d+).(\\S+)", Pattern.CASE_INSENSITIVE)
-        val m = p.matcher(key)
+        var p = Pattern.compile("^Config.(\\S+)", Pattern.CASE_INSENSITIVE)
+        var m = p.matcher(key)
 
-        if(!m.matches()) {
-            Log.e(TAG, "Invalid key: $key")
+        if (m.matches()) {
+            processConfigKey(m.group(1)?: "", value)
             return
         }
-        val pidStr: String? = m.group(1)
-        var pidNumber = -1
-        if(pidStr != null)
-            pidNumber = pidStr.toInt()
-        val pidVar = m.group(2)
 
-        Log.i(TAG, "PID[$pidNumber][$pidVar]: $value")
+        p = Pattern.compile("^PID.([0-9A-F]+).(\\d+).(\\S+)", Pattern.CASE_INSENSITIVE)
+        m = p.matcher(key)
 
-        if((pidNumber < DIDs.list.count()) and (pidNumber >= 0)) {
-            when(pidVar) {
-                "Address" -> {
-                    val pAddress = Pattern.compile("^[0-9A-F]+\$", Pattern.CASE_INSENSITIVE)
-                    val mAddress = pAddress.matcher(value)
-                    if(mAddress.matches() and (value.length == 4)) {
-                        DIDs.list[pidNumber].address = Integer.decode("0x$value")
-                    }
-                }
-                "Length" -> {
-                    DIDs.list[pidNumber].length = value.toInt()
-                }
-                "Equation" -> {
-                    DIDs.list[pidNumber].equation = value.toInt()
-                }
-                "Signed" -> {
-                    DIDs.list[pidNumber].signed = value.toBoolean()
-                }
-                "Min" -> {
-                    DIDs.list[pidNumber].min = value.toFloat()
-                }
-                "Max" -> {
-                    DIDs.list[pidNumber].max = value.toFloat()
-                }
-                "WarnMin" -> {
-                    DIDs.list[pidNumber].warnMin = value.toFloat()
-                }
-                "WarnMax" -> {
-                    DIDs.list[pidNumber].warnMax = value.toFloat()
-                }
-                "Format" -> {
-                    DIDs.list[pidNumber].format = value
-                }
-                "Name" -> {
-                    DIDs.list[pidNumber].name = value
-                }
-                "Unit" -> {
-                    DIDs.list[pidNumber].unit = value
+        if (m.matches()) {
+            processPIDKey(m.group(1)?: "", m.group(2)?: "", m.group(3)?: "", value)
+            return
+        }
+    }
+
+    private fun processConfigKey(variable: String, value: String) {
+        Log.i(TAG, "Config[$variable]: $value")
+
+        when(variable) {
+            "Mode"     -> {
+                when(value) {
+                    "22" -> UDSLogger.setMode(UDS_LOGGING_22)
+                    "3E" -> UDSLogger.setMode(UDS_LOGGING_3E)
                 }
             }
         }
     }
 
+    private fun processPIDKey(type: String, number: String, variable: String, value: String) {
+        Log.i(TAG, "PID[$type][$number][$variable]: $value")
+
+        var pidList: List<DIDStruct>? = null
+        when(type) {
+            "22" -> pidList = DIDs.list22
+            "3E" -> pidList = DIDs.list3E
+        }
+
+        if(pidList == null) {
+            Log.i(TAG, "Invalid logging type: $type")
+            return
+        }
+
+        val pidNumber = number.toInt()
+        if((pidNumber < pidList.count()) and (pidNumber >= 0)) {
+            when(variable) {
+                "Address" -> {
+                    val pAddress = Pattern.compile("^[0-9A-F]+\$", Pattern.CASE_INSENSITIVE)
+                    val mAddress = pAddress.matcher(value)
+                    if(mAddress.matches() and (((type == "22") and (value.length == 4)) or ((type == "3E") and (value.length == 8)))) {
+                        pidList[pidNumber].address = parseLong(value, 16)
+                    }
+                }
+                "Length"    -> pidList[pidNumber].length = value.toInt()
+                "Equation"  -> pidList[pidNumber].equation = value.toInt()
+                "Signed"    -> pidList[pidNumber].signed = value.toBoolean()
+                "Min"       -> pidList[pidNumber].min = value.toFloat()
+                "Max"       -> pidList[pidNumber].max = value.toFloat()
+                "WarnMin"   -> pidList[pidNumber].warnMin = value.toFloat()
+                "WarnMax"   -> pidList[pidNumber].warnMax = value.toFloat()
+                "Format"    -> pidList[pidNumber].format = value
+                "Name"      -> pidList[pidNumber].name = value
+                "Unit"      -> pidList[pidNumber].unit = value
+            }
+        }
+    }
+
     private fun writeDefaultConfig(filename: String?, context: Context?) {
-        for(i in 0 until DIDs.list.count()) {
-            mProperties["PID${i.toTwo()}.Address"] = DIDs.list[i].address.toShort().toHex()
-            mProperties["PID${i.toTwo()}.Length"] = DIDs.list[i].length.toString()
-            mProperties["PID${i.toTwo()}.Equation"] = DIDs.list[i].equation.toString()
-            mProperties["PID${i.toTwo()}.Signed"] = DIDs.list[i].signed.toString()
-            mProperties["PID${i.toTwo()}.Min"] = DIDs.list[i].min.toString()
-            mProperties["PID${i.toTwo()}.Max"] = DIDs.list[i].max.toString()
-            mProperties["PID${i.toTwo()}.WarnMin"] = DIDs.list[i].warnMin.toString()
-            mProperties["PID${i.toTwo()}.WarnMax"] = DIDs.list[i].warnMax.toString()
-            mProperties["PID${i.toTwo()}.Format"] = DIDs.list[i].format
-            mProperties["PID${i.toTwo()}.Name"] = DIDs.list[i].name
-            mProperties["PID${i.toTwo()}.Unit"] = DIDs.list[i].unit
+        mProperties["Config.Mode"] = "22"
+        for(i in 0 until DIDs.list22.count()) {
+            mProperties["PID.22.${i.toTwo()}.Address"] = DIDs.list22[i].address.toShort().toHex()
+            mProperties["PID.22.${i.toTwo()}.Length"] = DIDs.list22[i].length.toString()
+            mProperties["PID.22.${i.toTwo()}.Equation"] = DIDs.list22[i].equation.toString()
+            mProperties["PID.22.${i.toTwo()}.Signed"] = DIDs.list22[i].signed.toString()
+            mProperties["PID.22.${i.toTwo()}.Format"] = DIDs.list22[i].format
+            mProperties["PID.22.${i.toTwo()}.Name"] = DIDs.list22[i].name
+            mProperties["PID.22.${i.toTwo()}.Unit"] = DIDs.list22[i].unit
+
+            if(i < 8) {
+                mProperties["PID.22.${i.toTwo()}.Min"] = DIDs.list22[i].min.toString()
+                mProperties["PID.22.${i.toTwo()}.Max"] = DIDs.list22[i].max.toString()
+                mProperties["PID.22.${i.toTwo()}.WarnMin"] = DIDs.list22[i].warnMin.toString()
+                mProperties["PID.22.${i.toTwo()}.WarnMax"] = DIDs.list22[i].warnMax.toString()
+            }
+        }
+
+        for(i in 0 until DIDs.list3E.count()) {
+            mProperties["PID.3E.${i.toTwo()}.Address"] = DIDs.list3E[i].address.toInt().toHex()
+            mProperties["PID.3E.${i.toTwo()}.Length"] = DIDs.list3E[i].length.toString()
+            mProperties["PID.3E.${i.toTwo()}.Equation"] = DIDs.list3E[i].equation.toString()
+            mProperties["PID.3E.${i.toTwo()}.Signed"] = DIDs.list3E[i].signed.toString()
+            mProperties["PID.3E.${i.toTwo()}.Format"] = DIDs.list3E[i].format
+            mProperties["PID.3E.${i.toTwo()}.Name"] = DIDs.list3E[i].name
+            mProperties["PID.3E.${i.toTwo()}.Unit"] = DIDs.list3E[i].unit
+
+            if(i < 8) {
+                mProperties["PID.3E.${i.toTwo()}.Min"] = DIDs.list3E[i].min.toString()
+                mProperties["PID.3E.${i.toTwo()}.Max"] = DIDs.list3E[i].max.toString()
+                mProperties["PID.3E.${i.toTwo()}.WarnMin"] = DIDs.list3E[i].warnMin.toString()
+                mProperties["PID.3E.${i.toTwo()}.WarnMax"] = DIDs.list3E[i].warnMax.toString()
+            }
         }
 
         write(filename, context)

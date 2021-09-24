@@ -18,7 +18,6 @@ package com.app.vwflashtools
 
 import java.util.*
 
-
 // Message types sent from the BluetoothChatService Handler
 val MESSAGE_STATE_CHANGE    = 1
 val MESSAGE_TASK_CHANGE     = 2
@@ -48,7 +47,7 @@ val BT_CMD_TX_UUID  = UUID.fromString("0000abf3-0000-1000-8000-00805f9b34fb")
 val BT_CMD_RX_UUID  = UUID.fromString("0000abf4-0000-1000-8000-00805f9b34fb")
 
 //set MAX MTU SIZE
-val GATT_MAX_MTU_SIZE = 64
+val GATT_MAX_MTU_SIZE = 256
 
 //Intent constants
 val REQUEST_LOCATION_PERMISSION = 1
@@ -95,6 +94,17 @@ val UDS_ERROR_CMDSIZE   = 4
 val UDS_ERROR_UNKNOWN   = 5
 val UDS_NOT_ENABLED     = 6
 
+// Logging display modes
+val DISPLAY_BARS = 0
+val DISPLAY_GRAPH = 1
+
+//Logging modes
+val UDS_LOGGING_22 = 0
+val UDS_LOGGING_3E = 1
+
+//Log communications?
+val LOG_COMMUNICATIONS = false
+
 //Additional properties
 infix fun Byte.shl(that: Int): Int = this.toInt().shl(that)
 infix fun Short.shl(that: Int): Int = this.toInt().shl(that)
@@ -107,6 +117,10 @@ fun Byte.toHexS(): String = " %02x".format(this)
 fun Short.toHex(): String = "%04x".format(this)
 fun Int.toHex(): String = "%08x".format(this)
 fun Int.toTwo(): String = "%02d".format(this)
+fun Int.toArray2(): ByteArray = byteArrayOf((this and 0xFF00 shr 8).toByte(), (this and 0xFF).toByte())
+fun Long.toHex2(): String = "%04x".format(this)
+fun Long.toHex4(): String = "%08x".format(this)
+fun Long.toArray4(): ByteArray = byteArrayOf((this and 0xFF000000 shr 24).toByte(), (this and 0xFF0000 shr 16).toByte(), (this and 0xFF00 shr 8).toByte(), (this and 0xFF).toByte())
 fun ByteArray.toHex(): String = joinToString(separator = " ") { eachByte -> "%02x".format(eachByte) }
 
 
