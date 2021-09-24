@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
         serviceIntent.action = BT_START_SERVICE.toString()
         ContextCompat.startForegroundService(this, serviceIntent)
 
-        ConfigFile.read("logging.cfg", applicationContext)
+        ConfigFile.read(LOG_FILENAME, applicationContext)
     }
 
     override fun onResume() {

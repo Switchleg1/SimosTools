@@ -103,7 +103,8 @@ val UDS_LOGGING_22 = 0
 val UDS_LOGGING_3E = 1
 
 //Log communications?
-val LOG_COMMUNICATIONS = false
+val LOG_COMMUNICATIONS  = false
+val LOG_FILENAME        = "logging.cfg"
 
 //Additional properties
 infix fun Byte.shl(that: Int): Int = this.toInt().shl(that)

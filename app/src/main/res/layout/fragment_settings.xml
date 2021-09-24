@@ -7,43 +7,56 @@
     tools:context=".SettingsFragment"
     android:id="@+id/SettingsLayout">
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="350lb"
-        android:textSize="70sp"
-        app:layout_constraintEnd_toEndOf="@+id/textView2"
-        app:layout_constraintTop_toBottomOf="@+id/textView2" />
-
     <Button
         android:id="@+id/buttonBack"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:text="@string/back"
+        android:text="@string/button_back"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="AFR: 13.1"
-        android:textSize="70sp"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="1dp" />
+    <RadioGroup
+        android:id="@+id/radioGroupMode"
+        android:layout_width="0dp"
+        android:layout_height="150dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <TextView
-        android:id="@+id/textView2"
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="@string/textview_settings_mode"
+            app:autoSizeTextType="uniform"
+            app:lineHeight="60dp" />
+
+        <RadioButton
+            android:id="@+id/radioButton3E"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="@string/radio_settings_mode_3E" />
+
+        <RadioButton
+            android:id="@+id/radioButton22"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:checked="true"
+            android:text="@string/radio_settings_mode_22" />
+
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/buttonSave"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="TORQUE:"
-        android:textSize="70sp"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
-        tools:layout_editor_absoluteX="1dp" />
+        android:layout_marginEnd="32dp"
+        android:text="@string/button_save"
+        app:layout_constraintEnd_toStartOf="@+id/buttonBack"
+        app:layout_constraintTop_toTopOf="@+id/buttonBack" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

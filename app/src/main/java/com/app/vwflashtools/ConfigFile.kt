@@ -51,6 +51,14 @@ object ConfigFile {
         }
     }
 
+    fun set(key: String, value: String) {
+        mProperties[key] = value
+    }
+
+    fun get(key: String): String {
+        return mProperties[key].toString()
+    }
+
     private fun processKey(key: String, value: String) {
         var p = Pattern.compile("^Config.(\\S+)", Pattern.CASE_INSENSITIVE)
         var m = p.matcher(key)

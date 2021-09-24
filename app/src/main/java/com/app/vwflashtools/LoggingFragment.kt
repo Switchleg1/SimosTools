@@ -66,18 +66,18 @@ class LoggingFragment : Fragment() {
         }
 
         view.findViewById<Button>(R.id.buttonStartLog).setOnClickListener {
-            if(view.findViewById<Button>(R.id.buttonStartLog).text == getString(R.string.start_log)) {
+            if(view.findViewById<Button>(R.id.buttonStartLog).text == getString(R.string.button_start)) {
                 val serviceIntent = Intent(context, BTService::class.java)
                 serviceIntent.action = BT_DO_CHECK_PID.toString()
                 startForegroundService(this.requireContext(), serviceIntent)
 
-                view.findViewById<Button>(R.id.buttonStartLog).text = getString(R.string.stop_log)
+                view.findViewById<Button>(R.id.buttonStartLog).text = getString(R.string.button_stop)
             } else {
                 val serviceIntent = Intent(context, BTService::class.java)
                 serviceIntent.action = BT_DO_STOP_PID.toString()
                 startForegroundService(this.requireContext(), serviceIntent)
 
-                view.findViewById<Button>(R.id.buttonStartLog).text = getString(R.string.start_log)
+                view.findViewById<Button>(R.id.buttonStartLog).text = getString(R.string.button_start)
             }
         }
 
