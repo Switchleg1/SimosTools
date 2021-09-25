@@ -293,7 +293,6 @@ class BTService: Service() {
                 when (status) {
                     BluetoothGatt.GATT_SUCCESS -> {
                         Log.i(TAG, "Read characteristic $uuid:\n${value}")
-
                     }
                     BluetoothGatt.GATT_READ_NOT_PERMITTED -> {
                         Log.e(TAG, "Read not permitted for $uuid!")
@@ -331,7 +330,17 @@ class BTService: Service() {
             with(characteristic) {
                 Log.i("BluetoothGattCallback", "Characteristic $uuid changed | value: $value")
 
-                mReadQueue.add(value)
+                //parse packet and check for multiple responses
+                val bleHeader = BLEHeader()
+                while(value.count() > 0) {
+                    bleHeader.fromByteArray(value)
+                    value = if(bleHeader.cmdSize+8 <= value.count()) {
+                        mReadQueue.add(value.copyOfRange(0, bleHeader.cmdSize + 8))
+                        value.copyOfRange(bleHeader.cmdSize + 8, value.count())
+                    } else {
+                        byteArrayOf()
+                    }
+                }
             }
         }
     }
