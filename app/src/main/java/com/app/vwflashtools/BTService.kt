@@ -18,16 +18,8 @@ import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
 import java.io.IOException
-import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Semaphore
-import java.util.TimerTask
-
-import android.R.attr.name
-import android.R.attr.name
-
-
-
 
 
 // Header we expect to receive on BLE packets

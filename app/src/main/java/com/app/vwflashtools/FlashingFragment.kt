@@ -118,7 +118,7 @@ class FlashingFragment : Fragment() {
                         val mViewModel: FlashingViewModel by viewModels()
                         mViewModel.mConversationArrayAdapter?.add("Me:  $writeString")
                         val btMessage = view?.findViewById<ListView>(R.id.bt_message)!!
-                        btMessage.setSelection(btMessage.adapter.count - 1);
+                        btMessage.setSelection(btMessage.adapter.count - 1)
                     }
                 }
                 MESSAGE_READ.toString() -> {
@@ -130,7 +130,7 @@ class FlashingFragment : Fragment() {
                         mViewModel.mConversationArrayAdapter?.add(mViewModel.mConnectedDeviceName.toString() + ":  $readBuff")
 
                         val btMessage = view?.findViewById<ListView>(R.id.bt_message)!!
-                        btMessage.setSelection(btMessage.adapter.count - 1);
+                        btMessage.setSelection(btMessage.adapter.count - 1)
                     }
                 }
                 MESSAGE_READ_VIN.toString() -> {
@@ -142,7 +142,7 @@ class FlashingFragment : Fragment() {
                         mViewModel.mConversationArrayAdapter?.add(mViewModel.mConnectedDeviceName.toString() + ":  $readBuff")
 
                         val btMessage = view?.findViewById<ListView>(R.id.bt_message)!!
-                        btMessage.setSelection(btMessage.adapter.count - 1);
+                        btMessage.setSelection(btMessage.adapter.count - 1)
                     }
                 }
                 MESSAGE_TOAST.toString() -> {

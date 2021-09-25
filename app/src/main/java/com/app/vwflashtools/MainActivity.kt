@@ -1,7 +1,6 @@
 package com.app.vwflashtools
 
 import android.Manifest
-import android.R.attr
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
@@ -21,9 +20,6 @@ import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
-import android.R.attr.fragment
-import android.widget.Button
-import androidx.fragment.app.FragmentManager
 import androidx.navigation.Navigation.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
 
@@ -160,6 +156,10 @@ class MainActivity : AppCompatActivity() {
                         TASK_LOGGING -> {
                             val mViewModel: MainViewModel by viewModels()
                             mViewModel.mTask = TASK_LOGGING
+                        }
+                        TASK_NONE -> {
+                            val mViewModel: MainViewModel by viewModels()
+                            mViewModel.mTask = TASK_NONE
                         }
                     }
                     setStatus()

@@ -1,7 +1,6 @@
 package com.app.vwflashtools
 
 import android.content.Context
-import android.os.Environment
 import android.util.Log
 import java.io.BufferedWriter
 import java.io.File

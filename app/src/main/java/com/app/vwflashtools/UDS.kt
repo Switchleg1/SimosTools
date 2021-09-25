@@ -1,9 +1,7 @@
 package com.app.vwflashtools
 
 import android.content.Context
-import android.graphics.Color
 import android.util.Log
-import com.google.android.material.tabs.TabLayout
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -110,7 +108,7 @@ object DIDs {
         DIDStruct(0xd00098fc, 4, 11,false,0f,   3f,     -1f,  2.8f,   0f, "%04.3f","PUT Actual",          "bar"),
         DIDStruct(0xd00120e2, 2, 33,false,0.5f, 1.5f,   -0.1f,5f,     0f, "%04.2f","Lambda SAE",          "l"),
         DIDStruct(0xd001988e, 1, 27,false,-5f,  5f,     -3.0f,3f,     0f, "%05.3f","Knock Retard",        "°"),
-        DIDStruct(0xd00136ac, 2, 36,false,0f,   280000f,0f,   280000f,0f, "%05.0f","Fuel Pressure DI",    "bar"),
+        DIDStruct(0xd00136ac, 2, 36,false,0f,   280f,   0f,   280f,   0f, "%05.0f","Fuel Pressure DI",    "bar"),
         DIDStruct(0xd00155b6, 2, 9, false,0f,   220f,   -20f, 200f,   0f, "%03.0f","Vehicle Speed",       "km/h"),
         DIDStruct(0xd000f00c, 1, 3, false,-25f, 25f,    -20f, 20f,    0f, "%04.1f","Fuel Trim Short Term","%"),
 

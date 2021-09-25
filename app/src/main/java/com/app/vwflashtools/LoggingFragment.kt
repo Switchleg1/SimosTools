@@ -20,34 +20,38 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.constraintlayout.widget.ConstraintLayout
 import java.io.IOException
-import android.R.attr.name
 import android.content.res.Configuration
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModel
 
 
-data class DATAStruct(var text: TextView?,
-                        var progress: ProgressBar?,
-                        var min: Float,
+data class DATAStruct(var min: Float,
                         var max: Float,
                         var lastColor: Boolean,
                         var multiplier: Float)
 
+class LoggingViewModel : ViewModel() {
+    var displayMode = DISPLAY_BARS
+    val colorWarn = Color.rgb(127, 127, 255)
+    val colorNormal = Color.rgb(255, 255, 255)
+    var lastWarning = false
+    var lastEnabled = false
+    var dataList: List<DATAStruct> = listOf(DATAStruct(0f, 0f, false, 0f),
+                                            DATAStruct(0f, 0f, false, 0f),
+                                            DATAStruct(0f, 0f, false, 0f),
+                                            DATAStruct(0f, 0f, false, 0f),
+                                            DATAStruct(0f, 0f, false, 0f),
+                                            DATAStruct(0f, 0f, false, 0f),
+                                            DATAStruct(0f, 0f, false, 0f),
+                                            DATAStruct(0f, 0f, false, 0f))
+}
+
 class LoggingFragment : Fragment() {
     private var TAG = "LoggingFragment"
-    private var mDisplayMode = DISPLAY_BARS
-    private var mPackCount: TextView? = null
-    private val mColorWarn = Color.rgb(127, 127, 255)
-    private val mColorNormal = Color.rgb(255, 255, 255)
-    private var mLastWarning = false
-    private var mLastEnabled = false
     private var mGraph: SwitchGraph? = null
-    private var mDataList: List<DATAStruct> = listOf(DATAStruct(null, null, 0f, 0f, false, 0f),
-                                                    DATAStruct(null, null, 0f, 0f, false, 0f),
-                                                    DATAStruct(null, null, 0f, 0f, false, 0f),
-                                                    DATAStruct(null, null, 0f, 0f, false, 0f),
-                                                    DATAStruct(null, null, 0f, 0f, false, 0f),
-                                                    DATAStruct(null, null, 0f, 0f, false, 0f),
-                                                    DATAStruct(null, null, 0f, 0f, false, 0f),
-                                                    DATAStruct(null, null, 0f, 0f, false, 0f))
+    private var mPackCount: TextView? = null
+    private var mTextView: Array<TextView?> = arrayOf(null, null, null, null, null, null, null, null)
+    private var mProgressBar: Array<ProgressBar?> = arrayOf(null, null, null, null, null, null, null, null)
 
 
     override fun onCreateView(
@@ -83,50 +87,44 @@ class LoggingFragment : Fragment() {
 
         view.findViewById<Button>(R.id.buttonReset).setOnClickListener {
             for(i in 0.. 7) {
-                val data = mDataList[i]
+                val mViewModel: LoggingViewModel by viewModels()
+                val data = mViewModel.dataList[i]
                 val did = DIDs.list()[i]
 
-                data.max = 0f
-                data.min = 0f
-
-                //Update text
-                val currentOrientation = resources.configuration.orientation
-                if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-                    data.text?.text = getString(R.string.textPIDL, did.name, did.format.format(did.value), did.unit, did.format.format(data.min), did.format.format(data.max))
-                } else {
-                    // Portrait
-                    data.text?.text = getString(R.string.textPIDP, did.name, did.format.format(did.value), did.unit, did.format.format(data.min), did.format.format(data.max))
-                }
+                data.max = did.value
+                data.min = did.value
             }
+            updatePIDText()
         }
 
         //mDisplayMode = DISPLAY_GRAPH
-        mDataList[0].text = view.findViewById<TextView>(R.id.textViewPID1)
-        mDataList[1].text = view.findViewById<TextView>(R.id.textViewPID2)
-        mDataList[2].text = view.findViewById<TextView>(R.id.textViewPID3)
-        mDataList[3].text = view.findViewById<TextView>(R.id.textViewPID4)
-        mDataList[4].text = view.findViewById<TextView>(R.id.textViewPID5)
-        mDataList[5].text = view.findViewById<TextView>(R.id.textViewPID6)
-        mDataList[6].text = view.findViewById<TextView>(R.id.textViewPID7)
-        mDataList[7].text = view.findViewById<TextView>(R.id.textViewPID8)
-        mPackCount = view.findViewById<TextView>(R.id.textViewPackCount)
+        mTextView[0] = view.findViewById(R.id.textViewPID1)
+        mTextView[1] = view.findViewById(R.id.textViewPID2)
+        mTextView[2] = view.findViewById(R.id.textViewPID3)
+        mTextView[3] = view.findViewById(R.id.textViewPID4)
+        mTextView[4] = view.findViewById(R.id.textViewPID5)
+        mTextView[5] = view.findViewById(R.id.textViewPID6)
+        mTextView[6] = view.findViewById(R.id.textViewPID7)
+        mTextView[7] = view.findViewById(R.id.textViewPID8)
+        mPackCount = view.findViewById(R.id.textViewPackCount)
 
-        mDataList[0].progress = view.findViewById<ProgressBar>(R.id.progressBar1)
-        mDataList[1].progress = view.findViewById<ProgressBar>(R.id.progressBar2)
-        mDataList[2].progress = view.findViewById<ProgressBar>(R.id.progressBar3)
-        mDataList[3].progress = view.findViewById<ProgressBar>(R.id.progressBar4)
-        mDataList[4].progress = view.findViewById<ProgressBar>(R.id.progressBar5)
-        mDataList[5].progress = view.findViewById<ProgressBar>(R.id.progressBar6)
-        mDataList[6].progress = view.findViewById<ProgressBar>(R.id.progressBar7)
-        mDataList[7].progress = view.findViewById<ProgressBar>(R.id.progressBar8)
+        mProgressBar[0] = view.findViewById(R.id.progressBar1)
+        mProgressBar[1] = view.findViewById(R.id.progressBar2)
+        mProgressBar[2] = view.findViewById(R.id.progressBar3)
+        mProgressBar[3] = view.findViewById(R.id.progressBar4)
+        mProgressBar[4] = view.findViewById(R.id.progressBar5)
+        mProgressBar[5] = view.findViewById(R.id.progressBar6)
+        mProgressBar[6] = view.findViewById(R.id.progressBar7)
+        mProgressBar[7] = view.findViewById(R.id.progressBar8)
 
-        when(mDisplayMode) {
+        val mViewModel: LoggingViewModel by viewModels()
+        when(mViewModel.displayMode) {
             DISPLAY_BARS -> {
 
             }
             DISPLAY_GRAPH -> {
                 for(i in 0..7) {
-                    mDataList[i].progress?.visibility = View.INVISIBLE
+                    mProgressBar[i]?.visibility = View.INVISIBLE
                 }
 
                 try {
@@ -151,7 +149,8 @@ class LoggingFragment : Fragment() {
         for(i in 0..7) {
             //get the current did
             val did = DIDs.list()[i]
-            val data = mDataList[i]
+            val data = mViewModel.dataList[i]
+            val progressBar = mProgressBar[i]
 
             //set min/max
             if(did.value > data.max)
@@ -160,15 +159,6 @@ class LoggingFragment : Fragment() {
             if(did.value < data.min)
                 data.min = did.value
 
-            //Update text
-            val currentOrientation = resources.configuration.orientation
-            if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-                data.text?.text = getString(R.string.textPIDL, did.name, did.format.format(did.value), did.unit, did.format.format(data.min), did.format.format(data.max))
-            } else {
-                // Portrait
-                data.text?.text = getString(R.string.textPIDP, did.name, did.format.format(did.value), did.unit, did.format.format(data.min), did.format.format(data.max))
-            }
-
             //Check for low value PIDS
             if((did.progMax - did.progMin) < 100.0f) {
                 data.multiplier = 100.0f / (did.progMax - did.progMin)
@@ -176,15 +166,18 @@ class LoggingFragment : Fragment() {
                 data.multiplier = 1.0f
             }
 
-            //Update the progress bar
-            data.progress?.progress = (did.value * data.multiplier).toInt()
-            data.progress?.min = (did.progMin * data.multiplier).toInt()
-            data.progress?.max = (did.progMax * data.multiplier).toInt()
-            data.progress?.progressTintList = ColorStateList.valueOf(Color.GREEN)
+            //Setup the progress bar
+            progressBar?.min = (did.progMin * data.multiplier).toInt()
+            progressBar?.max = (did.progMax * data.multiplier).toInt()
+            progressBar?.progress = (did.value * data.multiplier).toInt()
+            progressBar?.progressTintList = ColorStateList.valueOf(Color.GREEN)
         }
 
+        //update PID text
+        updatePIDText()
+
         //Set background color
-        view.setBackgroundColor(mColorNormal)
+        view.setBackgroundColor(mViewModel.colorNormal)
     }
 
     override fun onResume() {
@@ -202,12 +195,31 @@ class LoggingFragment : Fragment() {
         this.activity?.unregisterReceiver(mBroadcastReceiver)
     }
 
+    private fun updatePIDText() {
+        //check orientation
+        var textVal = R.string.textPIDP
+        val currentOrientation = resources.configuration.orientation
+        if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+            textVal = R.string.textPIDL
+        }
+
+        //Update text
+        val mViewModel: LoggingViewModel by viewModels()
+        for(i in 0..7) {
+            val did = DIDs.list()[i]
+            val textView = mTextView[i]
+            val data = mViewModel.dataList[i]
+
+            textView?.text = getString(textVal, did.name, did.format.format(did.value), did.unit, did.format.format(data.min), did.format.format(data.max))
+        }
+    }
+
     private val mBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             when (intent.action) {
                 MESSAGE_READ_VIN.toString() -> {
                     val buff = intent.getByteArrayExtra("readBuffer")
-                    mDataList[1].text?.text = getString(R.string.textVIN, buff.toString())
+                    mPackCount?.text = getString(R.string.textVIN, buff.toString())
                 }
                 MESSAGE_READ_LOG.toString() -> {
                     //val readBuff = intent.getByteArrayExtra("readBuffer") ?: return
@@ -221,12 +233,17 @@ class LoggingFragment : Fragment() {
                         return
                     }
 
+                    //Update PID Text
+                    updatePIDText()
+
                     //Set the UI values
+                    val mViewModel: LoggingViewModel by viewModels()
                     var anyWarning = false
                     for(i in 0..7) {
                         //get the current did
                         val did = DIDs.list()[i]
-                        val data = mDataList[i]
+                        val data = mViewModel.dataList[i]
+                        val progressBar = mProgressBar[i]
 
                         //set min/max
                         if(did.value > data.max)
@@ -235,33 +252,25 @@ class LoggingFragment : Fragment() {
                         if(did.value < data.min)
                             data.min = did.value
 
-                        //Update text
-                        val currentOrientation = resources.configuration.orientation
-                        if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-                            data.text?.text = getString(R.string.textPIDL, did.name, did.format.format(did.value), did.unit, did.format.format(data.min), did.format.format(data.max))
-                        } else {
-                            // Portrait
-                            data.text?.text = getString(R.string.textPIDP, did.name, did.format.format(did.value), did.unit, did.format.format(data.min), did.format.format(data.max))
-                        }
 
                         //Update progress is the value is different
                         val newProgress = (did.value * data.multiplier).toInt()
-                        if(newProgress != data.progress?.progress) {
-                            data.progress?.progress = newProgress
+                        if(newProgress != progressBar?.progress) {
+                            progressBar?.progress = newProgress
                         }
 
                         //Check to see if we should be warning user
                         if((did.value > did.warnMax) or (did.value < did.warnMin)) {
 
                             if(!data.lastColor) {
-                                data.progress?.progressTintList = ColorStateList.valueOf(Color.RED)
+                                progressBar?.progressTintList = ColorStateList.valueOf(Color.RED)
                             }
 
                             data.lastColor = true
                             anyWarning = true
                         } else {
                             if(data.lastColor) {
-                                data.progress?.progressTintList = ColorStateList.valueOf(Color.GREEN)
+                                progressBar?.progressTintList = ColorStateList.valueOf(Color.GREEN)
                             }
 
                             data.lastColor = false
@@ -270,17 +279,17 @@ class LoggingFragment : Fragment() {
 
                     //If any visible PIDS are in warning state set background color to warn
                     if(anyWarning) {
-                        if(!mLastWarning) {
-                            view?.setBackgroundColor(mColorWarn)
+                        if(!mViewModel.lastWarning) {
+                            view?.setBackgroundColor(mViewModel.colorWarn)
                         }
 
-                        mLastWarning = true
+                        mViewModel.lastWarning = true
                     } else {
-                        if(mLastWarning) {
-                            view?.setBackgroundColor(mColorNormal)
+                        if(mViewModel.lastWarning) {
+                            view?.setBackgroundColor(mViewModel.colorNormal)
                         }
 
-                        mLastWarning = false
+                        mViewModel.lastWarning = false
                     }
 
                     //Update fps
@@ -289,16 +298,16 @@ class LoggingFragment : Fragment() {
                     mPackCount?.text = "${fps}fps"
                     if (dEnable.value != 0.0f) {
                         //Highlight packet count in red since we are logging
-                        if(!mLastEnabled) {
+                        if(!mViewModel.lastEnabled) {
                             mPackCount?.setTextColor(Color.RED)
                         }
-                        mLastEnabled = true
+                        mViewModel.lastEnabled = true
                     } else {
                         //Not logging set packet count to black
-                        if(mLastEnabled) {
+                        if(mViewModel.lastEnabled) {
                             mPackCount?.setTextColor(Color.BLACK)
                         }
-                        mLastEnabled = false
+                        mViewModel.lastEnabled = false
                     }
                 }
             }

@@ -2,7 +2,6 @@ package com.app.vwflashtools
 
 import android.content.Context
 import android.util.Log
-import androidx.annotation.LongDef
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
