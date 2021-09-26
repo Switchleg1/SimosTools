@@ -106,6 +106,9 @@ val UDS_LOGGING_3E = 1
 val LOG_COMMUNICATIONS  = false
 val LOG_FILENAME        = "logging.cfg"
 
+//Some defaults for Settings
+val DEFAULT_UPDATE_RATE = 4
+
 //Additional properties
 infix fun Byte.shl(that: Int): Int = this.toInt().shl(that)
 infix fun Short.shl(that: Int): Int = this.toInt().shl(that)

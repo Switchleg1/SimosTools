@@ -215,9 +215,7 @@ class BTService: Service() {
                     Log.w(TAG, "Discovered ${services.size} services for ${device.address}")
                     printGattTable()
                     try {
-                        mBluetoothGatt?.let { ourGatt ->
-                            ourGatt.requestMtu(GATT_MAX_MTU_SIZE)
-                        } ?: error("Gatt is invalid")
+                        mBluetoothGatt?.requestMtu(GATT_MAX_MTU_SIZE) ?: error("Gatt is invalid")
                     } catch (e: IOException) {
                         Log.e(TAG,"Exception while discovering services", e)
                         doDisconnect()
@@ -613,7 +611,7 @@ class BTService: Service() {
                                 val result = UDSLogger.processFrame(mTaskCount, buff, applicationContext)
 
                                 //Broadcast a new message
-                                if((mTaskCount % 4 == 0) or (result != UDS_OK)) {
+                                if((mTaskCount % Settings.updateRate == 0) or (result != UDS_OK)) {
                                     val intentMessage = Intent(MESSAGE_READ_LOG.toString())
                                     intentMessage.putExtra("readCount", mTaskCount)
                                     intentMessage.putExtra("readTime", System.currentTimeMillis() - mTaskTime)

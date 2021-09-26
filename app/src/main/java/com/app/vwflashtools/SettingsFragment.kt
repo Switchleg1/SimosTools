@@ -1,5 +1,6 @@
 package com.app.vwflashtools
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -8,8 +9,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.RadioButton
+import android.widget.SeekBar
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
+import android.widget.SeekBar.OnSeekBarChangeListener
+
 
 class SettingsFragment : Fragment() {
 
@@ -35,6 +40,8 @@ class SettingsFragment : Fragment() {
                 ConfigFile.set("Config.Mode", "22")
             }
 
+            ConfigFile.set("Config.UpdateRate", (11 - view.findViewById<SeekBar>(R.id.seekBarUpdateRate).progress).toString())
+
             //Stop logging
             val serviceIntent = Intent(context, BTService::class.java)
             serviceIntent.action = BT_DO_STOP_PID.toString()
@@ -44,10 +51,37 @@ class SettingsFragment : Fragment() {
             ConfigFile.read(LOG_FILENAME, context)
         }
 
+        view.findViewById<SeekBar>(R.id.seekBarUpdateRate).setOnSeekBarChangeListener(object :
+            OnSeekBarChangeListener {
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                // TODO Auto-generated method stub
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar) {
+                // TODO Auto-generated method stub
+            }
+
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                // TODO Auto-generated method stub
+                view.findViewById<TextView>(R.id.textViewUpdateRate).text = getString(R.string.textview_settings_updaterate, view.findViewById<SeekBar>(R.id.seekBarUpdateRate).progress)
+            }
+        })
+
+        doShow()
+    }
+
+    private fun doShow() {
         if(UDSLogger.getMode() == UDS_LOGGING_3E) {
-            view.findViewById<RadioButton>(R.id.radioButton3E).isChecked = true
+            view?.findViewById<RadioButton>(R.id.radioButton3E)?.isChecked = true
         } else {
-            view.findViewById<RadioButton>(R.id.radioButton22).isChecked = true
+            view?.findViewById<RadioButton>(R.id.radioButton22)?.isChecked = true
+        }
+
+        view?.findViewById<SeekBar>(R.id.seekBarUpdateRate)?.let { updateRate ->
+            updateRate.min = 1
+            updateRate.max = 10
+            updateRate.progress = 11 - Settings.updateRate
+            updateRate.callOnClick()
         }
     }
 }

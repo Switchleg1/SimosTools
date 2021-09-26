@@ -27,6 +27,7 @@
     <string name="radio_settings_mode_3E">3E</string>
     <string name="radio_settings_mode_22">22</string>
     <!-- Strings used for misc -->
+    <string name="textview_settings_updaterate">Display update rate: <xliff:g id="rate">%1$d</xliff:g></string>
     <string name="textview_settings_mode">Logging Mode:</string>
     <string name="bt_status">Bluetooth: </string>
     <string name="bt_connect">Connect</string>

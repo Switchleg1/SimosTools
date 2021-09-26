@@ -86,6 +86,9 @@ object ConfigFile {
                     "3E" -> UDSLogger.setMode(UDS_LOGGING_3E)
                 }
             }
+            "UpdateRate" -> {
+                Settings.updateRate = value.toInt()
+            }
         }
     }
 
