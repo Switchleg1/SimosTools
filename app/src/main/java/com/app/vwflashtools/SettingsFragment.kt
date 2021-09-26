@@ -40,7 +40,7 @@ class SettingsFragment : Fragment() {
                 ConfigFile.set("Config.Mode", "22")
             }
 
-            ConfigFile.set("Config.UpdateRate", (11 - view.findViewById<SeekBar>(R.id.seekBarUpdateRate).progress).toString())
+            ConfigFile.set("Config.UpdateRate", view.findViewById<SeekBar>(R.id.seekBarUpdateRate).progress.toString())
 
             //Stop logging
             val serviceIntent = Intent(context, BTService::class.java)
@@ -62,7 +62,6 @@ class SettingsFragment : Fragment() {
             }
 
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                // TODO Auto-generated method stub
                 view.findViewById<TextView>(R.id.textViewUpdateRate).text = getString(R.string.textview_settings_updaterate, view.findViewById<SeekBar>(R.id.seekBarUpdateRate).progress)
             }
         })

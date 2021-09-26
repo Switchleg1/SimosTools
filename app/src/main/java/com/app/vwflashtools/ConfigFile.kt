@@ -87,7 +87,7 @@ object ConfigFile {
                 }
             }
             "UpdateRate" -> {
-                Settings.updateRate = value.toInt()
+                Settings.updateRate = 11-value.toInt()
             }
         }
     }
@@ -132,6 +132,7 @@ object ConfigFile {
 
     private fun writeDefaultConfig(filename: String?, context: Context?) {
         mProperties["Config.Mode"] = "22"
+        mProperties["Config.UpdateRate"] = "7"
         for(i in 0 until DIDs.list22.count()) {
             mProperties["PID.22.${i.toTwo()}.Address"] = DIDs.list22[i].address.toShort().toHex()
             mProperties["PID.22.${i.toTwo()}.Length"] = DIDs.list22[i].length.toString()
