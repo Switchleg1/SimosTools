@@ -1,29 +1,25 @@
 package com.app.vwflashtools
 
 import android.content.Context
-import android.util.Log
-import java.io.BufferedWriter
-import java.io.File
-import java.io.FileWriter
-import java.io.IOException
+import android.provider.MediaStore
+import android.content.ContentValues
+import java.io.*
 
 object LogFile {
     private val TAG = "LogFile"
-    private var mLogFile: File? = null
-    private var mBufferedWriter: BufferedWriter? = null
+    private var mOutputStream: OutputStream? = null
 
     fun create(fileName: String?, context: Context?) {
         close()
 
-        val path = context?.getExternalFilesDir("")
-        Log.i(TAG, "$path/$fileName")
-        mLogFile = File(path, "/$fileName")
-        if(mLogFile == null)
-            return
-
         try {
-            mLogFile!!.createNewFile()
-            mBufferedWriter = BufferedWriter(FileWriter(mLogFile, true))
+            val resolver = context!!.contentResolver
+            val contentValues = ContentValues()
+            contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+            contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "application/my-custom-type")
+            contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, LOG_DIRECTORY)
+            val uri = resolver.insert(MediaStore.Files.getContentUri("external"), contentValues)
+            mOutputStream = resolver.openOutputStream(uri!!)
         } catch (e: IOException) {
             // TODO Auto-generated catch block
             e.printStackTrace()
@@ -31,24 +27,17 @@ object LogFile {
     }
 
     fun close() {
-        if(mBufferedWriter != null) {
-            mBufferedWriter!!.close()
-            mBufferedWriter = null
+       if(mOutputStream != null) {
+           mOutputStream!!.close()
+           mOutputStream = null
         }
-
-        mLogFile = null
     }
 
     fun add(text: String?) {
-        if(mLogFile == null || mBufferedWriter == null)
-            return
+        mOutputStream?.write(text?.toByteArray())
+    }
 
-        try {
-            mBufferedWriter!!.append(text)
-            mBufferedWriter!!.newLine()
-        } catch (e: IOException) {
-            // TODO Auto-generated catch block
-            e.printStackTrace()
-        }
+    fun addLine(text: String?) {
+        add(text + "\n")
     }
 }

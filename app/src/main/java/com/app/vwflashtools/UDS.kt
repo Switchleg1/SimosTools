@@ -103,14 +103,14 @@ object DIDs {
 
     val list3E: List<DIDStruct> = listOf(
         //P1
-        DIDStruct(0xd0012028, 2, 29,false,0f,   100f,   -1f,  101f,   0f, "%04.1f","Pedal Position",      "%"),
         DIDStruct(0xd0012400, 2, 0, false,0f,   7000f,  -1.0f,6000f,  0f, "%04.0f","Engine Speed",        "rpm"),
-        DIDStruct(0xd00098fc, 4, 11,false,0f,   3f,     -1f,  2.8f,   0f, "%04.3f","PUT Actual",          "bar"),
-        DIDStruct(0xd00120e2, 2, 33,false,0.5f, 1.5f,   -0.1f,5f,     0f, "%04.2f","Lambda SAE",          "l"),
-        DIDStruct(0xd001988e, 1, 27,false,-5f,  5f,     -3.0f,3f,     0f, "%05.3f","Knock Retard",        "°"),
         DIDStruct(0xd00136ac, 2, 36,false,0f,   280f,   0f,   280f,   0f, "%05.0f","Fuel Pressure DI",    "bar"),
-        DIDStruct(0xd00155b6, 2, 9, false,0f,   220f,   -20f, 200f,   0f, "%03.0f","Vehicle Speed",       "km/h"),
         DIDStruct(0xd000f00c, 1, 3, false,-25f, 25f,    -20f, 20f,    0f, "%04.1f","Fuel Trim Short Term","%"),
+        DIDStruct(0xd000c179, 1, 28,false,-50f, 130f,   0f,   112f,   0f, "%03.2f","Intake Air Temp",     "°C"),
+        DIDStruct(0xd001988e, 1, 27,false,-5f,  5f,     -3.0f,3f,     0f, "%05.3f","Knock Retard",        "°"),
+        DIDStruct(0xd00120e2, 2, 33,false,0.5f, 1.5f,   -0.1f,5f,     0f, "%04.2f","Lambda SAE",          "l"),
+        DIDStruct(0xd00098fc, 4, 11,false,0f,   3f,     -1f,  2.8f,   0f, "%04.3f","PUT Actual",          "bar"),
+        DIDStruct(0xd0011e76, 2, 4, false,0f,   195000f,-100f,190000f,0f, "%01.0f","Turbo Speed",         "rpm"),
 
         DIDStruct(0xd00097b4, 4, 1, false,0f,   1f,     -1f,  2f,     0f, "%01.0f","Airmass",             "g/stk"),
         DIDStruct(0xd00097fc, 4, 1, false,-25f, 25f,    -20f, 20f,    0f, "%02.2f","Airmass Setpoint",    "g/stk"),
@@ -137,7 +137,6 @@ object DIDs {
         DIDStruct(0xd000f39a, 1, 0, false,0f,   6f,     -1f,  100f,   0f, "%02.2f","Gear",                "gear"),
         DIDStruct(0xd000e57e, 1, 21,false,-100f,100f,   -100f,100f,   0f, "%01.0f","Ignition Table Value","°"),
         DIDStruct(0xd000e59c, 1, 21,false,-100f,100f,   -100f,100f,   0f, "%01.0f","Ignition Timing",     "°"),
-        DIDStruct(0xd000c179, 1, 28,false,-50f, 130f,   0f,   112f,   0f, "%03.2f","Intake Air Temp",     "°C"),
         DIDStruct(0xd001566c, 2, 31,true, -100f,100f,   -100f,100f,   0f, "%01.0f","Intake Cam Position", "°"),
         DIDStruct(0xd0013b16, 2, 35,false,-25f, 25f,    -20f, 20f,    0f, "%02.2f","Injector PW DI",      "ms"),
         DIDStruct(0xd0013824, 2, 35,false,0f,   100f,   -1f,  101f,   0f, "%05.1f","Injector PW MPI",     "ms"),
@@ -153,6 +152,7 @@ object DIDs {
         DIDStruct(0xd000e578, 1, 27,true, 0f,   220f,   -20f, 200f,   0f, "%03.2f","openflex_cor",        "°CRK"),
         DIDStruct(0xd001de8d, 1, 27,true, 0f,   7000f,  -1f,  6000f,  0f, "%06.1f","openflex_max_cor",    "°CRK"),
         DIDStruct(0xd001de8e, 1, 31,false,0f,   3f,     0f,   2.6f,   0f, "%05.3f","openflex_fac_cor",    ""),
+        DIDStruct(0xd0012028, 2, 29,false,0f,   100f,   -1f,  101f,   0f, "%04.1f","Pedal Position",      "%"),
         DIDStruct(0xd0000aa1, 1, 0, false,0f,   1f,     -1f,  2f,     0f, "%01.0f","Port Flap Position",  ""),
         DIDStruct(0xd0011eee, 2, 32,false,0f,   2f,     0.7f, 4f,     0f, "%05.3f","PUT Setpoint",        "bar"),
         DIDStruct(0xd0013a42, 2, 20,false,-100f,100f,   -100f,100f,   0f, "%01.0f","SOI Limit",           "°"),
@@ -162,8 +162,8 @@ object DIDs {
         DIDStruct(0xd0011f0c, 2, 0, false,-100f,100f,   -100f,100f,   0f, "%01.0f","Torque Limitation",   ""),
         DIDStruct(0xd0012048, 2, 37,true, -40f, 500f,   -10f, 500f,   0f, "%03.2f","Torque Requested",    "Nm"),
         DIDStruct(0xd000f3c1, 1, 30,false,-100f,100f,   -100f,100f,   0f, "%01.0f","Transmission Temp",   "°C"),
-        DIDStruct(0xd0011e76, 2, 4, false,-100f,100f,   -100f,100f,   0f, "%01.0f","Turbo Speed",         "rpm"),
         DIDStruct(0xd0019b75, 1, 0, false,-100f,100f,   -100f,100f,   0f, "%01.0f","Valve Lift Position", ""),
+        DIDStruct(0xd00155b6, 2, 9, false,0f,   220f,   -20f, 200f,   0f, "%03.0f","Vehicle Speed",       "km/h"),
         DIDStruct(0xd0015c2c, 2, 22,false,-10f, 0f,     -4f,  1f,     0f, "%05.3f","Wastegate Setpoint",  "%"),
         DIDStruct(0xd0011e10, 2, 22,false,-10f, 0f,     -4f,  1f,     0f, "%05.3f","Wastegate Actual",    "%"),
         DIDStruct(0xd0015c5e, 2, 37,false,-100f,100f,   -100f,100f,   0f, "%01.0f","Wastegate Flow Req",  "kg/h"),
@@ -459,7 +459,7 @@ object UDSLogger {
                     for (x in 0 until DIDs.list22.count()) {
                         strItems += ",${DIDs.list22[x].name}"
                     }
-                    LogFile.add(strItems)
+                    LogFile.addLine(strItems)
                 }
                 mLastEnabled = true
 
@@ -468,7 +468,7 @@ object UDSLogger {
                 for (x in 0 until DIDs.list22.count()) {
                     strItems += ",${DIDs.list22[x].value}"
                 }
-                LogFile.add(strItems)
+                LogFile.addLine(strItems)
             } else {
                 if (mLastEnabled) {
                     LogFile.close()
@@ -551,7 +551,7 @@ object UDSLogger {
                 for (x in 0 until DIDs.list3E.count()) {
                     strItems += ",${DIDs.list3E[x].name}"
                 }
-                LogFile.add(strItems)
+                LogFile.addLine(strItems)
             }
             mLastEnabled = true
 
@@ -560,7 +560,7 @@ object UDSLogger {
             for (x in 0 until DIDs.list3E.count()) {
                 strItems += ",${DIDs.list3E[x].value}"
             }
-            LogFile.add(strItems)
+            LogFile.addLine(strItems)
         } else {
             if (mLastEnabled) {
                 LogFile.close()

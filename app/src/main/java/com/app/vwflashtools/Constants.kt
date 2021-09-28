@@ -16,6 +16,7 @@
 
 package com.app.vwflashtools
 
+import android.os.Environment
 import java.util.*
 
 // Message types sent from the BluetoothChatService Handler
@@ -106,6 +107,7 @@ val UDS_LOGGING_3E = 1
 //Log communications?
 val LOG_COMMUNICATIONS  = false
 val LOG_FILENAME        = "logging.cfg"
+val LOG_DIRECTORY = Environment.DIRECTORY_DOWNLOADS
 
 //Some defaults for Settings
 val DEFAULT_UPDATE_RATE = 4
