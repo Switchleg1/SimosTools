@@ -79,16 +79,21 @@ object ConfigFile {
     private fun processConfigKey(variable: String, value: String) {
         Log.i(TAG, "Config[$variable]: $value")
 
-        when(variable) {
-            "Mode"     -> {
-                when(value) {
-                    "22" -> UDSLogger.setMode(UDS_LOGGING_22)
-                    "3E" -> UDSLogger.setMode(UDS_LOGGING_3E)
+        try {
+            when (variable) {
+                "Mode" -> {
+                    when (value) {
+                        "22" -> UDSLogger.setMode(UDS_LOGGING_22)
+                        "3E" -> UDSLogger.setMode(UDS_LOGGING_3E)
+                    }
+                }
+                "UpdateRate" -> {
+                    val i = value.toInt()
+                    Settings.updateRate = 11 - i
                 }
             }
-            "UpdateRate" -> {
-                Settings.updateRate = 11-value.toInt()
-            }
+        } catch (e: NumberFormatException) {
+            Log.i(TAG, e.toString())
         }
     }
 
@@ -106,27 +111,52 @@ object ConfigFile {
             return
         }
 
-        val pidNumber = number.toInt()
-        if((pidNumber < pidList.count()) and (pidNumber >= 0)) {
-            when(variable) {
-                "Address" -> {
-                    val pAddress = Pattern.compile("^[0-9A-F]+\$", Pattern.CASE_INSENSITIVE)
-                    val mAddress = pAddress.matcher(value)
-                    if(mAddress.matches() and (((type == "22") and (value.length == 4)) or ((type == "3E") and (value.length == 8)))) {
-                        pidList[pidNumber].address = parseLong(value, 16)
+        try {
+            val pidNumber = number.toInt()
+            if((pidNumber < pidList.count()) and (pidNumber >= 0)) {
+                when (variable) {
+                    "Address" -> {
+                        val pAddress = Pattern.compile("^[0-9A-F]+\$", Pattern.CASE_INSENSITIVE)
+                        val mAddress = pAddress.matcher(value)
+                        if (mAddress.matches() and (((type == "22") and (value.length == 4)) or ((type == "3E") and (value.length == 8)))) {
+                            pidList[pidNumber].address = parseLong(value, 16)
+                        }
                     }
+                    "Length" -> {
+                        val i = value.toInt()
+                        pidList[pidNumber].length = i
+                    }
+                    "Equation" -> {
+                        val i = value.toInt()
+                        pidList[pidNumber].equation = i
+                    }
+                    "Signed" -> {
+                        val b = value.toBoolean()
+                        pidList[pidNumber].signed = b
+                    }
+                    "ProgMin" -> {
+                        val f = value.toFloat()
+                        pidList[pidNumber].progMin = f
+                    }
+                    "ProgMax" -> {
+                        val f = value.toFloat()
+                        pidList[pidNumber].progMax = f
+                    }
+                    "WarnMin" -> {
+                        val f = value.toFloat()
+                        pidList[pidNumber].warnMin = f
+                    }
+                    "WarnMax" -> {
+                        val f = value.toFloat()
+                        pidList[pidNumber].warnMax = f
+                    }
+                    "Format" -> pidList[pidNumber].format = value
+                    "Name" -> pidList[pidNumber].name = value
+                    "Unit" -> pidList[pidNumber].unit = value
                 }
-                "Length"    -> pidList[pidNumber].length = value.toInt()
-                "Equation"  -> pidList[pidNumber].equation = value.toInt()
-                "Signed"    -> pidList[pidNumber].signed = value.toBoolean()
-                "ProgMin"   -> pidList[pidNumber].progMin = value.toFloat()
-                "ProgMax"   -> pidList[pidNumber].progMax = value.toFloat()
-                "WarnMin"   -> pidList[pidNumber].warnMin = value.toFloat()
-                "WarnMax"   -> pidList[pidNumber].warnMax = value.toFloat()
-                "Format"    -> pidList[pidNumber].format = value
-                "Name"      -> pidList[pidNumber].name = value
-                "Unit"      -> pidList[pidNumber].unit = value
             }
+        } catch (e: NumberFormatException) {
+            Log.e(TAG, e.toString())
         }
     }
 

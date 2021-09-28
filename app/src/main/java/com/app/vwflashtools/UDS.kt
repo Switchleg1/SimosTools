@@ -103,14 +103,14 @@ object DIDs {
 
     val list3E: List<DIDStruct> = listOf(
         //P1
-        DIDStruct(0xd0012400, 2, 0, false,0f,   7000f,  -1.0f,6000f,  0f, "%04.0f","Engine Speed",        "rpm"),
-        DIDStruct(0xd00136ac, 2, 36,false,0f,   280f,   0f,   280f,   0f, "%05.0f","Fuel Pressure DI",    "bar"),
+        DIDStruct(0xd0012400, 2, 0, false,0f,   7000f,  -1.0f,6000f,  0f, "%03.0f","Engine Speed",        "rpm"),
+        DIDStruct(0xd00136ac, 2, 36,false,0f,   280f,   0f,   280f,   0f, "%03.0f","Fuel Pressure DI",    "bar"),
         DIDStruct(0xd000f00c, 1, 3, false,-25f, 25f,    -20f, 20f,    0f, "%04.1f","Fuel Trim Short Term","%"),
-        DIDStruct(0xd000c179, 1, 28,false,-50f, 130f,   0f,   112f,   0f, "%03.2f","Intake Air Temp",     "°C"),
+        DIDStruct(0xd000c179, 1, 28,false,-50f, 70f,    -20f, 50f,    0f, "%03.2f","Intake Air Temp",     "°C"),
         DIDStruct(0xd001988e, 1, 27,false,-5f,  5f,     -3.0f,3f,     0f, "%05.3f","Knock Retard",        "°"),
         DIDStruct(0xd00120e2, 2, 33,false,0.5f, 1.5f,   -0.1f,5f,     0f, "%04.2f","Lambda SAE",          "l"),
         DIDStruct(0xd00098fc, 4, 11,false,0f,   3f,     -1f,  2.8f,   0f, "%04.3f","PUT Actual",          "bar"),
-        DIDStruct(0xd0011e76, 2, 4, false,0f,   195000f,-100f,190000f,0f, "%01.0f","Turbo Speed",         "rpm"),
+        DIDStruct(0xd0011e76, 2, 4, false,0f,   195000f,-100f,190000f,0f, "%05.0f","Turbo Speed",         "rpm"),
 
         DIDStruct(0xd00097b4, 4, 1, false,0f,   1f,     -1f,  2f,     0f, "%01.0f","Airmass",             "g/stk"),
         DIDStruct(0xd00097fc, 4, 1, false,-25f, 25f,    -20f, 20f,    0f, "%02.2f","Airmass Setpoint",    "g/stk"),

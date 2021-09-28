@@ -138,7 +138,7 @@ class LoggingFragment : Fragment() {
                     for(i in 0 until 8) {
                         mGraph!!.setColor(i, Color.rgb(i*20.0f, i*2.0f+100f, 150f-i*10f))
                     }
-                } catch (e: IOException) {
+                } catch (e: Exception) {
                     Log.e(TAG, "Exception when trying to setup graphview",e)
                     return
                 }

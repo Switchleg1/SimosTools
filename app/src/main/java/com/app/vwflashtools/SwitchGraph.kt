@@ -46,7 +46,7 @@ class SwitchGraph(context: Context) : androidx.appcompat.widget.AppCompatImageVi
                         canvas.drawLine(width - (xMax-x) * mLineLength, height - curValues[y] * mValueMultiplier, width - ((xMax-x)-1) * mLineLength, height - nextValues[y] * mValueMultiplier, p)
                     }
                 }
-            } catch(e: IOException) {
+            } catch(e: Exception) {
                 Log.e(TAG, "Exception while drawing", e)
             }
 
@@ -74,7 +74,7 @@ class SwitchGraph(context: Context) : androidx.appcompat.widget.AppCompatImageVi
             while(mLinkedList!!.count() > mMaxValues) {
                 mLinkedList!!.remove()
             }
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             Log.e(TAG, "Exception while adding values", e)
         }
     }

@@ -20,7 +20,7 @@ object LogFile {
             contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, LOG_DIRECTORY)
             val uri = resolver.insert(MediaStore.Files.getContentUri("external"), contentValues)
             mOutputStream = resolver.openOutputStream(uri!!)
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             // TODO Auto-generated catch block
             e.printStackTrace()
         }

@@ -17,7 +17,6 @@ import android.widget.Toast
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
-import java.io.IOException
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Semaphore
 
@@ -174,7 +173,7 @@ class BTService: Service() {
                                 newGatt.discoverServices()
                             }
                         } ?: error("Gatt is invalid")
-                    } catch (e: IOException) {
+                    } catch (e: Exception) {
                         Log.e(TAG,"Exception requesting to discover services", e)
                         doDisconnect()
                     }
@@ -216,7 +215,7 @@ class BTService: Service() {
                     printGattTable()
                     try {
                         mBluetoothGatt?.requestMtu(GATT_MAX_MTU_SIZE) ?: error("Gatt is invalid")
-                    } catch (e: IOException) {
+                    } catch (e: Exception) {
                         Log.e(TAG,"Exception while discovering services", e)
                         doDisconnect()
                     }
@@ -247,7 +246,7 @@ class BTService: Service() {
                         ourGatt.requestConnectionPriority(BluetoothGatt.CONNECTION_PRIORITY_HIGH)
                         enableNotifications(ourGatt.getService(BT_SERVICE_UUID)!!.getCharacteristic(BT_DATA_RX_UUID))
                     } ?: error("Gatt is invalid")
-                } catch (e: IOException) {
+                } catch (e: Exception) {
                     Log.e(TAG,"Exception setting mtu", e)
                     doDisconnect()
                 }
@@ -570,7 +569,7 @@ class BTService: Service() {
                             txChar.value = buff
                             gatt.writeCharacteristic(txChar)
                         } ?: error("Not connected to a BLE device!")
-                    } catch (e: IOException) {
+                    } catch (e: Exception) {
                         Log.e(TAG, "Exception during write", e)
                         mWriteSemaphore.release()
                         cancel()
@@ -620,7 +619,7 @@ class BTService: Service() {
                                 }
                             }
                         }
-                    } catch (e: IOException) {
+                    } catch (e: Exception) {
                         Log.e(TAG, "Exception during read", e)
                         cancel()
                         break
@@ -689,8 +688,7 @@ class BTService: Service() {
             try {
                 mLogFile!!.createNewFile()
                 mBufferedWriter = BufferedWriter(FileWriter(mLogFile, true))
-            } catch (e: IOException) {
-                // TODO Auto-generated catch block
+            } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
@@ -718,8 +716,7 @@ class BTService: Service() {
                 if(from) mBufferedWriter!!.append("->[${buff.count()}]:${buff.toHex()}")
                 else mBufferedWriter!!.append("<-[${buff.count()}]:${buff.toHex()}")
                 mBufferedWriter!!.newLine()
-            } catch (e: IOException) {
-                // TODO Auto-generated catch block
+            } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
