@@ -78,4 +78,42 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/radioGroupMode" />
 
+    <RadioGroup
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/seekBarUpdateRate">
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="@string/textview_settings_directory"
+            app:autoSizeTextType="uniform"
+            app:lineHeight="60dp" />
+
+        <RadioButton
+            android:id="@+id/radioButtonDownloads"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="@string/radio_settings_mode_downloads" />
+
+        <RadioButton
+            android:id="@+id/radioButtonDocuments"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="@string/radio_settings_mode_documents" />
+
+        <RadioButton
+            android:id="@+id/radioButtonApplication"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="@string/radio_settings_mode_application" />
+    </RadioGroup>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

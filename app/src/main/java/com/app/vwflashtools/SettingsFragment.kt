@@ -3,6 +3,7 @@ package com.app.vwflashtools
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Environment
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -34,12 +35,27 @@ class SettingsFragment : Fragment() {
         }
 
         view.findViewById<Button>(R.id.buttonSave).setOnClickListener {
+            // Set logging mode
             if(view.findViewById<RadioButton>(R.id.radioButton3E).isChecked) {
                 ConfigFile.set("Config.Mode", "3E")
             } else {
                 ConfigFile.set("Config.Mode", "22")
             }
 
+            // Set default output folder
+            when {
+                view.findViewById<RadioButton>(R.id.radioButtonDownloads).isChecked -> {
+                    ConfigFile.set("Config.OutputDirectory", "Downloads")
+                }
+                view.findViewById<RadioButton>(R.id.radioButtonDocuments).isChecked -> {
+                    ConfigFile.set("Config.OutputDirectory", "Documents")
+                }
+                else -> {
+                    ConfigFile.set("Config.OutputDirectory", "App")
+                }
+            }
+
+            // Set update rate
             ConfigFile.set("Config.UpdateRate", view.findViewById<SeekBar>(R.id.seekBarUpdateRate).progress.toString())
 
             //Stop logging
@@ -47,6 +63,7 @@ class SettingsFragment : Fragment() {
             serviceIntent.action = BT_DO_STOP_PID.toString()
             ContextCompat.startForegroundService(this.requireContext(), serviceIntent)
 
+            // Write config
             ConfigFile.write(LOG_FILENAME, context)
             ConfigFile.read(LOG_FILENAME, context)
         }
@@ -75,6 +92,19 @@ class SettingsFragment : Fragment() {
         } else {
             view?.findViewById<RadioButton>(R.id.radioButton22)?.isChecked = true
         }
+
+        when (Settings.outputDirectory) {
+            Environment.DIRECTORY_DOWNLOADS -> {
+                view?.findViewById<RadioButton>(R.id.radioButtonDownloads)?.isChecked = true
+            }
+            Environment.DIRECTORY_DOCUMENTS -> {
+                view?.findViewById<RadioButton>(R.id.radioButtonDocuments)?.isChecked = true
+            }
+            else -> {
+                view?.findViewById<RadioButton>(R.id.radioButtonApplication)?.isChecked = true
+            }
+        }
+
 
         view?.findViewById<SeekBar>(R.id.seekBarUpdateRate)?.let { updateRate ->
             updateRate.min = 1

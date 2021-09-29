@@ -1,6 +1,7 @@
 package com.app.vwflashtools
 
 import android.content.Context
+import android.os.Environment
 import android.util.Log
 import java.io.File
 import java.io.FileInputStream
@@ -91,6 +92,13 @@ object ConfigFile {
                     val i = value.toInt()
                     Settings.updateRate = 11 - i
                 }
+                "OutputDirectory" -> {
+                    when(value) {
+                        "Downloads" -> Settings.outputDirectory = Environment.DIRECTORY_DOWNLOADS
+                        "Documents" -> Settings.outputDirectory = Environment.DIRECTORY_DOCUMENTS
+                        "App" -> Settings.outputDirectory = "App"
+                    }
+                }
             }
         } catch (e: NumberFormatException) {
             Log.i(TAG, e.toString())
@@ -163,6 +171,7 @@ object ConfigFile {
     private fun writeDefaultConfig(filename: String?, context: Context?) {
         mProperties["Config.Mode"] = "22"
         mProperties["Config.UpdateRate"] = "7"
+        mProperties["Config.OutputDirectory"] = "Downloads"
         for(i in 0 until DIDs.list22.count()) {
             mProperties["PID.22.${i.toTwo()}.Address"] = DIDs.list22[i].address.toShort().toHex()
             mProperties["PID.22.${i.toTwo()}.Length"] = DIDs.list22[i].length.toString()

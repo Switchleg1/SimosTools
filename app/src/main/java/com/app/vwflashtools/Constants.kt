@@ -106,10 +106,10 @@ val UDS_LOGGING_3E = 1
 //Log communications?
 val LOG_COMMUNICATIONS  = false
 val LOG_FILENAME        = "logging.cfg"
-val LOG_DIRECTORY = Environment.DIRECTORY_DOWNLOADS
 
 //Some defaults for Settings
 val DEFAULT_UPDATE_RATE = 4
+val DEFAULT_DIRECTORY = Environment.DIRECTORY_DOWNLOADS
 
 //Additional properties
 infix fun Byte.shl(that: Int): Int = this.toInt().shl(that)
