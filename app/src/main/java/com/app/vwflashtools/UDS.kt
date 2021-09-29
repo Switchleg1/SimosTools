@@ -38,7 +38,7 @@ import java.time.format.DateTimeFormatter
 // 29: X / 10.24
 // 30: X - 40
 // 31: X / 128
-// 32: X / 12.06017666543982
+// 32: X / 12060.17666543982
 // 33: X / 32767.99999999992
 // 34: X / 1024
 // 35: X / 250
@@ -124,7 +124,7 @@ object DIDs {
         DIDStruct(0xd000c1d4, 1, 23,false,-100f,100f,   -100f,100f,   0f, "%01.0f","Ethanol Content",     "%"),
         DIDStruct(0xd0011e04, 2, 24,false,-40f, 55f,    -35f, 50f,    0f, "%03.2f","Exhaust Flow Factor", "-"),
         DIDStruct(0xd001566e, 2, 31,true, -100f,100f,   -100f,100f,   0f, "%01.0f","Exhaust Cam Position","°"),
-        DIDStruct(0xd0011eba, 2, 32,false,-100f,100f,   -100f,100f,   0f, "%01.0f","Exhaust Pres Desired","hPa"),
+        DIDStruct(0xd0011eba, 2, 32,false,-100f,100f,   -100f,100f,   0f, "%01.0f","Exhaust Pres Desired","bar"),
         DIDStruct(0xd00135e0, 2, 14,false,-100f,100f,   -100f,100f,   0f, "%01.0f","Fuel Flow Desired",   "mg/stk"),
         DIDStruct(0xd0013636, 2, 14,false,-100f,100f,   -100f,100f,   0f, "%01.0f","Fuel Flow",           "mg/stk"),
         DIDStruct(0xd00192b1, 1, 31,false,-100f,100f,   -100f,100f,   0f, "%01.0f","Fuel Flow Split MPI", ""),
@@ -236,7 +236,7 @@ object DIDs {
             29 -> did.value = x / 10.24f
             30 -> did.value = x - 40f
             31 -> did.value = x / 128f
-            32 -> did.value = x / 12.06017666543982f
+            32 -> did.value = x / 12060.17666543982f
             33 -> did.value = x / 32767.99999999992f
             34 -> did.value = x / 1024f
             35 -> did.value = x / 250f

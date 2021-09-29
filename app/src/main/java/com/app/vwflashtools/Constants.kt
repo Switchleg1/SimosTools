@@ -77,8 +77,8 @@ val BT_DO_STOP_PID      = 7
 // BLE Header defaults
 val BLE_HEADER_ID = 0xF1
 val BLE_HEADER_PT = 0xF2
-val BLE_HEADER_TX = 0x7E8
-val BLE_HEADER_RX = 0x7E0
+val BLE_HEADER_TX = 0x7E0
+val BLE_HEADER_RX = 0x7E8
 
 // Command flags
 val BLE_COMMAND_FLAG_PER_ENABLE     = 1
