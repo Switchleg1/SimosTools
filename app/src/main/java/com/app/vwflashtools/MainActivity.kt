@@ -175,26 +175,24 @@ class MainActivity : AppCompatActivity() {
                     setStatus()
                 }
                 MESSAGE_STATE_CHANGE.toString() -> {
+                    val mViewModel: MainViewModel by viewModels()
                     when (intent.getIntExtra("newState", -1)) {
                         STATE_CONNECTED -> {
-                            val mViewModel: MainViewModel by viewModels()
                             mViewModel.mDeviceName = intent.getStringExtra("cDevice")
                             mViewModel.mState = STATE_CONNECTED
                         }
                         STATE_CONNECTING -> {
-                            val mViewModel: MainViewModel by viewModels()
                             mViewModel.mState = STATE_CONNECTING
                         }
                         STATE_NONE -> {
-                            val mViewModel: MainViewModel by viewModels()
                             mViewModel.mState = STATE_NONE
                         }
                         STATE_ERROR -> {
-                            val mViewModel: MainViewModel by viewModels()
                             mViewModel.mConnectionError = intent.getStringExtra("newError")
                             mViewModel.mState = STATE_ERROR
                         }
                     }
+                    mViewModel.mTask = TASK_NONE
                     invalidateOptionsMenu()
                     setStatus()
                 }

@@ -527,6 +527,7 @@ class BTService: Service() {
         private var mBufferedWriter: BufferedWriter? = null
 
         init {
+            setTaskState(TASK_NONE)
             Log.d(TAG, "create ConnectionThread")
         }
 
