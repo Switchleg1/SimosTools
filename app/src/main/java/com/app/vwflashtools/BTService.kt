@@ -72,6 +72,7 @@ class BTService: Service() {
     private var mBluetoothGatt: BluetoothGatt? = null
     private var mBluetoothDevice: BluetoothDevice? = null
     private var mConnectionThread: ConnectionThread? = null
+    private var mLogWriteState: Boolean = false
 
     //Gatt additional properties
     private fun BluetoothGattCharacteristic.isReadable(): Boolean = containsProperty(BluetoothGattCharacteristic.PROPERTY_READ)
@@ -96,9 +97,6 @@ class BTService: Service() {
             }
             BT_DO_DISCONNECT.toString() -> {
                 doDisconnect()
-            }
-            BT_DO_SEND_STATUS.toString() -> {
-                doSendStatus()
             }
             BT_DO_CHECK_VIN.toString() -> {
                 mConnectionThread?.setTaskState(TASK_RD_VIN)
@@ -243,7 +241,7 @@ class BTService: Service() {
                 setConnectionState(STATE_CONNECTED)
                 try {
                     mBluetoothGatt?.let { ourGatt ->
-                        ourGatt.requestConnectionPriority(BluetoothGatt.CONNECTION_PRIORITY_HIGH)
+                        ourGatt.requestConnectionPriority(BLE_CONNECTION_PRIORITY)
                         enableNotifications(ourGatt.getService(BT_SERVICE_UUID)!!.getCharacteristic(BT_DATA_RX_UUID))
                     } ?: error("Gatt is invalid")
                 } catch (e: Exception) {
@@ -520,18 +518,6 @@ class BTService: Service() {
         sendBroadcast(intentMessage)
     }
 
-
-
-    @Synchronized
-    private fun doSendStatus() {
-        //Broadcast a new message
-        val intentMessage = Intent(MESSAGE_STATE_CHANGE.toString())
-        intentMessage.putExtra("newState", mState)
-        intentMessage.putExtra("newError", mErrorStatus)
-        intentMessage.putExtra("cDevice", mBluetoothGatt?.device?.address)
-        sendBroadcast(intentMessage)
-    }
-
     private inner class ConnectionThread: Thread() {
         //variables
         private var mTask: Int = TASK_NONE
@@ -616,6 +602,14 @@ class BTService: Service() {
                                     intentMessage.putExtra("readTime", System.currentTimeMillis() - mTaskTime)
                                     intentMessage.putExtra("readResult", result)
                                     sendBroadcast(intentMessage)
+                                }
+
+                                //If we changed logging write states broadcast a new message
+                                if(UDSLogger.isEnabled() != mLogWriteState) {
+                                    val intentMessage = Intent(MESSAGE_WRITE_LOG.toString())
+                                    intentMessage.putExtra("enabled", UDSLogger.isEnabled())
+                                    sendBroadcast(intentMessage)
+                                    mLogWriteState = UDSLogger.isEnabled()
                                 }
                             }
                         }

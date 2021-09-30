@@ -7,23 +7,19 @@ import android.content.IntentFilter
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.core.content.ContextCompat.getDrawable
 import androidx.core.content.ContextCompat.startForegroundService
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import androidx.constraintlayout.widget.ConstraintLayout
-import java.io.IOException
 import android.content.res.Configuration
+import android.widget.LinearLayout
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
-
 
 data class DATAStruct(var min: Float,
                         var max: Float,
@@ -31,28 +27,17 @@ data class DATAStruct(var min: Float,
                         var multiplier: Float)
 
 class LoggingViewModel : ViewModel() {
-    var displayMode = DISPLAY_BARS
     val colorWarn = Color.rgb(127, 127, 255)
     val colorNormal = Color.rgb(255, 255, 255)
     var lastWarning = false
     var lastEnabled = false
-    var dataList: List<DATAStruct> = listOf(DATAStruct(0f, 0f, false, 0f),
-                                            DATAStruct(0f, 0f, false, 0f),
-                                            DATAStruct(0f, 0f, false, 0f),
-                                            DATAStruct(0f, 0f, false, 0f),
-                                            DATAStruct(0f, 0f, false, 0f),
-                                            DATAStruct(0f, 0f, false, 0f),
-                                            DATAStruct(0f, 0f, false, 0f),
-                                            DATAStruct(0f, 0f, false, 0f))
+    var dataList: Array<DATAStruct?>? = null
 }
 
 class LoggingFragment : Fragment() {
     private var TAG = "LoggingFragment"
-    private var mGraph: SwitchGraph? = null
     private var mPackCount: TextView? = null
-    private var mTextView: Array<TextView?> = arrayOf(null, null, null, null, null, null, null, null)
-    private var mProgressBar: Array<ProgressBar?> = arrayOf(null, null, null, null, null, null, null, null)
-
+    private var mPIDS: Array<View?>? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -69,26 +54,10 @@ class LoggingFragment : Fragment() {
             findNavController().navigate(R.id.action_LoggingFragment_to_FirstFragment)
         }
 
-        view.findViewById<Button>(R.id.buttonStartLog).setOnClickListener {
-            if(view.findViewById<Button>(R.id.buttonStartLog).text == getString(R.string.button_start)) {
-                val serviceIntent = Intent(context, BTService::class.java)
-                serviceIntent.action = BT_DO_CHECK_PID.toString()
-                startForegroundService(this.requireContext(), serviceIntent)
-
-                view.findViewById<Button>(R.id.buttonStartLog).text = getString(R.string.button_stop)
-            } else {
-                val serviceIntent = Intent(context, BTService::class.java)
-                serviceIntent.action = BT_DO_STOP_PID.toString()
-                startForegroundService(this.requireContext(), serviceIntent)
-
-                view.findViewById<Button>(R.id.buttonStartLog).text = getString(R.string.button_start)
-            }
-        }
-
         view.findViewById<Button>(R.id.buttonReset).setOnClickListener {
-            for(i in 0.. 7) {
-                val mViewModel: LoggingViewModel by viewModels()
-                val data = mViewModel.dataList[i]
+            val mViewModel: LoggingViewModel by viewModels()
+            for(i in 0 until mViewModel.dataList!!.count()) {
+                val data = mViewModel.dataList!![i]!!
                 val did = DIDs.list()[i]
 
                 data.max = did.value
@@ -97,67 +66,37 @@ class LoggingFragment : Fragment() {
             updatePIDText()
         }
 
-        //mDisplayMode = DISPLAY_GRAPH
-        mTextView[0] = view.findViewById(R.id.textViewPID1)
-        mTextView[1] = view.findViewById(R.id.textViewPID2)
-        mTextView[2] = view.findViewById(R.id.textViewPID3)
-        mTextView[3] = view.findViewById(R.id.textViewPID4)
-        mTextView[4] = view.findViewById(R.id.textViewPID5)
-        mTextView[5] = view.findViewById(R.id.textViewPID6)
-        mTextView[6] = view.findViewById(R.id.textViewPID7)
-        mTextView[7] = view.findViewById(R.id.textViewPID8)
-        mPackCount = view.findViewById(R.id.textViewPackCount)
-
-        mProgressBar[0] = view.findViewById(R.id.progressBar1)
-        mProgressBar[1] = view.findViewById(R.id.progressBar2)
-        mProgressBar[2] = view.findViewById(R.id.progressBar3)
-        mProgressBar[3] = view.findViewById(R.id.progressBar4)
-        mProgressBar[4] = view.findViewById(R.id.progressBar5)
-        mProgressBar[5] = view.findViewById(R.id.progressBar6)
-        mProgressBar[6] = view.findViewById(R.id.progressBar7)
-        mProgressBar[7] = view.findViewById(R.id.progressBar8)
-
+        //get view model
         val mViewModel: LoggingViewModel by viewModels()
-        when(mViewModel.displayMode) {
-            DISPLAY_BARS -> {
 
-            }
-            DISPLAY_GRAPH -> {
-                for(i in 0..7) {
-                    mProgressBar[i]?.visibility = View.INVISIBLE
-                }
-
-                try {
-                    val lay = view.findViewById<ConstraintLayout>(R.id.LoggingLayout)!!
-                    mGraph = SwitchGraph(view.context)
-                    mGraph!!.layout(0, 0, lay.maxWidth, lay.maxHeight)
-                    mGraph!!.contentDescription = getString(R.string.app_name)
-                    mGraph!!.setImageDrawable(getDrawable(requireContext(), R.drawable.graph))
-                    lay.addView(mGraph)
-
-                    for(i in 0 until 8) {
-                        mGraph!!.setColor(i, Color.rgb(i*20.0f, i*2.0f+100f, 150f-i*10f))
-                    }
-                } catch (e: Exception) {
-                    Log.e(TAG, "Exception when trying to setup graphview",e)
-                    return
-                }
-            }
+        //check orientation
+        var textVal = R.string.textPIDP
+        var layoutType = R.layout.pid_portrait
+        val currentOrientation = resources.configuration.orientation
+        if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+            textVal = R.string.textPIDL
+            layoutType = R.layout.pid_land
         }
 
-        //Set the UI values
-        for(i in 0..7) {
-            //get the current did
+        //Set packet textview
+        mPackCount = view.findViewById<TextView>(R.id.textViewPackCount)
+
+        //Build layout
+        if(mViewModel.dataList == null || mViewModel.dataList!!.count() != DIDs.list().count()) {
+            mViewModel.dataList = arrayOfNulls(DIDs.list().count())
+        }
+        mPIDS = arrayOfNulls(DIDs.list().count())
+        for(i in 0 until DIDs.list().count()) {
+            //build child layout
+            val pidLayout = layoutInflater.inflate(layoutType, null)
+            mPIDS!![i] = pidLayout
+
+            //build new data structure
+            val data = DATAStruct(0.0f, 0.0f, false, 1.0f)
+            mViewModel.dataList!![i] = data
+
+            //get current did
             val did = DIDs.list()[i]
-            val data = mViewModel.dataList[i]
-            val progressBar = mProgressBar[i]
-
-            //set min/max
-            if(did.value > data.max)
-                data.max = did.value
-
-            if(did.value < data.min)
-                data.min = did.value
 
             //Check for low value PIDS
             if((did.progMax - did.progMin) < 100.0f) {
@@ -166,12 +105,28 @@ class LoggingFragment : Fragment() {
                 data.multiplier = 1.0f
             }
 
+            //find text view and set text
+            val textView = pidLayout.findViewById<TextView>(R.id.pid_land_text)
+            textView.text = getString(textVal, did.name, did.format.format(did.value), did.unit, did.format.format(data.min), did.format.format(data.max))
+
             //Setup the progress bar
-            progressBar?.min = (did.progMin * data.multiplier).toInt()
-            progressBar?.max = (did.progMax * data.multiplier).toInt()
-            progressBar?.progress = (did.value * data.multiplier).toInt()
-            progressBar?.progressTintList = ColorStateList.valueOf(Color.GREEN)
+            val progBar = pidLayout.findViewById<ProgressBar>(R.id.pid_land_progress)
+            progBar?.min = (did.progMin * data.multiplier).toInt()
+            progBar?.max = (did.progMax * data.multiplier).toInt()
+            progBar?.progress = (did.value * data.multiplier).toInt()
+            progBar?.progressTintList = ColorStateList.valueOf(Color.GREEN)
+
+            val lLayout = view.findViewById<LinearLayout>(R.id.loggingLayoutScroll)
+            lLayout.addView(pidLayout)
         }
+
+        //Start Logging
+        val serviceIntent = Intent(context, BTService::class.java)
+        serviceIntent.action = BT_DO_CHECK_PID.toString()
+        startForegroundService(this.requireContext(), serviceIntent)
+
+        //Do we keep the screen on?
+        view.keepScreenOn = Settings.keepScreenOn
 
         //update PID text
         updatePIDText()
@@ -205,10 +160,12 @@ class LoggingFragment : Fragment() {
 
         //Update text
         val mViewModel: LoggingViewModel by viewModels()
-        for(i in 0..7) {
+        for(i in 0 until DIDs.list().count()) {
             val did = DIDs.list()[i]
-            val textView = mTextView[i]
-            val data = mViewModel.dataList[i]
+
+            val layout = mPIDS!![i]
+            val textView = layout!!.findViewById<TextView>(R.id.pid_land_text)
+            val data = mViewModel.dataList!![i]!!
 
             textView?.text = getString(textVal, did.name, did.format.format(did.value), did.unit, did.format.format(data.min), did.format.format(data.max))
         }
@@ -239,11 +196,12 @@ class LoggingFragment : Fragment() {
                     //Set the UI values
                     val mViewModel: LoggingViewModel by viewModels()
                     var anyWarning = false
-                    for(i in 0..7) {
+                    for(i in 0 until DIDs.list().count()) {
                         //get the current did
                         val did = DIDs.list()[i]
-                        val data = mViewModel.dataList[i]
-                        val progressBar = mProgressBar[i]
+                        val layout = mPIDS!![i]
+                        val data = mViewModel.dataList!![i]!!
+                        val progressBar = layout!!.findViewById<ProgressBar>(R.id.pid_land_progress)
 
                         //set min/max
                         if(did.value > data.max)
@@ -294,9 +252,8 @@ class LoggingFragment : Fragment() {
 
                     //Update fps
                     val fps = readCount.toFloat() / (readTime.toFloat() / 1000.0f)
-                    val dEnable = DIDs.list()[DIDs.list().count()-1]
-                    mPackCount?.text = "${fps}fps"
-                    if (dEnable.value != 0.0f) {
+                    mPackCount?.text = getString(R.string.textview_fps) + "%03.1f".format(fps)
+                    if (UDSLogger.isEnabled()) {
                         //Highlight packet count in red since we are logging
                         if(!mViewModel.lastEnabled) {
                             mPackCount?.setTextColor(Color.RED)

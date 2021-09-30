@@ -75,7 +75,7 @@ object DIDs {
         DIDStruct(0x2950, 2, 15,false,0f,  2f,     0.7f, 4f,     0f, "%05.3f","Lambda Specified",    "l"),
         DIDStruct(0x13a0, 2, 17,false,0f,  190000f,0f,   185000f,0f, "%05.2f","Injector PW Cyl 1 DI","ms"),
         DIDStruct(0x437C, 2, 8, true, -50f,450f,   -100f,500f,   0f, "%03.2f","Engine torque",       "Nm"),
-        DIDStruct(0x2027, 2, 8, false,0f,  250f,   10f,  250f,   0f, "%03.2f","HFP Actual",          "bar"),
+        DIDStruct(0x2027, 2, 8, false,0f,  250f,   -1f,  250f,   0f, "%03.2f","HFP Actual",          "bar"),
         DIDStruct(0xf406, 1, 3, false,-25f,25f,    -20f, 20f,    0f, "%02.2f","STFT",                "%"),
         DIDStruct(0x20ba, 2, 8, true, 0f,  100f,   -1f,  101f,   0f, "%05.1f","Throttle Sensor",     "%"),
         DIDStruct(0x1040, 2, 4, false,0f,  190000f,0f,   185000f,0f, "%08.1f","Turbo Speed",         "rpm"),
@@ -90,7 +90,7 @@ object DIDs {
         DIDStruct(0x2025, 2, 10,false,0f,  15f,    6f,   15f,    0f, "%03.2f","LFP Actual",          "bar"),
         DIDStruct(0x293b, 2, 8, false,0f,  250f,   10f,  250f,   0f, "%03.2f","HFP Command",         "bar"),
 
-        DIDStruct(0x2028, 2, 9, false,0f,  2f,     0.7f, 4f,     0f, "%05.3f","LPFP Duty",           "%"),
+        DIDStruct(0x2028, 2, 9, false,0f,  100f,   -1.0f,100f,   0f, "%05.3f","LPFP Duty",           "%"),
         DIDStruct(0x295c, 1, 0, false,0f,  1f,     -1f,  2f,     0f, "%01.0f","Flaps Actual",        ""),
         DIDStruct(0xf456, 1, 3, false,-25f,25f,    -20f, 20f,    0f, "%02.2f","LTFT",                "%"),
         DIDStruct(0x202f, 2, 2, false,-50f,130f,   0f,   112f,   0f, "%03.2f","Oil temp",            "°C"),
@@ -118,23 +118,23 @@ object DIDs {
         DIDStruct(0xd0013c76, 2, 32,false,0f,   250f,   10f,  250f,   0f, "%03.2f","Ambient Pressure",    "bar"),
         DIDStruct(0xd0015172, 2, 13,true, -100f,100f,   -100f,100f,   0f, "%01.0f","Battery Volts",       "V"),
         DIDStruct(0xd000c36e, 1, 0, false,-10f, 10f,    -15f, 60f,    0f, "%05.2f","Combustion Mode",     "-"),
-        DIDStruct(0xd000c6f5, 1, 28,false,-100f,100f,   -100f,100f,   0f, "%01.0f","Coolant Temp",        "°C"),
-        DIDStruct(0xd001397a, 2, 20,false,-100f,100f,   -100f,100f,   0f, "%01.0f","EOI Limit",           "°"),
-        DIDStruct(0xd0013982, 2, 20,false,-100f,100f,   -100f,100f,   0f, "%01.0f","EOI Actual",          "°"),
+        DIDStruct(0xd000c6f5, 1, 28,false,-50f, 130f,   -100f,150f,   0f, "%01.0f","Coolant Temp",        "°C"),
+        DIDStruct(0xd001397a, 2, 20,false,-100f,100f,   -100f,300f,   0f, "%01.0f","EOI Limit",           "°"),
+        DIDStruct(0xd0013982, 2, 20,false,-100f,100f,   -100f,300f,   0f, "%01.0f","EOI Actual",          "°"),
         DIDStruct(0xd000c1d4, 1, 23,false,-100f,100f,   -100f,100f,   0f, "%01.0f","Ethanol Content",     "%"),
-        DIDStruct(0xd0011e04, 2, 24,false,-40f, 55f,    -35f, 50f,    0f, "%03.2f","Exhaust Flow Factor", "-"),
-        DIDStruct(0xd001566e, 2, 31,true, -100f,100f,   -100f,100f,   0f, "%01.0f","Exhaust Cam Position","°"),
-        DIDStruct(0xd0011eba, 2, 32,false,-100f,100f,   -100f,100f,   0f, "%01.0f","Exhaust Pres Desired","bar"),
+        DIDStruct(0xd0011e04, 2, 24,false,0f,   1.5f,   -1f,  10f,    0f, "%03.2f","Exhaust Flow Factor", "-"),
+        DIDStruct(0xd001566e, 2, 31,true, -45f, 45f,    -100f,100f,   0f, "%01.0f","Exhaust Cam Position","°"),
+        DIDStruct(0xd0011eba, 2, 32,false,-45f, 45f,    -100f,100f,   0f, "%01.0f","Exhaust Pres Desired","bar"),
         DIDStruct(0xd00135e0, 2, 14,false,-100f,100f,   -100f,100f,   0f, "%01.0f","Fuel Flow Desired",   "mg/stk"),
         DIDStruct(0xd0013636, 2, 14,false,-100f,100f,   -100f,100f,   0f, "%01.0f","Fuel Flow",           "mg/stk"),
         DIDStruct(0xd00192b1, 1, 31,false,-100f,100f,   -100f,100f,   0f, "%01.0f","Fuel Flow Split MPI", ""),
         DIDStruct(0xd0013600, 2, 22,false,0f,   100f,   -1f,  100f,   0f, "%01.0f","Fuel LPFP Duty",      "%"),
-        DIDStruct(0xd0011b26, 2, 25,false,-10f, 0f,     -4f,  1f,     0f, "%05.3f","Fuel LPFR",           "bar"),
-        DIDStruct(0xd001360c, 2, 25,false,-10f, 0f,     -4f,  1f,     0f, "%05.3f","Fuel LPFR Setpoint",  "bar"),
+        DIDStruct(0xd0011b26, 2, 25,false,-10f, 0f,     -4f,  100f,   0f, "%05.3f","Fuel LPFR",           "bar"),
+        DIDStruct(0xd001360c, 2, 25,false,-10f, 0f,     -4f,  100f,   0f, "%05.3f","Fuel LPFR Setpoint",  "bar"),
         DIDStruct(0xd0013640, 2, 36,false,0f,   100f,   -1f,  100f,   0f, "%03.2f","Fuel HPFR Setpoint",  "bar"),
         DIDStruct(0xd001363c, 2, 22,false,-100f,100f,   -100f,100f,   0f, "%01.0f","Fuel HPFP Volume",    "%"),
         DIDStruct(0xd000f00b, 1, 3, false,-100f,100f,   -100f,100f,   0f, "%01.0f","Fuel Trim Long Term", "%"),
-        DIDStruct(0xd000f39a, 1, 0, false,0f,   6f,     -1f,  100f,   0f, "%02.2f","Gear",                "gear"),
+        DIDStruct(0xd000f39a, 1, 0, false,0f,   6f,     -1f,  7f,     0f, "%02.2f","Gear",                "gear"),
         DIDStruct(0xd000e57e, 1, 21,false,-100f,100f,   -100f,100f,   0f, "%01.0f","Ignition Table Value","°"),
         DIDStruct(0xd000e59c, 1, 21,false,-100f,100f,   -100f,100f,   0f, "%01.0f","Ignition Timing",     "°"),
         DIDStruct(0xd001566c, 2, 31,true, -100f,100f,   -100f,100f,   0f, "%01.0f","Intake Cam Position", "°"),
@@ -155,16 +155,16 @@ object DIDs {
         DIDStruct(0xd0012028, 2, 29,false,0f,   100f,   -1f,  101f,   0f, "%04.1f","Pedal Position",      "%"),
         DIDStruct(0xd0000aa1, 1, 0, false,0f,   1f,     -1f,  2f,     0f, "%01.0f","Port Flap Position",  ""),
         DIDStruct(0xd0011eee, 2, 32,false,0f,   2f,     0.7f, 4f,     0f, "%05.3f","PUT Setpoint",        "bar"),
-        DIDStruct(0xd0013a42, 2, 20,false,-100f,100f,   -100f,100f,   0f, "%01.0f","SOI Limit",           "°"),
-        DIDStruct(0xd0013a44, 2, 20,false,-100f,100f,   -100f,100f,   0f, "%01.0f","SOI Actual",          "°"),
-        DIDStruct(0xd000f377, 1, 26,false,0.5f, 1.3f,   0.7f, 1.2f,   0f, "%07.2f","TPS",                 "%"),
+        DIDStruct(0xd0013a42, 2, 20,false,-100f,100f,   -100f,1000f,  0f, "%01.0f","SOI Limit",           "°"),
+        DIDStruct(0xd0013a44, 2, 20,false,-100f,100f,   -100f,1000f,  0f, "%01.0f","SOI Actual",          "°"),
+        DIDStruct(0xd000f377, 1, 26,false,0.5f, 1.3f,   0.7f, 101f,   0f, "%07.2f","TPS",                 "%"),
         DIDStruct(0xd0015344, 2, 37,true, -40f, 500f,   -10f, 500f,   0f, "%07.2f","Torque Actual",       "Nm"),
         DIDStruct(0xd0011f0c, 2, 0, false,-100f,100f,   -100f,100f,   0f, "%01.0f","Torque Limitation",   ""),
         DIDStruct(0xd0012048, 2, 37,true, -40f, 500f,   -10f, 500f,   0f, "%03.2f","Torque Requested",    "Nm"),
         DIDStruct(0xd000f3c1, 1, 30,false,-100f,100f,   -100f,100f,   0f, "%01.0f","Transmission Temp",   "°C"),
         DIDStruct(0xd0019b75, 1, 0, false,-100f,100f,   -100f,100f,   0f, "%01.0f","Valve Lift Position", ""),
         DIDStruct(0xd00155b6, 2, 9, false,0f,   220f,   -20f, 200f,   0f, "%03.0f","Vehicle Speed",       "km/h"),
-        DIDStruct(0xd0015c2c, 2, 22,false,-10f, 0f,     -4f,  1f,     0f, "%05.3f","Wastegate Setpoint",  "%"),
+        DIDStruct(0xd0015c2c, 2, 22,false,-10f, 0f,     -4f,  101f,   0f, "%05.3f","Wastegate Setpoint",  "%"),
         DIDStruct(0xd0011e10, 2, 22,false,-10f, 0f,     -4f,  1f,     0f, "%05.3f","Wastegate Actual",    "%"),
         DIDStruct(0xd0015c5e, 2, 37,false,-100f,100f,   -100f,100f,   0f, "%01.0f","Wastegate Flow Req",  "kg/h"),
         DIDStruct(0xd001b6cd, 1, 0, false,-100f,100f,   -100f,100f,   0f, "%01.0f","Cruise Control",      ""),
@@ -258,6 +258,10 @@ object UDSLogger {
     private val TAG = "UDSLogger"
     private var mLastEnabled = false
     private var mMode = UDS_LOGGING_22
+
+    fun isEnabled(): Boolean {
+        return mLastEnabled
+    }
 
     fun setMode(mode: Int) {
         when(mode) {
@@ -450,7 +454,8 @@ object UDSLogger {
         //Update Log every 2nd tick
         if(tick % 2 == 0) {
             val dEnable = DIDs.list22[DIDs.list22.count()-1]
-            if (dEnable.value != 0.0f) {
+            if((!Settings.invertCruise && dEnable.value != 0.0f) ||
+                    (Settings.invertCruise && dEnable.value == 0.0f)) {
                 //If we were not enabled before we must open a log to start writing
                 if (!mLastEnabled) {
                     val currentDateTime = LocalDateTime.now()
@@ -542,7 +547,8 @@ object UDSLogger {
         }
 
         val dEnable = DIDs.list3E[DIDs.list3E.count()-1]
-        if (dEnable.value != 0.0f) {
+        if((!Settings.invertCruise && dEnable.value != 0.0f) ||
+            (Settings.invertCruise && dEnable.value == 0.0f)) {
             //If we were not enabled before we must open a log to start writing
             if (!mLastEnabled) {
                 val currentDateTime = LocalDateTime.now()

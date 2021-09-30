@@ -8,10 +8,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.RadioButton
-import android.widget.SeekBar
-import android.widget.TextView
+import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import android.widget.SeekBar.OnSeekBarChangeListener
@@ -55,6 +52,12 @@ class SettingsFragment : Fragment() {
                 }
             }
 
+            //Set invert cruise
+            ConfigFile.set("Config.InvertCruise", view.findViewById<CheckBox>(R.id.checkBoxInvertCruise).isChecked.toString())
+
+            //Set screen on
+            ConfigFile.set("Config.KeepScreenOn", view.findViewById<CheckBox>(R.id.checkBoxScreenOn).isChecked.toString())
+
             // Set update rate
             ConfigFile.set("Config.UpdateRate", view.findViewById<SeekBar>(R.id.seekBarUpdateRate).progress.toString())
 
@@ -87,12 +90,14 @@ class SettingsFragment : Fragment() {
     }
 
     private fun doShow() {
+        //Get logging mode
         if(UDSLogger.getMode() == UDS_LOGGING_3E) {
             view?.findViewById<RadioButton>(R.id.radioButton3E)?.isChecked = true
         } else {
             view?.findViewById<RadioButton>(R.id.radioButton22)?.isChecked = true
         }
 
+        //Get output directory
         when (Settings.outputDirectory) {
             Environment.DIRECTORY_DOWNLOADS -> {
                 view?.findViewById<RadioButton>(R.id.radioButtonDownloads)?.isChecked = true
@@ -105,7 +110,13 @@ class SettingsFragment : Fragment() {
             }
         }
 
+        //Get cruise invert
+        view?.findViewById<CheckBox>(R.id.checkBoxInvertCruise)?.isChecked = Settings.invertCruise
 
+        //Get keep screen on
+        view?.findViewById<CheckBox>(R.id.checkBoxScreenOn)?.isChecked = Settings.keepScreenOn
+
+        //Get update rate
         view?.findViewById<SeekBar>(R.id.seekBarUpdateRate)?.let { updateRate ->
             updateRate.min = 1
             updateRate.max = 10

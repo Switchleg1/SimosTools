@@ -22,7 +22,11 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.navigation.Navigation.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
+import android.graphics.Color
 
+import android.graphics.drawable.ColorDrawable
+
+import android.R.attr.name
 
 class MainViewModel : ViewModel() {
     var mState: Int = STATE_NONE
@@ -40,11 +44,16 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(findViewById(R.id.toolbar))
         getPermissions()
 
+        //Start our BT Service
         val serviceIntent = Intent(this, BTService::class.java)
         serviceIntent.action = BT_START_SERVICE.toString()
         ContextCompat.startForegroundService(this, serviceIntent)
 
+        //Read config file
         ConfigFile.read(LOG_FILENAME, applicationContext)
+
+        //Auto connect
+        doConnect()
     }
 
     override fun onResume() {
@@ -55,6 +64,7 @@ class MainActivity : AppCompatActivity() {
         val filter = IntentFilter()
         filter.addAction(MESSAGE_STATE_CHANGE.toString())
         filter.addAction(MESSAGE_TASK_CHANGE.toString())
+        filter.addAction(MESSAGE_WRITE_LOG.toString())
         registerReceiver(mBroadcastReceiver, filter)
     }
 
@@ -188,6 +198,13 @@ class MainActivity : AppCompatActivity() {
                     invalidateOptionsMenu()
                     setStatus()
                 }
+                MESSAGE_WRITE_LOG.toString() -> {
+                    if(intent.getBooleanExtra("enabled", false)) {
+                        setActionBarColor(Color.GREEN)
+                    } else {
+                        setActionBarColor(Color.YELLOW)
+                    }
+                }
             }
         }
     }
@@ -213,16 +230,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun doConnect() {
+        //If we are already connecting abort
+        val mViewModel: MainViewModel by viewModels()
+        if(mViewModel.mState > STATE_NONE)
+            return
+
+        //if BT is off ask to enable
         if (!(getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter.isEnabled) {
             val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
             resultBTLauncher.launch(intent)
             return
         }
 
+        //If we don't have permission ask
         if(!checkPermission(Manifest.permission.ACCESS_FINE_LOCATION, REQUEST_LOCATION_PERMISSION)) {
             return
         }
 
+        //Tell service to connect
         val serviceIntent = Intent(baseContext, BTService::class.java)
         serviceIntent.action = BT_DO_CONNECT.toString()
         startForegroundService(serviceIntent)
@@ -242,20 +267,25 @@ class MainActivity : AppCompatActivity() {
                 when(mViewModel.mState) {
                     STATE_CONNECTED -> {
                         newString = getString(R.string.title_connected_to, mViewModel.mDeviceName)
+                        setActionBarColor(Color.BLUE)
                     }
                     STATE_CONNECTING -> {
                         newString = getString(R.string.title_connecting)
+                        setActionBarColor(Color.CYAN)
                     }
                     STATE_NONE -> {
                         newString = getString(R.string.title_not_connected)
+                        setActionBarColor(Color.RED)
                     }
                     STATE_ERROR -> {
                         newString = getString(R.string.title_error, mViewModel.mConnectionError)
+                        setActionBarColor(Color.RED)
                     }
                 }
             }
             TASK_LOGGING -> {
                 newString = "Logging"
+                setActionBarColor(Color.YELLOW)
             }
             TASK_RD_VIN -> {
                 newString = "Getting VIN"
@@ -274,5 +304,10 @@ class MainActivity : AppCompatActivity() {
 
         checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE, REQUEST_READ_STORAGE)
         checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, REQUEST_WRITE_STORAGE)
+    }
+
+    private fun setActionBarColor(color: Int) {
+        val colorDrawable = ColorDrawable(color)
+        supportActionBar?.setBackgroundDrawable(colorDrawable)
     }
 }

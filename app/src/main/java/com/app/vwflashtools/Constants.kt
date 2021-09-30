@@ -16,6 +16,7 @@
 
 package com.app.vwflashtools
 
+import android.bluetooth.BluetoothGatt
 import android.os.Environment
 import java.util.*
 
@@ -27,6 +28,7 @@ val MESSAGE_WRITE           = 4
 val MESSAGE_TOAST           = 5
 val MESSAGE_READ_VIN        = 6
 val MESSAGE_READ_LOG        = 7
+val MESSAGE_WRITE_LOG       = 8
 
 // Constants that indicate the current connection state
 val STATE_ERROR         = -1 // we're doing nothing
@@ -38,6 +40,8 @@ val TASK_NONE       = 0
 val TASK_FLASHING   = 1
 val TASK_LOGGING    = 2 // uploading to remote device
 val TASK_RD_VIN     = 3 // download from remote device
+
+val INFO_WRITING    = 0
 
 //UUIDS
 val BT_CCCD_UUID    = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
@@ -61,6 +65,8 @@ val SCAN_PERIOD = 10000L
 //Priority (max is 10)
 val THREAD_PRIORITY_CONNECTION = 5
 
+val BLE_CONNECTION_PRIORITY = BluetoothGatt.CONNECTION_PRIORITY_HIGH
+
 val CHANNEL_ID = "BTService"
 val CHANNEL_NAME = "BTService"
 
@@ -69,22 +75,22 @@ val BT_STOP_SERVICE     = 0
 val BT_START_SERVICE    = 1
 val BT_DO_CONNECT       = 2
 val BT_DO_DISCONNECT    = 3
-val BT_DO_SEND_STATUS   = 4
-val BT_DO_CHECK_VIN     = 5
-val BT_DO_CHECK_PID     = 6
-val BT_DO_STOP_PID      = 7
+val BT_DO_CHECK_VIN     = 4
+val BT_DO_CHECK_PID     = 5
+val BT_DO_STOP_PID      = 6
 
 // BLE Header defaults
 val BLE_HEADER_ID = 0xF1
 val BLE_HEADER_PT = 0xF2
-val BLE_HEADER_TX = 0x7E0
 val BLE_HEADER_RX = 0x7E8
+val BLE_HEADER_TX = 0x7E0
 
 // Command flags
 val BLE_COMMAND_FLAG_PER_ENABLE     = 1
 val BLE_COMMAND_FLAG_PER_CLEAR		= 2
 val BLE_COMMAND_FLAG_PER_ADD		= 4
-val BLE_COMMAND_FLAG_MULT_PK		= 8
+val BLE_COMMAND_FLAG_SPLIT_PK		= 8
+val BLE_COMMAND_FLAG_LED_COLOR		= 16
 
 // UDS22Logger errors
 val UDS_OK              = 0

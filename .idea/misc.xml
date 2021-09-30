@@ -5,6 +5,7 @@
       <map>
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/VWFlashTools/app/src/main/res/layout-land/fragment_first.xml" value="0.328042328042328" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/VWFlashTools/app/src/main/res/layout-land/fragment_logging.xml" value="0.2495590828924162" />
+        <entry key="..\:/Users/switchleg/AndroidStudioProjects/VWFlashTools/app/src/main/res/layout/PIDland.xml" value="0.30104166666666665" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/VWFlashTools/app/src/main/res/layout/activity_main.xml" value="0.21979166666666666" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/VWFlashTools/app/src/main/res/layout/content_main.xml" value="0.21927083333333333" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/VWFlashTools/app/src/main/res/layout/fragment_first.xml" value="0.2947916666666667" />
@@ -12,6 +13,8 @@
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/VWFlashTools/app/src/main/res/layout/fragment_logging.xml" value="0.296875" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/VWFlashTools/app/src/main/res/layout/fragment_settings.xml" value="0.30104166666666665" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/VWFlashTools/app/src/main/res/layout/message.xml" value="0.30104166666666665" />
+        <entry key="..\:/Users/switchleg/AndroidStudioProjects/VWFlashTools/app/src/main/res/layout/pid_land.xml" value="0.30104166666666665" />
+        <entry key="..\:/Users/switchleg/AndroidStudioProjects/VWFlashTools/app/src/main/res/layout/pid_portrait.xml" value="0.30104166666666665" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/VWFlashTools/app/src/main/res/menu/menu_main.xml" value="0.30104166666666665" />
       </map>
     </option>

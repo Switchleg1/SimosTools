@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:keepScreenOn="true"
     tools:context=".SettingsFragment"
     android:id="@+id/SettingsLayout">
 
@@ -17,39 +16,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <RadioGroup
-        android:id="@+id/radioGroupMode"
-        android:layout_width="0dp"
-        android:layout_height="150dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:text="@string/textview_settings_mode"
-            app:autoSizeTextType="uniform"
-            app:lineHeight="60dp" />
-
-        <RadioButton
-            android:id="@+id/radioButton3E"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:text="@string/radio_settings_mode_3E" />
-
-        <RadioButton
-            android:id="@+id/radioButton22"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:checked="true"
-            android:minHeight="48dp"
-            android:text="@string/radio_settings_mode_22" />
-
-    </RadioGroup>
-
     <Button
         android:id="@+id/buttonSave"
         android:layout_width="wrap_content"
@@ -59,61 +25,113 @@
         app:layout_constraintEnd_toStartOf="@+id/buttonBack"
         app:layout_constraintTop_toTopOf="@+id/buttonBack" />
 
-    <SeekBar
-        android:id="@+id/seekBarUpdateRate"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="64dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewUpdateRate" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <TextView
-        android:id="@+id/textViewUpdateRate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/textview_settings_updaterate"
-        android:textSize="24sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/radioGroupMode" />
-
-    <RadioGroup
-        android:layout_width="0dp"
-        android:layout_height="200dp"
-        android:layout_marginTop="32dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/seekBarUpdateRate">
-
-        <TextView
-            android:id="@+id/textView1"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:text="@string/textview_settings_directory"
-            app:autoSizeTextType="uniform"
-            app:lineHeight="60dp" />
-
-        <RadioButton
-            android:id="@+id/radioButtonDownloads"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:text="@string/radio_settings_mode_downloads" />
+            android:orientation="vertical">
 
-        <RadioButton
-            android:id="@+id/radioButtonDocuments"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:text="@string/radio_settings_mode_documents" />
+            <TextView
+                android:id="@+id/textViewUpdateRate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/textview_settings_updaterate"
+                android:textSize="24sp" />
 
-        <RadioButton
-            android:id="@+id/radioButtonApplication"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:text="@string/radio_settings_mode_application" />
-    </RadioGroup>
+            <SeekBar
+                android:id="@+id/seekBarUpdateRate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" />
+
+            <RadioGroup
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginTop="32dp">
+
+                <TextView
+                    android:id="@+id/textView1"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="@string/textview_settings_directory"
+                    app:autoSizeTextType="uniform"
+                    app:lineHeight="60dp" />
+
+                <RadioButton
+                    android:id="@+id/radioButtonDownloads"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="@string/radio_settings_mode_downloads" />
+
+                <RadioButton
+                    android:id="@+id/radioButtonDocuments"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="@string/radio_settings_mode_documents" />
+
+                <RadioButton
+                    android:id="@+id/radioButtonApplication"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="@string/radio_settings_mode_application" />
+            </RadioGroup>
+
+            <RadioGroup
+                android:id="@+id/radioGroupMode"
+                android:layout_width="match_parent"
+                android:layout_height="150dp">
+
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="@string/textview_settings_mode"
+                    app:autoSizeTextType="uniform"
+                    app:lineHeight="60dp" />
+
+                <RadioButton
+                    android:id="@+id/radioButton3E"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="@string/radio_settings_mode_3E" />
+
+                <RadioButton
+                    android:id="@+id/radioButton22"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="@string/radio_settings_mode_22" />
+
+            </RadioGroup>
+
+            <CheckBox
+                android:id="@+id/checkBoxInvertCruise"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="@string/check_settings_invert_cruise" />
+
+            <CheckBox
+                android:id="@+id/checkBoxScreenOn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="@string/check_settings_screen_on" />
+
+        </LinearLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

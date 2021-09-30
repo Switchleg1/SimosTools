@@ -99,6 +99,12 @@ object ConfigFile {
                         "App" -> Settings.outputDirectory = "App"
                     }
                 }
+                "InvertCruise" -> {
+                    Settings.invertCruise = value == "true"
+                }
+                "KeepScreenOn" -> {
+                    Settings.keepScreenOn = value == "true"
+                }
             }
         } catch (e: NumberFormatException) {
             Log.i(TAG, e.toString())
@@ -172,6 +178,8 @@ object ConfigFile {
         mProperties["Config.Mode"] = "22"
         mProperties["Config.UpdateRate"] = "7"
         mProperties["Config.OutputDirectory"] = "Downloads"
+        mProperties["Config.InverseCruise"] = "false"
+        mProperties["Config.KeepScreenOn"] = "true"
         for(i in 0 until DIDs.list22.count()) {
             mProperties["PID.22.${i.toTwo()}.Address"] = DIDs.list22[i].address.toShort().toHex()
             mProperties["PID.22.${i.toTwo()}.Length"] = DIDs.list22[i].length.toString()
@@ -180,13 +188,10 @@ object ConfigFile {
             mProperties["PID.22.${i.toTwo()}.Format"] = DIDs.list22[i].format
             mProperties["PID.22.${i.toTwo()}.Name"] = DIDs.list22[i].name
             mProperties["PID.22.${i.toTwo()}.Unit"] = DIDs.list22[i].unit
-
-            if(i < 8) {
-                mProperties["PID.22.${i.toTwo()}.ProgMin"] = DIDs.list22[i].progMin.toString()
-                mProperties["PID.22.${i.toTwo()}.ProgMax"] = DIDs.list22[i].progMax.toString()
-                mProperties["PID.22.${i.toTwo()}.WarnMin"] = DIDs.list22[i].warnMin.toString()
-                mProperties["PID.22.${i.toTwo()}.WarnMax"] = DIDs.list22[i].warnMax.toString()
-            }
+            mProperties["PID.22.${i.toTwo()}.ProgMin"] = DIDs.list22[i].progMin.toString()
+            mProperties["PID.22.${i.toTwo()}.ProgMax"] = DIDs.list22[i].progMax.toString()
+            mProperties["PID.22.${i.toTwo()}.WarnMin"] = DIDs.list22[i].warnMin.toString()
+            mProperties["PID.22.${i.toTwo()}.WarnMax"] = DIDs.list22[i].warnMax.toString()
         }
 
         for(i in 0 until DIDs.list3E.count()) {
@@ -197,13 +202,10 @@ object ConfigFile {
             mProperties["PID.3E.${i.toTwo()}.Format"] = DIDs.list3E[i].format
             mProperties["PID.3E.${i.toTwo()}.Name"] = DIDs.list3E[i].name
             mProperties["PID.3E.${i.toTwo()}.Unit"] = DIDs.list3E[i].unit
-
-            if(i < 8) {
-                mProperties["PID.3E.${i.toTwo()}.ProgMin"] = DIDs.list3E[i].progMin.toString()
-                mProperties["PID.3E.${i.toTwo()}.ProgMax"] = DIDs.list3E[i].progMax.toString()
-                mProperties["PID.3E.${i.toTwo()}.WarnMin"] = DIDs.list3E[i].warnMin.toString()
-                mProperties["PID.3E.${i.toTwo()}.WarnMax"] = DIDs.list3E[i].warnMax.toString()
-            }
+            mProperties["PID.3E.${i.toTwo()}.ProgMin"] = DIDs.list3E[i].progMin.toString()
+            mProperties["PID.3E.${i.toTwo()}.ProgMax"] = DIDs.list3E[i].progMax.toString()
+            mProperties["PID.3E.${i.toTwo()}.WarnMin"] = DIDs.list3E[i].warnMin.toString()
+            mProperties["PID.3E.${i.toTwo()}.WarnMax"] = DIDs.list3E[i].warnMax.toString()
         }
 
         write(filename, context)
