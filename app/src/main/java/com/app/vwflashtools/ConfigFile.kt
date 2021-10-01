@@ -105,6 +105,14 @@ object ConfigFile {
                 "KeepScreenOn" -> {
                     Settings.keepScreenOn = value == "true"
                 }
+                "PersistDelay" -> {
+                    val i = value.toInt()
+                    Settings.persistDelay = i
+                }
+                "PersistQDelay" -> {
+                    val i = value.toInt()
+                    Settings.persistQDelay = i
+                }
             }
         } catch (e: NumberFormatException) {
             Log.i(TAG, e.toString())
@@ -176,10 +184,12 @@ object ConfigFile {
 
     private fun writeDefaultConfig(filename: String?, context: Context?) {
         mProperties["Config.Mode"] = "22"
-        mProperties["Config.UpdateRate"] = "7"
         mProperties["Config.OutputDirectory"] = "Downloads"
-        mProperties["Config.InverseCruise"] = "false"
-        mProperties["Config.KeepScreenOn"] = "true"
+        mProperties["Config.UpdateRate"] = (11-DEFAULT_UPDATE_RATE).toString()
+        mProperties["Config.InverseCruise"] = DEFAULT_INVERT_CRUISE.toString()
+        mProperties["Config.KeepScreenOn"] = DEFAULT_KEEP_SCREEN_ON.toString()
+        mProperties["Config.PersistDelay"] = DEFAULT_PERSIST_DELAY.toString()
+        mProperties["Config.PersistQDelay"] = DEFAULT_PERSIST_Q_DELAY.toString()
         for(i in 0 until DIDs.list22.count()) {
             mProperties["PID.22.${i.toTwo()}.Address"] = DIDs.list22[i].address.toShort().toHex()
             mProperties["PID.22.${i.toTwo()}.Length"] = DIDs.list22[i].length.toString()

@@ -32,43 +32,7 @@ class SettingsFragment : Fragment() {
         }
 
         view.findViewById<Button>(R.id.buttonSave).setOnClickListener {
-            // Set logging mode
-            if(view.findViewById<RadioButton>(R.id.radioButton3E).isChecked) {
-                ConfigFile.set("Config.Mode", "3E")
-            } else {
-                ConfigFile.set("Config.Mode", "22")
-            }
-
-            // Set default output folder
-            when {
-                view.findViewById<RadioButton>(R.id.radioButtonDownloads).isChecked -> {
-                    ConfigFile.set("Config.OutputDirectory", "Downloads")
-                }
-                view.findViewById<RadioButton>(R.id.radioButtonDocuments).isChecked -> {
-                    ConfigFile.set("Config.OutputDirectory", "Documents")
-                }
-                else -> {
-                    ConfigFile.set("Config.OutputDirectory", "App")
-                }
-            }
-
-            //Set invert cruise
-            ConfigFile.set("Config.InvertCruise", view.findViewById<CheckBox>(R.id.checkBoxInvertCruise).isChecked.toString())
-
-            //Set screen on
-            ConfigFile.set("Config.KeepScreenOn", view.findViewById<CheckBox>(R.id.checkBoxScreenOn).isChecked.toString())
-
-            // Set update rate
-            ConfigFile.set("Config.UpdateRate", view.findViewById<SeekBar>(R.id.seekBarUpdateRate).progress.toString())
-
-            //Stop logging
-            val serviceIntent = Intent(context, BTService::class.java)
-            serviceIntent.action = BT_DO_STOP_PID.toString()
-            ContextCompat.startForegroundService(this.requireContext(), serviceIntent)
-
-            // Write config
-            ConfigFile.write(LOG_FILENAME, context)
-            ConfigFile.read(LOG_FILENAME, context)
+            doSave()
         }
 
         view.findViewById<SeekBar>(R.id.seekBarUpdateRate).setOnSeekBarChangeListener(object :
@@ -86,42 +50,138 @@ class SettingsFragment : Fragment() {
             }
         })
 
+        view.findViewById<SeekBar>(R.id.seekBarPersistDelay).setOnSeekBarChangeListener(object :
+            OnSeekBarChangeListener {
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                // TODO Auto-generated method stub
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar) {
+                // TODO Auto-generated method stub
+            }
+
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                view.findViewById<TextView>(R.id.textViewPersistDelay).text = getString(R.string.textview_settings_persist_delay, view.findViewById<SeekBar>(R.id.seekBarPersistDelay).progress)
+            }
+        })
+
+        view.findViewById<SeekBar>(R.id.seekBarPersistQDelay).setOnSeekBarChangeListener(object :
+            OnSeekBarChangeListener {
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                // TODO Auto-generated method stub
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar) {
+                // TODO Auto-generated method stub
+            }
+
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                view.findViewById<TextView>(R.id.textViewPersistQDelay).text = getString(R.string.textview_settings_persist_q_delay, view.findViewById<SeekBar>(R.id.seekBarPersistQDelay).progress)
+            }
+        })
+
         doShow()
     }
 
     private fun doShow() {
-        //Get logging mode
-        if(UDSLogger.getMode() == UDS_LOGGING_3E) {
-            view?.findViewById<RadioButton>(R.id.radioButton3E)?.isChecked = true
-        } else {
-            view?.findViewById<RadioButton>(R.id.radioButton22)?.isChecked = true
+        view?.let { currentView ->
+            //Get update rate
+            currentView.findViewById<SeekBar>(R.id.seekBarUpdateRate)?.let { updateRate ->
+                updateRate.min = 1
+                updateRate.max = 10
+                updateRate.progress = 11 - Settings.updateRate
+                updateRate.callOnClick()
+            }
+
+            //Get persist delay
+            currentView.findViewById<SeekBar>(R.id.seekBarPersistDelay)?.let { persistDelay ->
+                persistDelay.min = 1
+                persistDelay.max = 50
+                persistDelay.progress = Settings.persistDelay
+                persistDelay.callOnClick()
+            }
+
+            //Get persist queue delay
+            currentView.findViewById<SeekBar>(R.id.seekBarPersistQDelay)?.let { persistQDelay ->
+                persistQDelay.min = 1
+                persistQDelay.max = 25
+                persistQDelay.progress = Settings.persistQDelay
+                persistQDelay.callOnClick()
+            }
+
+            //Get logging mode
+            if (UDSLogger.getMode() == UDS_LOGGING_3E) {
+                currentView.findViewById<RadioButton>(R.id.radioButton3E).isChecked = true
+            } else {
+                currentView.findViewById<RadioButton>(R.id.radioButton22).isChecked = true
+            }
+
+            //Get output directory
+            when (Settings.outputDirectory) {
+                Environment.DIRECTORY_DOWNLOADS -> {
+                    currentView.findViewById<RadioButton>(R.id.radioButtonDownloads).isChecked = true
+                }
+                Environment.DIRECTORY_DOCUMENTS -> {
+                    currentView.findViewById<RadioButton>(R.id.radioButtonDocuments).isChecked = true
+                }
+                else -> {
+                    currentView.findViewById<RadioButton>(R.id.radioButtonApplication).isChecked = true
+                }
+            }
+
+            //Get cruise invert
+            currentView.findViewById<CheckBox>(R.id.checkBoxInvertCruise).isChecked = Settings.invertCruise
+
+            //Get keep screen on
+            currentView.findViewById<CheckBox>(R.id.checkBoxScreenOn).isChecked = Settings.keepScreenOn
         }
+    }
 
-        //Get output directory
-        when (Settings.outputDirectory) {
-            Environment.DIRECTORY_DOWNLOADS -> {
-                view?.findViewById<RadioButton>(R.id.radioButtonDownloads)?.isChecked = true
+    private fun doSave() {
+        view?.let { currentView ->
+            // Set update rate
+            ConfigFile.set("Config.UpdateRate", currentView.findViewById<SeekBar>(R.id.seekBarUpdateRate).progress.toString())
+
+            // Set persist delay
+            ConfigFile.set("Config.PersistDelay", currentView.findViewById<SeekBar>(R.id.seekBarPersistDelay).progress.toString())
+
+            // Set persist delay
+            ConfigFile.set("Config.PersistQDelay", currentView.findViewById<SeekBar>(R.id.seekBarPersistQDelay).progress.toString())
+
+            // Set logging mode
+            if(currentView.findViewById<RadioButton>(R.id.radioButton3E).isChecked) {
+                ConfigFile.set("Config.Mode", "3E")
+            } else {
+                ConfigFile.set("Config.Mode", "22")
             }
-            Environment.DIRECTORY_DOCUMENTS -> {
-                view?.findViewById<RadioButton>(R.id.radioButtonDocuments)?.isChecked = true
+
+            // Set default output folder
+            when {
+                currentView.findViewById<RadioButton>(R.id.radioButtonDownloads).isChecked -> {
+                    ConfigFile.set("Config.OutputDirectory", "Downloads")
+                }
+                currentView.findViewById<RadioButton>(R.id.radioButtonDocuments).isChecked -> {
+                    ConfigFile.set("Config.OutputDirectory", "Documents")
+                }
+                else -> {
+                    ConfigFile.set("Config.OutputDirectory", "App")
+                }
             }
-            else -> {
-                view?.findViewById<RadioButton>(R.id.radioButtonApplication)?.isChecked = true
-            }
-        }
 
-        //Get cruise invert
-        view?.findViewById<CheckBox>(R.id.checkBoxInvertCruise)?.isChecked = Settings.invertCruise
+            //Set invert cruise
+            ConfigFile.set("Config.InvertCruise", currentView.findViewById<CheckBox>(R.id.checkBoxInvertCruise).isChecked.toString())
 
-        //Get keep screen on
-        view?.findViewById<CheckBox>(R.id.checkBoxScreenOn)?.isChecked = Settings.keepScreenOn
+            //Set screen on
+            ConfigFile.set("Config.KeepScreenOn", currentView.findViewById<CheckBox>(R.id.checkBoxScreenOn).isChecked.toString())
 
-        //Get update rate
-        view?.findViewById<SeekBar>(R.id.seekBarUpdateRate)?.let { updateRate ->
-            updateRate.min = 1
-            updateRate.max = 10
-            updateRate.progress = 11 - Settings.updateRate
-            updateRate.callOnClick()
+            //Stop logging
+            val serviceIntent = Intent(context, BTService::class.java)
+            serviceIntent.action = BT_DO_STOP_PID.toString()
+            ContextCompat.startForegroundService(this.requireContext(), serviceIntent)
+
+            // Write config
+            ConfigFile.write(LOG_FILENAME, context)
+            ConfigFile.read(LOG_FILENAME, context)
         }
     }
 }

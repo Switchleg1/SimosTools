@@ -90,7 +90,16 @@ val BLE_COMMAND_FLAG_PER_ENABLE     = 1
 val BLE_COMMAND_FLAG_PER_CLEAR		= 2
 val BLE_COMMAND_FLAG_PER_ADD		= 4
 val BLE_COMMAND_FLAG_SPLIT_PK		= 8
-val BLE_COMMAND_FLAG_LED_COLOR		= 16
+val BLE_COMMAND_FLAG_SETTINGS_GET	= 64
+val BLE_COMMAND_FLAG_SETTINGS		= 128
+
+//Settings
+val BRG_SETTING_ISOTP_STMIN			= 1
+val BRG_SETTING_LED_COLOR			= 2
+val BRG_SETTING_PERSIST_DELAY		= 3
+val BRG_SETTING_PERSIST_Q_DELAY		= 4
+val BRG_SETTING_BLE_SEND_DELAY		= 5
+val BRG_SETTING_BLE_MULTI_DELAY		= 6
 
 // UDS22Logger errors
 val UDS_OK              = 0
@@ -101,10 +110,6 @@ val UDS_ERROR_CMDSIZE   = 4
 val UDS_ERROR_UNKNOWN   = 5
 val UDS_NOT_ENABLED     = 6
 
-// Logging display modes
-val DISPLAY_BARS = 0
-val DISPLAY_GRAPH = 1
-
 //Logging modes
 val UDS_LOGGING_22 = 0
 val UDS_LOGGING_3E = 1
@@ -114,8 +119,12 @@ val LOG_COMMUNICATIONS  = false
 val LOG_FILENAME        = "logging.cfg"
 
 //Some defaults for Settings
+val DEFAULT_KEEP_SCREEN_ON = true
+val DEFAULT_INVERT_CRUISE = false
 val DEFAULT_UPDATE_RATE = 4
 val DEFAULT_DIRECTORY = Environment.DIRECTORY_DOWNLOADS
+val DEFAULT_PERSIST_DELAY = 10
+val DEFAULT_PERSIST_Q_DELAY = 5
 
 //Additional properties
 infix fun Byte.shl(that: Int): Int = this.toInt().shl(that)

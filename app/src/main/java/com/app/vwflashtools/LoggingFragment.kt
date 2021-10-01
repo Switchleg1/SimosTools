@@ -82,7 +82,7 @@ class LoggingFragment : Fragment() {
         mPackCount = view.findViewById<TextView>(R.id.textViewPackCount)
 
         //Build layout
-        if(mViewModel.dataList == null || mViewModel.dataList!!.count() != DIDs.list().count()) {
+        if(mViewModel.dataList == null || mViewModel.dataList?.count() != DIDs.list().count()) {
             mViewModel.dataList = arrayOfNulls(DIDs.list().count())
         }
         mPIDS = arrayOfNulls(DIDs.list().count())

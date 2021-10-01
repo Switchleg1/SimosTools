@@ -635,7 +635,6 @@ class BTService: Service() {
                 return
             }
 
-
             //Broadcast a new message
             mTaskCount = 0
             mTaskTime = System.currentTimeMillis()
@@ -646,6 +645,21 @@ class BTService: Service() {
 
             when (mTask) {
                 TASK_LOGGING -> {
+                    //Set persist delay
+                    val bleHeader = BLEHeader()
+                    bleHeader.cmdSize = 2
+                    bleHeader.cmdFlags = BLE_COMMAND_FLAG_SETTINGS or BRG_SETTING_PERSIST_DELAY
+                    var dataBytes = byteArrayOf((Settings.persistDelay and 0xFF).toByte(), ((Settings.persistDelay and 0xFF00) shr 8).toByte())
+                    var buf = bleHeader.toByteArray() + dataBytes
+                    mWriteQueue.add(buf)
+
+                    //Set persist Q delay
+                    bleHeader.cmdFlags = BLE_COMMAND_FLAG_SETTINGS or BRG_SETTING_PERSIST_Q_DELAY
+                    dataBytes = byteArrayOf((Settings.persistQDelay and 0xFF).toByte(), ((Settings.persistQDelay and 0xFF00) shr 8).toByte())
+                    buf = bleHeader.toByteArray() + dataBytes
+                    mWriteQueue.add(buf)
+
+                    //Write first frame
                     mWriteQueue.add(UDSLogger.buildFrame(0))
                 }
                 TASK_RD_VIN -> {

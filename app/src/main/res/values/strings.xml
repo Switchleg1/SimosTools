@@ -34,6 +34,8 @@
     <string name="radio_settings_mode_application">Application</string>
     <!-- Strings used for misc -->
     <string name="textview_settings_updaterate">Display update rate: <xliff:g id="rate">%1$d</xliff:g></string>
+    <string name="textview_settings_persist_delay">Transfer delay: <xliff:g id="rate">%1$d</xliff:g></string>
+    <string name="textview_settings_persist_q_delay">Queued delay: <xliff:g id="rate">%1$d</xliff:g></string>
     <string name="textview_settings_mode">Logging Mode:</string>
     <string name="textview_settings_directory">Output Directory:</string>
     <string name="textview_fps">fps: </string>
