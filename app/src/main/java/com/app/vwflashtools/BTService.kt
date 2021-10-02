@@ -132,7 +132,7 @@ class BTService: Service() {
             result.device?.let { device ->
                 Log.i(TAG, "Found BLE device! ${device.name}")
 
-                if (mBluetoothDevice == null) {
+                if (mBluetoothDevice == null && device.name.contains(BLE_DEVICE_NAME, true)) {
                     mBluetoothDevice = device
 
                     if (mScanning)
@@ -179,7 +179,7 @@ class BTService: Service() {
                     Log.w(TAG, "Successfully disconnected from $deviceAddress")
 
                     //disable the read notification
-                    disableNotifications(gatt.getService(BT_SERVICE_UUID).getCharacteristic(BT_DATA_RX_UUID))
+                    disableNotifications(gatt.getService(BLE_SERVICE_UUID).getCharacteristic(BLE_DATA_RX_UUID))
 
                     //If gatt doesn't match ours make sure we close it
                     if(gatt != mBluetoothGatt) {
@@ -212,7 +212,7 @@ class BTService: Service() {
                     Log.w(TAG, "Discovered ${services.size} services for ${device.address}")
                     printGattTable()
                     try {
-                        mBluetoothGatt?.requestMtu(GATT_MAX_MTU_SIZE) ?: error("Gatt is invalid")
+                        mBluetoothGatt?.requestMtu(BLE_GATT_MTU_SIZE) ?: error("Gatt is invalid")
                     } catch (e: Exception) {
                         Log.e(TAG,"Exception while discovering services", e)
                         doDisconnect()
@@ -242,7 +242,7 @@ class BTService: Service() {
                 try {
                     mBluetoothGatt?.let { ourGatt ->
                         ourGatt.requestConnectionPriority(BLE_CONNECTION_PRIORITY)
-                        enableNotifications(ourGatt.getService(BT_SERVICE_UUID)!!.getCharacteristic(BT_DATA_RX_UUID))
+                        enableNotifications(ourGatt.getService(BLE_SERVICE_UUID)!!.getCharacteristic(BLE_DATA_RX_UUID))
                     } ?: error("Gatt is invalid")
                 } catch (e: Exception) {
                     Log.e(TAG,"Exception setting mtu", e)
@@ -362,7 +362,7 @@ class BTService: Service() {
             }
         }
 
-        characteristic.getDescriptor(BT_CCCD_UUID)?.let { cccDescriptor ->
+        characteristic.getDescriptor(BLE_CCCD_UUID)?.let { cccDescriptor ->
             if (mBluetoothGatt?.setCharacteristicNotification(characteristic, true) == false) {
                 Log.e("ConnectionManager", "setCharacteristicNotification failed for ${characteristic.uuid}")
                 return
@@ -377,7 +377,7 @@ class BTService: Service() {
             return
         }
 
-        characteristic.getDescriptor(BT_CCCD_UUID)?.let { cccDescriptor ->
+        characteristic.getDescriptor(BLE_CCCD_UUID)?.let { cccDescriptor ->
             if (mBluetoothGatt?.setCharacteristicNotification(characteristic, false) == false) {
                 Log.e("ConnectionManager", "setCharacteristicNotification failed for ${characteristic.uuid}")
                 return
@@ -430,7 +430,7 @@ class BTService: Service() {
         Log.w(TAG, "Searching for BLE device.")
 
         val filter = listOf(
-            ScanFilter.Builder().setServiceUuid(ParcelUuid.fromString(BT_SERVICE_UUID.toString()))
+            ScanFilter.Builder().setServiceUuid(ParcelUuid.fromString(BLE_SERVICE_UUID.toString()))
                 .build()
         )
         val settings = ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build()
@@ -438,7 +438,7 @@ class BTService: Service() {
         //set delay to stop scanning
         Handler(Looper.getMainLooper()).postDelayed({
             doTimeout()
-        }, SCAN_PERIOD)
+        }, BLE_SCAN_PERIOD)
 
         //Set new connection status
         setConnectionState(STATE_CONNECTING)
@@ -512,7 +512,7 @@ class BTService: Service() {
         mState = newState
         val intentMessage = Intent(MESSAGE_STATE_CHANGE.toString())
         intentMessage.putExtra("newState", mState)
-        intentMessage.putExtra("cDevice", mBluetoothGatt?.device?.address)
+        intentMessage.putExtra("cDevice", mBluetoothGatt?.device?.name)
         if(errorMessage)
             intentMessage.putExtra("newError", mErrorStatus)
         sendBroadcast(intentMessage)
@@ -539,8 +539,8 @@ class BTService: Service() {
                 //See if there are any packets waiting to be sent
                 if (!mWriteQueue.isEmpty() && mWriteSemaphore.tryAcquire()) {
                     try {
-                        val txChar = mBluetoothGatt!!.getService(BT_SERVICE_UUID)!!
-                            .getCharacteristic(BT_DATA_TX_UUID)
+                        val txChar = mBluetoothGatt!!.getService(BLE_SERVICE_UUID)!!
+                            .getCharacteristic(BLE_DATA_TX_UUID)
                         val writeType = when {
                             txChar.isWritable() -> BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
                             txChar.isWritableWithoutResponse() -> BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
