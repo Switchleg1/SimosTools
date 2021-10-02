@@ -98,7 +98,6 @@ object DIDs {
         DIDStruct(0x1004, 2, 5, true, -40f,50f,    -30f, 45f,    0f, "%07.2f","Ambient air temp",    "°C"),
         DIDStruct(0x4380, 2, 8, true, 0f,  500f,   -10f, 500f,   0f, "%03.2f","Torque requested",    "Nm"),
         DIDStruct(0x203c, 2, 0, false,0f,  2f,     -1f,  3f,     0f, "%01.0f","Cruise control",      ""),
-
     )
 
     val list3E: List<DIDStruct> = listOf(
