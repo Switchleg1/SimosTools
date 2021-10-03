@@ -155,6 +155,13 @@
                 android:minHeight="48dp"
                 android:text="@string/check_settings_screen_on" />
 
+            <CheckBox
+                android:id="@+id/checkBoxCalcHP"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="@string/check_settings_calculate_hp" />
+
         </LinearLayout>
     </ScrollView>
 

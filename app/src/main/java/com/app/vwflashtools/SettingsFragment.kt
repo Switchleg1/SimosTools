@@ -134,6 +134,9 @@ class SettingsFragment : Fragment() {
 
             //Get keep screen on
             currentView.findViewById<CheckBox>(R.id.checkBoxScreenOn).isChecked = Settings.keepScreenOn
+
+            //Get calculate HP
+            currentView.findViewById<CheckBox>(R.id.checkBoxCalcHP).isChecked = Settings.calculateHP
         }
     }
 
@@ -173,6 +176,9 @@ class SettingsFragment : Fragment() {
 
             //Set screen on
             ConfigFile.set("Config.KeepScreenOn", currentView.findViewById<CheckBox>(R.id.checkBoxScreenOn).isChecked.toString())
+
+            //Calculate HP
+            ConfigFile.set("Config.CalculateHP", currentView.findViewById<CheckBox>(R.id.checkBoxCalcHP).isChecked.toString())
 
             //Stop logging
             val serviceIntent = Intent(context, BTService::class.java)

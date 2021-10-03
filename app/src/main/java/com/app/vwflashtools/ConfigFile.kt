@@ -190,6 +190,7 @@ object ConfigFile {
         mProperties["Config.KeepScreenOn"] = DEFAULT_KEEP_SCREEN_ON.toString()
         mProperties["Config.PersistDelay"] = DEFAULT_PERSIST_DELAY.toString()
         mProperties["Config.PersistQDelay"] = DEFAULT_PERSIST_Q_DELAY.toString()
+        mProperties["Config.CalculateHP"] = DEFAULT_CALCULATE_HP.toString()
         for(i in 0 until DIDs.list22.count()) {
             mProperties["PID.22.${i.toTwo()}.Address"] = DIDs.list22[i].address.toShort().toHex()
             mProperties["PID.22.${i.toTwo()}.Length"] = DIDs.list22[i].length.toString()

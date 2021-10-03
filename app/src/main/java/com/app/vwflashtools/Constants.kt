@@ -123,6 +123,7 @@ val DEFAULT_UPDATE_RATE = 4
 val DEFAULT_DIRECTORY = Environment.DIRECTORY_DOWNLOADS
 val DEFAULT_PERSIST_DELAY = 20
 val DEFAULT_PERSIST_Q_DELAY = 10
+val DEFAULT_CALCULATE_HP = true
 
 //Additional properties
 infix fun Byte.shl(that: Int): Int = this.toInt().shl(that)

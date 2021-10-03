@@ -7,4 +7,5 @@ object Settings {
     var keepScreenOn = DEFAULT_KEEP_SCREEN_ON
     var persistDelay = DEFAULT_PERSIST_DELAY
     var persistQDelay = DEFAULT_PERSIST_Q_DELAY
+    var calculateHP = DEFAULT_CALCULATE_HP
 }

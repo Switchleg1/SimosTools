@@ -26,6 +26,7 @@
     <!-- Strings used for checkboxes -->
     <string name="check_settings_invert_cruise">Invert cruise button?</string>
     <string name="check_settings_screen_on">Keep screen on?</string>
+    <string name="check_settings_calculate_hp">Calculate HP?</string>
     <!-- Strings used for radio buttons -->
     <string name="radio_settings_mode_3E">3E</string>
     <string name="radio_settings_mode_22">22</string>
