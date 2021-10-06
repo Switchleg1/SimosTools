@@ -45,6 +45,8 @@ import java.time.format.DateTimeFormatter
 // 36: x / 12060.17666543982
 // 37: x / 1.884402603974972
 // 38: x * 10
+// 39: (x-512)/32
+// 40: (x-127)/10
 
 data class DIDStruct(var address: Long,
                      var length: Int,
@@ -111,8 +113,8 @@ object DIDs {
         DIDStruct(0xd00120e2, 2, 33,false,0.5f, 1.5f,   -0.1f, 5f,     0f, "%04.2f","Lambda SAE",          "l"),
         DIDStruct(0xd00098fc, 4, 10,false,0f,   300f,   -1f,   300f,   0f, "%05.1f","PUT Actual",          "kpa"),
         DIDStruct(0xd0011e76, 2, 4, false,0f,   195000f,-100f, 190000f,0f, "%05.0f","Turbo Speed",         "rpm"),
-        DIDStruct(0xd00097b4, 4, 1, false,0f,   2f,     -100f, 1000f,  0f, "%01.0f","Airmass",             "g/stk"),
-        DIDStruct(0xd00097fc, 4, 1, false,0f,   2f,     -100f, 1000f,  0f, "%02.2f","Airmass Setpoint",    "g/stk"),
+        DIDStruct(0xd00097b4, 4, 1, false,0f,   2f,     -100f, 1000f,  0f, "%05.3f","Airmass",             "g/stk"),
+        DIDStruct(0xd00097fc, 4, 1, false,0f,   2f,     -100f, 1000f,  0f, "%05.3f","Airmass Setpoint",    "g/stk"),
         DIDStruct(0xd000c177, 1, 29,false,-25f, 45f,    -100f, 100f,   0f, "%03.2f","Ambient Air Temp",    "°C"),
         DIDStruct(0xd0013c76, 2, 35,false,0f,   110f,   0f,    120f,   0f, "%03.2f","Ambient Pressure",    "kpa"),
         DIDStruct(0xd0015172, 2, 13,true, 10f,  15f,    7f,    16f,    0f, "%01.0f","Battery Volts",       "V"),
@@ -166,8 +168,10 @@ object DIDs {
         DIDStruct(0xd0015c2c, 2, 23,false,-10f, 0f,     -1000f,1000f,  0f, "%05.3f","Wastegate Setpoint",  "%"),
         DIDStruct(0xd0011e10, 2, 23,false,-10f, 0f,     -1000f,1000f,  0f, "%05.3f","Wastegate Actual",    "%"),
         DIDStruct(0xd0015c5e, 2, 12,false,-100f,100f,   -1000f,1000f,  0f, "%01.0f","Wastegate Flow Req",  "kg/h"),
+        DIDStruct(0xd00141ba, 2, 39,false,-10f, 10f,    -1000f,1000f,  0f, "%05.3f","Accel. Long",         "m/s2"),
+        DIDStruct(0xd000ee2a, 1, 40,false,-10f, 10f,    -1000f,1000f,  0f, "%05.3f","Accel. Lat",          "m/s2"),
         DIDStruct(0xd001b6cd, 1, 0, false,-100f,100f,   -1000f,1000f,  0f, "%01.0f","Cruise Control",      ""),
-    )
+        )
 
     fun list(): List<DIDStruct> {
         when(UDSLogger.getMode()) {
@@ -242,6 +246,8 @@ object DIDs {
             36 -> did.value = x / 12060.17666543982f
             37 -> did.value = x / 1.884402603974972f
             38 -> did.value = x * 10
+            39 -> did.value = (x - 512f) / 32f
+            40 -> did.value = (x - 127f) / 10f
         }
         return did.value
     }
@@ -260,6 +266,22 @@ object UDSLogger {
     private var mMode = UDS_LOGGING_22
     private var mTorquePID = -1
     private var mEngineRPMPID = -1
+
+    fun isCalcHP(): Boolean {
+        if(Settings.calculateHP && mTorquePID != -1 && mEngineRPMPID != -1) {
+            return true
+        }
+
+        return false
+    }
+
+    fun getHP(): Float {
+        if(isCalcHP()) {
+            return DIDs.list()[mTorquePID].value * DIDs.list()[mEngineRPMPID].value / 7127f
+        }
+
+        return 0f
+    }
 
     fun isEnabled(): Boolean {
         return mLastEnabled
@@ -503,8 +525,8 @@ object UDSLogger {
                 }
 
                 //Calculate HP and found PIDS?
-                if(Settings.calculateHP && mTorquePID != -1 && mEngineRPMPID != -1) {
-                    val calcHP = DIDs.list22[mTorquePID].value * DIDs.list22[mEngineRPMPID].value / 7127f
+                if(isCalcHP()) {
+                    val calcHP = getHP()
                     strItems += ",${calcHP}"
                 }
 
@@ -630,8 +652,8 @@ object UDSLogger {
             }
 
             //Calculate HP and found PIDS?
-            if(Settings.calculateHP && mTorquePID != -1 && mEngineRPMPID != -1) {
-                val calcHP = DIDs.list3E[mTorquePID].value * DIDs.list3E[mEngineRPMPID].value / 7127f
+            if(isCalcHP()) {
+                val calcHP = getHP()
                 strItems += ",${calcHP}"
             }
 
