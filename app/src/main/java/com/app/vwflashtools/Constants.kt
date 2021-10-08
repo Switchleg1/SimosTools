@@ -126,12 +126,12 @@ val DEFAULT_PERSIST_Q_DELAY = 10
 val DEFAULT_CALCULATE_HP = true
 val DEFAULT_USE_MS2 = true
 val DEFAULT_TIRE_DIAMETER = 0.632f
-val DEFAULT_CURB_WEIGHT = 3200f
+val DEFAULT_CURB_WEIGHT = 1500f
 val DEFAULT_DRAG_COEFFICIENT = 0.000005f
 val DEFAULT_GEAR_RATIOS = floatArrayOf(2.92f, 1.79f, 1.14f, 0.78f, 0.58f, 0.46f, 0.0f, 4.77f)
 
-val KG_TO_N = 4.444f
-val TQ_CONSTANT = 15.5f
+val KG_TO_N = 9.80665f
+val TQ_CONSTANT = 16.3f
 
 //Additional properties
 infix fun Byte.shl(that: Int): Int = this.toInt().shl(that)

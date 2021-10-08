@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.math.sqrt
 
 //Equation list
 //  0: x
@@ -295,10 +296,10 @@ object UDSLogger {
                 val gearValue = DIDs.list()[mGearPID].value.toInt()
 
                 if(gearValue in 1..7) {
-                    val ms2Value = DIDs.list()[mMS2PID].value
+                    val ms2Value = sqrt(DIDs.list()[mMS2PID].value)
                     val velValue = DIDs.list()[mVelocityPID].value
                     val weightValue = Settings.curbWeight * KG_TO_N
-                    val ratioValue = Settings.gearRatios[gearValue - 1] * Settings.gearRatios[7]
+                    val ratioValue = sqrt(Settings.gearRatios[gearValue - 1] * Settings.gearRatios[7])
                     val dragValue = 1.0f + (velValue * velValue * Settings.dragCoefficient)
 
                     return weightValue * ms2Value * dragValue / ratioValue / mTireCircumference / TQ_CONSTANT
