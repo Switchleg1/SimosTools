@@ -124,6 +124,14 @@ val DEFAULT_DIRECTORY = Environment.DIRECTORY_DOWNLOADS
 val DEFAULT_PERSIST_DELAY = 20
 val DEFAULT_PERSIST_Q_DELAY = 10
 val DEFAULT_CALCULATE_HP = true
+val DEFAULT_USE_MS2 = true
+val DEFAULT_TIRE_DIAMETER = 0.632f
+val DEFAULT_CURB_WEIGHT = 3200f
+val DEFAULT_DRAG_COEFFICIENT = 0.000005f
+val DEFAULT_GEAR_RATIOS = floatArrayOf(2.92f, 1.79f, 1.14f, 0.78f, 0.58f, 0.46f, 0.0f, 4.77f)
+
+val KG_TO_N = 4.444f
+val TQ_CONSTANT = 15.5f
 
 //Additional properties
 infix fun Byte.shl(that: Int): Int = this.toInt().shl(that)
@@ -142,5 +150,4 @@ fun Long.toHex2(): String = "%04x".format(this)
 fun Long.toHex4(): String = "%08x".format(this)
 fun Long.toArray4(): ByteArray = byteArrayOf((this and 0xFF000000 shr 24).toByte(), (this and 0xFF0000 shr 16).toByte(), (this and 0xFF00 shr 8).toByte(), (this and 0xFF).toByte())
 fun ByteArray.toHex(): String = joinToString(separator = " ") { eachByte -> "%02x".format(eachByte) }
-
 

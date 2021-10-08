@@ -113,6 +113,54 @@ object ConfigFile {
                     val i = value.toInt()
                     Settings.persistQDelay = i
                 }
+                "UseMS2Torque" -> {
+                    val b = value.toBoolean()
+                    Settings.useMS2Torque = b
+                }
+                "TireDiameter" -> {
+                    val f = value.toFloat()
+                    Settings.tireDiameter = f
+                }
+                "GearRatio.1" -> {
+                    val f = value.toFloat()
+                    Settings.gearRatios[0] = f
+                }
+                "GearRatio.2" -> {
+                    val f = value.toFloat()
+                    Settings.gearRatios[1] = f
+                }
+                "GearRatio.3" -> {
+                    val f = value.toFloat()
+                    Settings.gearRatios[2] = f
+                }
+                "GearRatio.4" -> {
+                    val f = value.toFloat()
+                    Settings.gearRatios[3] = f
+                }
+                "GearRatio.5" -> {
+                    val f = value.toFloat()
+                    Settings.gearRatios[4] = f
+                }
+                "GearRatio.6" -> {
+                    val f = value.toFloat()
+                    Settings.gearRatios[5] = f
+                }
+                "GearRatio.7" -> {
+                    val f = value.toFloat()
+                    Settings.gearRatios[6] = f
+                }
+                "GearRatio.Final" -> {
+                    val f = value.toFloat()
+                    Settings.gearRatios[7] = f
+                }
+                "CurbWeight" -> {
+                    val f = value.toFloat()
+                    Settings.curbWeight = f
+                }
+                "DragCoefficient" -> {
+                    val f = value.toFloat()
+                    Settings.dragCoefficient = f
+                }
             }
         } catch (e: NumberFormatException) {
             Log.i(TAG, e.toString())
@@ -172,6 +220,10 @@ object ConfigFile {
                         val f = value.toFloat()
                         pidList[pidNumber].warnMax = f
                     }
+                    "Smoothing" -> {
+                        val f = value.toFloat()
+                        pidList[pidNumber].smoothing = f
+                    }
                     "Format" -> pidList[pidNumber].format = value
                     "Name" -> pidList[pidNumber].name = value
                     "Unit" -> pidList[pidNumber].unit = value
@@ -186,11 +238,23 @@ object ConfigFile {
         mProperties["Config.Mode"] = "22"
         mProperties["Config.OutputDirectory"] = "Downloads"
         mProperties["Config.UpdateRate"] = (11-DEFAULT_UPDATE_RATE).toString()
-        mProperties["Config.InverseCruise"] = DEFAULT_INVERT_CRUISE.toString()
+        mProperties["Config.InvertCruise"] = DEFAULT_INVERT_CRUISE.toString()
         mProperties["Config.KeepScreenOn"] = DEFAULT_KEEP_SCREEN_ON.toString()
         mProperties["Config.PersistDelay"] = DEFAULT_PERSIST_DELAY.toString()
         mProperties["Config.PersistQDelay"] = DEFAULT_PERSIST_Q_DELAY.toString()
         mProperties["Config.CalculateHP"] = DEFAULT_CALCULATE_HP.toString()
+        mProperties["Config.UseMS2Torque"] = DEFAULT_USE_MS2.toString()
+        mProperties["Config.TireDiameter"] = DEFAULT_TIRE_DIAMETER.toString()
+        mProperties["Config.CurbWeight"] = DEFAULT_CURB_WEIGHT.toString()
+        mProperties["Config.DragCoefficient"] = DEFAULT_DRAG_COEFFICIENT.toString()
+        mProperties["Config.GearRatio.1"] = DEFAULT_GEAR_RATIOS[0].toString()
+        mProperties["Config.GearRatio.2"] = DEFAULT_GEAR_RATIOS[1].toString()
+        mProperties["Config.GearRatio.3"] = DEFAULT_GEAR_RATIOS[2].toString()
+        mProperties["Config.GearRatio.4"] = DEFAULT_GEAR_RATIOS[3].toString()
+        mProperties["Config.GearRatio.5"] = DEFAULT_GEAR_RATIOS[4].toString()
+        mProperties["Config.GearRatio.6"] = DEFAULT_GEAR_RATIOS[5].toString()
+        mProperties["Config.GearRatio.7"] = DEFAULT_GEAR_RATIOS[6].toString()
+        mProperties["Config.GearRatio.Final"] = DEFAULT_GEAR_RATIOS[7].toString()
         for(i in 0 until DIDs.list22.count()) {
             mProperties["PID.22.${i.toTwo()}.Address"] = DIDs.list22[i].address.toShort().toHex()
             mProperties["PID.22.${i.toTwo()}.Length"] = DIDs.list22[i].length.toString()
@@ -203,6 +267,7 @@ object ConfigFile {
             mProperties["PID.22.${i.toTwo()}.ProgMax"] = DIDs.list22[i].progMax.toString()
             mProperties["PID.22.${i.toTwo()}.WarnMin"] = DIDs.list22[i].warnMin.toString()
             mProperties["PID.22.${i.toTwo()}.WarnMax"] = DIDs.list22[i].warnMax.toString()
+            mProperties["PID.22.${i.toTwo()}.Smoothing"] = DIDs.list22[i].smoothing.toString()
         }
 
         for(i in 0 until DIDs.list3E.count()) {
@@ -217,6 +282,7 @@ object ConfigFile {
             mProperties["PID.3E.${i.toTwo()}.ProgMax"] = DIDs.list3E[i].progMax.toString()
             mProperties["PID.3E.${i.toTwo()}.WarnMin"] = DIDs.list3E[i].warnMin.toString()
             mProperties["PID.3E.${i.toTwo()}.WarnMax"] = DIDs.list3E[i].warnMax.toString()
+            mProperties["PID.3E.${i.toTwo()}.Smoothing"] = DIDs.list3E[i].smoothing.toString()
         }
 
         write(filename, context)
