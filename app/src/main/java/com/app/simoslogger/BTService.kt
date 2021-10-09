@@ -404,7 +404,7 @@ class BTService: Service() {
         LogFile.close()
         doDisconnect()
         stopForeground(true)
-        stopSelf()
+        stopSelf() //test
     }
 
     @Synchronized
