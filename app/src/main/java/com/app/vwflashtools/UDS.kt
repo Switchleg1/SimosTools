@@ -81,7 +81,7 @@ object DIDs {
         DIDStruct(0x13a0, 2, 18,false,0f,  190000f,0f,   185000f,0f, 0f,  "%05.2f","Injector PW Cyl 1 DI","ms"),
         DIDStruct(0x437C, 2, 8, true, -50f,450f,   -100f,500f,   0f, 0f,  "%03.2f","Engine torque",       "Nm"),
         DIDStruct(0x2027, 2, 38,false,0f,  28000f, -1f,  28000f, 0f, 0f,  "%03.2f","HFP Actual",          "kpa"),
-        DIDStruct(0xf406, 1, 3, false,-25f,25f,    -20f, 20f,    0f, 0f,  "%02.2f","STFT",                "%"),
+        DIDStruct(0xf406, 1, 3, false,-25f,25f,    -20f, 20f,    0f, 0.5f,"%02.2f","STFT",                "%"),
         DIDStruct(0x20ba, 2, 8, true, 0f,  100f,   -1f,  101f,   0f, 0f,  "%05.1f","Throttle Sensor",     "%"),
         DIDStruct(0x1040, 2, 4, false,0f,  190000f,0f,   185000f,0f, 0f,  "%08.1f","Turbo Speed",         "rpm"),
         DIDStruct(0x209a, 2, 9, false,0f,  100f,   -1f,  100f,   0f, 0f,  "%03.2f","HPFP Volume",         "%"),
@@ -91,13 +91,13 @@ object DIDs {
         DIDStruct(0x200c, 2, 9, true, -10f,0f,     -4f,  1f,     0f, 0f,  "%05.3f","Retard cylinder 3",   "°"),
         DIDStruct(0x200d, 2, 9, true, -10f,0f,     -4f,  1f,     0f, 0f,  "%05.3f","Retard cylinder 4",   "°"),
         DIDStruct(0x2904, 2, 0, false,0f,  20f,    -1f,  10f,    0f, 0f,  "%03.0f","Misfire Sum Global",  ""),
-        DIDStruct(0x1001, 1, 7, false,-40f,55f,    -35f, 50f,    0f, 0f,  "%03.2f","IAT",                 "°C"),
+        DIDStruct(0x1001, 1, 7, false,-40f,55f,    -35f, 50f,    0f, 0.5f,"%03.2f","IAT",                 "°C"),
         DIDStruct(0x2025, 2, 8, false,0f,  1500f,  600f, 1500f,  0f, 0f,  "%03.0f","LFP Actual",          "kpa"),
         DIDStruct(0x293b, 2, 38,false,0f,  25000f, 600f, 25000f, 0f, 0f,  "%05.0f","HFP Command",         "kpa"),
 
         DIDStruct(0x2028, 2, 9, false,0f,  100f,   -1.0f,100f,   0f, 0f,  "%04.1f","LPFP Duty",           "%"),
         DIDStruct(0x295c, 1, 0, false,0f,  1f,     -1f,  2f,     0f, 0f,  "%01.0f","Flaps Actual",        ""),
-        DIDStruct(0xf456, 1, 3, false,-25f,25f,    -20f, 20f,    0f, 0f,  "%02.2f","LTFT",                "%"),
+        DIDStruct(0xf456, 1, 3, false,-25f,25f,    -20f, 20f,    0f, 0.5f,"%02.2f","LTFT",                "%"),
         DIDStruct(0x202f, 2, 2, false,-50f,130f,   0f,   120f,   0f, 0f,  "%03.2f","Oil temp",            "°C"),
         DIDStruct(0x13ca, 2, 35,false,50f, 120f,   70f,  120.0f, 0f, 0f,  "%07.2f","Ambient pressure",    "kpa"),
         DIDStruct(0x1004, 2, 5, true, -40f,50f,    -30f, 45f,    0f, 0f,  "%07.2f","Ambient air temp",    "°C"),
@@ -135,7 +135,7 @@ object DIDs {
         DIDStruct(0xd001360c, 2, 31,false,0f,   1500f,  -1000f,2000f,  0f, 0f,  "%04.0f","Fuel LPFR Setpoint",  "kpa"),
         DIDStruct(0xd0013640, 2, 37,false,0f,   28000f, -1000f,30000f, 0f, 0f,  "%05.0f","Fuel HPFR Setpoint",  "kpa"),
         DIDStruct(0xd001363c, 2, 23,false,-100f,100f,   -1000f,1000f,  0f, 0f,  "%01.0f","Fuel HPFP Volume",    "%"),
-        DIDStruct(0xd000f00b, 1, 3, false,-25f, 25f,    -20f,  20f,    0f, 0f,  "%01.0f","Fuel Trim Long Term", "%"),
+        DIDStruct(0xd000f00b, 1, 3, false,-25f, 25f,    -20f,  20f,    0f, 0.5f,"%01.0f","Fuel Trim Long Term", "%"),
         DIDStruct(0xd000f39a, 1, 0, false,0f,   6f,     -1f,   7f,     0f, 0f,  "%02.2f","Gear",                "gear"),
         DIDStruct(0xd000e57e, 1, 22,false,-5f,  15f,    -100f, 100f,   0f, 0f,  "%01.0f","Ignition Table Value","°"),
         DIDStruct(0xd000e59c, 1, 22,false,-5f,  15f,    -100f, 100f,   0f, 0f,  "%01.0f","Ignition Timing",     "°"),
@@ -143,11 +143,11 @@ object DIDs {
         DIDStruct(0xd0013b16, 2, 26,false,-25f, 25f,    -1000f,1000f,  0f, 0f,  "%02.2f","Injector PW DI",      "ms"),
         DIDStruct(0xd0013824, 2, 26,false,0f,   100f,   -1000f,1000f,  0f, 0f,  "%05.1f","Injector PW MPI",     "ms"),
         DIDStruct(0xd0011e08, 2, 25,false,0f,   20f,    -1000f,1000f,  0f, 0f,  "%03.0f","Intake Flow Factor",  "-"),
-        DIDStruct(0xd000efb1, 1, 28,false,0f,   250f,   -5f,   1000f,  0f, 0.2f,"%03.2f","Knock Retard Cyl 1",  "°"),
-        DIDStruct(0xd000efb2, 1, 28,false,0f,   2f,     -5f,   1000f,  0f, 0.2f,"%05.3f","Knock Retard Cyl 2",  "°"),
-        DIDStruct(0xd000efb3, 1, 28,false,0f,   2f,     -5f,   1000f,  0f, 0.2f,"%05.3f","Knock Retard Cyl 3",  "°"),
-        DIDStruct(0xd000efb4, 1, 28,false,0f,   2f,     -5f,   1000f,  0f, 0.2f,"%05.3f","Knock Retard Cyl 4",  "°"),
-        DIDStruct(0xd00143f6, 2, 16,false,0f,   2f,     -100f, 500f,   0f, 0.2f,"%03.2f","Lambda Setpoint",     "l"),
+        DIDStruct(0xd000efb1, 1, 28,false,0f,   250f,   -5f,   1000f,  0f, 0.5f,"%03.2f","Knock Retard Cyl 1",  "°"),
+        DIDStruct(0xd000efb2, 1, 28,false,0f,   2f,     -5f,   1000f,  0f, 0.5f,"%05.3f","Knock Retard Cyl 2",  "°"),
+        DIDStruct(0xd000efb3, 1, 28,false,0f,   2f,     -5f,   1000f,  0f, 0.5f,"%05.3f","Knock Retard Cyl 3",  "°"),
+        DIDStruct(0xd000efb4, 1, 28,false,0f,   2f,     -5f,   1000f,  0f, 0.5f,"%05.3f","Knock Retard Cyl 4",  "°"),
+        DIDStruct(0xd00143f6, 2, 16,false,0f,   2f,     -100f, 500f,   0f, 0.5f,"%03.2f","Lambda Setpoint",     "l"),
         DIDStruct(0xd00098cc, 4, 10,false,0f,   300f,   -300f, 300f,   0f, 0f,  "%05.1f","MAP",                 "kpa"),
         DIDStruct(0xd00098f4, 4, 10,false,0f,   300f,   -300f, 300f,   0f, 0f,  "%05.1f","MAP Setpoint",        "kpa"),
         DIDStruct(0xd000c5ae, 1, 30,false,-25f, 120f,   -1000f,1000f,  0f, 0f,  "%01.0f","Oil Temp",            "°C"),
@@ -169,8 +169,8 @@ object DIDs {
         DIDStruct(0xd0015c2c, 2, 23,false,-10f, 0f,     -1000f,1000f,  0f, 0f,  "%05.3f","Wastegate Setpoint",  "%"),
         DIDStruct(0xd0011e10, 2, 23,false,-10f, 0f,     -1000f,1000f,  0f, 0f,  "%05.3f","Wastegate Actual",    "%"),
         DIDStruct(0xd0015c5e, 2, 12,false,-100f,100f,   -1000f,1000f,  0f, 0f,  "%01.0f","Wastegate Flow Req",  "kg/h"),
-        DIDStruct(0xd00141ba, 2, 39,false,-10f, 10f,    -1000f,1000f,  0f, 0.2f,"%05.3f","Accel. Long",         "m/s2"),
-        DIDStruct(0xd000ee2a, 1, 40,false,-10f, 10f,    -1000f,1000f,  0f, 0.2f,"%05.3f","Accel. Lat",          "m/s2"),
+        DIDStruct(0xd00141ba, 2, 39,false,-10f, 10f,    -1000f,1000f,  0f, 0.5f,"%05.3f","Accel. Long",         "m/s2"),
+        DIDStruct(0xd000ee2a, 1, 40,false,-10f, 10f,    -1000f,1000f,  0f, 0.5f,"%05.3f","Accel. Lat",          "m/s2"),
         DIDStruct(0xd001b6cd, 1, 0, false,-100f,100f,   -1000f,1000f,  0f, 0f,  "%01.0f","Cruise Control",      ""),
         )
 
@@ -315,7 +315,7 @@ object UDSLogger {
     }
 
     fun getHP(tq: Float): Float {
-        if(Settings.calculateHP) {
+        if(Settings.calculateHP && mEngineRPMPID != -1) {
             val rpmValue = DIDs.list()[mEngineRPMPID].value
             return tq * rpmValue / 7127f
         }
