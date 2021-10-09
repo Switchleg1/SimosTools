@@ -30,10 +30,11 @@
         android:id="@+id/imageView"
         android:layout_width="400dp"
         android:layout_height="225dp"
-        android:src="@drawable/vw_logo"
+        android:contentDescription="@+id/app_name"
+        android:src="@drawable/simoslogger"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:contentDescription="@+id/app_name" />
+        tools:srcCompat="@drawable/simoslogger" />
 
     <Button
         android:id="@+id/buttonStopService"

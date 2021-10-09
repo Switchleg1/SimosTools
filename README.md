@@ -1,4 +1,4 @@
-# VWFlashTools
+# Simos Logger
 
 Will use the BLE ISOTP bridge by bri3d to log and flash Simo ECUs https://github.com/Switchleg1/esp32-isotp-ble-bridge/tree/BridgeLEG
 

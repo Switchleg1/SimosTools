@@ -7,7 +7,7 @@ android {
     compileSdk 31
 
     defaultConfig {
-        applicationId "com.app.vwflashtools"
+        applicationId "com.app.simoslogger"
         minSdk 28
         targetSdk 31
         versionCode 1

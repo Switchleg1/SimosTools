@@ -7,40 +7,26 @@
     tools:context=".FlashingFragment"
     android:keepScreenOn="true">
 
-    <EditText
-        android:id="@+id/edit_message"
-        android:layout_width="0dp"
-        android:layout_height="48dp"
-        android:layout_marginBottom="8dp"
-        android:autofillHints="true"
-        android:ems="10"
-        android:hint="@string/msg_hint"
-        android:inputType="none|text"
-        android:text="@string/msg"
-        app:layout_constraintBottom_toTopOf="@+id/button_send"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:ignore="TextContrastCheck" />
-
     <ListView
         android:id="@+id/bt_message"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
+        android:layout_marginBottom="32dp"
         android:textAlignment="gravity"
-        app:layout_constraintBottom_toTopOf="@+id/edit_message"
+        app:layout_constraintBottom_toTopOf="@+id/buttonCheckVIN"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button_send_file"
+        android:id="@+id/buttonClearDTC"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginBottom="8dp"
-        android:text="@string/button_send_file"
+        android:text="@string/button_clear_dtc"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/button_send" />
+        app:layout_constraintStart_toEndOf="@+id/buttonCheckVIN" />
 
     <Button
         android:id="@+id/button_back2"
@@ -50,14 +36,14 @@
         android:layout_marginBottom="8dp"
         android:text="@string/button_back"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/button_send" />
+        app:layout_constraintEnd_toStartOf="@+id/buttonCheckVIN" />
 
     <Button
-        android:id="@+id/button_send"
+        android:id="@+id/buttonCheckVIN"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:text="@string/button_send"
+        android:text="@string/button_check_vin"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
