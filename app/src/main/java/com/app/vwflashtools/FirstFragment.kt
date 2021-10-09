@@ -45,5 +45,8 @@ class FirstFragment : Fragment() {
             startForegroundService(this.requireContext(), serviceIntent)
             this.requireActivity().finish()
         }
+
+        //Set background color
+        view.setBackgroundColor(Settings.colorNormal)
     }
 }

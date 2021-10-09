@@ -40,6 +40,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        //Read config file
+        ConfigFile.read(LOG_FILENAME, applicationContext)
+
+        //Init view
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
         getPermissions()
@@ -48,9 +53,6 @@ class MainActivity : AppCompatActivity() {
         val serviceIntent = Intent(this, BTService::class.java)
         serviceIntent.action = BT_START_SERVICE.toString()
         ContextCompat.startForegroundService(this, serviceIntent)
-
-        //Read config file
-        ConfigFile.read(LOG_FILENAME, applicationContext)
 
         //Auto connect
         doConnect()

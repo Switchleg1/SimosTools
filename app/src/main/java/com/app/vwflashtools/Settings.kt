@@ -1,5 +1,7 @@
 package com.app.vwflashtools
 
+import android.graphics.Color
+
 object Settings {
     var updateRate = DEFAULT_UPDATE_RATE
     var outputDirectory = DEFAULT_DIRECTORY
@@ -13,4 +15,8 @@ object Settings {
     var curbWeight = DEFAULT_CURB_WEIGHT
     var dragCoefficient = DEFAULT_DRAG_COEFFICIENT
     var gearRatios = DEFAULT_GEAR_RATIOS
+    var colorWarn = DEFAULT_COLOR_WARN
+    var colorNormal = DEFAULT_COLOR_NORMAL
+    var alwaysPortrait = DEFAULT_ALWAYS_PORTRAIT
+    var displaySize = DEFAULT_DISPLAY_SIZE
 }

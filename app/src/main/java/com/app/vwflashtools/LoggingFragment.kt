@@ -27,8 +27,6 @@ data class DATAStruct(var min: Float,
                         var multiplier: Float)
 
 class LoggingViewModel : ViewModel() {
-    val colorWarn = Color.rgb(127, 127, 255)
-    val colorNormal = Color.rgb(255, 255, 255)
     var lastWarning = false
     var lastEnabled = false
     var dataList: Array<DATAStruct?>? = null
@@ -72,8 +70,12 @@ class LoggingFragment : Fragment() {
         //check orientation
         var textVal = R.string.textPIDP
         var layoutType = R.layout.pid_portrait
-        val currentOrientation = resources.configuration.orientation
-        if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+        var currentOrientation = resources.configuration.orientation
+
+        if(Settings.alwaysPortrait)
+            currentOrientation = Configuration.ORIENTATION_PORTRAIT
+
+        if(currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
             textVal = R.string.textPIDL
             layoutType = R.layout.pid_land
         }
@@ -108,13 +110,15 @@ class LoggingFragment : Fragment() {
             //find text view and set text
             val textView = pidLayout.findViewById<TextView>(R.id.pid_land_text)
             textView.text = getString(textVal, did.name, did.format.format(did.value), did.unit, did.format.format(data.min), did.format.format(data.max))
+            textView.textSize = 18 * Settings.displaySize
 
             //Setup the progress bar
             val progBar = pidLayout.findViewById<ProgressBar>(R.id.pid_land_progress)
-            progBar?.min = (did.progMin * data.multiplier).toInt()
-            progBar?.max = (did.progMax * data.multiplier).toInt()
-            progBar?.progress = (did.value * data.multiplier).toInt()
-            progBar?.progressTintList = ColorStateList.valueOf(Color.GREEN)
+            progBar.min = (did.progMin * data.multiplier).toInt()
+            progBar.max = (did.progMax * data.multiplier).toInt()
+            progBar.progress = (did.value * data.multiplier).toInt()
+            progBar.progressTintList = ColorStateList.valueOf(Color.GREEN)
+            progBar.scaleY *= Settings.displaySize
 
             val lLayout = view.findViewById<LinearLayout>(R.id.loggingLayoutScroll)
             lLayout.addView(pidLayout)
@@ -132,7 +136,7 @@ class LoggingFragment : Fragment() {
         updatePIDText()
 
         //Set background color
-        view.setBackgroundColor(mViewModel.colorNormal)
+        view.setBackgroundColor(Settings.colorNormal)
     }
 
     override fun onResume() {
@@ -153,8 +157,12 @@ class LoggingFragment : Fragment() {
     private fun updatePIDText() {
         //check orientation
         var textVal = R.string.textPIDP
-        val currentOrientation = resources.configuration.orientation
-        if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+        var currentOrientation = resources.configuration.orientation
+
+        if(Settings.alwaysPortrait)
+            currentOrientation = Configuration.ORIENTATION_PORTRAIT
+
+        if(currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
             textVal = R.string.textPIDL
         }
 
@@ -238,13 +246,13 @@ class LoggingFragment : Fragment() {
                     //If any visible PIDS are in warning state set background color to warn
                     if(anyWarning) {
                         if(!mViewModel.lastWarning) {
-                            view?.setBackgroundColor(mViewModel.colorWarn)
+                            view?.setBackgroundColor(Settings.colorWarn)
                         }
 
                         mViewModel.lastWarning = true
                     } else {
                         if(mViewModel.lastWarning) {
-                            view?.setBackgroundColor(mViewModel.colorNormal)
+                            view?.setBackgroundColor(Settings.colorNormal)
                         }
 
                         mViewModel.lastWarning = false

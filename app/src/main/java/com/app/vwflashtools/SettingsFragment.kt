@@ -35,6 +35,21 @@ class SettingsFragment : Fragment() {
             doSave()
         }
 
+        view.findViewById<SeekBar>(R.id.seekBarDisplaySize).setOnSeekBarChangeListener(object :
+            OnSeekBarChangeListener {
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                // TODO Auto-generated method stub
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar) {
+                // TODO Auto-generated method stub
+            }
+
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                view.findViewById<TextView>(R.id.textViewDisplaySize).text = getString(R.string.textview_settings_displaysize, view.findViewById<SeekBar>(R.id.seekBarDisplaySize).progress)
+            }
+        })
+
         view.findViewById<SeekBar>(R.id.seekBarUpdateRate).setOnSeekBarChangeListener(object :
             OnSeekBarChangeListener {
             override fun onStopTrackingTouch(seekBar: SeekBar) {
@@ -80,11 +95,22 @@ class SettingsFragment : Fragment() {
             }
         })
 
+        //Set background color
+        view.setBackgroundColor(Settings.colorNormal)
+
         doShow()
     }
 
     private fun doShow() {
         view?.let { currentView ->
+            //Get display size
+            currentView.findViewById<SeekBar>(R.id.seekBarDisplaySize)?.let { displaySize ->
+                displaySize.min = 1
+                displaySize.max = 200
+                displaySize.progress = (Settings.displaySize * 100f).toInt()
+                displaySize.callOnClick()
+            }
+
             //Get update rate
             currentView.findViewById<SeekBar>(R.id.seekBarUpdateRate)?.let { updateRate ->
                 updateRate.min = 1
@@ -137,11 +163,21 @@ class SettingsFragment : Fragment() {
 
             //Get calculate HP
             currentView.findViewById<CheckBox>(R.id.checkBoxCalcHP).isChecked = Settings.calculateHP
+
+            //Get use MS2
+            currentView.findViewById<CheckBox>(R.id.checkBoxCalcHP).isChecked = Settings.useMS2Torque
+
+            //Get always use portrait
+            currentView.findViewById<CheckBox>(R.id.checkBoxAlwaysPortrait).isChecked = Settings.alwaysPortrait
         }
     }
 
     private fun doSave() {
         view?.let { currentView ->
+            // Set display size
+            val f = currentView.findViewById<SeekBar>(R.id.seekBarDisplaySize).progress.toFloat()
+            ConfigFile.set("Config.DisplaySize", (f / 100f).toString())
+
             // Set update rate
             ConfigFile.set("Config.UpdateRate", currentView.findViewById<SeekBar>(R.id.seekBarUpdateRate).progress.toString())
 
@@ -179,6 +215,12 @@ class SettingsFragment : Fragment() {
 
             //Calculate HP
             ConfigFile.set("Config.CalculateHP", currentView.findViewById<CheckBox>(R.id.checkBoxCalcHP).isChecked.toString())
+
+            //Calculate HP
+            ConfigFile.set("Config.UseMS2Torque", currentView.findViewById<CheckBox>(R.id.checkBoxUseAccel).isChecked.toString())
+
+            //Always use portrait view
+            ConfigFile.set("Config.AlwaysPortrait", currentView.findViewById<CheckBox>(R.id.checkBoxAlwaysPortrait).isChecked.toString())
 
             //Stop logging
             val serviceIntent = Intent(context, BTService::class.java)

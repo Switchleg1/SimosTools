@@ -17,6 +17,7 @@
 package com.app.vwflashtools
 
 import android.bluetooth.BluetoothGatt
+import android.graphics.Color
 import android.os.Environment
 import java.util.*
 
@@ -129,6 +130,11 @@ val DEFAULT_TIRE_DIAMETER = 0.632f
 val DEFAULT_CURB_WEIGHT = 1500f
 val DEFAULT_DRAG_COEFFICIENT = 0.000005f
 val DEFAULT_GEAR_RATIOS = floatArrayOf(2.92f, 1.79f, 1.14f, 0.78f, 0.58f, 0.46f, 0.0f, 4.77f)
+val DEFAULT_COLOR_NORMAL = Color.rgb(255, 255, 255)
+val DEFAULT_COLOR_WARN = Color.rgb(127, 127, 255)
+val DEFAULT_ALWAYS_PORTRAIT = false
+val DEFAULT_DISPLAY_SIZE = 1f
+
 
 val KG_TO_N = 9.80665f
 val TQ_CONSTANT = 16.3f
@@ -150,4 +156,3 @@ fun Long.toHex2(): String = "%04x".format(this)
 fun Long.toHex4(): String = "%08x".format(this)
 fun Long.toArray4(): ByteArray = byteArrayOf((this and 0xFF000000 shr 24).toByte(), (this and 0xFF0000 shr 16).toByte(), (this and 0xFF00 shr 8).toByte(), (this and 0xFF).toByte())
 fun ByteArray.toHex(): String = joinToString(separator = " ") { eachByte -> "%02x".format(eachByte) }
-

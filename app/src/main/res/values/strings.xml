@@ -27,6 +27,8 @@
     <string name="check_settings_invert_cruise">Invert cruise button?</string>
     <string name="check_settings_screen_on">Keep screen on?</string>
     <string name="check_settings_calculate_hp">Calculate HP?</string>
+    <string name="check_settings_use_accelerometers">Use Accelerometers? (3E)</string>
+    <string name="check_settings_always_portrait">Always use portrait view?</string>
     <!-- Strings used for radio buttons -->
     <string name="radio_settings_mode_3E">3E</string>
     <string name="radio_settings_mode_22">22</string>
@@ -34,6 +36,7 @@
     <string name="radio_settings_mode_documents">Documents</string>
     <string name="radio_settings_mode_application">Application</string>
     <!-- Strings used for misc -->
+    <string name="textview_settings_displaysize">Display size: <xliff:g id="size">%1$d</xliff:g></string>
     <string name="textview_settings_updaterate">Display update rate: <xliff:g id="rate">%1$d</xliff:g></string>
     <string name="textview_settings_persist_delay">Transfer delay: <xliff:g id="rate">%1$d</xliff:g></string>
     <string name="textview_settings_persist_q_delay">Queued delay: <xliff:g id="rate">%1$d</xliff:g></string>

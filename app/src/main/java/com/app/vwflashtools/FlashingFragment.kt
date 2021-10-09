@@ -60,6 +60,9 @@ class FlashingFragment : Fragment() {
            //     resultPickLauncher.launch(intent)
             //}
         }
+
+        //Set background color
+        view.setBackgroundColor(Settings.colorNormal)
     }
 
     var resultPickLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->

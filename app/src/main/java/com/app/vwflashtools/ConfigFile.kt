@@ -1,8 +1,11 @@
 package com.app.vwflashtools
 
 import android.content.Context
+import android.graphics.Color
 import android.os.Environment
 import android.util.Log
+import androidx.core.graphics.toColorInt
+import androidx.core.graphics.toColorLong
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -90,7 +93,8 @@ object ConfigFile {
                 }
                 "UpdateRate" -> {
                     val i = value.toInt()
-                    Settings.updateRate = 11 - i
+                    if(i in 1..10)
+                        Settings.updateRate = 11 - i
                 }
                 "OutputDirectory" -> {
                     when(value) {
@@ -100,18 +104,22 @@ object ConfigFile {
                     }
                 }
                 "InvertCruise" -> {
-                    Settings.invertCruise = value == "true"
+                    val b = value.toBoolean()
+                    Settings.invertCruise = b
                 }
                 "KeepScreenOn" -> {
-                    Settings.keepScreenOn = value == "true"
+                    val b = value.toBoolean()
+                    Settings.keepScreenOn = b
                 }
                 "PersistDelay" -> {
                     val i = value.toInt()
-                    Settings.persistDelay = i
+                    if(i > -1 && i < 100)
+                        Settings.persistDelay = i
                 }
                 "PersistQDelay" -> {
                     val i = value.toInt()
-                    Settings.persistQDelay = i
+                    if(i > -1 && i < 100)
+                        Settings.persistQDelay = i
                 }
                 "UseMS2Torque" -> {
                     val b = value.toBoolean()
@@ -155,15 +163,34 @@ object ConfigFile {
                 }
                 "CurbWeight" -> {
                     val f = value.toFloat()
-                    Settings.curbWeight = f
+                    if(f > 1200f && f < 2000f)
+                        Settings.curbWeight = f
                 }
                 "DragCoefficient" -> {
                     val f = value.toFloat()
-                    Settings.dragCoefficient = f
+                    if(f > 0f && f < 0.001f)
+                        Settings.dragCoefficient = f
+                }
+                "ColorWarn" -> {
+                    val l = parseLong(value, 16)
+                    Settings.colorWarn = l.toInt()
+                }
+                "ColorNormal" -> {
+                    val l = parseLong(value, 16)
+                    Settings.colorNormal = l.toInt()
+                }
+                "AlwaysPortrait" -> {
+                    val b = value.toBoolean()
+                    Settings.alwaysPortrait = b
+                }
+                "DisplaySize" -> {
+                    val f = value.toFloat()
+                    if(f > 0f && f < 5f)
+                        Settings.displaySize = f
                 }
             }
         } catch (e: NumberFormatException) {
-            Log.i(TAG, e.toString())
+            Log.e(TAG, e.toString())
         }
     }
 
@@ -255,6 +282,10 @@ object ConfigFile {
         mProperties["Config.GearRatio.6"] = DEFAULT_GEAR_RATIOS[5].toString()
         mProperties["Config.GearRatio.7"] = DEFAULT_GEAR_RATIOS[6].toString()
         mProperties["Config.GearRatio.Final"] = DEFAULT_GEAR_RATIOS[7].toString()
+        mProperties["Config.ColorWarn"] = DEFAULT_COLOR_WARN.toHex()
+        mProperties["Config.ColorNormal"] = DEFAULT_COLOR_NORMAL.toHex()
+        mProperties["Config.AlwaysPortrait"] = DEFAULT_ALWAYS_PORTRAIT.toString()
+        mProperties["Config.DisplaySize"] = DEFAULT_DISPLAY_SIZE.toString()
         for(i in 0 until DIDs.list22.count()) {
             mProperties["PID.22.${i.toTwo()}.Address"] = DIDs.list22[i].address.toShort().toHex()
             mProperties["PID.22.${i.toTwo()}.Length"] = DIDs.list22[i].length.toString()
