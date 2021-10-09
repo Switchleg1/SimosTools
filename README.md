@@ -1,6 +1,6 @@
 # Simos Logger
 
-Will use the BLE ISOTP bridge by bri3d to log and flash Simo ECUs https://github.com/Switchleg1/esp32-isotp-ble-bridge/tree/BridgeLEG
+Will use the BLE ISOTP bridge by bri3d to log Simo ECUs https://github.com/Switchleg1/esp32-isotp-ble-bridge/tree/BridgeLEG
 
 Currently can make connection and log a set of PIDS from the ECU using mode 22 or 3E and saves to .csv using the cruise control button as trigger.
 
