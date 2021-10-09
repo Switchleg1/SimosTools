@@ -20,7 +20,6 @@ import android.content.res.Configuration
 import android.widget.LinearLayout
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
-import com.app.simoslogger.R
 
 data class DATAStruct(var min: Float,
                         var max: Float,

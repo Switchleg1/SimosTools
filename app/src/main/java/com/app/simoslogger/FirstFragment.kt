@@ -9,12 +9,8 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.core.content.ContextCompat.startForegroundService
 import androidx.navigation.fragment.findNavController
-import com.app.simoslogger.R
 
 
-/**
- * A simple [Fragment] subclass as the default destination in the navigation.
- */
 class FirstFragment : Fragment() {
     private val TAG = "FirstFragment"
     override fun onCreateView(

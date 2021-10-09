@@ -1,9 +1,12 @@
 package com.app.simoslogger
 
+import android.Manifest
 import android.content.Context
 import android.provider.MediaStore
 import android.content.ContentValues
+import android.content.pm.PackageManager
 import android.os.Build
+import androidx.core.content.ContextCompat
 import java.io.*
 
 object LogFile {
@@ -11,10 +14,13 @@ object LogFile {
     private var mOutputStream: OutputStream? = null
 
     fun create(fileName: String?, context: Context?) {
+        if(context == null)
+            return
+
         close()
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q || Settings.outputDirectory == "App") {
-            val path = context?.getExternalFilesDir("")
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q || Settings.outputDirectory == "App" || ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+            val path = context.getExternalFilesDir("")
             val logFile = File(path, "/$fileName")
             if (!logFile.exists()) {
                 logFile.createNewFile()
@@ -23,7 +29,7 @@ object LogFile {
             mOutputStream = FileOutputStream(logFile)
         } else {
             try {
-                val resolver = context!!.contentResolver
+                val resolver = context.contentResolver
                 val contentValues = ContentValues()
                 contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
                 contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "application/my-custom-type")
@@ -31,7 +37,6 @@ object LogFile {
                 val uri = resolver.insert(MediaStore.Files.getContentUri("external"), contentValues)
                 mOutputStream = resolver.openOutputStream(uri!!)
             } catch (e: Exception) {
-                // TODO Auto-generated catch block
                 e.printStackTrace()
             }
         }

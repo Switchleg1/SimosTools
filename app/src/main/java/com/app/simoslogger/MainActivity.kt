@@ -23,11 +23,8 @@ import androidx.lifecycle.ViewModel
 import androidx.navigation.Navigation.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
 import android.graphics.Color
-
 import android.graphics.drawable.ColorDrawable
 
-import android.R.attr.name
-import com.app.simoslogger.R
 
 class MainViewModel : ViewModel() {
     var mState: Int = STATE_NONE

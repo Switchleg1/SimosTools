@@ -14,7 +14,6 @@ import android.widget.*
 import androidx.core.content.ContextCompat.startForegroundService
 import androidx.lifecycle.ViewModel
 import androidx.fragment.app.viewModels
-import com.app.simoslogger.R
 
 
 class FlashingViewModel : ViewModel() {

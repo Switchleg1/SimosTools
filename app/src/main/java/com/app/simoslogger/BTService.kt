@@ -14,7 +14,6 @@ import android.os.Looper
 import android.os.ParcelUuid
 import android.util.Log
 import android.widget.Toast
-import com.app.simoslogger.R
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
@@ -404,7 +403,7 @@ class BTService: Service() {
         LogFile.close()
         doDisconnect()
         stopForeground(true)
-        stopSelf() //test
+        stopSelf()
     }
 
     @Synchronized

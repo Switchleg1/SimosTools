@@ -1,7 +1,5 @@
 package com.app.simoslogger
 
-import android.graphics.Color
-
 object Settings {
     var updateRate = DEFAULT_UPDATE_RATE
     var outputDirectory = DEFAULT_DIRECTORY

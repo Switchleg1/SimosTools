@@ -1,11 +1,8 @@
 package com.app.simoslogger
 
 import android.content.Context
-import android.graphics.Color
 import android.os.Environment
 import android.util.Log
-import androidx.core.graphics.toColorInt
-import androidx.core.graphics.toColorLong
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
