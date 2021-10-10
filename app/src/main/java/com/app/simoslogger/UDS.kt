@@ -255,7 +255,7 @@ object DIDs {
         }
 
         //Add smoothing
-        if(did.smoothing > 0f && did.smoothing < 1f)
+        if(did.smoothing > 0f && did.smoothing < 0.95f)
             did.value = ((1f-did.smoothing) * did.value) + (did.smoothing * previousValue)
 
         return did.value
