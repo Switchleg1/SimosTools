@@ -321,17 +321,17 @@ class SettingsFragment : Fragment() {
             ConfigFile.set("Config.AlwaysPortrait", currentView.findViewById<CheckBox>(R.id.checkBoxAlwaysPortrait).isChecked.toString())
 
             //Set Colors
-            ConfigFile.set("Config.ColorBGNormal", ColorSettings.mColorList[COLOR_BG_NORMAL].toHex())
-            ConfigFile.set("Config.ColorBGWarn", ColorSettings.mColorList[COLOR_BG_WARNING].toHex())
-            ConfigFile.set("Config.ColorText", ColorSettings.mColorList[COLOR_TEXT].toHex())
-            ConfigFile.set("Config.ColorBarNormal", ColorSettings.mColorList[COLOR_BAR_NORMAL].toHex())
-            ConfigFile.set("Config.ColorBarWarn", ColorSettings.mColorList[COLOR_BAR_WARN].toHex())
-            ConfigFile.set("Config.ColorStateError", ColorSettings.mColorList[COLOR_ST_ERROR].toHex())
-            ConfigFile.set("Config.ColorStateNone", ColorSettings.mColorList[COLOR_ST_NONE].toHex())
-            ConfigFile.set("Config.ColorStateConnecting", ColorSettings.mColorList[COLOR_ST_CONNECTING].toHex())
-            ConfigFile.set("Config.ColorStateConnected", ColorSettings.mColorList[COLOR_ST_CONNECTED].toHex())
-            ConfigFile.set("Config.ColorStateLogging", ColorSettings.mColorList[COLOR_ST_LOGGING].toHex())
-            ConfigFile.set("Config.ColorStateWriting", ColorSettings.mColorList[COLOR_ST_WRITING].toHex())
+            ConfigFile.set("Config.ColorBGNormal", ColorSettings.mColorList[COLOR_BG_NORMAL].toHex3())
+            ConfigFile.set("Config.ColorBGWarn", ColorSettings.mColorList[COLOR_BG_WARNING].toHex3())
+            ConfigFile.set("Config.ColorText", ColorSettings.mColorList[COLOR_TEXT].toHex3())
+            ConfigFile.set("Config.ColorBarNormal", ColorSettings.mColorList[COLOR_BAR_NORMAL].toHex3())
+            ConfigFile.set("Config.ColorBarWarn", ColorSettings.mColorList[COLOR_BAR_WARN].toHex3())
+            ConfigFile.set("Config.ColorStateError", ColorSettings.mColorList[COLOR_ST_ERROR].toHex3())
+            ConfigFile.set("Config.ColorStateNone", ColorSettings.mColorList[COLOR_ST_NONE].toHex3())
+            ConfigFile.set("Config.ColorStateConnecting", ColorSettings.mColorList[COLOR_ST_CONNECTING].toHex3())
+            ConfigFile.set("Config.ColorStateConnected", ColorSettings.mColorList[COLOR_ST_CONNECTED].toHex3())
+            ConfigFile.set("Config.ColorStateLogging", ColorSettings.mColorList[COLOR_ST_LOGGING].toHex3())
+            ConfigFile.set("Config.ColorStateWriting", ColorSettings.mColorList[COLOR_ST_WRITING].toHex3())
 
             //Stop logging
             val serviceIntent = Intent(context, BTService::class.java)

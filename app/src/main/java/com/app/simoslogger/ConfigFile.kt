@@ -170,47 +170,47 @@ object ConfigFile {
                 }
                 "ColorBGNormal" -> {
                     val l = parseLong(value, 16)
-                    Settings.colorList[COLOR_BG_NORMAL] = l.toInt()
+                    Settings.colorList[COLOR_BG_NORMAL] = (l.toInt() and 0xFFFFFF) or 0xFF000000.toInt()
                 }
                 "ColorBGWarn" -> {
                     val l = parseLong(value, 16)
-                    Settings.colorList[COLOR_BG_WARNING] = l.toInt()
+                    Settings.colorList[COLOR_BG_WARNING] = (l.toInt() and 0xFFFFFF) or 0xFF000000.toInt()
                 }
                 "ColorText" -> {
                     val l = parseLong(value, 16)
-                    Settings.colorList[COLOR_TEXT] = l.toInt()
+                    Settings.colorList[COLOR_TEXT] = (l.toInt() and 0xFFFFFF) or 0xFF000000.toInt()
                 }
                 "ColorBarNormal" -> {
                     val l = parseLong(value, 16)
-                    Settings.colorList[COLOR_BAR_NORMAL] = l.toInt()
+                    Settings.colorList[COLOR_BAR_NORMAL] = (l.toInt() and 0xFFFFFF) or 0xFF000000.toInt()
                 }
                 "ColorBarWarn" -> {
                     val l = parseLong(value, 16)
-                    Settings.colorList[COLOR_BAR_WARN] = l.toInt()
+                    Settings.colorList[COLOR_BAR_WARN] = (l.toInt() and 0xFFFFFF) or 0xFF000000.toInt()
                 }
                 "ColorStateError" -> {
                     val l = parseLong(value, 16)
-                    Settings.colorList[COLOR_ST_ERROR] = l.toInt()
+                    Settings.colorList[COLOR_ST_ERROR] = (l.toInt() and 0xFFFFFF) or 0xFF000000.toInt()
                 }
                 "ColorStateNone" -> {
                     val l = parseLong(value, 16)
-                    Settings.colorList[COLOR_ST_NONE] = l.toInt()
+                    Settings.colorList[COLOR_ST_NONE] = (l.toInt() and 0xFFFFFF) or 0xFF000000.toInt()
                 }
                 "ColorStateConnecting" -> {
                     val l = parseLong(value, 16)
-                    Settings.colorList[COLOR_ST_CONNECTING] = l.toInt()
+                    Settings.colorList[COLOR_ST_CONNECTING] = (l.toInt() and 0xFFFFFF) or 0xFF000000.toInt()
                 }
                 "ColorStateConnected" -> {
                     val l = parseLong(value, 16)
-                    Settings.colorList[COLOR_ST_CONNECTED] = l.toInt()
+                    Settings.colorList[COLOR_ST_CONNECTED] = (l.toInt() and 0xFFFFFF) or 0xFF000000.toInt()
                 }
                 "ColorStateLogging" -> {
                     val l = parseLong(value, 16)
-                    Settings.colorList[COLOR_ST_LOGGING] = l.toInt()
+                    Settings.colorList[COLOR_ST_LOGGING] = (l.toInt() and 0xFFFFFF) or 0xFF000000.toInt()
                 }
                 "ColorStateWriting" -> {
                     val l = parseLong(value, 16)
-                    Settings.colorList[COLOR_ST_WRITING] = l.toInt()
+                    Settings.colorList[COLOR_ST_WRITING] = (l.toInt() and 0xFFFFFF) or 0xFF000000.toInt()
                 }
                 "AlwaysPortrait" -> {
                     val b = value.toBoolean()
@@ -315,17 +315,17 @@ object ConfigFile {
         mProperties["Config.GearRatio.6"] = DEFAULT_GEAR_RATIOS[5].toString()
         mProperties["Config.GearRatio.7"] = DEFAULT_GEAR_RATIOS[6].toString()
         mProperties["Config.GearRatio.Final"] = DEFAULT_GEAR_RATIOS[7].toString()
-        mProperties["Config.ColorBGNormal"] = DEFAULT_COLOR_LIST[COLOR_BG_NORMAL].toHex()
-        mProperties["Config.ColorBGWarn"] = DEFAULT_COLOR_LIST[COLOR_BG_WARNING].toHex()
-        mProperties["Config.ColorText"] = DEFAULT_COLOR_LIST[COLOR_TEXT].toHex()
-        mProperties["Config.ColorBarNormal"] = DEFAULT_COLOR_LIST[COLOR_BAR_NORMAL].toHex()
-        mProperties["Config.ColorBarWarn"] = DEFAULT_COLOR_LIST[COLOR_BAR_WARN].toHex()
-        mProperties["Config.ColorStateError"] = DEFAULT_COLOR_LIST[COLOR_ST_ERROR].toHex()
-        mProperties["Config.ColorStateNone"] = DEFAULT_COLOR_LIST[COLOR_ST_NONE].toHex()
-        mProperties["Config.ColorStateConnecting"] = DEFAULT_COLOR_LIST[COLOR_ST_CONNECTING].toHex()
-        mProperties["Config.ColorStateConnected"] = DEFAULT_COLOR_LIST[COLOR_ST_CONNECTED].toHex()
-        mProperties["Config.ColorStateLogging"] = DEFAULT_COLOR_LIST[COLOR_ST_LOGGING].toHex()
-        mProperties["Config.ColorStateWriting"] = DEFAULT_COLOR_LIST[COLOR_ST_WRITING].toHex()
+        mProperties["Config.ColorBGNormal"] = DEFAULT_COLOR_LIST[COLOR_BG_NORMAL].toHex3()
+        mProperties["Config.ColorBGWarn"] = DEFAULT_COLOR_LIST[COLOR_BG_WARNING].toHex3()
+        mProperties["Config.ColorText"] = DEFAULT_COLOR_LIST[COLOR_TEXT].toHex3()
+        mProperties["Config.ColorBarNormal"] = DEFAULT_COLOR_LIST[COLOR_BAR_NORMAL].toHex3()
+        mProperties["Config.ColorBarWarn"] = DEFAULT_COLOR_LIST[COLOR_BAR_WARN].toHex3()
+        mProperties["Config.ColorStateError"] = DEFAULT_COLOR_LIST[COLOR_ST_ERROR].toHex3()
+        mProperties["Config.ColorStateNone"] = DEFAULT_COLOR_LIST[COLOR_ST_NONE].toHex3()
+        mProperties["Config.ColorStateConnecting"] = DEFAULT_COLOR_LIST[COLOR_ST_CONNECTING].toHex3()
+        mProperties["Config.ColorStateConnected"] = DEFAULT_COLOR_LIST[COLOR_ST_CONNECTED].toHex3()
+        mProperties["Config.ColorStateLogging"] = DEFAULT_COLOR_LIST[COLOR_ST_LOGGING].toHex3()
+        mProperties["Config.ColorStateWriting"] = DEFAULT_COLOR_LIST[COLOR_ST_WRITING].toHex3()
         mProperties["Config.AlwaysPortrait"] = DEFAULT_ALWAYS_PORTRAIT.toString()
         mProperties["Config.DisplaySize"] = DEFAULT_DISPLAY_SIZE.toString()
         for(i in 0 until DIDs.list22.count()) {
