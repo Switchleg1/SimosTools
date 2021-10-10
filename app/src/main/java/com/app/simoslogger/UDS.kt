@@ -560,7 +560,7 @@ object UDSLogger {
         }
 
         //In init state
-        if(tick < frameCount()) {
+        if(tick <= frameCount22()) {
             return UDS_OK
         }
 
@@ -666,7 +666,7 @@ object UDSLogger {
         }
 
         //still in the initial setup?
-        if(tick < frameCount3E()) {
+        if(tick <= frameCount3E()) {
             return UDS_OK
         }
 

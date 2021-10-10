@@ -197,15 +197,83 @@
 
             <Button
                 android:id="@+id/buttonSetNormalColor"
+                style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/button_set_normal_color" />
+                android:text="@string/button_set_normal_color"
+                android:textColor="#5E35B1" />
 
             <Button
                 android:id="@+id/buttonSetWarningColor"
+                style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/button_set_warning_color" />
+                android:text="@string/button_set_warning_color"
+                android:textColor="#5E35B1" />
+
+            <Button
+                android:id="@+id/buttonSetTextColor"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_set_text_color"
+                android:textColor="#5E35B1" />
+
+            <Button
+                android:id="@+id/buttonSetBarColor"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_set_bar_color"
+                android:textColor="#5E35B1" />
+
+            <Button
+                android:id="@+id/buttonSetErrorColor"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_set_st_error"
+                android:textColor="#5E35B1" />
+
+            <Button
+                android:id="@+id/buttonSetNoneColor"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_set_st_none"
+                android:textColor="#5E35B1" />
+
+            <Button
+                android:id="@+id/buttonSetConnectingColor"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_set_st_connecting"
+                android:textColor="#5E35B1" />
+
+            <Button
+                android:id="@+id/buttonSetConnectedColor"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_set_st_connected"
+                android:textColor="#5E35B1" />
+
+            <Button
+                android:id="@+id/buttonSetLoggingColor"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_logging"
+                android:textColor="#5E35B1" />
+
+            <Button
+                android:id="@+id/buttonSetWritingColor"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_set_st_writing"
+                android:textColor="#5E35B1" />
         </LinearLayout>
     </ScrollView>
 

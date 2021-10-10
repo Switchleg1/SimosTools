@@ -7,8 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 
 
@@ -17,7 +15,7 @@ object ColorSettings {
     var mG = 255
     var mB = 255
     var mColorIndex = 0
-    var mColorList = intArrayOf(0, 0)
+    var mColorList = intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
     fun resetColors() {
         for(i in 0 until mColorList.count())
@@ -122,14 +120,21 @@ class ColorFragment : Fragment() {
             val rSeek = currentView.findViewById<SeekBar>(R.id.seekBarColorR)
             val gSeek = currentView.findViewById<SeekBar>(R.id.seekBarColorG)
             val bSeek = currentView.findViewById<SeekBar>(R.id.seekBarColorB)
+            val rText = currentView.findViewById<TextView>(R.id.textViewColorR)
+            val gText = currentView.findViewById<TextView>(R.id.textViewColorG)
+            val bText = currentView.findViewById<TextView>(R.id.textViewColorB)
 
             ColorSettings.mR = rSeek.progress
             ColorSettings.mG = gSeek.progress
             ColorSettings.mB = bSeek.progress
 
-            currentView.findViewById<TextView>(R.id.textViewColorR).text = getString(R.string.textview_color_r, rSeek.progress)
-            currentView.findViewById<TextView>(R.id.textViewColorG).text = getString(R.string.textview_color_g, gSeek.progress)
-            currentView.findViewById<TextView>(R.id.textViewColorB).text = getString(R.string.textview_color_b, bSeek.progress)
+            val c = ((ColorSettings.mR * 0xFF) shr 16) + ((ColorSettings.mG * 0xFF) shr 8) + (ColorSettings.mB * 0xFF)
+            rText.setTextColor(Color.WHITE xor c or 0xFF000000.toInt())
+            gText.setTextColor(Color.WHITE xor c or 0xFF000000.toInt())
+            bText.setTextColor(Color.WHITE xor c or 0xFF000000.toInt())
+            rText.text = getString(R.string.textview_color_r, rSeek.progress)
+            gText.text = getString(R.string.textview_color_g, gSeek.progress)
+            bText.text = getString(R.string.textview_color_b, bSeek.progress)
 
             currentView.setBackgroundColor(Color.rgb(ColorSettings.mR, ColorSettings.mG, ColorSettings.mB))
         }

@@ -16,13 +16,11 @@ import android.os.*
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.navigation.Navigation.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
-import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import androidx.lifecycle.ViewModelProvider
 
@@ -210,9 +208,9 @@ class MainActivity : AppCompatActivity() {
                 }
                 MESSAGE_WRITE_LOG.toString() -> {
                     if(intent.getBooleanExtra("enabled", false)) {
-                        setActionBarColor(Color.GREEN)
+                        setActionBarColor(Settings.colorList[COLOR_ST_WRITING])
                     } else {
-                        setActionBarColor(Color.YELLOW)
+                        setActionBarColor(Settings.colorList[COLOR_ST_LOGGING])
                     }
                 }
                 MESSAGE_TOAST.toString() -> {
@@ -279,25 +277,25 @@ class MainActivity : AppCompatActivity() {
                 when(mViewModel.mState) {
                     STATE_CONNECTED -> {
                         newString = getString(R.string.title_connected_to, mViewModel.mDeviceName)
-                        setActionBarColor(Color.BLUE)
+                        setActionBarColor(Settings.colorList[COLOR_ST_CONNECTED])
                     }
                     STATE_CONNECTING -> {
                         newString = getString(R.string.title_connecting)
-                        setActionBarColor(Color.CYAN)
+                        setActionBarColor(Settings.colorList[COLOR_ST_CONNECTING])
                     }
                     STATE_NONE -> {
                         newString = getString(R.string.title_not_connected)
-                        setActionBarColor(Color.RED)
+                        setActionBarColor(Settings.colorList[COLOR_ST_NONE])
                     }
                     STATE_ERROR -> {
                         newString = getString(R.string.title_error, mViewModel.mConnectionError)
-                        setActionBarColor(Color.RED)
+                        setActionBarColor(Settings.colorList[COLOR_ST_ERROR])
                     }
                 }
             }
             TASK_LOGGING -> {
                 newString = "Logging"
-                setActionBarColor(Color.YELLOW)
+                setActionBarColor(Settings.colorList[COLOR_ST_LOGGING])
             }
             TASK_RD_VIN -> {
                 newString = "Getting VIN"

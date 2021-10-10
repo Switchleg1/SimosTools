@@ -1,6 +1,7 @@
 package com.app.simoslogger
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Environment
 import androidx.fragment.app.Fragment
@@ -40,6 +41,46 @@ class SettingsFragment : Fragment() {
 
         view.findViewById<Button>(R.id.buttonSetWarningColor).setOnClickListener {
             ColorSettings.getColor(COLOR_WARNING)
+            findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
+        }
+
+        view.findViewById<Button>(R.id.buttonSetTextColor).setOnClickListener {
+            ColorSettings.getColor(COLOR_TEXT)
+            findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
+        }
+
+        view.findViewById<Button>(R.id.buttonSetBarColor).setOnClickListener {
+            ColorSettings.getColor(COLOR_BAR)
+            findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
+        }
+
+        view.findViewById<Button>(R.id.buttonSetErrorColor).setOnClickListener {
+            ColorSettings.getColor(COLOR_ST_ERROR)
+            findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
+        }
+
+        view.findViewById<Button>(R.id.buttonSetNoneColor).setOnClickListener {
+            ColorSettings.getColor(COLOR_ST_NONE)
+            findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
+        }
+
+        view.findViewById<Button>(R.id.buttonSetConnectingColor).setOnClickListener {
+            ColorSettings.getColor(COLOR_ST_CONNECTING)
+            findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
+        }
+
+        view.findViewById<Button>(R.id.buttonSetConnectedColor).setOnClickListener {
+            ColorSettings.getColor(COLOR_ST_CONNECTED)
+            findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
+        }
+
+        view.findViewById<Button>(R.id.buttonSetLoggingColor).setOnClickListener {
+            ColorSettings.getColor(COLOR_ST_LOGGING)
+            findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
+        }
+
+        view.findViewById<Button>(R.id.buttonSetWritingColor).setOnClickListener {
+            ColorSettings.getColor(COLOR_ST_WRITING)
             findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
@@ -171,8 +212,26 @@ class SettingsFragment : Fragment() {
             currentView.findViewById<CheckBox>(R.id.checkBoxAlwaysPortrait).isChecked = Settings.alwaysPortrait
 
             //Set Colors
-            currentView.findViewById<Button>(R.id.buttonSetNormalColor).setTextColor(ColorSettings.mColorList[COLOR_NORMAL])
-            currentView.findViewById<Button>(R.id.buttonSetWarningColor).setTextColor(ColorSettings.mColorList[COLOR_WARNING])
+            currentView.findViewById<Button>(R.id.buttonSetNormalColor).setTextColor(Color.WHITE xor ColorSettings.mColorList[COLOR_NORMAL] or 0xFF000000.toInt())
+            currentView.findViewById<Button>(R.id.buttonSetNormalColor).setBackgroundColor(ColorSettings.mColorList[COLOR_NORMAL])
+            currentView.findViewById<Button>(R.id.buttonSetWarningColor).setTextColor(Color.WHITE xor ColorSettings.mColorList[COLOR_WARNING] or 0xFF000000.toInt())
+            currentView.findViewById<Button>(R.id.buttonSetWarningColor).setBackgroundColor(ColorSettings.mColorList[COLOR_WARNING])
+            currentView.findViewById<Button>(R.id.buttonSetTextColor).setTextColor(Color.WHITE xor ColorSettings.mColorList[COLOR_TEXT] or 0xFF000000.toInt())
+            currentView.findViewById<Button>(R.id.buttonSetTextColor).setBackgroundColor(ColorSettings.mColorList[COLOR_TEXT])
+            currentView.findViewById<Button>(R.id.buttonSetBarColor).setTextColor(Color.WHITE xor ColorSettings.mColorList[COLOR_BAR] or 0xFF000000.toInt())
+            currentView.findViewById<Button>(R.id.buttonSetBarColor).setBackgroundColor(ColorSettings.mColorList[COLOR_BAR])
+            currentView.findViewById<Button>(R.id.buttonSetErrorColor).setTextColor(Color.WHITE xor ColorSettings.mColorList[COLOR_ST_ERROR] or 0xFF000000.toInt())
+            currentView.findViewById<Button>(R.id.buttonSetErrorColor).setBackgroundColor(ColorSettings.mColorList[COLOR_ST_ERROR])
+            currentView.findViewById<Button>(R.id.buttonSetNoneColor).setTextColor(Color.WHITE xor ColorSettings.mColorList[COLOR_ST_NONE] or 0xFF000000.toInt())
+            currentView.findViewById<Button>(R.id.buttonSetNoneColor).setBackgroundColor(ColorSettings.mColorList[COLOR_ST_NONE])
+            currentView.findViewById<Button>(R.id.buttonSetConnectingColor).setTextColor(Color.WHITE xor ColorSettings.mColorList[COLOR_ST_CONNECTING] or 0xFF000000.toInt())
+            currentView.findViewById<Button>(R.id.buttonSetConnectingColor).setBackgroundColor(ColorSettings.mColorList[COLOR_ST_CONNECTING])
+            currentView.findViewById<Button>(R.id.buttonSetConnectedColor).setTextColor(Color.WHITE xor ColorSettings.mColorList[COLOR_ST_CONNECTED] or 0xFF000000.toInt())
+            currentView.findViewById<Button>(R.id.buttonSetConnectedColor).setBackgroundColor(ColorSettings.mColorList[COLOR_ST_CONNECTED])
+            currentView.findViewById<Button>(R.id.buttonSetLoggingColor).setTextColor(Color.WHITE xor ColorSettings.mColorList[COLOR_ST_LOGGING] or 0xFF000000.toInt())
+            currentView.findViewById<Button>(R.id.buttonSetLoggingColor).setBackgroundColor(ColorSettings.mColorList[COLOR_ST_LOGGING])
+            currentView.findViewById<Button>(R.id.buttonSetWritingColor).setTextColor(Color.WHITE xor ColorSettings.mColorList[COLOR_ST_WRITING] or 0xFF000000.toInt())
+            currentView.findViewById<Button>(R.id.buttonSetWritingColor).setBackgroundColor(ColorSettings.mColorList[COLOR_ST_WRITING])
         }
     }
 
@@ -229,6 +288,14 @@ class SettingsFragment : Fragment() {
             //Set Colors
             ConfigFile.set("Config.ColorNormal", ColorSettings.mColorList[COLOR_NORMAL].toHex())
             ConfigFile.set("Config.ColorWarn", ColorSettings.mColorList[COLOR_WARNING].toHex())
+            ConfigFile.set("Config.ColorText", ColorSettings.mColorList[COLOR_TEXT].toHex())
+            ConfigFile.set("Config.ColorBar", ColorSettings.mColorList[COLOR_BAR].toHex())
+            ConfigFile.set("Config.ColorStateError", ColorSettings.mColorList[COLOR_ST_ERROR].toHex())
+            ConfigFile.set("Config.ColorStateNone", ColorSettings.mColorList[COLOR_ST_NONE].toHex())
+            ConfigFile.set("Config.ColorStateConnecting", ColorSettings.mColorList[COLOR_ST_CONNECTING].toHex())
+            ConfigFile.set("Config.ColorStateConnected", ColorSettings.mColorList[COLOR_ST_CONNECTED].toHex())
+            ConfigFile.set("Config.ColorStateLogging", ColorSettings.mColorList[COLOR_ST_LOGGING].toHex())
+            ConfigFile.set("Config.ColorStateWriting", ColorSettings.mColorList[COLOR_ST_WRITING].toHex())
 
             //Stop logging
             val serviceIntent = Intent(context, BTService::class.java)

@@ -18,7 +18,6 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import android.content.res.Configuration
 import android.widget.LinearLayout
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
@@ -112,13 +111,14 @@ class LoggingFragment : Fragment() {
             val textView = pidLayout.findViewById<TextView>(R.id.pid_land_text)
             textView.text = getString(textVal, did.name, did.format.format(did.value), did.unit, did.format.format(data.min), did.format.format(data.max))
             textView.textSize = 18 * Settings.displaySize
+            textView.setTextColor(Settings.colorList[COLOR_TEXT])
 
             //Setup the progress bar
             val progBar = pidLayout.findViewById<ProgressBar>(R.id.pid_land_progress)
             progBar.min = (did.progMin * data.multiplier).toInt()
             progBar.max = (did.progMax * data.multiplier).toInt()
             progBar.progress = (did.value * data.multiplier).toInt()
-            progBar.progressTintList = ColorStateList.valueOf(Color.GREEN)
+            progBar.progressTintList = ColorStateList.valueOf(Settings.colorList[COLOR_BAR])
             progBar.scaleY *= Settings.displaySize
 
             val lLayout = view.findViewById<LinearLayout>(R.id.loggingLayoutScroll)

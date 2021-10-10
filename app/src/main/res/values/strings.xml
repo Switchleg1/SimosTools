@@ -27,6 +27,14 @@
     <string name="button_cancel">Cancel</string>
     <string name="button_set_normal_color">Set normal color</string>
     <string name="button_set_warning_color">Set warning color</string>
+    <string name="button_set_text_color">Set text color</string>
+    <string name="button_set_bar_color">Set bar color</string>
+    <string name="button_set_st_error">Set state error</string>
+    <string name="button_set_st_none">Set state none</string>
+    <string name="button_set_st_connecting">Set state connecting</string>
+    <string name="button_set_st_connected">Set state connected</string>
+    <string name="button_set_st_logging">Set state logging</string>
+    <string name="button_set_st_writing">Set state writing</string>
     <!-- Strings used for checkboxes -->
     <string name="check_settings_invert_cruise">Invert cruise button?</string>
     <string name="check_settings_screen_on">Keep screen on?</string>
