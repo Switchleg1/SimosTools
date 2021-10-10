@@ -600,8 +600,6 @@ class BTService: Service() {
                                 }
                             }
                             TASK_LOGGING -> {
-                                mTaskCount++
-
                                 //Process frame
                                 val result = UDSLogger.processFrame(mTaskCount, buff, applicationContext)
 
@@ -634,10 +632,21 @@ class BTService: Service() {
                                     //Set LED
                                     val bleHeader = BLEHeader()
                                     bleHeader.cmdSize = 4
-                                    bleHeader.cmdFlags = BLE_COMMAND_FLAG_SETTINGS or BRG_SETTING_LED_COLOR
-                                    var dataBytes = byteArrayOf(0x00.toByte(), 0x00.toByte(), 0x80.toByte(), 0x00.toByte())
-                                    if(UDSLogger.isEnabled())
-                                        dataBytes = byteArrayOf(0x00.toByte(), 0x80.toByte(), 0x00.toByte(), 0x00.toByte())
+                                    bleHeader.cmdFlags =
+                                        BLE_COMMAND_FLAG_SETTINGS or BRG_SETTING_LED_COLOR
+                                    var dataBytes = byteArrayOf(
+                                        0x00.toByte(),
+                                        0x00.toByte(),
+                                        0x80.toByte(),
+                                        0x00.toByte()
+                                    )
+                                    if (UDSLogger.isEnabled())
+                                        dataBytes = byteArrayOf(
+                                            0x00.toByte(),
+                                            0x80.toByte(),
+                                            0x00.toByte(),
+                                            0x00.toByte()
+                                        )
                                     val buf = bleHeader.toByteArray() + dataBytes
                                     mWriteQueue.add(buf)
 
@@ -646,6 +655,8 @@ class BTService: Service() {
                                 }
                             }
                         }
+
+                        mTaskCount++
                     } catch (e: Exception) {
                         Log.e(TAG, "Exception during read", e)
                         cancel()
