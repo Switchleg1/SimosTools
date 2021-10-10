@@ -33,6 +33,10 @@ class FirstFragment : Fragment() {
         }
 
         view.findViewById<Button>(R.id.buttonSettings).setOnClickListener {
+            //Reset colors
+            ColorSettings.resetColors()
+
+            //Navigate to settings fragment
             findNavController().navigate(R.id.action_FirstFragment_to_SettingsFragment)
         }
 
@@ -44,6 +48,6 @@ class FirstFragment : Fragment() {
         }
 
         //Set background color
-        view.setBackgroundColor(Settings.colorList[COLOR_NORMAL])
+        view.setBackgroundColor(Settings.colorList[COLOR_BG_NORMAL])
     }
 }

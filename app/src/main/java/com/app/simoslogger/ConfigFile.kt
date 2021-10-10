@@ -49,9 +49,6 @@ object ConfigFile {
         mProperties.forEach{(k, v) ->
             processKey(k.toString(), v.toString())
         }
-
-        //Reset colors
-        ColorSettings.resetColors()
     }
 
     fun set(key: String, value: String) {
@@ -171,21 +168,25 @@ object ConfigFile {
                     if(f > 0f && f < 0.001f)
                         Settings.dragCoefficient = f
                 }
-                "ColorNormal" -> {
+                "ColorBGNormal" -> {
                     val l = parseLong(value, 16)
-                    Settings.colorList[COLOR_NORMAL] = l.toInt()
+                    Settings.colorList[COLOR_BG_NORMAL] = l.toInt()
                 }
-                "ColorWarn" -> {
+                "ColorBGWarn" -> {
                     val l = parseLong(value, 16)
-                    Settings.colorList[COLOR_WARNING] = l.toInt()
+                    Settings.colorList[COLOR_BG_WARNING] = l.toInt()
                 }
                 "ColorText" -> {
                     val l = parseLong(value, 16)
                     Settings.colorList[COLOR_TEXT] = l.toInt()
                 }
-                "ColorBar" -> {
+                "ColorBarNormal" -> {
                     val l = parseLong(value, 16)
-                    Settings.colorList[COLOR_BAR] = l.toInt()
+                    Settings.colorList[COLOR_BAR_NORMAL] = l.toInt()
+                }
+                "ColorBarWarn" -> {
+                    val l = parseLong(value, 16)
+                    Settings.colorList[COLOR_BAR_WARN] = l.toInt()
                 }
                 "ColorStateError" -> {
                     val l = parseLong(value, 16)
@@ -314,10 +315,11 @@ object ConfigFile {
         mProperties["Config.GearRatio.6"] = DEFAULT_GEAR_RATIOS[5].toString()
         mProperties["Config.GearRatio.7"] = DEFAULT_GEAR_RATIOS[6].toString()
         mProperties["Config.GearRatio.Final"] = DEFAULT_GEAR_RATIOS[7].toString()
-        mProperties["Config.ColorNormal"] = DEFAULT_COLOR_LIST[COLOR_NORMAL].toHex()
-        mProperties["Config.ColorWarn"] = DEFAULT_COLOR_LIST[COLOR_WARNING].toHex()
+        mProperties["Config.ColorBGNormal"] = DEFAULT_COLOR_LIST[COLOR_BG_NORMAL].toHex()
+        mProperties["Config.ColorBGWarn"] = DEFAULT_COLOR_LIST[COLOR_BG_WARNING].toHex()
         mProperties["Config.ColorText"] = DEFAULT_COLOR_LIST[COLOR_TEXT].toHex()
-        mProperties["Config.ColorBar"] = DEFAULT_COLOR_LIST[COLOR_BAR].toHex()
+        mProperties["Config.ColorBarNormal"] = DEFAULT_COLOR_LIST[COLOR_BAR_NORMAL].toHex()
+        mProperties["Config.ColorBarWarn"] = DEFAULT_COLOR_LIST[COLOR_BAR_WARN].toHex()
         mProperties["Config.ColorStateError"] = DEFAULT_COLOR_LIST[COLOR_ST_ERROR].toHex()
         mProperties["Config.ColorStateNone"] = DEFAULT_COLOR_LIST[COLOR_ST_NONE].toHex()
         mProperties["Config.ColorStateConnecting"] = DEFAULT_COLOR_LIST[COLOR_ST_CONNECTING].toHex()

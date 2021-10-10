@@ -43,15 +43,10 @@ val TASK_LOGGING    = 2 // uploading to remote device
 val TASK_RD_VIN     = 3 // download from remote device
 val TASK_CLEAR_DTC  = 4
 
-val INFO_WRITING    = 0
-
 //Intent constants
 val REQUEST_LOCATION_PERMISSION = 1
 val REQUEST_READ_STORAGE        = 2
 val REQUEST_WRITE_STORAGE       = 3
-
-//Priority (max is 10)
-val THREAD_PRIORITY_CONNECTION = 5
 
 val CHANNEL_ID = "BTService"
 val CHANNEL_NAME = "BTService"
@@ -66,13 +61,14 @@ val BT_DO_CHECK_PID     = 5
 val BT_DO_STOP_PID      = 6
 val BT_DO_CLEAR_DTC     = 7
 
-//BT settings
+//BLE settings
 val BLE_DEVICE_NAME      = "BLE_TO_ISOTP"
 val BLE_GATT_MTU_SIZE    = 512
-val BLE_SCAN_PERIOD      = 10000L
+val BLE_SCAN_PERIOD      = 5000L
 val BLE_CONNECTION_PRIORITY = BluetoothGatt.CONNECTION_PRIORITY_HIGH
+val BLE_THREAD_PRIORITY = 5 //Priority (max is 10)
 
-//UUIDS
+//ISOTP bridge UUIDS
 val BLE_CCCD_UUID    = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
 val BLE_SERVICE_UUID = UUID.fromString("0000abf0-0000-1000-8000-00805f9b34fb")
 val BLE_DATA_TX_UUID = UUID.fromString("0000abf1-0000-1000-8000-00805f9b34fb")
@@ -80,13 +76,13 @@ val BLE_DATA_RX_UUID = UUID.fromString("0000abf2-0000-1000-8000-00805f9b34fb")
 val BLE_CMD_TX_UUID  = UUID.fromString("0000abf3-0000-1000-8000-00805f9b34fb")
 val BLE_CMD_RX_UUID  = UUID.fromString("0000abf4-0000-1000-8000-00805f9b34fb")
 
-// BLE Header defaults
+//ISOTP bridge BLE header defaults
 val BLE_HEADER_ID = 0xF1
 val BLE_HEADER_PT = 0xF2
 val BLE_HEADER_RX = 0x7E8
 val BLE_HEADER_TX = 0x7E0
 
-// Command flags
+//ISOTP bridge command flags
 val BLE_COMMAND_FLAG_PER_ENABLE     = 1
 val BLE_COMMAND_FLAG_PER_CLEAR		= 2
 val BLE_COMMAND_FLAG_PER_ADD		= 4
@@ -94,7 +90,7 @@ val BLE_COMMAND_FLAG_SPLIT_PK		= 8
 val BLE_COMMAND_FLAG_SETTINGS_GET	= 64
 val BLE_COMMAND_FLAG_SETTINGS		= 128
 
-//Settings
+//ISOTP bridge internal settings
 val BRG_SETTING_ISOTP_STMIN			= 1
 val BRG_SETTING_LED_COLOR			= 2
 val BRG_SETTING_PERSIST_DELAY		= 3
@@ -109,7 +105,6 @@ val UDS_ERROR_NULL      = 2
 val UDS_ERROR_HEADER    = 3
 val UDS_ERROR_CMDSIZE   = 4
 val UDS_ERROR_UNKNOWN   = 5
-val UDS_NOT_ENABLED     = 6
 
 //Logging modes
 val UDS_LOGGING_22 = 0
@@ -119,7 +114,7 @@ val UDS_LOGGING_3E = 1
 val LOG_COMMUNICATIONS  = false
 val LOG_FILENAME        = "logging.cfg"
 
-//Some defaults for Settings
+//Some default settings
 val DEFAULT_KEEP_SCREEN_ON = true
 val DEFAULT_INVERT_CRUISE = false
 val DEFAULT_UPDATE_RATE = 4
@@ -137,6 +132,7 @@ val DEFAULT_COLOR_LIST = intArrayOf(Color.rgb(255, 255, 255),
                                     Color.rgb(0,   0,   0),
                                     Color.rgb(0,   255, 0),
                                     Color.rgb(255, 0,   0),
+                                    Color.rgb(255, 0,   0),
                                     Color.rgb(100, 0,   255),
                                     Color.rgb(100, 100, 255),
                                     Color.rgb(0,   0,   255),
@@ -145,25 +141,22 @@ val DEFAULT_COLOR_LIST = intArrayOf(Color.rgb(255, 255, 255),
 val DEFAULT_ALWAYS_PORTRAIT = false
 val DEFAULT_DISPLAY_SIZE = 1f
 
-
+//TQ/HP Calculations
 val KG_TO_N = 9.80665f
 val TQ_CONSTANT = 16.3f
 
-
 //Color index
-val COLOR_NORMAL        = 0
-val COLOR_WARNING       = 1
+val COLOR_BG_NORMAL     = 0
+val COLOR_BG_WARNING    = 1
 val COLOR_TEXT          = 2
-val COLOR_BAR           = 3
-val COLOR_ST_ERROR      = 4
-val COLOR_ST_NONE       = 5
-val COLOR_ST_CONNECTING = 6
-val COLOR_ST_CONNECTED  = 7
-val COLOR_ST_LOGGING    = 8
-val COLOR_ST_WRITING    = 9
-
-
-
+val COLOR_BAR_NORMAL    = 3
+val COLOR_BAR_WARN      = 4
+val COLOR_ST_ERROR      = 5
+val COLOR_ST_NONE       = 6
+val COLOR_ST_CONNECTING = 7
+val COLOR_ST_CONNECTED  = 8
+val COLOR_ST_LOGGING    = 9
+val COLOR_ST_WRITING    = 10
 
 //Additional properties
 infix fun Byte.shl(that: Int): Int = this.toInt().shl(that)

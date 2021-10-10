@@ -492,7 +492,7 @@ class BTService: Service() {
     @Synchronized
     private fun createConnectionThread() {
         mConnectionThread = ConnectionThread()
-        mConnectionThread?.priority = THREAD_PRIORITY_CONNECTION
+        mConnectionThread?.priority = BLE_THREAD_PRIORITY
         mConnectionThread?.start()
     }
 

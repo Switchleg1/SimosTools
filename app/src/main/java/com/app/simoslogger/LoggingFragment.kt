@@ -118,7 +118,7 @@ class LoggingFragment : Fragment() {
             progBar.min = (did.progMin * data.multiplier).toInt()
             progBar.max = (did.progMax * data.multiplier).toInt()
             progBar.progress = (did.value * data.multiplier).toInt()
-            progBar.progressTintList = ColorStateList.valueOf(Settings.colorList[COLOR_BAR])
+            progBar.progressTintList = ColorStateList.valueOf(Settings.colorList[COLOR_BAR_NORMAL])
             progBar.scaleY *= Settings.displaySize
 
             val lLayout = view.findViewById<LinearLayout>(R.id.loggingLayoutScroll)
@@ -137,7 +137,7 @@ class LoggingFragment : Fragment() {
         updatePIDText()
 
         //Set background color
-        view.setBackgroundColor(Settings.colorList[COLOR_NORMAL])
+        view.setBackgroundColor(Settings.colorList[COLOR_BG_NORMAL])
     }
 
     override fun onResume() {
@@ -223,14 +223,14 @@ class LoggingFragment : Fragment() {
                         if((did.value > did.warnMax) or (did.value < did.warnMin)) {
 
                             if(!data.lastColor) {
-                                progressBar?.progressTintList = ColorStateList.valueOf(Color.RED)
+                                progressBar?.progressTintList = ColorStateList.valueOf(Settings.colorList[COLOR_BAR_WARN])
                             }
 
                             data.lastColor = true
                             anyWarning = true
                         } else {
                             if(data.lastColor) {
-                                progressBar?.progressTintList = ColorStateList.valueOf(Color.GREEN)
+                                progressBar?.progressTintList = ColorStateList.valueOf(Settings.colorList[COLOR_BAR_NORMAL])
                             }
 
                             data.lastColor = false
@@ -240,13 +240,13 @@ class LoggingFragment : Fragment() {
                     //If any visible PIDS are in warning state set background color to warn
                     if(anyWarning) {
                         if(!mViewModel.lastWarning) {
-                            view?.setBackgroundColor(Settings.colorList[COLOR_WARNING])
+                            view?.setBackgroundColor(Settings.colorList[COLOR_BG_WARNING])
                         }
 
                         mViewModel.lastWarning = true
                     } else {
                         if(mViewModel.lastWarning) {
-                            view?.setBackgroundColor(Settings.colorList[COLOR_NORMAL])
+                            view?.setBackgroundColor(Settings.colorList[COLOR_BG_NORMAL])
                         }
 
                         mViewModel.lastWarning = false

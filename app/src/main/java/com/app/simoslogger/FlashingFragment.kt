@@ -63,7 +63,7 @@ class FlashingFragment : Fragment() {
         }
 
         //Set background color
-        view.setBackgroundColor(Settings.colorList[COLOR_NORMAL])
+        view.setBackgroundColor(Settings.colorList[COLOR_BG_NORMAL])
     }
 
     override fun onResume() {

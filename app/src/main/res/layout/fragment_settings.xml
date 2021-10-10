@@ -50,8 +50,7 @@
             <SeekBar
                 android:id="@+id/seekBarDisplaySize"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp" />
+                android:layout_height="wrap_content"/>
 
             <TextView
                 android:id="@+id/textViewUpdateRate"
@@ -64,13 +63,13 @@
             <SeekBar
                 android:id="@+id/seekBarUpdateRate"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp" />
+                android:layout_height="wrap_content"/>
 
             <TextView
                 android:id="@+id/textViewPersistDelay"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:text="@string/textview_settings_persist_delay"
                 android:textSize="24sp" />
 
@@ -83,6 +82,7 @@
                 android:id="@+id/textViewPersistQDelay"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:text="@string/textview_settings_persist_q_delay"
                 android:textSize="24sp" />
 
@@ -94,10 +94,10 @@
             <RadioGroup
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
-                android:layout_marginTop="32dp">
+                android:layout_marginTop="8dp">
 
                 <TextView
-                    android:id="@+id/textView1"
+                    android:id="@+id/textViewOutputDirectory"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:text="@string/textview_settings_directory"
@@ -129,10 +129,11 @@
             <RadioGroup
                 android:id="@+id/radioGroupMode"
                 android:layout_width="match_parent"
-                android:layout_height="150dp">
+                android:layout_height="150dp"
+                android:layout_marginTop="8dp" >
 
                 <TextView
-                    android:id="@+id/textView"
+                    android:id="@+id/textViewLoggingMode"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:text="@string/textview_settings_mode"
@@ -155,6 +156,14 @@
 
             </RadioGroup>
 
+            <TextView
+                android:id="@+id/textViewMiscOptions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/textview_settings_misc_options"
+                android:layout_marginTop="8dp"
+                android:textSize="32sp" />
+
             <CheckBox
                 android:id="@+id/checkBoxInvertCruise"
                 android:layout_width="match_parent"
@@ -168,6 +177,22 @@
                 android:layout_height="wrap_content"
                 android:minHeight="48dp"
                 android:text="@string/check_settings_screen_on" />
+
+            <CheckBox
+                android:id="@+id/checkBoxAlwaysPortrait"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="@string/check_settings_always_portrait" />
+
+            <TextView
+                android:id="@+id/textViewCalcHPOptions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/textview_settings_hp_options"
+                android:layout_marginTop="8dp"
+                android:textSize="32sp" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -188,27 +213,28 @@
                     android:text="@string/check_settings_use_accelerometers" />
             </LinearLayout>
 
-            <CheckBox
-                android:id="@+id/checkBoxAlwaysPortrait"
+            <TextView
+                android:id="@+id/textViewColorOptions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:text="@string/check_settings_always_portrait" />
+                android:text="@string/textview_settings_color_options"
+                android:layout_marginTop="8dp"
+                android:textSize="32sp" />
 
             <Button
-                android:id="@+id/buttonSetNormalColor"
+                android:id="@+id/buttonSetBGNormalColor"
                 style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/button_set_normal_color"
+                android:text="@string/button_set_bg_normal_color"
                 android:textColor="#5E35B1" />
 
             <Button
-                android:id="@+id/buttonSetWarningColor"
+                android:id="@+id/buttonSetBGWarningColor"
                 style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/button_set_warning_color"
+                android:text="@string/button_set_bg_warning_color"
                 android:textColor="#5E35B1" />
 
             <Button
@@ -220,11 +246,19 @@
                 android:textColor="#5E35B1" />
 
             <Button
-                android:id="@+id/buttonSetBarColor"
+                android:id="@+id/buttonSetBarNormalColor"
                 style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/button_set_bar_color"
+                android:text="@string/button_set_bar_normal_color"
+                android:textColor="#5E35B1" />
+
+            <Button
+                android:id="@+id/buttonSetBarWarnColor"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_set_bar_warn_color"
                 android:textColor="#5E35B1" />
 
             <Button
@@ -264,7 +298,7 @@
                 style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/button_logging"
+                android:text="@string/button_set_st_logging"
                 android:textColor="#5E35B1" />
 
             <Button

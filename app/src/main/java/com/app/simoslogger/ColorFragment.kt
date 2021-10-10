@@ -15,7 +15,15 @@ object ColorSettings {
     var mG = 255
     var mB = 255
     var mColorIndex = 0
-    var mColorList = intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+    var mColorList = intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+
+    fun makeColor(): Int {
+        return 0xFF000000.toInt() + ((mR and 0xFF) shl 16) + ((mG and 0xFF) shl 8) + (mB and 0xFF)
+    }
+
+    fun makeInverse(): Int {
+        return Color.WHITE xor (makeColor() and 0xFFFFFF)
+    }
 
     fun resetColors() {
         for(i in 0 until mColorList.count())
@@ -128,15 +136,15 @@ class ColorFragment : Fragment() {
             ColorSettings.mG = gSeek.progress
             ColorSettings.mB = bSeek.progress
 
-            val c = ((ColorSettings.mR * 0xFF) shr 16) + ((ColorSettings.mG * 0xFF) shr 8) + (ColorSettings.mB * 0xFF)
-            rText.setTextColor(Color.WHITE xor c or 0xFF000000.toInt())
-            gText.setTextColor(Color.WHITE xor c or 0xFF000000.toInt())
-            bText.setTextColor(Color.WHITE xor c or 0xFF000000.toInt())
+            val ci = ColorSettings.makeInverse()
+            rText.setTextColor(ci)
+            gText.setTextColor(ci)
+            bText.setTextColor(ci)
             rText.text = getString(R.string.textview_color_r, rSeek.progress)
             gText.text = getString(R.string.textview_color_g, gSeek.progress)
             bText.text = getString(R.string.textview_color_b, bSeek.progress)
 
-            currentView.setBackgroundColor(Color.rgb(ColorSettings.mR, ColorSettings.mG, ColorSettings.mB))
+            currentView.setBackgroundColor(ColorSettings.makeColor())
         }
     }
 }
