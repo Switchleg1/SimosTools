@@ -14,6 +14,7 @@ import android.widget.*
 import androidx.core.content.ContextCompat.startForegroundService
 import androidx.lifecycle.ViewModel
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 
 
 class FlashingViewModel : ViewModel() {
@@ -22,6 +23,9 @@ class FlashingViewModel : ViewModel() {
 }
 
 class FlashingFragment : Fragment() {
+    private val TAG = "FlashingFragment"
+    private lateinit var mViewModel: FlashingViewModel
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -33,14 +37,16 @@ class FlashingFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val mViewModel: FlashingViewModel by viewModels()
+        //Get view model
+        mViewModel = ViewModelProvider(this).get(FlashingViewModel::class.java)
+
         if(mViewModel.mConversationArrayAdapter == null)
             mViewModel.mConversationArrayAdapter = ArrayAdapter(requireActivity(), R.layout.message)
         view.findViewById<ListView>(R.id.bt_message).adapter = mViewModel.mConversationArrayAdapter
 
 
         view.findViewById<Button>(R.id.button_back2).setOnClickListener {
-            findNavController().navigate(R.id.action_FlashingFragment_to_FirstFragment)
+            findNavController().navigateUp()
         }
 
         view.findViewById<Button>(R.id.buttonCheckVIN).setOnClickListener {
@@ -58,7 +64,7 @@ class FlashingFragment : Fragment() {
         }
 
         //Set background color
-        view.setBackgroundColor(Settings.colorNormal)
+        view.setBackgroundColor(Settings.colorList[COLOR_NORMAL])
     }
 
     override fun onResume() {
@@ -85,7 +91,6 @@ class FlashingFragment : Fragment() {
                     when (intent.getIntExtra("newState", -1)) {
                         STATE_CONNECTED -> {
                             val cDevice = intent.getStringExtra("cDevice")
-                            val mViewModel: FlashingViewModel by viewModels()
                             mViewModel.mConnectedDeviceName = cDevice
                         }
                     }
@@ -95,7 +100,6 @@ class FlashingFragment : Fragment() {
 
                     // construct a string from the valid bytes in the buffer
                     if(readBuff != null) {
-                        val mViewModel: FlashingViewModel by viewModels()
                         mViewModel.mConversationArrayAdapter?.add(mViewModel.mConnectedDeviceName.toString() + ":  $readBuff")
 
                         val btMessage = view?.findViewById<ListView>(R.id.bt_message)!!
@@ -107,7 +111,6 @@ class FlashingFragment : Fragment() {
 
                     // construct a string from the valid bytes in the buffer
                     if(readBuff != null) {
-                        val mViewModel: FlashingViewModel by viewModels()
                         mViewModel.mConversationArrayAdapter?.add("VIN: $readBuff")
 
                         val btMessage = view?.findViewById<ListView>(R.id.bt_message)!!
@@ -119,7 +122,6 @@ class FlashingFragment : Fragment() {
 
                     // construct a string from the valid bytes in the buffer
                     if(readBuff != null) {
-                        val mViewModel: FlashingViewModel by viewModels()
                         mViewModel.mConversationArrayAdapter?.add("DTC: $readBuff")
 
                         val btMessage = view?.findViewById<ListView>(R.id.bt_message)!!

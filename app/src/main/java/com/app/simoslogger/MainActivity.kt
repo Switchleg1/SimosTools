@@ -24,9 +24,11 @@ import androidx.navigation.Navigation.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import androidx.lifecycle.ViewModelProvider
 
 
 class MainViewModel : ViewModel() {
+    var mStarted: Boolean = false
     var mState: Int = STATE_NONE
     var mTask: Int = TASK_NONE
     var mDeviceName: String? = ""
@@ -35,24 +37,32 @@ class MainViewModel : ViewModel() {
 
 class MainActivity : AppCompatActivity() {
     private val TAG = "MainActivity"
+    private lateinit var mViewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
-        //Read config file
-        ConfigFile.read(LOG_FILENAME, applicationContext)
+        if(!mViewModel.mStarted) {
+            //Read config file
+            ConfigFile.read(LOG_FILENAME, applicationContext)
+        }
 
         //Init view
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
 
-        //Start our BT Service
-        val serviceIntent = Intent(this, BTService::class.java)
-        serviceIntent.action = BT_START_SERVICE.toString()
-        ContextCompat.startForegroundService(this, serviceIntent)
+        if(!mViewModel.mStarted) {
+            //Start our BT Service
+            val serviceIntent = Intent(this, BTService::class.java)
+            serviceIntent.action = BT_START_SERVICE.toString()
+            ContextCompat.startForegroundService(this, serviceIntent)
 
-        //get permissions
-        getPermissions()
+            //get permissions
+            getPermissions()
+        }
+
+        mViewModel.mStarted = true
     }
 
     override fun onResume() {
@@ -83,7 +93,6 @@ class MainActivity : AppCompatActivity() {
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         val item = menu.findItem(R.id.action_connect)
 
-        val mViewModel: MainViewModel by viewModels()
         if (mViewModel.mState > STATE_NONE) {
             item.title = getString(R.string.action_disconnect)
         } else {
@@ -96,7 +105,6 @@ class MainActivity : AppCompatActivity() {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        val mViewModel: MainViewModel by viewModels()
         return when (item.itemId) {
             R.id.action_connect -> {
                 when(mViewModel.mState) {
@@ -168,22 +176,18 @@ class MainActivity : AppCompatActivity() {
                 MESSAGE_TASK_CHANGE.toString() -> {
                     when (intent.getIntExtra("newTask", -1)) {
                         TASK_RD_VIN -> {
-                            val mViewModel: MainViewModel by viewModels()
                             mViewModel.mTask= TASK_RD_VIN
                         }
                         TASK_LOGGING -> {
-                            val mViewModel: MainViewModel by viewModels()
                             mViewModel.mTask = TASK_LOGGING
                         }
                         TASK_NONE -> {
-                            val mViewModel: MainViewModel by viewModels()
                             mViewModel.mTask = TASK_NONE
                         }
                     }
                     setStatus()
                 }
                 MESSAGE_STATE_CHANGE.toString() -> {
-                    val mViewModel: MainViewModel by viewModels()
                     when (intent.getIntExtra("newState", -1)) {
                         STATE_CONNECTED -> {
                             mViewModel.mDeviceName = intent.getStringExtra("cDevice")
@@ -241,7 +245,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun doConnect() {
         //If we are already connecting abort
-        val mViewModel: MainViewModel by viewModels()
         if(mViewModel.mState > STATE_NONE)
             return
 
@@ -271,7 +274,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun setStatus() {
         var newString = ""
-        val mViewModel: MainViewModel by viewModels()
         when(mViewModel.mTask) {
             TASK_NONE -> {
                 when(mViewModel.mState) {

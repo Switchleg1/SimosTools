@@ -12,7 +12,6 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import android.widget.SeekBar.OnSeekBarChangeListener
 
-
 class SettingsFragment : Fragment() {
 
     override fun onCreateView(
@@ -27,11 +26,21 @@ class SettingsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         view.findViewById<Button>(R.id.buttonBack).setOnClickListener {
-            findNavController().navigate(R.id.action_SettingsFragment_to_FirstFragment)
+            findNavController().navigateUp()
         }
 
         view.findViewById<Button>(R.id.buttonSave).setOnClickListener {
             doSave()
+        }
+
+        view.findViewById<Button>(R.id.buttonSetNormalColor).setOnClickListener {
+            ColorSettings.getColor(COLOR_NORMAL)
+            findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
+        }
+
+        view.findViewById<Button>(R.id.buttonSetWarningColor).setOnClickListener {
+            ColorSettings.getColor(COLOR_WARNING)
+            findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<SeekBar>(R.id.seekBarDisplaySize).setOnSeekBarChangeListener(object :
@@ -87,7 +96,7 @@ class SettingsFragment : Fragment() {
         })
 
         //Set background color
-        view.setBackgroundColor(Settings.colorNormal)
+        view.setBackgroundColor(Settings.colorList[COLOR_NORMAL])
 
         doShow()
     }
@@ -156,10 +165,14 @@ class SettingsFragment : Fragment() {
             currentView.findViewById<CheckBox>(R.id.checkBoxCalcHP).isChecked = Settings.calculateHP
 
             //Get use MS2
-            currentView.findViewById<CheckBox>(R.id.checkBoxCalcHP).isChecked = Settings.useMS2Torque
+            currentView.findViewById<CheckBox>(R.id.checkBoxUseAccel).isChecked = Settings.useMS2Torque
 
             //Get always use portrait
             currentView.findViewById<CheckBox>(R.id.checkBoxAlwaysPortrait).isChecked = Settings.alwaysPortrait
+
+            //Set Colors
+            currentView.findViewById<Button>(R.id.buttonSetNormalColor).setTextColor(ColorSettings.mColorList[COLOR_NORMAL])
+            currentView.findViewById<Button>(R.id.buttonSetWarningColor).setTextColor(ColorSettings.mColorList[COLOR_WARNING])
         }
     }
 
@@ -213,6 +226,10 @@ class SettingsFragment : Fragment() {
             //Always use portrait view
             ConfigFile.set("Config.AlwaysPortrait", currentView.findViewById<CheckBox>(R.id.checkBoxAlwaysPortrait).isChecked.toString())
 
+            //Set Colors
+            ConfigFile.set("Config.ColorNormal", ColorSettings.mColorList[COLOR_NORMAL].toHex())
+            ConfigFile.set("Config.ColorWarn", ColorSettings.mColorList[COLOR_WARNING].toHex())
+
             //Stop logging
             val serviceIntent = Intent(context, BTService::class.java)
             serviceIntent.action = BT_DO_STOP_PID.toString()
@@ -221,6 +238,9 @@ class SettingsFragment : Fragment() {
             // Write config
             ConfigFile.write(LOG_FILENAME, context)
             ConfigFile.read(LOG_FILENAME, context)
+
+            //Set background color
+            currentView.setBackgroundColor(Settings.colorList[COLOR_NORMAL])
         }
     }
 }

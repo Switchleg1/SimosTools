@@ -132,14 +132,18 @@ val DEFAULT_TIRE_DIAMETER = 0.632f
 val DEFAULT_CURB_WEIGHT = 1500f
 val DEFAULT_DRAG_COEFFICIENT = 0.000005f
 val DEFAULT_GEAR_RATIOS = floatArrayOf(2.92f, 1.79f, 1.14f, 0.78f, 0.58f, 0.46f, 0.0f, 4.77f)
-val DEFAULT_COLOR_NORMAL = Color.rgb(255, 255, 255)
-val DEFAULT_COLOR_WARN = Color.rgb(127, 127, 255)
+val DEFAULT_COLOR_LIST = intArrayOf(Color.rgb(255, 255, 255), Color.rgb(127, 127, 255))
 val DEFAULT_ALWAYS_PORTRAIT = false
 val DEFAULT_DISPLAY_SIZE = 1f
 
 
 val KG_TO_N = 9.80665f
 val TQ_CONSTANT = 16.3f
+
+
+//Color index
+val COLOR_NORMAL    = 0
+val COLOR_WARNING   = 1
 
 //Additional properties
 infix fun Byte.shl(that: Int): Int = this.toInt().shl(that)

@@ -20,6 +20,7 @@ import android.content.res.Configuration
 import android.widget.LinearLayout
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 
 data class DATAStruct(var min: Float,
                         var max: Float,
@@ -36,6 +37,7 @@ class LoggingFragment : Fragment() {
     private var TAG = "LoggingFragment"
     private var mPackCount: TextView? = null
     private var mPIDS: Array<View?>? = null
+    private lateinit var mViewModel: LoggingViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,12 +50,14 @@ class LoggingFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        //get view model
+        mViewModel = ViewModelProvider(this).get(LoggingViewModel::class.java)
+
         view.findViewById<Button>(R.id.button_back).setOnClickListener {
-            findNavController().navigate(R.id.action_LoggingFragment_to_FirstFragment)
+            findNavController().navigateUp()
         }
 
         view.findViewById<Button>(R.id.buttonReset).setOnClickListener {
-            val mViewModel: LoggingViewModel by viewModels()
             for(i in 0 until mViewModel.dataList!!.count()) {
                 val data = mViewModel.dataList!![i]!!
                 val did = DIDs.list()[i]
@@ -63,9 +67,6 @@ class LoggingFragment : Fragment() {
             }
             updatePIDText()
         }
-
-        //get view model
-        val mViewModel: LoggingViewModel by viewModels()
 
         //check orientation
         var textVal = R.string.textPIDP
@@ -136,7 +137,7 @@ class LoggingFragment : Fragment() {
         updatePIDText()
 
         //Set background color
-        view.setBackgroundColor(Settings.colorNormal)
+        view.setBackgroundColor(Settings.colorList[COLOR_NORMAL])
     }
 
     override fun onResume() {
@@ -166,7 +167,6 @@ class LoggingFragment : Fragment() {
         }
 
         //Update text
-        val mViewModel: LoggingViewModel by viewModels()
         for(i in 0 until DIDs.list().count()) {
             val did = DIDs.list()[i]
 
@@ -197,7 +197,6 @@ class LoggingFragment : Fragment() {
                     updatePIDText()
 
                     //Set the UI values
-                    val mViewModel: LoggingViewModel by viewModels()
                     var anyWarning = false
                     for(i in 0 until DIDs.list().count()) {
                         //get the current did
@@ -241,13 +240,13 @@ class LoggingFragment : Fragment() {
                     //If any visible PIDS are in warning state set background color to warn
                     if(anyWarning) {
                         if(!mViewModel.lastWarning) {
-                            view?.setBackgroundColor(Settings.colorWarn)
+                            view?.setBackgroundColor(Settings.colorList[COLOR_WARNING])
                         }
 
                         mViewModel.lastWarning = true
                     } else {
                         if(mViewModel.lastWarning) {
-                            view?.setBackgroundColor(Settings.colorNormal)
+                            view?.setBackgroundColor(Settings.colorList[COLOR_NORMAL])
                         }
 
                         mViewModel.lastWarning = false

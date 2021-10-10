@@ -49,6 +49,9 @@ object ConfigFile {
         mProperties.forEach{(k, v) ->
             processKey(k.toString(), v.toString())
         }
+
+        //Reset colors
+        ColorSettings.resetColors()
     }
 
     fun set(key: String, value: String) {
@@ -170,11 +173,11 @@ object ConfigFile {
                 }
                 "ColorWarn" -> {
                     val l = parseLong(value, 16)
-                    Settings.colorWarn = l.toInt()
+                    Settings.colorList[COLOR_WARNING] = l.toInt()
                 }
                 "ColorNormal" -> {
                     val l = parseLong(value, 16)
-                    Settings.colorNormal = l.toInt()
+                    Settings.colorList[COLOR_NORMAL] = l.toInt()
                 }
                 "AlwaysPortrait" -> {
                     val b = value.toBoolean()
@@ -279,8 +282,8 @@ object ConfigFile {
         mProperties["Config.GearRatio.6"] = DEFAULT_GEAR_RATIOS[5].toString()
         mProperties["Config.GearRatio.7"] = DEFAULT_GEAR_RATIOS[6].toString()
         mProperties["Config.GearRatio.Final"] = DEFAULT_GEAR_RATIOS[7].toString()
-        mProperties["Config.ColorWarn"] = DEFAULT_COLOR_WARN.toHex()
-        mProperties["Config.ColorNormal"] = DEFAULT_COLOR_NORMAL.toHex()
+        mProperties["Config.ColorWarn"] = DEFAULT_COLOR_LIST[COLOR_WARNING].toHex()
+        mProperties["Config.ColorNormal"] = DEFAULT_COLOR_LIST[COLOR_NORMAL].toHex()
         mProperties["Config.AlwaysPortrait"] = DEFAULT_ALWAYS_PORTRAIT.toString()
         mProperties["Config.DisplaySize"] = DEFAULT_DISPLAY_SIZE.toString()
         for(i in 0 until DIDs.list22.count()) {

@@ -53,5 +53,19 @@
         <action
             android:id="@+id/action_SettingsFragment_to_FirstFragment"
             app:destination="@id/FirstFragment" />
+
+        <action
+            android:id="@+id/action_SettingsFragment_to_ColorFragment"
+            app:destination="@id/ColorFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/ColorFragment"
+        android:name="com.app.simoslogger.ColorFragment"
+        android:label="@string/color_fragment"
+        tools:layout="@layout/fragment_color_picker">
+
+        <action
+            android:id="@+id/action_ColorFragment_to_SettingsFragment"
+            app:destination="@id/SettingsFragment" />
     </fragment>
 </navigation>

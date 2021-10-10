@@ -194,6 +194,18 @@
                 android:layout_height="wrap_content"
                 android:minHeight="48dp"
                 android:text="@string/check_settings_always_portrait" />
+
+            <Button
+                android:id="@+id/buttonSetNormalColor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_set_normal_color" />
+
+            <Button
+                android:id="@+id/buttonSetWarningColor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_set_warning_color" />
         </LinearLayout>
     </ScrollView>
 

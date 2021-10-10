@@ -44,6 +44,6 @@ class FirstFragment : Fragment() {
         }
 
         //Set background color
-        view.setBackgroundColor(Settings.colorNormal)
+        view.setBackgroundColor(Settings.colorList[COLOR_NORMAL])
     }
 }
