@@ -578,26 +578,24 @@ class BTService: Service() {
                             TASK_NONE -> {
                                 //Broadcast a new message
                                 val intentMessage = Intent(MESSAGE_READ.toString())
-                                intentMessage.putExtra("readBuffer", buff)
+                                intentMessage.putExtra("readBuffer", buff!!.copyOfRange(8, buff.size))
                                 sendBroadcast(intentMessage)
                             }
                             TASK_RD_VIN -> {
                                 //Broadcast a new message
                                 val intentMessage = Intent(MESSAGE_READ_VIN.toString())
-                                intentMessage.putExtra("readBuffer", buff)
+                                intentMessage.putExtra("readBuffer", buff!!.copyOfRange(8, buff.size))
                                 sendBroadcast(intentMessage)
 
                                 setTaskState(TASK_NONE)
                             }
                             TASK_CLEAR_DTC -> {
-                                if(mTaskCount == 1) {
-                                    //Broadcast a new message
-                                    val intentMessage = Intent(MESSAGE_READ_DTC.toString())
-                                    intentMessage.putExtra("readBuffer", buff)
-                                    sendBroadcast(intentMessage)
+                                //Broadcast a new message
+                                val intentMessage = Intent(MESSAGE_READ_DTC.toString())
+                                intentMessage.putExtra("readBuffer", buff!!.copyOfRange(8, buff.size))
+                                sendBroadcast(intentMessage)
 
-                                    setTaskState(TASK_NONE)
-                                }
+                                setTaskState(TASK_NONE)
                             }
                             TASK_LOGGING -> {
                                 //Process frame
