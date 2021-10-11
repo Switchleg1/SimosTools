@@ -29,6 +29,11 @@ class FirstFragment : Fragment() {
         }
 
         view.findViewById<Button>(R.id.button_logging).setOnClickListener {
+            //Start Logging
+            val serviceIntent = Intent(context, BTService::class.java)
+            serviceIntent.action = BT_DO_CHECK_PID.toString()
+            startForegroundService(this.requireContext(), serviceIntent)
+
             findNavController().navigate(R.id.action_FirstFragment_to_LogFragment)
         }
 

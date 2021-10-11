@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -42,6 +43,7 @@ class FlashingFragment : Fragment() {
         if(mViewModel.mConversationArrayAdapter == null)
             mViewModel.mConversationArrayAdapter = ArrayAdapter(requireActivity(), R.layout.message)
         view.findViewById<ListView>(R.id.bt_message).adapter = mViewModel.mConversationArrayAdapter
+        view.findViewById<ListView>(R.id.bt_message).setBackgroundColor(Color.WHITE)
 
 
         view.findViewById<Button>(R.id.button_back2).setOnClickListener {
@@ -99,7 +101,8 @@ class FlashingFragment : Fragment() {
 
                     // construct a string from the valid bytes in the buffer
                     if(readBuff != null) {
-                        mViewModel.mConversationArrayAdapter?.add(mViewModel.mConnectedDeviceName.toString() + ":  $readBuff")
+                        val readString = String(readBuff)
+                        mViewModel.mConversationArrayAdapter?.add(mViewModel.mConnectedDeviceName.toString() + ":  $readString")
 
                         val btMessage = view?.findViewById<ListView>(R.id.bt_message)!!
                         btMessage.setSelection(btMessage.adapter.count - 1)
@@ -110,7 +113,8 @@ class FlashingFragment : Fragment() {
 
                     // construct a string from the valid bytes in the buffer
                     if(readBuff != null) {
-                        mViewModel.mConversationArrayAdapter?.add("VIN: $readBuff")
+                        val readString = String(readBuff)
+                        mViewModel.mConversationArrayAdapter?.add("VIN: $readString")
 
                         val btMessage = view?.findViewById<ListView>(R.id.bt_message)!!
                         btMessage.setSelection(btMessage.adapter.count - 1)
@@ -121,7 +125,8 @@ class FlashingFragment : Fragment() {
 
                     // construct a string from the valid bytes in the buffer
                     if(readBuff != null) {
-                        mViewModel.mConversationArrayAdapter?.add("DTC: $readBuff")
+                        val readString = String(readBuff)
+                        mViewModel.mConversationArrayAdapter?.add("DTC: $readString")
 
                         val btMessage = view?.findViewById<ListView>(R.id.bt_message)!!
                         btMessage.setSelection(btMessage.adapter.count - 1)

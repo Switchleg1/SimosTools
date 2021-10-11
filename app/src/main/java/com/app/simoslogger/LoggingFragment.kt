@@ -82,6 +82,7 @@ class LoggingFragment : Fragment() {
 
         //Set packet textview
         mPackCount = view.findViewById<TextView>(R.id.textViewPackCount)
+        mPackCount?.setTextColor(Settings.colorList[COLOR_BAR_NORMAL])
 
         //Build layout
         if(mViewModel.dataList == null || mViewModel.dataList?.count() != DIDs.list().count()) {
@@ -124,11 +125,6 @@ class LoggingFragment : Fragment() {
             val lLayout = view.findViewById<LinearLayout>(R.id.loggingLayoutScroll)
             lLayout.addView(pidLayout)
         }
-
-        //Start Logging
-        val serviceIntent = Intent(context, BTService::class.java)
-        serviceIntent.action = BT_DO_CHECK_PID.toString()
-        startForegroundService(this.requireContext(), serviceIntent)
 
         //Do we keep the screen on?
         view.keepScreenOn = Settings.keepScreenOn
@@ -258,13 +254,13 @@ class LoggingFragment : Fragment() {
                     if (UDSLogger.isEnabled()) {
                         //Highlight packet count in red since we are logging
                         if(!mViewModel.lastEnabled) {
-                            mPackCount?.setTextColor(Color.RED)
+                            mPackCount?.setTextColor(Settings.colorList[COLOR_BAR_WARN])
                         }
                         mViewModel.lastEnabled = true
                     } else {
                         //Not logging set packet count to black
                         if(mViewModel.lastEnabled) {
-                            mPackCount?.setTextColor(Color.BLACK)
+                            mPackCount?.setTextColor(Settings.colorList[COLOR_BAR_NORMAL])
                         }
                         mViewModel.lastEnabled = false
                     }
