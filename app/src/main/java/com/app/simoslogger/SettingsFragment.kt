@@ -12,6 +12,7 @@ import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import android.widget.SeekBar.OnSeekBarChangeListener
+import androidx.core.graphics.toColor
 
 class SettingsFragment : Fragment() {
 
@@ -168,27 +169,27 @@ class SettingsFragment : Fragment() {
             currentView.findViewById<CheckBox>(R.id.checkBoxUseAccel).setTextColor(Settings.colorList[COLOR_TEXT])
 
             //Set color boxes
-            currentView.findViewById<Button>(R.id.buttonSetBGNormalColor).setTextColor(Color.WHITE xor ColorSettings.mColorList[COLOR_BG_NORMAL] or 0xFF000000.toInt())
+            currentView.findViewById<Button>(R.id.buttonSetBGNormalColor).setTextColor(ColorSettings.mColorList[COLOR_BG_NORMAL].toColorInverse())
             currentView.findViewById<Button>(R.id.buttonSetBGNormalColor).setBackgroundColor(ColorSettings.mColorList[COLOR_BG_NORMAL])
-            currentView.findViewById<Button>(R.id.buttonSetBGWarningColor).setTextColor(Color.WHITE xor ColorSettings.mColorList[COLOR_BG_WARNING] or 0xFF000000.toInt())
+            currentView.findViewById<Button>(R.id.buttonSetBGWarningColor).setTextColor(ColorSettings.mColorList[COLOR_BG_WARNING].toColorInverse())
             currentView.findViewById<Button>(R.id.buttonSetBGWarningColor).setBackgroundColor(ColorSettings.mColorList[COLOR_BG_WARNING])
-            currentView.findViewById<Button>(R.id.buttonSetTextColor).setTextColor(Color.WHITE xor ColorSettings.mColorList[COLOR_TEXT] or 0xFF000000.toInt())
+            currentView.findViewById<Button>(R.id.buttonSetTextColor).setTextColor(ColorSettings.mColorList[COLOR_TEXT].toColorInverse())
             currentView.findViewById<Button>(R.id.buttonSetTextColor).setBackgroundColor(ColorSettings.mColorList[COLOR_TEXT])
-            currentView.findViewById<Button>(R.id.buttonSetBarNormalColor).setTextColor(Color.WHITE xor ColorSettings.mColorList[COLOR_BAR_NORMAL] or 0xFF000000.toInt())
+            currentView.findViewById<Button>(R.id.buttonSetBarNormalColor).setTextColor(ColorSettings.mColorList[COLOR_BAR_NORMAL].toColorInverse())
             currentView.findViewById<Button>(R.id.buttonSetBarNormalColor).setBackgroundColor(ColorSettings.mColorList[COLOR_BAR_NORMAL])
-            currentView.findViewById<Button>(R.id.buttonSetBarWarnColor).setTextColor(Color.WHITE xor ColorSettings.mColorList[COLOR_BAR_WARN] or 0xFF000000.toInt())
+            currentView.findViewById<Button>(R.id.buttonSetBarWarnColor).setTextColor(ColorSettings.mColorList[COLOR_BAR_WARN].toColorInverse())
             currentView.findViewById<Button>(R.id.buttonSetBarWarnColor).setBackgroundColor(ColorSettings.mColorList[COLOR_BAR_WARN])
-            currentView.findViewById<Button>(R.id.buttonSetErrorColor).setTextColor(Color.WHITE xor ColorSettings.mColorList[COLOR_ST_ERROR] or 0xFF000000.toInt())
+            currentView.findViewById<Button>(R.id.buttonSetErrorColor).setTextColor(ColorSettings.mColorList[COLOR_ST_ERROR].toColorInverse())
             currentView.findViewById<Button>(R.id.buttonSetErrorColor).setBackgroundColor(ColorSettings.mColorList[COLOR_ST_ERROR])
-            currentView.findViewById<Button>(R.id.buttonSetNoneColor).setTextColor(Color.WHITE xor ColorSettings.mColorList[COLOR_ST_NONE] or 0xFF000000.toInt())
+            currentView.findViewById<Button>(R.id.buttonSetNoneColor).setTextColor(ColorSettings.mColorList[COLOR_ST_NONE].toColorInverse())
             currentView.findViewById<Button>(R.id.buttonSetNoneColor).setBackgroundColor(ColorSettings.mColorList[COLOR_ST_NONE])
-            currentView.findViewById<Button>(R.id.buttonSetConnectingColor).setTextColor(Color.WHITE xor ColorSettings.mColorList[COLOR_ST_CONNECTING] or 0xFF000000.toInt())
+            currentView.findViewById<Button>(R.id.buttonSetConnectingColor).setTextColor(ColorSettings.mColorList[COLOR_ST_CONNECTING].toColorInverse())
             currentView.findViewById<Button>(R.id.buttonSetConnectingColor).setBackgroundColor(ColorSettings.mColorList[COLOR_ST_CONNECTING])
-            currentView.findViewById<Button>(R.id.buttonSetConnectedColor).setTextColor(Color.WHITE xor ColorSettings.mColorList[COLOR_ST_CONNECTED] or 0xFF000000.toInt())
+            currentView.findViewById<Button>(R.id.buttonSetConnectedColor).setTextColor(ColorSettings.mColorList[COLOR_ST_CONNECTED].toColorInverse())
             currentView.findViewById<Button>(R.id.buttonSetConnectedColor).setBackgroundColor(ColorSettings.mColorList[COLOR_ST_CONNECTED])
-            currentView.findViewById<Button>(R.id.buttonSetLoggingColor).setTextColor(Color.WHITE xor ColorSettings.mColorList[COLOR_ST_LOGGING] or 0xFF000000.toInt())
+            currentView.findViewById<Button>(R.id.buttonSetLoggingColor).setTextColor(ColorSettings.mColorList[COLOR_ST_LOGGING].toColorInverse())
             currentView.findViewById<Button>(R.id.buttonSetLoggingColor).setBackgroundColor(ColorSettings.mColorList[COLOR_ST_LOGGING])
-            currentView.findViewById<Button>(R.id.buttonSetWritingColor).setTextColor(Color.WHITE xor ColorSettings.mColorList[COLOR_ST_WRITING] or 0xFF000000.toInt())
+            currentView.findViewById<Button>(R.id.buttonSetWritingColor).setTextColor(ColorSettings.mColorList[COLOR_ST_WRITING].toColorInverse())
             currentView.findViewById<Button>(R.id.buttonSetWritingColor).setBackgroundColor(ColorSettings.mColorList[COLOR_ST_WRITING])
 
             //Set background color
@@ -321,17 +322,17 @@ class SettingsFragment : Fragment() {
             ConfigFile.set("Config.AlwaysPortrait", currentView.findViewById<CheckBox>(R.id.checkBoxAlwaysPortrait).isChecked.toString())
 
             //Set Colors
-            ConfigFile.set("Config.ColorBGNormal", ColorSettings.mColorList[COLOR_BG_NORMAL].toHex3())
-            ConfigFile.set("Config.ColorBGWarn", ColorSettings.mColorList[COLOR_BG_WARNING].toHex3())
-            ConfigFile.set("Config.ColorText", ColorSettings.mColorList[COLOR_TEXT].toHex3())
-            ConfigFile.set("Config.ColorBarNormal", ColorSettings.mColorList[COLOR_BAR_NORMAL].toHex3())
-            ConfigFile.set("Config.ColorBarWarn", ColorSettings.mColorList[COLOR_BAR_WARN].toHex3())
-            ConfigFile.set("Config.ColorStateError", ColorSettings.mColorList[COLOR_ST_ERROR].toHex3())
-            ConfigFile.set("Config.ColorStateNone", ColorSettings.mColorList[COLOR_ST_NONE].toHex3())
-            ConfigFile.set("Config.ColorStateConnecting", ColorSettings.mColorList[COLOR_ST_CONNECTING].toHex3())
-            ConfigFile.set("Config.ColorStateConnected", ColorSettings.mColorList[COLOR_ST_CONNECTED].toHex3())
-            ConfigFile.set("Config.ColorStateLogging", ColorSettings.mColorList[COLOR_ST_LOGGING].toHex3())
-            ConfigFile.set("Config.ColorStateWriting", ColorSettings.mColorList[COLOR_ST_WRITING].toHex3())
+            ConfigFile.set("Config.ColorBGNormal", ColorSettings.mColorList[COLOR_BG_NORMAL].toColorHex())
+            ConfigFile.set("Config.ColorBGWarn", ColorSettings.mColorList[COLOR_BG_WARNING].toColorHex())
+            ConfigFile.set("Config.ColorText", ColorSettings.mColorList[COLOR_TEXT].toColorHex())
+            ConfigFile.set("Config.ColorBarNormal", ColorSettings.mColorList[COLOR_BAR_NORMAL].toColorHex())
+            ConfigFile.set("Config.ColorBarWarn", ColorSettings.mColorList[COLOR_BAR_WARN].toColorHex())
+            ConfigFile.set("Config.ColorStateError", ColorSettings.mColorList[COLOR_ST_ERROR].toColorHex())
+            ConfigFile.set("Config.ColorStateNone", ColorSettings.mColorList[COLOR_ST_NONE].toColorHex())
+            ConfigFile.set("Config.ColorStateConnecting", ColorSettings.mColorList[COLOR_ST_CONNECTING].toColorHex())
+            ConfigFile.set("Config.ColorStateConnected", ColorSettings.mColorList[COLOR_ST_CONNECTED].toColorHex())
+            ConfigFile.set("Config.ColorStateLogging", ColorSettings.mColorList[COLOR_ST_LOGGING].toColorHex())
+            ConfigFile.set("Config.ColorStateWriting", ColorSettings.mColorList[COLOR_ST_WRITING].toColorHex())
 
             //Stop logging
             val serviceIntent = Intent(context, BTService::class.java)

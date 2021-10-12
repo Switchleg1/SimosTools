@@ -2,56 +2,13 @@ package com.app.simoslogger
 
 import android.content.Context
 import android.util.Log
+import java.lang.Exception
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.math.sqrt
 
-//Equation list
-//  0: x
-//  1: x * 1000
-//  2: (x - 2731.4) / 10.0
-//  3: x / 1.28 - 100.0
-//  4: x * 6.103515624994278
-//  5: x / 128
-//  6: x / 4.0
-//  7: x * 0.75 - 48.0
-//  8: x / 10.0
-//  9: x / 100.0
-// 10: x / 1000.0
-// 11: x / 100000.0
-// 12: x / 32
-// 13: x / 51.2
-// 14: x / 47.18142548596112
-// 15: x / 10.24
-// 16: x / 1024
-// 17: x / 2.4
-// 18: x / 200
-// 19: x / 347.94711203897007654836464857342
-// 20: 100.0 - x / 100.0
-// 21: x / 2.66666666666667
-// 22: (x - 95.0f) / 2.66666666666667
-// 23: x / 655.3599999999997
-// 24: x / 2.55
-// 25: x / 16384
-// 26: x / 250
-// 27: x / 2.142128661087866
-// 28: (x - 128) / 2.66666666666667
-// 29: (x - 64) / -1.33333333333333
-// 30: x - 40
-// 31: x / 3.768805207949945
-// 32: x / 376.8805207949945
-// 33: x / 32767.99999999992
-// 34: x / 188.4402603974972
-// 35: x / 120.6017666543982
-// 36: x / 12060.17666543982
-// 37: x / 1.884402603974972
-// 38: x * 10
-// 39: (x-512)/32
-// 40: (x-127)/10
-
 data class DIDStruct(var address: Long,
                      var length: Int,
-                     var equation: Int,
                      var signed: Boolean,
                      var progMin: Float,
                      var progMax: Float,
@@ -59,6 +16,7 @@ data class DIDStruct(var address: Long,
                      var warnMax: Float,
                      var smoothing: Float,
                      var value: Float,
+                     var equation: String,
                      var format: String,
                      var name: String,
                      var unit: String)
@@ -68,110 +26,110 @@ object DIDs {
 
     val list22: List<DIDStruct> = listOf(
         //P1
-        DIDStruct(0x2033, 2, 19,false,0f,  220f,   -20f, 200f,   0.0f, 0f,"%06.2f","Speed",               "km/hr"),
-        DIDStruct(0xf40C, 2, 6, false,0f,  7000f,  -1f,  6000f,  0.0f, 0f,"%06.1f","RPM",                 "rpm"),
-        DIDStruct(0x39c0, 2, 8, false,0f,  300f,   0f,   300f,   0.0f, 0f,"%05.1f","MAP Actual",          "kpa"),
-        DIDStruct(0x39c2, 2, 8, false,0f,  300f,   0f,   300f,   0.0f, 0f,"%05.1f","PUT Actual",          "kpa"),
-        DIDStruct(0x10c0, 2, 16,false,0f,  2f,     0.7f, 4f,     0.0f, 0f,"%05.3f","Lambda Actual",       "l"),
-        DIDStruct(0x2004, 2, 9, true, -10f,10f,    -15f, 60f,    0.0f, 0f,"%05.2f","Ignition angle",      "°"),
-        DIDStruct(0x39a2, 2, 20,false,0f,  100f,   -1f,  100f,   0.0f, 0f,"%02.2f","Wastegate Position",  "%"),
-        DIDStruct(0x2032, 2, 17,false,0f,  1500f,  -1f,  1500f,  0.0f, 0f,"%07.2f","Mass Airflow",        "g/s"),
+        DIDStruct(0x2033, 2, false,0f,  220f,   -20f, 200f,   0.0f, 0f,"x / 347.947",           "%06.2f","Speed",               "km/hr"),
+        DIDStruct(0xf40C, 2, false,0f,  7000f,  -1f,  6000f,  0.0f, 0f,"x / 4.0",               "%06.1f","RPM",                 "rpm"),
+        DIDStruct(0x39c0, 2, false,0f,  300f,   0f,   300f,   0.0f, 0f,"x / 10.0",              "%05.1f","MAP Actual",          "kpa"),
+        DIDStruct(0x39c2, 2, false,0f,  300f,   0f,   300f,   0.0f, 0f,"x / 10.0",              "%05.1f","PUT Actual",          "kpa"),
+        DIDStruct(0x10c0, 2, false,0f,  2f,     0.7f, 4f,     0.0f, 0f,"x / 1024",              "%05.3f","Lambda Actual",       "l"),
+        DIDStruct(0x2004, 2, true, -10f,10f,    -15f, 60f,    0.0f, 0f,"x / 100.0",             "%05.2f","Ignition angle",      "°"),
+        DIDStruct(0x39a2, 2, false,0f,  100f,   -1f,  100f,   0.0f, 0f,"100.0 - x / 100.0",     "%02.2f","Wastegate Position",  "%"),
+        DIDStruct(0x2032, 2, false,0f,  1500f,  -1f,  1500f,  0.0f, 0f,"x / 2.4",               "%07.2f","Mass Airflow",        "g/s"),
         //P2
-        DIDStruct(0x2950, 2, 16,false,0f,  2f,     0.7f, 4f,     0.0f, 0f,"%05.3f","Lambda Specified",    "l"),
-        DIDStruct(0x13a0, 2, 18,false,0f,  190000f,0f,   185000f,0.0f, 0f,"%05.2f","Injector PW Cyl 1 DI","ms"),
-        DIDStruct(0x437C, 2, 8, true, -50f,450f,   -100f,500f,   0.0f, 0f,"%03.2f","Engine torque",       "Nm"),
-        DIDStruct(0x2027, 2, 38,false,0f,  28000f, -1f,  28000f, 0.0f, 0f,"%03.2f","HFP Actual",          "kpa"),
-        DIDStruct(0xf406, 1, 3, false,-25f,25f,    -20f, 20f,    0.0f, 0f,"%02.2f","STFT",                "%"),
-        DIDStruct(0x20ba, 2, 8, true, 0f,  100f,   -1f,  101f,   0.0f, 0f,"%05.1f","Throttle Sensor",     "%"),
-        DIDStruct(0x1040, 2, 4, false,0f,  190000f,0f,   185000f,0.0f, 0f,"%08.1f","Turbo Speed",         "rpm"),
-        DIDStruct(0x209a, 2, 9, false,0f,  100f,   -1f,  100f,   0.0f, 0f,"%03.2f","HPFP Volume",         "%"),
+        DIDStruct(0x2950, 2, false,0f,  2f,     0.7f, 4f,     0.0f, 0f,"x / 1024",              "%05.3f","Lambda Specified",    "l"),
+        DIDStruct(0x13a0, 2, false,0f,  190000f,0f,   185000f,0.0f, 0f,"x / 200",               "%05.2f","Injector PW Cyl 1 DI","ms"),
+        DIDStruct(0x437C, 2, true, -50f,450f,   -100f,500f,   0.0f, 0f,"x / 10.0",              "%03.2f","Engine torque",       "Nm"),
+        DIDStruct(0x2027, 2, false,0f,  28000f, -1f,  28000f, 0.0f, 0f,"x * 10",                "%03.2f","HFP Actual",          "kpa"),
+        DIDStruct(0xf406, 1, false,-25f,25f,    -20f, 20f,    0.0f, 0f,"x / 1.28 - 100.0",      "%02.2f","STFT",                "%"),
+        DIDStruct(0x20ba, 2, true, 0f,  100f,   -1f,  101f,   0.0f, 0f,"x / 10.0",              "%05.1f","Throttle Sensor",     "%"),
+        DIDStruct(0x1040, 2, false,0f,  190000f,0f,   185000f,0.0f, 0f,"x * 6.1035",            "%08.1f","Turbo Speed",         "rpm"),
+        DIDStruct(0x209a, 2, false,0f,  100f,   -1f,  100f,   0.0f, 0f,"x / 100.0",             "%03.2f","HPFP Volume",         "%"),
         //P3
-        DIDStruct(0x200a, 2, 9, true, -10f,0f,     -4f,  1f,     0.0f, 0f,"%05.3f","Retard cylinder 1",   "°"),
-        DIDStruct(0x200b, 2, 9, true, -10f,0f,     -4f,  1f,     0.0f, 0f,"%05.3f","Retard cylinder 2",   "°"),
-        DIDStruct(0x200c, 2, 9, true, -10f,0f,     -4f,  1f,     0.0f, 0f,"%05.3f","Retard cylinder 3",   "°"),
-        DIDStruct(0x200d, 2, 9, true, -10f,0f,     -4f,  1f,     0.0f, 0f,"%05.3f","Retard cylinder 4",   "°"),
-        DIDStruct(0x2904, 2, 0, false,0f,  20f,    -1f,  10f,    0.0f, 0f,"%03.0f","Misfire Sum Global",  ""),
-        DIDStruct(0x1001, 1, 7, false,-40f,55f,    -35f, 50f,    0.0f, 0f,"%03.2f","IAT",                 "°C"),
-        DIDStruct(0x2025, 2, 8, false,0f,  1500f,  600f, 1500f,  0.0f, 0f,"%03.0f","LFP Actual",          "kpa"),
-        DIDStruct(0x293b, 2, 38,false,0f,  25000f, 600f, 25000f, 0.0f, 0f,"%05.0f","HFP Command",         "kpa"),
+        DIDStruct(0x200a, 2, true, -10f,0f,     -4f,  1f,     0.0f, 0f,"x / 100.0",             "%05.3f","Retard cylinder 1",   "°"),
+        DIDStruct(0x200b, 2, true, -10f,0f,     -4f,  1f,     0.0f, 0f,"x / 100.0",             "%05.3f","Retard cylinder 2",   "°"),
+        DIDStruct(0x200c, 2, true, -10f,0f,     -4f,  1f,     0.0f, 0f,"x / 100.0",             "%05.3f","Retard cylinder 3",   "°"),
+        DIDStruct(0x200d, 2, true, -10f,0f,     -4f,  1f,     0.0f, 0f,"x / 100.0",             "%05.3f","Retard cylinder 4",   "°"),
+        DIDStruct(0x2904, 2, false,0f,  20f,    -1f,  10f,    0.0f, 0f,"x",                     "%03.0f","Misfire Sum Global",  ""),
+        DIDStruct(0x1001, 1, false,-40f,55f,    -35f, 50f,    0.0f, 0f,"x * 0.75 - 48.0",       "%03.2f","IAT",                 "°C"),
+        DIDStruct(0x2025, 2, false,0f,  1500f,  600f, 1500f,  0.0f, 0f,"x / 10.0",              "%03.0f","LFP Actual",          "kpa"),
+        DIDStruct(0x293b, 2, false,0f,  25000f, 600f, 25000f, 0.0f, 0f,"x * 10",                "%05.0f","HFP Command",         "kpa"),
 
-        DIDStruct(0x2028, 2, 9, false,0f,  100f,   -1.0f,100f,   0.0f, 0f,"%04.1f","LPFP Duty",           "%"),
-        DIDStruct(0x295c, 1, 0, false,0f,  1f,     -1f,  2f,     0.0f, 0f,"%01.0f","Flaps Actual",        ""),
-        DIDStruct(0xf456, 1, 3, false,-25f,25f,    -20f, 20f,    0.0f, 0f,"%02.2f","LTFT",                "%"),
-        DIDStruct(0x202f, 2, 2, false,-50f,130f,   0f,   120f,   0.0f, 0f,"%03.2f","Oil temp",            "°C"),
-        DIDStruct(0x13ca, 2, 35,false,50f, 120f,   70f,  120.0f, 0.0f, 0f,"%07.2f","Ambient pressure",    "kpa"),
-        DIDStruct(0x1004, 2, 5, true, -40f,50f,    -30f, 45f,    0.0f, 0f,"%07.2f","Ambient air temp",    "°C"),
-        DIDStruct(0x4380, 2, 8, true, 0f,  500f,   -100f,500f,   0.0f, 0f,"%04.1f","Torque requested",    "Nm"),
-        DIDStruct(0x203c, 2, 0, false,0f,  2f,     -1f,  100f,   0.0f, 0f,"%01.0f","Cruise control",      ""),
+        DIDStruct(0x2028, 2, false,0f,  100f,   -1.0f,100f,   0.0f, 0f,"x / 100.0",             "%04.1f","LPFP Duty",           "%"),
+        DIDStruct(0x295c, 1, false,0f,  1f,     -1f,  2f,     0.0f, 0f,"x",                     "%01.0f","Flaps Actual",        ""),
+        DIDStruct(0xf456, 1, false,-25f,25f,    -20f, 20f,    0.0f, 0f,"x / 1.28 - 100.0",      "%02.2f","LTFT",                "%"),
+        DIDStruct(0x202f, 2, false,-50f,130f,   0f,   120f,   0.0f, 0f,"(x - 2731.4) / 10.0",   "%03.2f","Oil temp",            "°C"),
+        DIDStruct(0x13ca, 2, false,50f, 120f,   70f,  120.0f, 0.0f, 0f,"x / 120.60176665439",   "%07.2f","Ambient pressure",    "kpa"),
+        DIDStruct(0x1004, 2, true, -40f,50f,    -30f, 45f,    0.0f, 0f,"x / 128",               "%07.2f","Ambient air temp",    "°C"),
+        DIDStruct(0x4380, 2, true, 0f,  500f,   -100f,500f,   0.0f, 0f,"x / 10.0",              "%04.1f","Torque requested",    "Nm"),
+        DIDStruct(0x203c, 2, false,0f,  2f,     -1f,  100f,   0.0f, 0f,"x",                     "%01.0f","Cruise control",      ""),
     )
 
     val list3E: List<DIDStruct> = listOf(
-        DIDStruct(0xd0012400, 2, 0, false,0f,   7000f,  -1.0f, 6000f,  0.0f, 0f,"%03.0f","Engine Speed",        "rpm"),
-        DIDStruct(0xd00136ac, 2, 37,false,0f,   28000f, 0f,    28000f, 0.0f, 0f,"%05.0f","Fuel Pressure DI",    "kpa"),
-        DIDStruct(0xd000f00c, 1, 3, false,-25f, 25f,    -20f,  20f,    0.6f, 0f,"%04.1f","Fuel Trim Short Term","%"),
-        DIDStruct(0xd000c179, 1, 29,false,-50f, 70f,    -20f,  50f,    0.7f, 0f,"%03.2f","Intake Air Temp",     "°C"),
-        DIDStruct(0xd001988e, 1, 28,false,-5f,  5f,     -3.0f, 3f,     0.7f, 0f,"%05.3f","Knock Retard",        "°"),
-        DIDStruct(0xd00120e2, 2, 33,false,0.5f, 1.5f,   -0.1f, 5f,     0.0f, 0f,"%04.2f","Lambda SAE",          "l"),
-        DIDStruct(0xd00098fc, 4, 10,false,0f,   300f,   -1f,   300f,   0.0f, 0f,"%05.1f","PUT Actual",          "kpa"),
-        DIDStruct(0xd0011e76, 2, 4, false,0f,   195000f,-100f, 190000f,0.0f, 0f,"%05.0f","Turbo Speed",         "rpm"),
-        DIDStruct(0xd00097b4, 4, 1, false,0f,   2f,     -100f, 1000f,  0.0f, 0f,"%05.3f","Airmass",             "g/stk"),
-        DIDStruct(0xd00097fc, 4, 1, false,0f,   2f,     -100f, 1000f,  0.0f, 0f,"%05.3f","Airmass Setpoint",    "g/stk"),
-        DIDStruct(0xd000c177, 1, 29,false,-25f, 45f,    -100f, 100f,   0.8f, 0f,"%03.2f","Ambient Air Temp",    "°C"),
-        DIDStruct(0xd0013c76, 2, 35,false,0f,   110f,   0f,    120f,   0.8f, 0f,"%03.2f","Ambient Pressure",    "kpa"),
-        DIDStruct(0xd0015172, 2, 13,true, 10f,  15f,    7f,    16f,    0.7f, 0f,"%01.0f","Battery Volts",       "V"),
-        DIDStruct(0xd000c36e, 1, 0, false,-10f, 10f,    -100f, 100f,   0.0f, 0f,"%05.2f","Combustion Mode",     ""),
-        DIDStruct(0xd000c6f5, 1, 29,false,-50f, 130f,   -100f, 150f,   0.7f, 0f,"%03.0f","Coolant Temp",        "°C"),
-        DIDStruct(0xd001397a, 2, 21,false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"%01.0f","EOI Limit",           "°"),
-        DIDStruct(0xd0013982, 2, 21,false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"%01.0f","EOI Actual",          "°"),
-        DIDStruct(0xd000c1d4, 1, 24,false,-100f,100f,   -100f, 100f,   0.0f, 0f,"%01.0f","Ethanol Content",     "%"),
-        DIDStruct(0xd0011e04, 2, 25,false,0f,   1.5f,   -1f,   10f,    0.0f, 0f,"%03.2f","Exhaust Flow Factor", ""),
-        DIDStruct(0xd001566e, 2, 5, true, -45f, 45f,    -100f, 100f,   0.0f, 0f,"%04.1f","Exhaust Cam Position","°"),
-        DIDStruct(0xd0011eba, 2, 35,false,0f,   500f,   -100f, 1000f,  0.0f, 0f,"%03.0f","Exhaust Pres Desired","kpa"),
-        DIDStruct(0xd00135e0, 2, 14,false,-100f,100f,   -100f, 1000f,  0.0f, 0f,"%01.0f","Fuel Flow Desired",   "mg/stk"),
-        DIDStruct(0xd0013636, 2, 14,false,-100f,100f,   -100f, 1000f,  0.0f, 0f,"%01.0f","Fuel Flow",           "mg/stk"),
-        DIDStruct(0xd00192b1, 1, 5, false,-100f,100f,   -100f, 100f,   0.0f, 0f,"%01.0f","Fuel Flow Split MPI", ""),
-        DIDStruct(0xd0013600, 2, 23,false,0f,   100f,   -1000f,100f,   0.0f, 0f,"%01.0f","Fuel LPFP Duty",      "%"),
-        DIDStruct(0xd0011b26, 2, 31,false,0f,   1500f,  -1000f,2000f,  0.0f, 0f,"%04.0f","Fuel LPFR",           "kpa"),
-        DIDStruct(0xd001360c, 2, 31,false,0f,   1500f,  -1000f,2000f,  0.0f, 0f,"%04.0f","Fuel LPFR Setpoint",  "kpa"),
-        DIDStruct(0xd0013640, 2, 37,false,0f,   28000f, -1000f,30000f, 0.0f, 0f,"%05.0f","Fuel HPFR Setpoint",  "kpa"),
-        DIDStruct(0xd001363c, 2, 23,false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"%01.0f","Fuel HPFP Volume",    "%"),
-        DIDStruct(0xd000f00b, 1, 3, false,-25f, 25f,    -20f,  20f,    0.7f, 0f,"%01.0f","Fuel Trim Long Term", "%"),
-        DIDStruct(0xd000f39a, 1, 0, false,0f,   6f,     -1f,   7f,     0.0f, 0f,"%02.2f","Gear",                "gear"),
-        DIDStruct(0xd000e57e, 1, 22,false,-5f,  15f,    -100f, 100f,   0.0f, 0f,"%01.0f","Ignition Table Value","°"),
-        DIDStruct(0xd000e59c, 1, 22,false,-5f,  15f,    -100f, 100f,   0.0f, 0f,"%01.0f","Ignition Timing",     "°"),
-        DIDStruct(0xd001566c, 2, 5, true, -100f,100f,   -100f, 100f,   0.0f, 0f,"%01.0f","Intake Cam Position", "°"),
-        DIDStruct(0xd0013b16, 2, 26,false,-25f, 25f,    -1000f,1000f,  0.0f, 0f,"%02.2f","Injector PW DI",      "ms"),
-        DIDStruct(0xd0013824, 2, 26,false,0f,   100f,   -1000f,1000f,  0.0f, 0f,"%05.1f","Injector PW MPI",     "ms"),
-        DIDStruct(0xd0011e08, 2, 25,false,0f,   20f,    -1000f,1000f,  0.0f, 0f,"%03.0f","Intake Flow Factor",  "-"),
-        DIDStruct(0xd000efb1, 1, 28,false,0f,   250f,   -5f,   1000f,  0.6f, 0f,"%03.2f","Knock Retard Cyl 1",  "°"),
-        DIDStruct(0xd000efb2, 1, 28,false,0f,   2f,     -5f,   1000f,  0.6f, 0f,"%05.3f","Knock Retard Cyl 2",  "°"),
-        DIDStruct(0xd000efb3, 1, 28,false,0f,   2f,     -5f,   1000f,  0.6f, 0f,"%05.3f","Knock Retard Cyl 3",  "°"),
-        DIDStruct(0xd000efb4, 1, 28,false,0f,   2f,     -5f,   1000f,  0.6f, 0f,"%05.3f","Knock Retard Cyl 4",  "°"),
-        DIDStruct(0xd00143f6, 2, 16,false,0f,   2f,     -100f, 500f,   0.0f, 0f,"%03.2f","Lambda Setpoint",     "l"),
-        DIDStruct(0xd00098cc, 4, 10,false,0f,   300f,   -300f, 300f,   0.0f, 0f,"%05.1f","MAP",                 "kpa"),
-        DIDStruct(0xd00098f4, 4, 10,false,0f,   300f,   -300f, 300f,   0.0f, 0f,"%05.1f","MAP Setpoint",        "kpa"),
-        DIDStruct(0xd000c5ae, 1, 30,false,-25f, 120f,   -1000f,1000f,  0.7f, 0f,"%01.0f","Oil Temp",            "°C"),
-        DIDStruct(0xd000e578, 1, 28,true, 0f,   220f,   -1000f,1000f,  0.0f, 0f,"%03.2f","openflex_cor",        "°CRK"),
-        DIDStruct(0xd001de8d, 1, 28,true, 0f,   7000f,  -1000f,1000f,  0.0f, 0f,"%06.1f","openflex_max_cor",    "°CRK"),
-        DIDStruct(0xd001de8e, 1, 5, false,0f,   3f,     -1000f,1000f,  0.0f, 0f,"%05.3f","openflex_fac_cor",    ""),
-        DIDStruct(0xd0012028, 2, 15,false,0f,   100f,   -1000f,1000f,  0.0f, 0f,"%04.1f","Pedal Position",      "%"),
-        DIDStruct(0xd0000aa1, 1, 0, false,0f,   1f,     -1000f,1000f,  0.0f, 0f,"%01.0f","Port Flap Position",  ""),
-        DIDStruct(0xd0011eee, 2, 35,false,0f,   300f,   -1000f,1000f,  0.0f, 0f,"%05.1f","PUT Setpoint",        "kpa"),
-        DIDStruct(0xd0013a42, 2, 21,false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"%01.0f","SOI Limit",           "°"),
-        DIDStruct(0xd0013a44, 2, 21,false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"%01.0f","SOI Actual",          "°"),
-        DIDStruct(0xd000f377, 1, 27,false,0.5f, 1.3f,   -1000f,1000f,  0.0f, 0f,"%07.2f","TPS",                 "%"),
-        DIDStruct(0xd0015344, 2, 12,true, -40f, 500f,   -1000f,1000f,  0.0f, 0f,"%07.2f","Torque Actual",       "Nm"),
-        DIDStruct(0xd0011f0c, 2, 0, false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"%01.0f","Torque Limitation",   ""),
-        DIDStruct(0xd0012048, 2, 12,true, -40f, 500f,   -1000f,500f,   0.0f, 0f,"%03.2f","Torque Requested",    "Nm"),
-        DIDStruct(0xd000f3c1, 1, 30,false,-100f,100f,   -1000f,120f,   0.7f, 0f,"%01.0f","Transmission Temp",   "°C"),
-        DIDStruct(0xd0019b75, 1, 0, false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"%01.0f","Valve Lift Position", ""),
-        DIDStruct(0xd00155b6, 2, 9, false,0f,   220f,   -1000f,220f,   0.0f, 0f,"%03.0f","Vehicle Speed",       "km/h"),
-        DIDStruct(0xd0015c2c, 2, 23,false,-10f, 0f,     -1000f,1000f,  0.0f, 0f,"%05.3f","Wastegate Setpoint",  "%"),
-        DIDStruct(0xd0011e10, 2, 23,false,-10f, 0f,     -1000f,1000f,  0.0f, 0f,"%05.3f","Wastegate Actual",    "%"),
-        DIDStruct(0xd0015c5e, 2, 12,false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"%01.0f","Wastegate Flow Req",  "kg/h"),
-        DIDStruct(0xd00141ba, 2, 39,false,-10f, 10f,    -1000f,1000f,  0.4f, 0f,"%05.3f","Accel. Long",         "m/s2"),
-        DIDStruct(0xd000ee2a, 1, 40,false,-10f, 10f,    -1000f,1000f,  0.6f, 0f,"%05.3f","Accel. Lat",          "m/s2"),
-        DIDStruct(0xd001b6cd, 1, 0, false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"%01.0f","Cruise Control",      ""),
+        DIDStruct(0xd0012400, 2, false,0f,   7000f,  -1.0f, 6000f,  0.0f, 0f,"x",                 "%03.0f","Engine Speed",        "rpm"),
+        DIDStruct(0xd00136ac, 2, false,0f,   28000f, 0f,    28000f, 0.0f, 0f,"x / 1.884402603",   "%05.0f","Fuel Pressure DI",    "kpa"),
+        DIDStruct(0xd000f00c, 1, false,-25f, 25f,    -20f,  20f,    0.6f, 0f,"x / 1.28 - 100.0",  "%04.1f","Fuel Trim Short Term","%"),
+        DIDStruct(0xd000c179, 1, false,-50f, 70f,    -20f,  50f,    0.7f, 0f,"(x - 64) / 1.33",   "%03.2f","Intake Air Temp",     "°C"),
+        DIDStruct(0xd001988e, 1, false,-5f,  5f,     -3.0f, 3f,     0.7f, 0f,"(x - 128) / 2.66",  "%05.3f","Knock Retard",        "°"),
+        DIDStruct(0xd00120e2, 2, false,0.5f, 1.5f,   -0.1f, 5f,     0.0f, 0f,"x / 32767.999999",  "%04.2f","Lambda SAE",          "l"),
+        DIDStruct(0xd00098fc, 4, false,0f,   300f,   -1f,   300f,   0.0f, 0f,"x / 1000.0",        "%05.1f","PUT Actual",          "kpa"),
+        DIDStruct(0xd0011e76, 2, false,0f,   195000f,-100f, 190000f,0.0f, 0f,"x * 6.1035",        "%05.0f","Turbo Speed",         "rpm"),
+        DIDStruct(0xd00097b4, 4, false,0f,   2f,     -100f, 1000f,  0.0f, 0f,"x * 1000",          "%05.3f","Airmass",             "g/stk"),
+        DIDStruct(0xd00097fc, 4, false,0f,   2f,     -100f, 1000f,  0.0f, 0f,"x * 1000",          "%05.3f","Airmass Setpoint",    "g/stk"),
+        DIDStruct(0xd000c177, 1, false,-25f, 45f,    -100f, 100f,   0.8f, 0f,"(x - 64) / 1.33",   "%03.2f","Ambient Air Temp",    "°C"),
+        DIDStruct(0xd0013c76, 2, false,0f,   110f,   0f,    120f,   0.8f, 0f,"x / 120.60176665",  "%03.2f","Ambient Pressure",    "kpa"),
+        DIDStruct(0xd0015172, 2, true, 10f,  15f,    7f,    16f,    0.7f, 0f,"x / 51.2",          "%01.0f","Battery Volts",       "V"),
+        DIDStruct(0xd000c36e, 1, false,-10f, 10f,    -100f, 100f,   0.0f, 0f,"x",                 "%05.2f","Combustion Mode",     ""),
+        DIDStruct(0xd000c6f5, 1, false,-50f, 130f,   -100f, 150f,   0.7f, 0f,"(x - 64) / 1.33",   "%03.0f","Coolant Temp",        "°C"),
+        DIDStruct(0xd001397a, 2, false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"x / 2.6666666667",  "%01.0f","EOI Limit",           "°"),
+        DIDStruct(0xd0013982, 2, false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"x / 2.6666666667",  "%01.0f","EOI Actual",          "°"),
+        DIDStruct(0xd000c1d4, 1, false,-100f,100f,   -100f, 100f,   0.0f, 0f,"x / 2.55",          "%01.0f","Ethanol Content",     "%"),
+        DIDStruct(0xd0011e04, 2, false,0f,   1.5f,   -1f,   10f,    0.0f, 0f,"x / 16384",         "%03.2f","Exhaust Flow Factor", ""),
+        DIDStruct(0xd001566e, 2, true, -45f, 45f,    -100f, 100f,   0.0f, 0f,"x / 128",           "%04.1f","Exhaust Cam Position","°"),
+        DIDStruct(0xd0011eba, 2, false,0f,   500f,   -100f, 1000f,  0.0f, 0f,"x / 120.60176665",  "%03.0f","Exhaust Pres Desired","kpa"),
+        DIDStruct(0xd00135e0, 2, false,-100f,100f,   -100f, 1000f,  0.0f, 0f,"x / 47.181425486",  "%01.0f","Fuel Flow Desired",   "mg/stk"),
+        DIDStruct(0xd0013636, 2, false,-100f,100f,   -100f, 1000f,  0.0f, 0f,"x / 47.181425486",  "%01.0f","Fuel Flow",           "mg/stk"),
+        DIDStruct(0xd00192b1, 1, false,-100f,100f,   -100f, 100f,   0.0f, 0f,"x / 128",           "%01.0f","Fuel Flow Split MPI", ""),
+        DIDStruct(0xd0013600, 2, false,0f,   100f,   -1000f,100f,   0.0f, 0f,"x / 655.35999999",  "%01.0f","Fuel LPFP Duty",      "%"),
+        DIDStruct(0xd0011b26, 2, false,0f,   1500f,  -1000f,2000f,  0.0f, 0f,"x / 3.7688052079",  "%04.0f","Fuel LPFR",           "kpa"),
+        DIDStruct(0xd001360c, 2, false,0f,   1500f,  -1000f,2000f,  0.0f, 0f,"x / 3.7688052079",  "%04.0f","Fuel LPFR Setpoint",  "kpa"),
+        DIDStruct(0xd0013640, 2, false,0f,   28000f, -1000f,30000f, 0.0f, 0f,"x / 1.8844026039",  "%05.0f","Fuel HPFR Setpoint",  "kpa"),
+        DIDStruct(0xd001363c, 2, false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"x / 655.35999999",  "%01.0f","Fuel HPFP Volume",    "%"),
+        DIDStruct(0xd000f00b, 1, false,-25f, 25f,    -20f,  20f,    0.7f, 0f,"x / 1.28 - 100.0",  "%01.0f","Fuel Trim Long Term", "%"),
+        DIDStruct(0xd000f39a, 1, false,0f,   6f,     -1f,   7f,     0.0f, 0f,"x",                 "%02.2f","Gear",                "gear"),
+        DIDStruct(0xd000e57e, 1, false,-5f,  15f,    -100f, 100f,   0.0f, 0f,"(x - 95.0f) / 2.67","%01.0f","Ignition Table Value","°"),
+        DIDStruct(0xd000e59c, 1, false,-5f,  15f,    -100f, 100f,   0.0f, 0f,"(x - 95.0f) / 2.67","%01.0f","Ignition Timing",     "°"),
+        DIDStruct(0xd001566c, 2, true, -100f,100f,   -100f, 100f,   0.0f, 0f,"x / 128",           "%01.0f","Intake Cam Position", "°"),
+        DIDStruct(0xd0013b16, 2, false,-25f, 25f,    -1000f,1000f,  0.0f, 0f,"x / 250",           "%02.2f","Injector PW DI",      "ms"),
+        DIDStruct(0xd0013824, 2, false,0f,   100f,   -1000f,1000f,  0.0f, 0f,"x / 250",           "%05.1f","Injector PW MPI",     "ms"),
+        DIDStruct(0xd0011e08, 2, false,0f,   20f,    -1000f,1000f,  0.0f, 0f,"x / 16384",         "%03.0f","Intake Flow Factor",  "-"),
+        DIDStruct(0xd000efb1, 1, false,0f,   250f,   -5f,   1000f,  0.6f, 0f,"(x - 128) / 2.67",  "%03.2f","Knock Retard Cyl 1",  "°"),
+        DIDStruct(0xd000efb2, 1, false,0f,   2f,     -5f,   1000f,  0.6f, 0f,"(x - 128) / 2.67",  "%05.3f","Knock Retard Cyl 2",  "°"),
+        DIDStruct(0xd000efb3, 1, false,0f,   2f,     -5f,   1000f,  0.6f, 0f,"(x - 128) / 2.67",  "%05.3f","Knock Retard Cyl 3",  "°"),
+        DIDStruct(0xd000efb4, 1, false,0f,   2f,     -5f,   1000f,  0.6f, 0f,"(x - 128) / 2.67",  "%05.3f","Knock Retard Cyl 4",  "°"),
+        DIDStruct(0xd00143f6, 2, false,0f,   2f,     -100f, 500f,   0.0f, 0f,"x / 1024",          "%03.2f","Lambda Setpoint",     "l"),
+        DIDStruct(0xd00098cc, 4, false,0f,   300f,   -300f, 300f,   0.0f, 0f,"x / 1000.0",        "%05.1f","MAP",                 "kpa"),
+        DIDStruct(0xd00098f4, 4, false,0f,   300f,   -300f, 300f,   0.0f, 0f,"x / 1000.0",        "%05.1f","MAP Setpoint",        "kpa"),
+        DIDStruct(0xd000c5ae, 1, false,-25f, 120f,   -1000f,1000f,  0.7f, 0f,"x - 40",            "%01.0f","Oil Temp",            "°C"),
+        DIDStruct(0xd000e578, 1, true, 0f,   220f,   -1000f,1000f,  0.0f, 0f,"(x - 128) / 2.67",  "%03.2f","openflex_cor",        "°CRK"),
+        DIDStruct(0xd001de8d, 1, true, 0f,   7000f,  -1000f,1000f,  0.0f, 0f,"(x - 128) / 2.67",  "%06.1f","openflex_max_cor",    "°CRK"),
+        DIDStruct(0xd001de8e, 1, false,0f,   3f,     -1000f,1000f,  0.0f, 0f,"x / 128",           "%05.3f","openflex_fac_cor",    ""),
+        DIDStruct(0xd0012028, 2, false,0f,   100f,   -1000f,1000f,  0.0f, 0f,"x / 10.24",         "%04.1f","Pedal Position",      "%"),
+        DIDStruct(0xd0000aa1, 1, false,0f,   1f,     -1000f,1000f,  0.0f, 0f,"x",                 "%01.0f","Port Flap Position",  ""),
+        DIDStruct(0xd0011eee, 2, false,0f,   300f,   -1000f,1000f,  0.0f, 0f,"x / 120.6017666543","%05.1f","PUT Setpoint",        "kpa"),
+        DIDStruct(0xd0013a42, 2, false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"x / 2.666666666667","%01.0f","SOI Limit",           "°"),
+        DIDStruct(0xd0013a44, 2, false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"x / 2.666666666667","%01.0f","SOI Actual",          "°"),
+        DIDStruct(0xd000f377, 1, false,0.5f, 1.3f,   -1000f,1000f,  0.0f, 0f,"x / 2.142128661087","%07.2f","TPS",                 "%"),
+        DIDStruct(0xd0015344, 2, true, -40f, 500f,   -1000f,1000f,  0.0f, 0f,"x / 32",            "%07.2f","Torque Actual",       "Nm"),
+        DIDStruct(0xd0011f0c, 2, false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"x",                 "%01.0f","Torque Limitation",   ""),
+        DIDStruct(0xd0012048, 2, true, -40f, 500f,   -1000f,500f,   0.0f, 0f,"x / 32",            "%03.2f","Torque Requested",    "Nm"),
+        DIDStruct(0xd000f3c1, 1, false,-100f,100f,   -1000f,120f,   0.7f, 0f,"x - 40",            "%01.0f","Transmission Temp",   "°C"),
+        DIDStruct(0xd0019b75, 1, false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"x",                 "%01.0f","Valve Lift Position", ""),
+        DIDStruct(0xd00155b6, 2, false,0f,   220f,   -1000f,220f,   0.0f, 0f,"x / 100.0",         "%03.0f","Vehicle Speed",       "km/h"),
+        DIDStruct(0xd0015c2c, 2, false,-10f, 0f,     -1000f,1000f,  0.0f, 0f,"x / 655.3599999997","%05.3f","Wastegate Setpoint",  "%"),
+        DIDStruct(0xd0011e10, 2, false,-10f, 0f,     -1000f,1000f,  0.0f, 0f,"x / 655.3599999997","%05.3f","Wastegate Actual",    "%"),
+        DIDStruct(0xd0015c5e, 2, false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"x / 32",            "%01.0f","Wastegate Flow Req",  "kg/h"),
+        DIDStruct(0xd00141ba, 2, false,-10f, 10f,    -1000f,1000f,  0.4f, 0f,"(x-512)/32",        "%05.3f","Accel. Long",         "m/s2"),
+        DIDStruct(0xd000ee2a, 1, false,-10f, 10f,    -1000f,1000f,  0.6f, 0f,"(x-127)/10",        "%05.3f","Accel. Lat",          "m/s2"),
+        DIDStruct(0xd001b6cd, 1, false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"x",                 "%01.0f","Cruise Control",      ""),
         )
 
     fun list(): List<DIDStruct> {
@@ -210,52 +168,16 @@ object DIDs {
         //Used in smoothing calculation
         val previousValue = did.value
 
-        when(did.equation) {
-            0 -> did.value = x
-            1 -> did.value = x * 1000f
-            2 -> did.value = (x - 2731.4f) / 10.0f
-            3 -> did.value = x / 1.28f - 100.0f
-            4 -> did.value = x * 6.103515624994278f
-            5 -> did.value = x / 128f
-            6 -> did.value = x / 4.0f
-            7 -> did.value = x * 0.75f - 48.0f
-            8 -> did.value = x / 10.0f
-            9 -> did.value = x / 100.0f
-            10 -> did.value = x / 1000.0f
-            11 -> did.value = x / 100000.0f
-            12 -> did.value = x / 32f
-            13 -> did.value = x / 51.2f
-            14 -> did.value = x / 47.18142548596112f
-            15 -> did.value = x / 10.24f
-            16 -> did.value = x / 1024f
-            17 -> did.value = x / 2.4f
-            18 -> did.value = x / 200f
-            19 -> did.value = x / 347.94711203897007654836464857342f
-            20 -> did.value = 100.0f - x / 100.0f
-            21 -> did.value = x / 2.66666666666667f
-            22 -> did.value = (x - 95.0f) / 2.66666666666667f
-            23 -> did.value = x / 655.3599999999997f
-            24 -> did.value = x / 2.55f
-            25 -> did.value = x / 16384f
-            26 -> did.value = x / 250f
-            27 -> did.value = x / 2.142128661087866f
-            28 -> did.value = (x - 128f) / 2.66666666666667f
-            29 -> did.value = (x - 64f) / 1.33333333333333f
-            30 -> did.value = x - 40f
-            31 -> did.value = x / 3.768805207949945f
-            32 -> did.value = x / 376.8805207949945f
-            33 -> did.value = x / 32767.99999999992f
-            34 -> did.value = x / 188.4402603974972f
-            35 -> did.value = x / 120.6017666543982f
-            36 -> did.value = x / 12060.17666543982f
-            37 -> did.value = x / 1.884402603974972f
-            38 -> did.value = x * 10
-            39 -> did.value = (x - 512f) / 32f
-            40 -> did.value = (x - 127f) / 10f
+        //eval expression
+        try {
+            val equationString = did.equation
+            did.value = eval(equationString.replace("x", x.toString(), true)).toFloat()
+        } catch(e: Exception) {
+            did.value = 0f
         }
 
         //Add smoothing
-        if(did.smoothing > 0f && did.smoothing < 0.95f)
+        if(did.smoothing > 0f && did.smoothing < 0.9751f)
             did.value = ((1f-did.smoothing) * did.value) + (did.smoothing * previousValue)
 
         return did.value
@@ -300,9 +222,9 @@ object UDSLogger {
                     val velValue = DIDs.list()[mVelocityPID].value
                     val weightValue = Settings.curbWeight * KG_TO_N
                     val ratioValue = sqrt(Settings.gearRatios[gearValue - 1] * Settings.gearRatios[7])
-                    val dragValue = 1.0f + (velValue * velValue * Settings.dragCoefficient)
+                    val dragValue = 1.0 + ((velValue * velValue).toDouble() * Settings.dragCoefficient)
 
-                    return weightValue * ms2Value * dragValue / ratioValue / mTireCircumference / TQ_CONSTANT
+                    return ((weightValue * ms2Value / ratioValue / mTireCircumference / TQ_CONSTANT).toDouble() * dragValue).toFloat()
                 }
 
                 return 0f

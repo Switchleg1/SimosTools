@@ -165,52 +165,52 @@ object ConfigFile {
                 }
                 "DragCoefficient" -> {
                     val f = value.toFloat()
-                    if(f > 0f && f < 0.001f)
-                        Settings.dragCoefficient = f
+                    if(f > 0f && f < 5f)
+                       Settings.dragCoefficient = f.toDouble() * DEFAULT_DRAG_COEFFICIENT
                 }
                 "ColorBGNormal" -> {
                     val l = parseLong(value, 16)
-                    Settings.colorList[COLOR_BG_NORMAL] = (l.toInt() and 0xFFFFFF) or 0xFF000000.toInt()
+                    Settings.colorList[COLOR_BG_NORMAL] = l.toColorInt()
                 }
                 "ColorBGWarn" -> {
                     val l = parseLong(value, 16)
-                    Settings.colorList[COLOR_BG_WARNING] = (l.toInt() and 0xFFFFFF) or 0xFF000000.toInt()
+                    Settings.colorList[COLOR_BG_WARNING] = l.toColorInt()
                 }
                 "ColorText" -> {
                     val l = parseLong(value, 16)
-                    Settings.colorList[COLOR_TEXT] = (l.toInt() and 0xFFFFFF) or 0xFF000000.toInt()
+                    Settings.colorList[COLOR_TEXT] = l.toColorInt()
                 }
                 "ColorBarNormal" -> {
                     val l = parseLong(value, 16)
-                    Settings.colorList[COLOR_BAR_NORMAL] = (l.toInt() and 0xFFFFFF) or 0xFF000000.toInt()
+                    Settings.colorList[COLOR_BAR_NORMAL] = l.toColorInt()
                 }
                 "ColorBarWarn" -> {
                     val l = parseLong(value, 16)
-                    Settings.colorList[COLOR_BAR_WARN] = (l.toInt() and 0xFFFFFF) or 0xFF000000.toInt()
+                    Settings.colorList[COLOR_BAR_WARN] = l.toColorInt()
                 }
                 "ColorStateError" -> {
                     val l = parseLong(value, 16)
-                    Settings.colorList[COLOR_ST_ERROR] = (l.toInt() and 0xFFFFFF) or 0xFF000000.toInt()
+                    Settings.colorList[COLOR_ST_ERROR] = l.toColorInt()
                 }
                 "ColorStateNone" -> {
                     val l = parseLong(value, 16)
-                    Settings.colorList[COLOR_ST_NONE] = (l.toInt() and 0xFFFFFF) or 0xFF000000.toInt()
+                    Settings.colorList[COLOR_ST_NONE] = l.toColorInt()
                 }
                 "ColorStateConnecting" -> {
                     val l = parseLong(value, 16)
-                    Settings.colorList[COLOR_ST_CONNECTING] = (l.toInt() and 0xFFFFFF) or 0xFF000000.toInt()
+                    Settings.colorList[COLOR_ST_CONNECTING] = l.toColorInt()
                 }
                 "ColorStateConnected" -> {
                     val l = parseLong(value, 16)
-                    Settings.colorList[COLOR_ST_CONNECTED] = (l.toInt() and 0xFFFFFF) or 0xFF000000.toInt()
+                    Settings.colorList[COLOR_ST_CONNECTED] = l.toColorInt()
                 }
                 "ColorStateLogging" -> {
                     val l = parseLong(value, 16)
-                    Settings.colorList[COLOR_ST_LOGGING] = (l.toInt() and 0xFFFFFF) or 0xFF000000.toInt()
+                    Settings.colorList[COLOR_ST_LOGGING] = l.toColorInt()
                 }
                 "ColorStateWriting" -> {
                     val l = parseLong(value, 16)
-                    Settings.colorList[COLOR_ST_WRITING] = (l.toInt() and 0xFFFFFF) or 0xFF000000.toInt()
+                    Settings.colorList[COLOR_ST_WRITING] = l.toColorInt()
                 }
                 "AlwaysPortrait" -> {
                     val b = value.toBoolean()
@@ -222,7 +222,7 @@ object ConfigFile {
                         Settings.displaySize = f
                 }
             }
-        } catch (e: NumberFormatException) {
+        } catch (e: Exception) {
             Log.e(TAG, e.toString())
         }
     }
@@ -256,10 +256,6 @@ object ConfigFile {
                         val i = value.toInt()
                         pidList[pidNumber].length = i
                     }
-                    "Equation" -> {
-                        val i = value.toInt()
-                        pidList[pidNumber].equation = i
-                    }
                     "Signed" -> {
                         val b = value.toBoolean()
                         pidList[pidNumber].signed = b
@@ -284,6 +280,7 @@ object ConfigFile {
                         val f = value.toFloat()
                         pidList[pidNumber].smoothing = f
                     }
+                    "Equation" -> pidList[pidNumber].equation = value
                     "Format" -> pidList[pidNumber].format = value
                     "Name" -> pidList[pidNumber].name = value
                     "Unit" -> pidList[pidNumber].unit = value
@@ -306,7 +303,7 @@ object ConfigFile {
         mProperties["Config.UseMS2Torque"] = DEFAULT_USE_MS2.toString()
         mProperties["Config.TireDiameter"] = DEFAULT_TIRE_DIAMETER.toString()
         mProperties["Config.CurbWeight"] = DEFAULT_CURB_WEIGHT.toString()
-        mProperties["Config.DragCoefficient"] = DEFAULT_DRAG_COEFFICIENT.toString()
+        mProperties["Config.DragCoefficient"] = "1.0"
         mProperties["Config.GearRatio.1"] = DEFAULT_GEAR_RATIOS[0].toString()
         mProperties["Config.GearRatio.2"] = DEFAULT_GEAR_RATIOS[1].toString()
         mProperties["Config.GearRatio.3"] = DEFAULT_GEAR_RATIOS[2].toString()
@@ -315,24 +312,24 @@ object ConfigFile {
         mProperties["Config.GearRatio.6"] = DEFAULT_GEAR_RATIOS[5].toString()
         mProperties["Config.GearRatio.7"] = DEFAULT_GEAR_RATIOS[6].toString()
         mProperties["Config.GearRatio.Final"] = DEFAULT_GEAR_RATIOS[7].toString()
-        mProperties["Config.ColorBGNormal"] = DEFAULT_COLOR_LIST[COLOR_BG_NORMAL].toHex3()
-        mProperties["Config.ColorBGWarn"] = DEFAULT_COLOR_LIST[COLOR_BG_WARNING].toHex3()
-        mProperties["Config.ColorText"] = DEFAULT_COLOR_LIST[COLOR_TEXT].toHex3()
-        mProperties["Config.ColorBarNormal"] = DEFAULT_COLOR_LIST[COLOR_BAR_NORMAL].toHex3()
-        mProperties["Config.ColorBarWarn"] = DEFAULT_COLOR_LIST[COLOR_BAR_WARN].toHex3()
-        mProperties["Config.ColorStateError"] = DEFAULT_COLOR_LIST[COLOR_ST_ERROR].toHex3()
-        mProperties["Config.ColorStateNone"] = DEFAULT_COLOR_LIST[COLOR_ST_NONE].toHex3()
-        mProperties["Config.ColorStateConnecting"] = DEFAULT_COLOR_LIST[COLOR_ST_CONNECTING].toHex3()
-        mProperties["Config.ColorStateConnected"] = DEFAULT_COLOR_LIST[COLOR_ST_CONNECTED].toHex3()
-        mProperties["Config.ColorStateLogging"] = DEFAULT_COLOR_LIST[COLOR_ST_LOGGING].toHex3()
-        mProperties["Config.ColorStateWriting"] = DEFAULT_COLOR_LIST[COLOR_ST_WRITING].toHex3()
+        mProperties["Config.ColorBGNormal"] = DEFAULT_COLOR_LIST[COLOR_BG_NORMAL].toColorHex()
+        mProperties["Config.ColorBGWarn"] = DEFAULT_COLOR_LIST[COLOR_BG_WARNING].toColorHex()
+        mProperties["Config.ColorText"] = DEFAULT_COLOR_LIST[COLOR_TEXT].toColorHex()
+        mProperties["Config.ColorBarNormal"] = DEFAULT_COLOR_LIST[COLOR_BAR_NORMAL].toColorHex()
+        mProperties["Config.ColorBarWarn"] = DEFAULT_COLOR_LIST[COLOR_BAR_WARN].toColorHex()
+        mProperties["Config.ColorStateError"] = DEFAULT_COLOR_LIST[COLOR_ST_ERROR].toColorHex()
+        mProperties["Config.ColorStateNone"] = DEFAULT_COLOR_LIST[COLOR_ST_NONE].toColorHex()
+        mProperties["Config.ColorStateConnecting"] = DEFAULT_COLOR_LIST[COLOR_ST_CONNECTING].toColorHex()
+        mProperties["Config.ColorStateConnected"] = DEFAULT_COLOR_LIST[COLOR_ST_CONNECTED].toColorHex()
+        mProperties["Config.ColorStateLogging"] = DEFAULT_COLOR_LIST[COLOR_ST_LOGGING].toColorHex()
+        mProperties["Config.ColorStateWriting"] = DEFAULT_COLOR_LIST[COLOR_ST_WRITING].toColorHex()
         mProperties["Config.AlwaysPortrait"] = DEFAULT_ALWAYS_PORTRAIT.toString()
         mProperties["Config.DisplaySize"] = DEFAULT_DISPLAY_SIZE.toString()
         for(i in 0 until DIDs.list22.count()) {
             mProperties["PID.22.${i.toTwo()}.Address"] = DIDs.list22[i].address.toShort().toHex()
             mProperties["PID.22.${i.toTwo()}.Length"] = DIDs.list22[i].length.toString()
-            mProperties["PID.22.${i.toTwo()}.Equation"] = DIDs.list22[i].equation.toString()
             mProperties["PID.22.${i.toTwo()}.Signed"] = DIDs.list22[i].signed.toString()
+            mProperties["PID.22.${i.toTwo()}.Equation"] = DIDs.list22[i].equation
             mProperties["PID.22.${i.toTwo()}.Format"] = DIDs.list22[i].format
             mProperties["PID.22.${i.toTwo()}.Name"] = DIDs.list22[i].name
             mProperties["PID.22.${i.toTwo()}.Unit"] = DIDs.list22[i].unit
@@ -346,8 +343,8 @@ object ConfigFile {
         for(i in 0 until DIDs.list3E.count()) {
             mProperties["PID.3E.${i.toTwo()}.Address"] = DIDs.list3E[i].address.toInt().toHex()
             mProperties["PID.3E.${i.toTwo()}.Length"] = DIDs.list3E[i].length.toString()
-            mProperties["PID.3E.${i.toTwo()}.Equation"] = DIDs.list3E[i].equation.toString()
             mProperties["PID.3E.${i.toTwo()}.Signed"] = DIDs.list3E[i].signed.toString()
+            mProperties["PID.3E.${i.toTwo()}.Equation"] = DIDs.list3E[i].equation
             mProperties["PID.3E.${i.toTwo()}.Format"] = DIDs.list3E[i].format
             mProperties["PID.3E.${i.toTwo()}.Name"] = DIDs.list3E[i].name
             mProperties["PID.3E.${i.toTwo()}.Unit"] = DIDs.list3E[i].unit

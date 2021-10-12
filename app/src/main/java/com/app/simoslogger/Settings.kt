@@ -11,7 +11,7 @@ object Settings {
     var useMS2Torque = DEFAULT_USE_MS2
     var tireDiameter = DEFAULT_TIRE_DIAMETER
     var curbWeight = DEFAULT_CURB_WEIGHT
-    var dragCoefficient = DEFAULT_DRAG_COEFFICIENT
+    var dragCoefficient: Double = DEFAULT_DRAG_COEFFICIENT
     var gearRatios = DEFAULT_GEAR_RATIOS
     var colorList = DEFAULT_COLOR_LIST
     var alwaysPortrait = DEFAULT_ALWAYS_PORTRAIT

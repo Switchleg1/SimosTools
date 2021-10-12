@@ -23,6 +23,7 @@ import androidx.navigation.Navigation.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
 import android.graphics.drawable.ColorDrawable
 import androidx.lifecycle.ViewModelProvider
+import java.lang.Exception
 
 
 class MainViewModel : ViewModel() {
@@ -61,6 +62,19 @@ class MainActivity : AppCompatActivity() {
         }
 
         mViewModel.mStarted = true
+
+        //eval expression
+        var valueFloat = 0f
+
+        try {
+            val inputFloat = 80.0f
+            val equationString = "(x - 64) / -1.33"
+            valueFloat = eval(equationString.replace("x", inputFloat.toString(), true))
+        } catch(e: Exception) {
+
+        }
+
+        Log.i(TAG, "Eval: $valueFloat")
     }
 
     override fun onResume() {
