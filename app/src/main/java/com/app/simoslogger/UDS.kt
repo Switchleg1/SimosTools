@@ -170,8 +170,7 @@ object DIDs {
 
         //eval expression
         try {
-            val equationString = did.equation
-            did.value = eval(equationString.replace("x", x.toString(), true)).toFloat()
+            did.value = eval(did.equation.replace("x", x.toString(), true))
         } catch(e: Exception) {
             did.value = 0f
         }
