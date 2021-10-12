@@ -110,9 +110,15 @@ val UDS_ERROR_UNKNOWN   = 5
 val UDS_LOGGING_22 = 0
 val UDS_LOGGING_3E = 1
 
+val MAX_PIDS        = 100
+val CSV_CFG_LINE    = "Address,Length,Signed,ProgMin,ProgMax,WarnMin,WarnMax,Smoothing,Equation,Format,Name,Unit"
+val CSV_VALUE_COUNT = 12
+val CSV_3E_NAME     = "PIDList3E.csv"
+val CSV_22_NAME     = "PIDList22.csv"
+val CFG_FILENAME    = "config.cfg"
+
 //Log communications?
 val LOG_COMMUNICATIONS  = false
-val LOG_FILENAME        = "logging.cfg"
 
 //Some default settings
 val DEFAULT_KEEP_SCREEN_ON = true

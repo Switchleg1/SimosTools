@@ -44,7 +44,19 @@ class MainActivity : AppCompatActivity() {
 
         if(!mViewModel.mStarted) {
             //Read config file
-            ConfigFile.read(LOG_FILENAME, applicationContext)
+            ConfigFile.read(CFG_FILENAME, applicationContext)
+
+            //Read pid files
+            PIDCSVFile.write(CSV_3E_NAME, applicationContext, DIDs.list3E)
+            PIDCSVFile.write(CSV_22_NAME, applicationContext, DIDs.list22)
+
+            val pid3EList = PIDCSVFile.read(CSV_3E_NAME, applicationContext)
+            if(pid3EList != null)
+                DIDs.list3E = pid3EList
+
+            val pid22List = PIDCSVFile.read(CSV_22_NAME, applicationContext)
+            if(pid22List != null && pid22List.count() == 32)
+                DIDs.list22 = pid22List
         }
 
         //Init view

@@ -60,28 +60,10 @@ object ConfigFile {
     }
 
     private fun processKey(key: String, value: String) {
-        var p = Pattern.compile("^Config.(\\S+)", Pattern.CASE_INSENSITIVE)
-        var m = p.matcher(key)
-
-        if (m.matches()) {
-            processConfigKey(m.group(1)?: "", value)
-            return
-        }
-
-        p = Pattern.compile("^PID.([0-9A-F]+).(\\d+).(\\S+)", Pattern.CASE_INSENSITIVE)
-        m = p.matcher(key)
-
-        if (m.matches()) {
-            processPIDKey(m.group(1)?: "", m.group(2)?: "", m.group(3)?: "", value)
-            return
-        }
-    }
-
-    private fun processConfigKey(variable: String, value: String) {
-        Log.i(TAG, "Config[$variable]: $value")
+        Log.i(TAG, "$key: $value")
 
         try {
-            when (variable) {
+            when (key) {
                 "Mode" -> {
                     when (value) {
                         "22" -> UDSLogger.setMode(UDS_LOGGING_22)
@@ -227,133 +209,40 @@ object ConfigFile {
         }
     }
 
-    private fun processPIDKey(type: String, number: String, variable: String, value: String) {
-        Log.i(TAG, "PID[$type][$number][$variable]: $value")
-
-        var pidList: List<DIDStruct>? = null
-        when(type) {
-            "22" -> pidList = DIDs.list22
-            "3E" -> pidList = DIDs.list3E
-        }
-
-        if(pidList == null) {
-            Log.i(TAG, "Invalid logging type: $type")
-            return
-        }
-
-        try {
-            val pidNumber = number.toInt()
-            if((pidNumber < pidList.count()) and (pidNumber >= 0)) {
-                when (variable) {
-                    "Address" -> {
-                        val pAddress = Pattern.compile("^[0-9A-F]+\$", Pattern.CASE_INSENSITIVE)
-                        val mAddress = pAddress.matcher(value)
-                        if (mAddress.matches() and (((type == "22") and (value.length == 4)) or ((type == "3E") and (value.length == 8)))) {
-                            pidList[pidNumber].address = parseLong(value, 16)
-                        }
-                    }
-                    "Length" -> {
-                        val i = value.toInt()
-                        pidList[pidNumber].length = i
-                    }
-                    "Signed" -> {
-                        val b = value.toBoolean()
-                        pidList[pidNumber].signed = b
-                    }
-                    "ProgMin" -> {
-                        val f = value.toFloat()
-                        pidList[pidNumber].progMin = f
-                    }
-                    "ProgMax" -> {
-                        val f = value.toFloat()
-                        pidList[pidNumber].progMax = f
-                    }
-                    "WarnMin" -> {
-                        val f = value.toFloat()
-                        pidList[pidNumber].warnMin = f
-                    }
-                    "WarnMax" -> {
-                        val f = value.toFloat()
-                        pidList[pidNumber].warnMax = f
-                    }
-                    "Smoothing" -> {
-                        val f = value.toFloat()
-                        pidList[pidNumber].smoothing = f
-                    }
-                    "Equation" -> pidList[pidNumber].equation = value
-                    "Format" -> pidList[pidNumber].format = value
-                    "Name" -> pidList[pidNumber].name = value
-                    "Unit" -> pidList[pidNumber].unit = value
-                }
-            }
-        } catch (e: NumberFormatException) {
-            Log.e(TAG, e.toString())
-        }
-    }
-
     private fun writeDefaultConfig(filename: String?, context: Context?) {
-        mProperties["Config.Mode"] = "22"
-        mProperties["Config.OutputDirectory"] = "Downloads"
-        mProperties["Config.UpdateRate"] = (11-DEFAULT_UPDATE_RATE).toString()
-        mProperties["Config.InvertCruise"] = DEFAULT_INVERT_CRUISE.toString()
-        mProperties["Config.KeepScreenOn"] = DEFAULT_KEEP_SCREEN_ON.toString()
-        mProperties["Config.PersistDelay"] = DEFAULT_PERSIST_DELAY.toString()
-        mProperties["Config.PersistQDelay"] = DEFAULT_PERSIST_Q_DELAY.toString()
-        mProperties["Config.CalculateHP"] = DEFAULT_CALCULATE_HP.toString()
-        mProperties["Config.UseMS2Torque"] = DEFAULT_USE_MS2.toString()
-        mProperties["Config.TireDiameter"] = DEFAULT_TIRE_DIAMETER.toString()
-        mProperties["Config.CurbWeight"] = DEFAULT_CURB_WEIGHT.toString()
-        mProperties["Config.DragCoefficient"] = "1.0"
-        mProperties["Config.GearRatio.1"] = DEFAULT_GEAR_RATIOS[0].toString()
-        mProperties["Config.GearRatio.2"] = DEFAULT_GEAR_RATIOS[1].toString()
-        mProperties["Config.GearRatio.3"] = DEFAULT_GEAR_RATIOS[2].toString()
-        mProperties["Config.GearRatio.4"] = DEFAULT_GEAR_RATIOS[3].toString()
-        mProperties["Config.GearRatio.5"] = DEFAULT_GEAR_RATIOS[4].toString()
-        mProperties["Config.GearRatio.6"] = DEFAULT_GEAR_RATIOS[5].toString()
-        mProperties["Config.GearRatio.7"] = DEFAULT_GEAR_RATIOS[6].toString()
-        mProperties["Config.GearRatio.Final"] = DEFAULT_GEAR_RATIOS[7].toString()
-        mProperties["Config.ColorBGNormal"] = DEFAULT_COLOR_LIST[COLOR_BG_NORMAL].toColorHex()
-        mProperties["Config.ColorBGWarn"] = DEFAULT_COLOR_LIST[COLOR_BG_WARNING].toColorHex()
-        mProperties["Config.ColorText"] = DEFAULT_COLOR_LIST[COLOR_TEXT].toColorHex()
-        mProperties["Config.ColorBarNormal"] = DEFAULT_COLOR_LIST[COLOR_BAR_NORMAL].toColorHex()
-        mProperties["Config.ColorBarWarn"] = DEFAULT_COLOR_LIST[COLOR_BAR_WARN].toColorHex()
-        mProperties["Config.ColorStateError"] = DEFAULT_COLOR_LIST[COLOR_ST_ERROR].toColorHex()
-        mProperties["Config.ColorStateNone"] = DEFAULT_COLOR_LIST[COLOR_ST_NONE].toColorHex()
-        mProperties["Config.ColorStateConnecting"] = DEFAULT_COLOR_LIST[COLOR_ST_CONNECTING].toColorHex()
-        mProperties["Config.ColorStateConnected"] = DEFAULT_COLOR_LIST[COLOR_ST_CONNECTED].toColorHex()
-        mProperties["Config.ColorStateLogging"] = DEFAULT_COLOR_LIST[COLOR_ST_LOGGING].toColorHex()
-        mProperties["Config.ColorStateWriting"] = DEFAULT_COLOR_LIST[COLOR_ST_WRITING].toColorHex()
-        mProperties["Config.AlwaysPortrait"] = DEFAULT_ALWAYS_PORTRAIT.toString()
-        mProperties["Config.DisplaySize"] = DEFAULT_DISPLAY_SIZE.toString()
-        for(i in 0 until DIDs.list22.count()) {
-            mProperties["PID.22.${i.toTwo()}.Address"] = DIDs.list22[i].address.toShort().toHex()
-            mProperties["PID.22.${i.toTwo()}.Length"] = DIDs.list22[i].length.toString()
-            mProperties["PID.22.${i.toTwo()}.Signed"] = DIDs.list22[i].signed.toString()
-            mProperties["PID.22.${i.toTwo()}.Equation"] = DIDs.list22[i].equation
-            mProperties["PID.22.${i.toTwo()}.Format"] = DIDs.list22[i].format
-            mProperties["PID.22.${i.toTwo()}.Name"] = DIDs.list22[i].name
-            mProperties["PID.22.${i.toTwo()}.Unit"] = DIDs.list22[i].unit
-            mProperties["PID.22.${i.toTwo()}.ProgMin"] = DIDs.list22[i].progMin.toString()
-            mProperties["PID.22.${i.toTwo()}.ProgMax"] = DIDs.list22[i].progMax.toString()
-            mProperties["PID.22.${i.toTwo()}.WarnMin"] = DIDs.list22[i].warnMin.toString()
-            mProperties["PID.22.${i.toTwo()}.WarnMax"] = DIDs.list22[i].warnMax.toString()
-            mProperties["PID.22.${i.toTwo()}.Smoothing"] = DIDs.list22[i].smoothing.toString()
-        }
-
-        for(i in 0 until DIDs.list3E.count()) {
-            mProperties["PID.3E.${i.toTwo()}.Address"] = DIDs.list3E[i].address.toInt().toHex()
-            mProperties["PID.3E.${i.toTwo()}.Length"] = DIDs.list3E[i].length.toString()
-            mProperties["PID.3E.${i.toTwo()}.Signed"] = DIDs.list3E[i].signed.toString()
-            mProperties["PID.3E.${i.toTwo()}.Equation"] = DIDs.list3E[i].equation
-            mProperties["PID.3E.${i.toTwo()}.Format"] = DIDs.list3E[i].format
-            mProperties["PID.3E.${i.toTwo()}.Name"] = DIDs.list3E[i].name
-            mProperties["PID.3E.${i.toTwo()}.Unit"] = DIDs.list3E[i].unit
-            mProperties["PID.3E.${i.toTwo()}.ProgMin"] = DIDs.list3E[i].progMin.toString()
-            mProperties["PID.3E.${i.toTwo()}.ProgMax"] = DIDs.list3E[i].progMax.toString()
-            mProperties["PID.3E.${i.toTwo()}.WarnMin"] = DIDs.list3E[i].warnMin.toString()
-            mProperties["PID.3E.${i.toTwo()}.WarnMax"] = DIDs.list3E[i].warnMax.toString()
-            mProperties["PID.3E.${i.toTwo()}.Smoothing"] = DIDs.list3E[i].smoothing.toString()
-        }
+        mProperties["Mode"] = "22"
+        mProperties["OutputDirectory"] = "Downloads"
+        mProperties["UpdateRate"] = (11-DEFAULT_UPDATE_RATE).toString()
+        mProperties["InvertCruise"] = DEFAULT_INVERT_CRUISE.toString()
+        mProperties["KeepScreenOn"] = DEFAULT_KEEP_SCREEN_ON.toString()
+        mProperties["PersistDelay"] = DEFAULT_PERSIST_DELAY.toString()
+        mProperties["PersistQDelay"] = DEFAULT_PERSIST_Q_DELAY.toString()
+        mProperties["CalculateHP"] = DEFAULT_CALCULATE_HP.toString()
+        mProperties["UseMS2Torque"] = DEFAULT_USE_MS2.toString()
+        mProperties["TireDiameter"] = DEFAULT_TIRE_DIAMETER.toString()
+        mProperties["CurbWeight"] = DEFAULT_CURB_WEIGHT.toString()
+        mProperties["DragCoefficient"] = "1.0"
+        mProperties["GearRatio.1"] = DEFAULT_GEAR_RATIOS[0].toString()
+        mProperties["GearRatio.2"] = DEFAULT_GEAR_RATIOS[1].toString()
+        mProperties["GearRatio.3"] = DEFAULT_GEAR_RATIOS[2].toString()
+        mProperties["GearRatio.4"] = DEFAULT_GEAR_RATIOS[3].toString()
+        mProperties["GearRatio.5"] = DEFAULT_GEAR_RATIOS[4].toString()
+        mProperties["GearRatio.6"] = DEFAULT_GEAR_RATIOS[5].toString()
+        mProperties["GearRatio.7"] = DEFAULT_GEAR_RATIOS[6].toString()
+        mProperties["GearRatio.Final"] = DEFAULT_GEAR_RATIOS[7].toString()
+        mProperties["ColorBGNormal"] = DEFAULT_COLOR_LIST[COLOR_BG_NORMAL].toColorHex()
+        mProperties["ColorBGWarn"] = DEFAULT_COLOR_LIST[COLOR_BG_WARNING].toColorHex()
+        mProperties["ColorText"] = DEFAULT_COLOR_LIST[COLOR_TEXT].toColorHex()
+        mProperties["ColorBarNormal"] = DEFAULT_COLOR_LIST[COLOR_BAR_NORMAL].toColorHex()
+        mProperties["ColorBarWarn"] = DEFAULT_COLOR_LIST[COLOR_BAR_WARN].toColorHex()
+        mProperties["ColorStateError"] = DEFAULT_COLOR_LIST[COLOR_ST_ERROR].toColorHex()
+        mProperties["ColorStateNone"] = DEFAULT_COLOR_LIST[COLOR_ST_NONE].toColorHex()
+        mProperties["ColorStateConnecting"] = DEFAULT_COLOR_LIST[COLOR_ST_CONNECTING].toColorHex()
+        mProperties["ColorStateConnected"] = DEFAULT_COLOR_LIST[COLOR_ST_CONNECTED].toColorHex()
+        mProperties["ColorStateLogging"] = DEFAULT_COLOR_LIST[COLOR_ST_LOGGING].toColorHex()
+        mProperties["ColorStateWriting"] = DEFAULT_COLOR_LIST[COLOR_ST_WRITING].toColorHex()
+        mProperties["AlwaysPortrait"] = DEFAULT_ALWAYS_PORTRAIT.toString()
+        mProperties["DisplaySize"] = DEFAULT_DISPLAY_SIZE.toString()
 
         write(filename, context)
     }

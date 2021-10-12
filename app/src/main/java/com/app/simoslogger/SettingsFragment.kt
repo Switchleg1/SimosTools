@@ -275,64 +275,64 @@ class SettingsFragment : Fragment() {
         view?.let { currentView ->
             // Set display size
             val f = currentView.findViewById<SeekBar>(R.id.seekBarDisplaySize).progress.toFloat()
-            ConfigFile.set("Config.DisplaySize", (f / 100f).toString())
+            ConfigFile.set("DisplaySize", (f / 100f).toString())
 
             // Set update rate
-            ConfigFile.set("Config.UpdateRate", currentView.findViewById<SeekBar>(R.id.seekBarUpdateRate).progress.toString())
+            ConfigFile.set("UpdateRate", currentView.findViewById<SeekBar>(R.id.seekBarUpdateRate).progress.toString())
 
             // Set persist delay
-            ConfigFile.set("Config.PersistDelay", currentView.findViewById<SeekBar>(R.id.seekBarPersistDelay).progress.toString())
+            ConfigFile.set("PersistDelay", currentView.findViewById<SeekBar>(R.id.seekBarPersistDelay).progress.toString())
 
             // Set persist delay
-            ConfigFile.set("Config.PersistQDelay", currentView.findViewById<SeekBar>(R.id.seekBarPersistQDelay).progress.toString())
+            ConfigFile.set("PersistQDelay", currentView.findViewById<SeekBar>(R.id.seekBarPersistQDelay).progress.toString())
 
             // Set logging mode
             if(currentView.findViewById<RadioButton>(R.id.radioButton3E).isChecked) {
-                ConfigFile.set("Config.Mode", "3E")
+                ConfigFile.set("Mode", "3E")
             } else {
-                ConfigFile.set("Config.Mode", "22")
+                ConfigFile.set("Mode", "22")
             }
 
             // Set default output folder
             when {
                 currentView.findViewById<RadioButton>(R.id.radioButtonDownloads).isChecked -> {
-                    ConfigFile.set("Config.OutputDirectory", "Downloads")
+                    ConfigFile.set("OutputDirectory", "Downloads")
                 }
                 currentView.findViewById<RadioButton>(R.id.radioButtonDocuments).isChecked -> {
-                    ConfigFile.set("Config.OutputDirectory", "Documents")
+                    ConfigFile.set("OutputDirectory", "Documents")
                 }
                 else -> {
-                    ConfigFile.set("Config.OutputDirectory", "App")
+                    ConfigFile.set("OutputDirectory", "App")
                 }
             }
 
             //Set invert cruise
-            ConfigFile.set("Config.InvertCruise", currentView.findViewById<CheckBox>(R.id.checkBoxInvertCruise).isChecked.toString())
+            ConfigFile.set("InvertCruise", currentView.findViewById<CheckBox>(R.id.checkBoxInvertCruise).isChecked.toString())
 
             //Set screen on
-            ConfigFile.set("Config.KeepScreenOn", currentView.findViewById<CheckBox>(R.id.checkBoxScreenOn).isChecked.toString())
+            ConfigFile.set("KeepScreenOn", currentView.findViewById<CheckBox>(R.id.checkBoxScreenOn).isChecked.toString())
 
             //Calculate HP
-            ConfigFile.set("Config.CalculateHP", currentView.findViewById<CheckBox>(R.id.checkBoxCalcHP).isChecked.toString())
+            ConfigFile.set("CalculateHP", currentView.findViewById<CheckBox>(R.id.checkBoxCalcHP).isChecked.toString())
 
             //Calculate HP
-            ConfigFile.set("Config.UseMS2Torque", currentView.findViewById<CheckBox>(R.id.checkBoxUseAccel).isChecked.toString())
+            ConfigFile.set("UseMS2Torque", currentView.findViewById<CheckBox>(R.id.checkBoxUseAccel).isChecked.toString())
 
             //Always use portrait view
-            ConfigFile.set("Config.AlwaysPortrait", currentView.findViewById<CheckBox>(R.id.checkBoxAlwaysPortrait).isChecked.toString())
+            ConfigFile.set("AlwaysPortrait", currentView.findViewById<CheckBox>(R.id.checkBoxAlwaysPortrait).isChecked.toString())
 
             //Set Colors
-            ConfigFile.set("Config.ColorBGNormal", ColorSettings.mColorList[COLOR_BG_NORMAL].toColorHex())
-            ConfigFile.set("Config.ColorBGWarn", ColorSettings.mColorList[COLOR_BG_WARNING].toColorHex())
-            ConfigFile.set("Config.ColorText", ColorSettings.mColorList[COLOR_TEXT].toColorHex())
-            ConfigFile.set("Config.ColorBarNormal", ColorSettings.mColorList[COLOR_BAR_NORMAL].toColorHex())
-            ConfigFile.set("Config.ColorBarWarn", ColorSettings.mColorList[COLOR_BAR_WARN].toColorHex())
-            ConfigFile.set("Config.ColorStateError", ColorSettings.mColorList[COLOR_ST_ERROR].toColorHex())
-            ConfigFile.set("Config.ColorStateNone", ColorSettings.mColorList[COLOR_ST_NONE].toColorHex())
-            ConfigFile.set("Config.ColorStateConnecting", ColorSettings.mColorList[COLOR_ST_CONNECTING].toColorHex())
-            ConfigFile.set("Config.ColorStateConnected", ColorSettings.mColorList[COLOR_ST_CONNECTED].toColorHex())
-            ConfigFile.set("Config.ColorStateLogging", ColorSettings.mColorList[COLOR_ST_LOGGING].toColorHex())
-            ConfigFile.set("Config.ColorStateWriting", ColorSettings.mColorList[COLOR_ST_WRITING].toColorHex())
+            ConfigFile.set("ColorBGNormal", ColorSettings.mColorList[COLOR_BG_NORMAL].toColorHex())
+            ConfigFile.set("ColorBGWarn", ColorSettings.mColorList[COLOR_BG_WARNING].toColorHex())
+            ConfigFile.set("ColorText", ColorSettings.mColorList[COLOR_TEXT].toColorHex())
+            ConfigFile.set("ColorBarNormal", ColorSettings.mColorList[COLOR_BAR_NORMAL].toColorHex())
+            ConfigFile.set("ColorBarWarn", ColorSettings.mColorList[COLOR_BAR_WARN].toColorHex())
+            ConfigFile.set("ColorStateError", ColorSettings.mColorList[COLOR_ST_ERROR].toColorHex())
+            ConfigFile.set("ColorStateNone", ColorSettings.mColorList[COLOR_ST_NONE].toColorHex())
+            ConfigFile.set("ColorStateConnecting", ColorSettings.mColorList[COLOR_ST_CONNECTING].toColorHex())
+            ConfigFile.set("ColorStateConnected", ColorSettings.mColorList[COLOR_ST_CONNECTED].toColorHex())
+            ConfigFile.set("ColorStateLogging", ColorSettings.mColorList[COLOR_ST_LOGGING].toColorHex())
+            ConfigFile.set("ColorStateWriting", ColorSettings.mColorList[COLOR_ST_WRITING].toColorHex())
 
             //Stop logging
             val serviceIntent = Intent(context, BTService::class.java)
@@ -340,8 +340,8 @@ class SettingsFragment : Fragment() {
             ContextCompat.startForegroundService(this.requireContext(), serviceIntent)
 
             // Write config
-            ConfigFile.write(LOG_FILENAME, context)
-            ConfigFile.read(LOG_FILENAME, context)
+            ConfigFile.write(CFG_FILENAME, context)
+            ConfigFile.read(CFG_FILENAME, context)
 
             //Reset colors
             ColorSettings.resetColors()

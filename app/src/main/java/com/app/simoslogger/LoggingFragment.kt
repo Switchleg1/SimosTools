@@ -17,9 +17,11 @@ import androidx.core.content.ContextCompat.startForegroundService
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import android.content.res.Configuration
+import android.util.Log
 import android.widget.LinearLayout
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import java.lang.Exception
 
 data class DATAStruct(var min: Float,
                         var max: Float,
@@ -57,13 +59,19 @@ class LoggingFragment : Fragment() {
         }
 
         view.findViewById<Button>(R.id.buttonReset).setOnClickListener {
-            for(i in 0 until mViewModel.dataList!!.count()) {
-                val data = mViewModel.dataList!![i]!!
-                val did = DIDs.list()[i]
-
-                data.max = did.value
-                data.min = did.value
+            mViewModel.dataList?.let { dataList ->
+                for (i in 0 until dataList.count()) {
+                    val data = dataList[i]
+                    data?.let {
+                        val did = DIDs.list()!![i]
+                        did?.let {
+                            data.max = did.value
+                            data.min = did.value
+                        }
+                    }
+                }
             }
+
             updatePIDText()
         }
 
@@ -85,45 +93,58 @@ class LoggingFragment : Fragment() {
         mPackCount?.setTextColor(Settings.colorList[COLOR_BAR_NORMAL])
 
         //Build layout
-        if(mViewModel.dataList == null || mViewModel.dataList?.count() != DIDs.list().count()) {
-            mViewModel.dataList = arrayOfNulls(DIDs.list().count())
-        }
-        mPIDS = arrayOfNulls(DIDs.list().count())
-        for(i in 0 until DIDs.list().count()) {
-            //build child layout
-            val pidLayout = layoutInflater.inflate(layoutType, null)
-            mPIDS!![i] = pidLayout
-
-            //build new data structure
-            val data = DATAStruct(0.0f, 0.0f, false, 1.0f)
-            mViewModel.dataList!![i] = data
-
-            //get current did
-            val did = DIDs.list()[i]
-
-            //Check for low value PIDS
-            if((did.progMax - did.progMin) < 100.0f) {
-                data.multiplier = 100.0f / (did.progMax - did.progMin)
-            } else {
-                data.multiplier = 1.0f
+        DIDs.list()?.let { list ->
+            if (mViewModel.dataList == null || mViewModel.dataList?.count() != list.count()) {
+                mViewModel.dataList = arrayOfNulls(list.count())
             }
 
-            //find text view and set text
-            val textView = pidLayout.findViewById<TextView>(R.id.pid_land_text)
-            textView.text = getString(textVal, did.name, did.format.format(did.value), did.unit, did.format.format(data.min), did.format.format(data.max))
-            textView.textSize = 18 * Settings.displaySize
-            textView.setTextColor(Settings.colorList[COLOR_TEXT])
+            mPIDS = arrayOfNulls(list.count())
+            for (i in 0 until list.count()) {
+                //build child layout
+                val pidLayout = layoutInflater.inflate(layoutType, null)
+                mPIDS!![i] = pidLayout
 
-            //Setup the progress bar
-            val progBar = pidLayout.findViewById<ProgressBar>(R.id.pid_land_progress)
-            progBar.min = (did.progMin * data.multiplier).toInt()
-            progBar.max = (did.progMax * data.multiplier).toInt()
-            progBar.progress = (did.value * data.multiplier).toInt()
-            progBar.progressTintList = ColorStateList.valueOf(Settings.colorList[COLOR_BAR_NORMAL])
-            progBar.scaleY *= Settings.displaySize
+                //build new data structure
+                val data = DATAStruct(0.0f, 0.0f, false, 1.0f)
+                mViewModel.dataList!![i] = data
 
-            val lLayout = view.findViewById<LinearLayout>(R.id.loggingLayoutScroll)
-            lLayout.addView(pidLayout)
+                //get current did
+                val did = list[i]
+                did?.let {
+                    //Check for low value PIDS
+                    if ((did.progMax - did.progMin) < 100.0f) {
+                        data.multiplier = 100.0f / (did.progMax - did.progMin)
+                    } else {
+                        data.multiplier = 1.0f
+                    }
+
+
+                    //find text view and set text
+                    val textView = pidLayout.findViewById<TextView>(R.id.pid_land_text)
+                    textView.text = getString(
+                        textVal,
+                        did.name,
+                        did.format.format(did.value),
+                        did.unit,
+                        did.format.format(data.min),
+                        did.format.format(data.max)
+                    )
+                    textView.textSize = 18 * Settings.displaySize
+                    textView.setTextColor(Settings.colorList[COLOR_TEXT])
+
+                    //Setup the progress bar
+                    val progBar = pidLayout.findViewById<ProgressBar>(R.id.pid_land_progress)
+                    progBar.min = (did.progMin * data.multiplier).toInt()
+                    progBar.max = (did.progMax * data.multiplier).toInt()
+                    progBar.progress = (did.value * data.multiplier).toInt()
+                    progBar.progressTintList =
+                        ColorStateList.valueOf(Settings.colorList[COLOR_BAR_NORMAL])
+                    progBar.scaleY *= Settings.displaySize
+
+                    val lLayout = view.findViewById<LinearLayout>(R.id.loggingLayoutScroll)
+                    lLayout.addView(pidLayout)
+                }
+            }
         }
 
         //Do we keep the screen on?
@@ -163,14 +184,26 @@ class LoggingFragment : Fragment() {
         }
 
         //Update text
-        for(i in 0 until DIDs.list().count()) {
-            val did = DIDs.list()[i]
+        try {
+            for (i in 0 until DIDs.list()!!.count()) {
+                val did = DIDs.list()!![i]
+                val layout = mPIDS!![i]
+                val textView = layout!!.findViewById<TextView>(R.id.pid_land_text)
+                mViewModel.dataList?.let { datalist ->
+                    val data = datalist[i]
 
-            val layout = mPIDS!![i]
-            val textView = layout!!.findViewById<TextView>(R.id.pid_land_text)
-            val data = mViewModel.dataList!![i]!!
-
-            textView?.text = getString(textVal, did.name, did.format.format(did.value), did.unit, did.format.format(data.min), did.format.format(data.max))
+                    textView?.text = getString(
+                        textVal,
+                        did!!.name,
+                        did.format.format(did.value),
+                        did.unit,
+                        did.format.format(data?.min),
+                        did.format.format(data?.max)
+                    )
+                }
+            }
+        } catch(e: Exception) {
+            Log.e(TAG, "Unable to update text")
         }
     }
 
@@ -194,43 +227,49 @@ class LoggingFragment : Fragment() {
 
                     //Set the UI values
                     var anyWarning = false
-                    for(i in 0 until DIDs.list().count()) {
-                        //get the current did
-                        val did = DIDs.list()[i]
-                        val layout = mPIDS!![i]
-                        val data = mViewModel.dataList!![i]!!
-                        val progressBar = layout!!.findViewById<ProgressBar>(R.id.pid_land_progress)
+                    try {
+                        for (i in 0 until DIDs.list()!!.count()) {
+                            //get the current did
+                            val did = DIDs.list()!![i]!!
+                            val layout = mPIDS!![i]
+                            val data = mViewModel.dataList!![i]!!
+                            val progressBar = layout!!.findViewById<ProgressBar>(R.id.pid_land_progress)
 
-                        //set min/max
-                        if(did.value > data.max)
-                            data.max = did.value
+                            //set min/max
+                            if (did.value > data.max)
+                                data.max = did.value
 
-                        if(did.value < data.min)
-                            data.min = did.value
+                            if (did.value < data.min)
+                                data.min = did.value
 
 
-                        //Update progress is the value is different
-                        val newProgress = (did.value * data.multiplier).toInt()
-                        if(newProgress != progressBar?.progress) {
-                            progressBar?.progress = newProgress
-                        }
-
-                        //Check to see if we should be warning user
-                        if((did.value > did.warnMax) or (did.value < did.warnMin)) {
-
-                            if(!data.lastColor) {
-                                progressBar?.progressTintList = ColorStateList.valueOf(Settings.colorList[COLOR_BAR_WARN])
+                            //Update progress is the value is different
+                            val newProgress = (did.value * data.multiplier).toInt()
+                            if (newProgress != progressBar?.progress) {
+                                progressBar?.progress = newProgress
                             }
 
-                            data.lastColor = true
-                            anyWarning = true
-                        } else {
-                            if(data.lastColor) {
-                                progressBar?.progressTintList = ColorStateList.valueOf(Settings.colorList[COLOR_BAR_NORMAL])
-                            }
+                            //Check to see if we should be warning user
+                            if ((did.value > did.warnMax) or (did.value < did.warnMin)) {
 
-                            data.lastColor = false
+                                if (!data.lastColor) {
+                                    progressBar?.progressTintList =
+                                        ColorStateList.valueOf(Settings.colorList[COLOR_BAR_WARN])
+                                }
+
+                                data.lastColor = true
+                                anyWarning = true
+                            } else {
+                                if (data.lastColor) {
+                                    progressBar?.progressTintList =
+                                        ColorStateList.valueOf(Settings.colorList[COLOR_BAR_NORMAL])
+                                }
+
+                                data.lastColor = false
+                            }
                         }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Unable to update display")
                     }
 
                     //If any visible PIDS are in warning state set background color to warn
