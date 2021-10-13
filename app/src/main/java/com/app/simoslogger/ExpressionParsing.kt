@@ -92,8 +92,7 @@ fun eval(str: String): Float {
                 x = x.pow(parseFactor()) // exponentiation
 
             if(eat('E'.code)) {
-                x *= 10f
-                x = x.pow(parseFactor()) // scientific notation
+                x *= 10f.pow(parseFactor()) // scientific notation
             }
 
             return x

@@ -76,11 +76,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         mViewModel.mStarted = true
-
-        val eq = "x * 1000000"
-        val x = 0.00001f
-        val new = eval(eq.replace("x", x.toString(), true))
-        DebugLog.addLine("$TAG: $x, $eq = $new")
     }
 
     override fun onResume() {
