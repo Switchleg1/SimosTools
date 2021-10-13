@@ -158,7 +158,7 @@ object DIDs {
 
         //eval expression
         try {
-            did.value = eval(did.equation.replace("x", "%01.5".format(x), true))
+            did.value = eval(did.equation.replace("x", "%01.5f".format(x), true))
         } catch(e: Exception) {
             did.value = 0f
         }
