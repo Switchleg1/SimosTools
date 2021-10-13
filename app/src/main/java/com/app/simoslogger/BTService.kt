@@ -526,7 +526,6 @@ class BTService: Service() {
         private var mTask: Int = TASK_NONE
         private var mTaskCount: Int = 0
         private var mTaskTime: Long = 0
-        private var mLogFile: File? = null
         private var mBufferedWriter: BufferedWriter? = null
 
         init {
@@ -761,13 +760,11 @@ class BTService: Service() {
 
             val path = applicationContext.getExternalFilesDir("")
             Log.i(TAG, "$path/data.log")
-            mLogFile = File(path, "/data.log")
-            if(mLogFile == null)
-                return
+            val logFile = File(path, "/data.log")
 
             try {
-                mLogFile!!.createNewFile()
-                mBufferedWriter = BufferedWriter(FileWriter(mLogFile, true))
+                logFile.createNewFile()
+                mBufferedWriter = BufferedWriter(FileWriter(logFile, true))
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -781,15 +778,13 @@ class BTService: Service() {
                 mBufferedWriter!!.close()
                 mBufferedWriter = null
             }
-
-            mLogFile = null
         }
 
         private fun logAdd(from: Boolean, buff: ByteArray?) {
             if(!LOG_COMMUNICATIONS)
                 return
 
-            if(mLogFile == null || mBufferedWriter == null || buff == null)
+            if(mBufferedWriter == null || buff == null)
                 return
 
             try {

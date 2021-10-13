@@ -43,6 +43,8 @@ class MainActivity : AppCompatActivity() {
         mViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
         if(!mViewModel.mStarted) {
+            DebugLog.create(DEBUG_FILENAME, applicationContext)
+
             //Read config file
             ConfigFile.read(CFG_FILENAME, applicationContext)
 
@@ -76,10 +78,9 @@ class MainActivity : AppCompatActivity() {
         mViewModel.mStarted = true
 
         val eq = "x * 1000000"
-        val x = 0.001f
+        val x = 0.00001f
         val new = eval(eq.replace("x", x.toString(), true))
-        Log.i(TAG, new.toString())
-        Log.i(TAG, eval(".001 * 1000000").toString())
+        DebugLog.addLine("$TAG: $x, $eq = $new")
     }
 
     override fun onResume() {

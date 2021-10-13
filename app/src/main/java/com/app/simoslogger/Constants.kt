@@ -116,9 +116,11 @@ val CSV_VALUE_COUNT = 12
 val CSV_3E_NAME     = "PIDList3E.csv"
 val CSV_22_NAME     = "PIDList22.csv"
 val CFG_FILENAME    = "config.cfg"
+val DEBUG_FILENAME  = "debug.log"
 
 //Log communications?
 val LOG_COMMUNICATIONS  = false
+val LOG_DEBUG           = true
 
 //Some default settings
 val DEFAULT_KEEP_SCREEN_ON = true

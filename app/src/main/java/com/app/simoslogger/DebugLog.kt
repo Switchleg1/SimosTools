@@ -5,13 +5,16 @@ import java.io.*
 
 object DebugLog {
     private val TAG = "DebugLog"
-    private var mOutputStream: OutputStream? = null
+    private var mBufferedWriter: BufferedWriter? = null
 
     fun create(fileName: String?, context: Context?) {
+        if(!LOG_DEBUG)
+            return
+
         if(context == null)
             return
 
-        LogFile.close()
+        close()
 
         val path = context.getExternalFilesDir("")
         val logFile = File(path, "/$fileName")
@@ -19,21 +22,29 @@ object DebugLog {
             logFile.createNewFile()
         }
 
-        mOutputStream = FileOutputStream(logFile)
+        mBufferedWriter = BufferedWriter(FileWriter(logFile, true))
     }
 
     fun close() {
-        if(mOutputStream != null) {
-            mOutputStream!!.close()
-            mOutputStream = null
+        if(!LOG_DEBUG)
+            return
+
+        if(mBufferedWriter != null) {
+            mBufferedWriter!!.close()
+            mBufferedWriter = null
         }
     }
 
     fun add(text: String?) {
-        mOutputStream?.write(text?.toByteArray())
+        if(!LOG_DEBUG)
+            return
+
+        mBufferedWriter?.append(text)
     }
 
     fun addLine(text: String?) {
-        add(text + "\n")
+        add(text)
+        mBufferedWriter?.newLine()
+        mBufferedWriter?.flush()
     }
 }
