@@ -112,8 +112,18 @@ class LoggingFragment : Fragment() {
                 val did = list[i]
                 did?.let {
                     //Check for low value PIDS
-                    if ((did.progMax - did.progMin) < 100.0f) {
-                        data.multiplier = 100.0f / (did.progMax - did.progMin)
+                    var progMax = did.progMax
+                    var progMin = did.progMin
+                    var progFlip = false
+
+                    if(did.progMin > did.progMax) {
+                        progMax = did.progMin
+                        progMin = did.progMax
+                        progFlip = true
+                    }
+
+                    if ((progMax - progMin) < 100.0f) {
+                        data.multiplier = 100.0f / (progMax - progMin)
                     } else {
                         data.multiplier = 1.0f
                     }
@@ -137,9 +147,10 @@ class LoggingFragment : Fragment() {
                     progBar.min = (did.progMin * data.multiplier).toInt()
                     progBar.max = (did.progMax * data.multiplier).toInt()
                     progBar.progress = (did.value * data.multiplier).toInt()
-                    progBar.progressTintList =
-                        ColorStateList.valueOf(Settings.colorList[COLOR_BAR_NORMAL])
+                    progBar.progressTintList = ColorStateList.valueOf(Settings.colorList[COLOR_BAR_NORMAL])
                     progBar.scaleY *= Settings.displaySize
+                    if(progFlip) progBar.rotation = 180f
+                        else progBar.rotation = 0f
 
                     val lLayout = view.findViewById<LinearLayout>(R.id.loggingLayoutScroll)
                     lLayout.addView(pidLayout)
@@ -253,16 +264,14 @@ class LoggingFragment : Fragment() {
                             if ((did.value > did.warnMax) or (did.value < did.warnMin)) {
 
                                 if (!data.lastColor) {
-                                    progressBar?.progressTintList =
-                                        ColorStateList.valueOf(Settings.colorList[COLOR_BAR_WARN])
+                                    progressBar?.progressTintList = ColorStateList.valueOf(Settings.colorList[COLOR_BAR_WARN])
                                 }
 
                                 data.lastColor = true
                                 anyWarning = true
                             } else {
                                 if (data.lastColor) {
-                                    progressBar?.progressTintList =
-                                        ColorStateList.valueOf(Settings.colorList[COLOR_BAR_NORMAL])
+                                    progressBar?.progressTintList = ColorStateList.valueOf(Settings.colorList[COLOR_BAR_NORMAL])
                                 }
 
                                 data.lastColor = false

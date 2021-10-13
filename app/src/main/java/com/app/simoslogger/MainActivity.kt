@@ -74,6 +74,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         mViewModel.mStarted = true
+
+        val eq = "x * 1000000"
+        val x = 0.001f
+        val new = eval(eq.replace("x", x.toString(), true))
+        Log.i(TAG, new.toString())
+        Log.i(TAG, eval(".001 * 1000000").toString())
     }
 
     override fun onResume() {

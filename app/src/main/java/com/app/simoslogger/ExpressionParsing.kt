@@ -6,12 +6,16 @@ fun eval(str: String): Float {
     return object : Any() {
         var pos = -1
         var ch = 0
+
         fun nextChar() {
-            ch = if (++pos < str.length) str[pos].code else -1
+            ch = if (++pos < str.length) str[pos].code
+                    else -1
         }
 
         fun eat(charToEat: Int): Boolean {
-            while (ch == ' '.code) nextChar()
+            while (ch == ' '.code)
+                nextChar()
+
             if (ch == charToEat) {
                 nextChar()
                 return true
@@ -24,6 +28,7 @@ fun eval(str: String): Float {
             val x = parseExpression()
             if (pos < str.length)
                 throw RuntimeException("Unexpected: " + ch.toChar())
+
             return x
         }
 
@@ -65,10 +70,12 @@ fun eval(str: String): Float {
                 x = parseExpression()
                 eat(')'.code)
             } else if (ch >= '0'.code && ch <= '9'.code || ch == '.'.code) { // numbers
-                while (ch >= '0'.code && ch <= '9'.code || ch == '.'.code) nextChar()
+                while (ch >= '0'.code && ch <= '9'.code || ch == '.'.code)
+                    nextChar()
                 x = str.substring(startPos, pos).toFloat()
             } else if (ch >= 'a'.code && ch <= 'z'.code) { // functions
-                while (ch >= 'a'.code && ch <= 'z'.code) nextChar()
+                while (ch >= 'a'.code && ch <= 'z'.code)
+                    nextChar()
                 val func = str.substring(startPos, pos)
                 x = parseFactor()
                 x = when (func) {

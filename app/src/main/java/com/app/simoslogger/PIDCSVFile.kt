@@ -48,9 +48,17 @@ object PIDCSVFile {
 
             if(d == CSV_VALUE_COUNT) {
                 try {
+                    //make room
                     pidList = pidList?.copyOf(i+1) ?: arrayOfNulls(1)
 
+                    //make sure the length is legal
+                    if(pidStrings[5]!!.toInt() != 1 || pidStrings[5]!!.toInt() != 2 || pidStrings[5]!!.toInt() != 4)
+                        throw throw RuntimeException("Unexpected pid length: ${pidStrings[5]!!}")
+
+                    //convert address
                     val l = parseLong(pidStrings[4]!!.substringAfter("0x"), 16)
+
+                    //Build did
                     pidList[i++] = DIDStruct(l,
                                             pidStrings[5]!!.toInt(),
                                             pidStrings[6]!!.toBoolean(),
