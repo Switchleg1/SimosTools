@@ -88,13 +88,13 @@ object PIDCSVFile {
                 return false
 
             val path = context.getExternalFilesDir("")
-            val logFile = File(path, "/$fileName")
-            if (logFile.exists()) {
+            val csvFile = File(path, "/$fileName")
+            if (csvFile.exists()) {
                 return false
             }
 
-            logFile.createNewFile()
-            val outStream = FileOutputStream(logFile)
+            csvFile.createNewFile()
+            val outStream = FileOutputStream(csvFile)
 
             outStream.write((CSV_CFG_LINE + "\n").toByteArray())
 
