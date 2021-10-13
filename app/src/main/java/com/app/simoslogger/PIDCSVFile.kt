@@ -50,20 +50,20 @@ object PIDCSVFile {
                 try {
                     pidList = pidList?.copyOf(i+1) ?: arrayOfNulls(1)
 
-                    val l = parseLong(pidStrings[0]!!.substringAfter("0x"), 16)
+                    val l = parseLong(pidStrings[4]!!.substringAfter("0x"), 16)
                     pidList[i++] = DIDStruct(l,
-                                            pidStrings[1]!!.toInt(),
-                                            pidStrings[2]!!.toBoolean(),
-                                            pidStrings[3]!!.toFloat(),
-                                            pidStrings[4]!!.toFloat(),
-                                            pidStrings[5]!!.toFloat(),
-                                            pidStrings[6]!!.toFloat(),
+                                            pidStrings[5]!!.toInt(),
+                                            pidStrings[6]!!.toBoolean(),
                                             pidStrings[7]!!.toFloat(),
+                                            pidStrings[8]!!.toFloat(),
+                                            pidStrings[9]!!.toFloat(),
+                                            pidStrings[10]!!.toFloat(),
+                                            pidStrings[11]!!.toFloat(),
                                             0.0f,
-                                            pidStrings[8]!!,
-                                            pidStrings[9]!!,
-                                            pidStrings[10]!!,
-                                            pidStrings[11]!!)
+                                            pidStrings[2]!!,
+                                            pidStrings[3]!!,
+                                            pidStrings[0]!!,
+                                            pidStrings[1]!!)
                 } catch(e: Exception) {
                     Log.e(TAG, "Unable to create DIDStructure ${pidList?.count()}")
                     return null
@@ -93,19 +93,18 @@ object PIDCSVFile {
             for (i in 0 until list.count()) {
                 val did = list[i]
                 did?.let {
-                    var writeString = ""
-                    writeString += if((did.address.toInt() and 0xFFFF0000.toInt()) != 0) {
-                        "0x${did.address.toInt().toHex()},"
+                    val addressString = if((did.address.toInt() and 0xFFFF0000.toInt()) != 0) {
+                        "0x${did.address.toInt().toHex()}"
                     } else {
-                        "0x${did.address.toShort().toHex()},"
+                        "0x${did.address.toShort().toHex()}"
                     }
 
-                    writeString += "${did.length}," +
+                    val writeString = "${did.name},${did.unit}," +
+                                        "${did.equation},${did.format}," +
+                                        "${addressString},${did.length}," +
                                         "${did.signed},${did.progMin}," +
                                         "${did.progMax},${did.warnMin}," +
-                                        "${did.warnMax},${did.smoothing}," +
-                                        "${did.equation},${did.format}," +
-                                        "${did.name}, ${did.unit}"
+                                        "${did.warnMax},${did.smoothing}"
 
                     outStream.write((writeString + "\n").toByteArray())
                 }

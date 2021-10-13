@@ -111,7 +111,7 @@ val UDS_LOGGING_22 = 0
 val UDS_LOGGING_3E = 1
 
 val MAX_PIDS        = 100
-val CSV_CFG_LINE    = "Address,Length,Signed,ProgMin,ProgMax,WarnMin,WarnMax,Smoothing,Equation,Format,Name,Unit"
+val CSV_CFG_LINE    = "Name,Unit,Equation,Format,Address,Length,Signed,ProgMin,ProgMax,WarnMin,WarnMax,Smoothing"
 val CSV_VALUE_COUNT = 12
 val CSV_3E_NAME     = "PIDList3E.csv"
 val CSV_22_NAME     = "PIDList22.csv"
