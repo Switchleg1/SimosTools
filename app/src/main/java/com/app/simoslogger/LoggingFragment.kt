@@ -26,7 +26,8 @@ import java.lang.Exception
 data class DATAStruct(var min: Float,
                         var max: Float,
                         var lastColor: Boolean,
-                        var multiplier: Float)
+                        var multiplier: Float,
+                        var inverted: Boolean)
 
 class LoggingViewModel : ViewModel() {
     var lastWarning = false
@@ -105,7 +106,7 @@ class LoggingFragment : Fragment() {
                 mPIDS!![i] = pidLayout
 
                 //build new data structure
-                val data = DATAStruct(0.0f, 0.0f, false, 1.0f)
+                val data = DATAStruct(0.0f, 0.0f, false, 1.0f, false)
                 mViewModel.dataList!![i] = data
 
                 //get current did
@@ -119,6 +120,7 @@ class LoggingFragment : Fragment() {
                     if(did.progMin > did.progMax) {
                         progMax = did.progMin
                         progMin = did.progMax
+                        data.inverted = true
                     }
 
                     //if progress bar value is small
@@ -143,11 +145,14 @@ class LoggingFragment : Fragment() {
 
                     //Setup the progress bar
                     val progBar = pidLayout.findViewById<ProgressBar>(R.id.pid_land_progress)
-                    progBar.min = (did.progMin * data.multiplier).toInt()
-                    progBar.max = (did.progMax * data.multiplier).toInt()
-                    progBar.progress = (did.value * data.multiplier).toInt()
+                    progBar.min = (progMin * data.multiplier).toInt()
+                    progBar.max = (progMax * data.multiplier).toInt()
                     progBar.scaleY *= Settings.displaySize
-                    updateProgressColor(progBar, did, false)
+                    progBar.progressTintList = ColorStateList.valueOf(Settings.colorList[COLOR_BAR_NORMAL])
+                    progBar.progress = when(data.inverted) {
+                        true -> ((did.progMax - (did.value - did.progMin)) * data.multiplier).toInt()
+                        false -> (did.value * data.multiplier).toInt()
+                    }
 
                     val lLayout = view.findViewById<LinearLayout>(R.id.loggingLayoutScroll)
                     lLayout.addView(pidLayout)
@@ -216,27 +221,6 @@ class LoggingFragment : Fragment() {
         }
     }
 
-    private fun updateProgressColor(progBar: ProgressBar?, did: DIDStruct?, warn: Boolean)
-    {
-        try {
-            if(did!!.progMin > did.progMax) {
-                progBar!!.progressTintList = ColorStateList.valueOf(Settings.colorList[COLOR_BG_NORMAL])
-                when(warn) {
-                    true -> progBar.backgroundTintList = ColorStateList.valueOf(Settings.colorList[COLOR_BAR_WARN])
-                    false -> progBar.backgroundTintList = ColorStateList.valueOf(Settings.colorList[COLOR_BAR_NORMAL])
-                }
-            } else {
-                progBar!!.backgroundTintList = ColorStateList.valueOf(Settings.colorList[COLOR_BG_NORMAL])
-                when(warn) {
-                    true -> progBar.progressTintList = ColorStateList.valueOf(Settings.colorList[COLOR_BAR_WARN])
-                    false -> progBar.progressTintList = ColorStateList.valueOf(Settings.colorList[COLOR_BAR_NORMAL])
-                }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Unable to update progress color")
-        }
-    }
-
     private val mBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             when (intent.action) {
@@ -274,7 +258,11 @@ class LoggingFragment : Fragment() {
 
 
                             //Update progress is the value is different
-                            val newProgress = (did.value * data.multiplier).toInt()
+                            val newProgress = when(data.inverted) {
+                                true -> ((did.progMax - (did.value - did.progMin)) * data.multiplier).toInt()
+                                false -> (did.value * data.multiplier).toInt()
+                            }
+
                             if (newProgress != progressBar?.progress) {
                                 progressBar?.progress = newProgress
                             }
@@ -283,14 +271,14 @@ class LoggingFragment : Fragment() {
                             if ((did.value > did.warnMax) or (did.value < did.warnMin)) {
 
                                 if (!data.lastColor) {
-                                    updateProgressColor(progressBar, did, true)
+                                    progressBar?.progressTintList = ColorStateList.valueOf(Settings.colorList[COLOR_BG_WARNING])
                                 }
 
                                 data.lastColor = true
                                 anyWarning = true
                             } else {
                                 if (data.lastColor) {
-                                    updateProgressColor(progressBar, did, false)
+                                    progressBar?.progressTintList = ColorStateList.valueOf(Settings.colorList[COLOR_BAR_NORMAL])
                                 }
 
                                 data.lastColor = false
