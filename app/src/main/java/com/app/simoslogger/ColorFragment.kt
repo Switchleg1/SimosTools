@@ -64,6 +64,18 @@ class ColorFragment : Fragment() {
             findNavController().navigateUp()
         }
 
+        //setup seek bars
+        val rSeek = view.findViewById<SeekBar>(R.id.seekBarColorR)
+        val gSeek = view.findViewById<SeekBar>(R.id.seekBarColorG)
+        val bSeek = view.findViewById<SeekBar>(R.id.seekBarColorB)
+        rSeek.max = 255
+        gSeek.max = 255
+        bSeek.max = 255
+        rSeek.progress = ColorSettings.mR
+        gSeek.progress = ColorSettings.mG
+        bSeek.progress = ColorSettings.mB
+        doSetColor()
+
         view.findViewById<SeekBar>(R.id.seekBarColorR).setOnSeekBarChangeListener(object :
             SeekBar.OnSeekBarChangeListener {
             override fun onStopTrackingTouch(seekBar: SeekBar) {
@@ -106,18 +118,6 @@ class ColorFragment : Fragment() {
         //Set color picker
         val iColor = view.findViewById<ImageView>(R.id.imageViewColor)
         iColor.setBackgroundColor(Color.rgb(ColorSettings.mR, ColorSettings.mG, ColorSettings.mB))
-
-        //setup seek bars
-        val rSeek = view.findViewById<SeekBar>(R.id.seekBarColorR)
-        val gSeek = view.findViewById<SeekBar>(R.id.seekBarColorG)
-        val bSeek = view.findViewById<SeekBar>(R.id.seekBarColorB)
-        rSeek.max = 255
-        gSeek.max = 255
-        bSeek.max = 255
-        rSeek.progress = ColorSettings.mR
-        gSeek.progress = ColorSettings.mG
-        bSeek.progress = ColorSettings.mB
-        doSetColor()
 
         //Set colors
         view.setBackgroundColor(Settings.colorList[COLOR_BG_NORMAL])
