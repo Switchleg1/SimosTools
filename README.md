@@ -1,4 +1,3 @@
-![alt text](https://github.com/Switchleg1/Simos-Logger/blob/master/app/src/main/res/drawable/simoslogger.png?raw=true)
 # Simos Logger
 
 Makes use of the Macchina-A0 BLEISOTP bridge firmware originally developed by bri3d to log Simo ECUs:
@@ -12,5 +11,7 @@ https://datazap.me/u/switchleg/log-1632680629?log=0&data=2-3<br />
 
 PIDs can be modified in the config file including the min/max for realtime display.
 
-![alt text](https://github.com/Switchleg1/Simos-Logger/blob/master/images/Screenshot1.jpg?raw=true)
-![alt text](https://github.com/Switchleg1/Simos-Logger/blob/master/images/Screenshot2.jpg?raw=true)
+<p align="center">
+  <img src="https://github.com/Switchleg1/Simos-Logger/blob/master/images/Screenshot2.jpg?raw=true" width="200" title="hover text">
+  <img src="https://github.com/Switchleg1/Simos-Logger/blob/master/images/Screenshot1.jpg?raw=true" width="600" title="hover text">
+</p>
