@@ -12,4 +12,4 @@ https://datazap.me/u/switchleg/log-1632680629?log=0&data=2-3<br />
 
 PIDs can be modified in the config file including the min/max for realtime display.
 
-![alt text](https://github.com/Switchleg1/Simos-Logger/blob/master/images/screenshot1.jpg?raw=true)
+![alt text](https://github.com/Switchleg1/Simos-Logger/blob/master/images/Screenshot1.jpg?raw=true)
