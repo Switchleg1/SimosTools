@@ -22,8 +22,12 @@ class SettingsFragment : Fragment() {
             uri?.let {
                 val pidList = PIDCSVFile.readStream(activity?.contentResolver?.openInputStream(uri))
                 if(pidList != null && pidList.count() == 32) {
-                    DIDs.list22 = pidList
-                    Toast.makeText(activity, "Success", Toast.LENGTH_SHORT).show()
+                    if(PIDCSVFile.write(CSV_22_NAME, context, pidList, true)) {
+                        DIDs.list22 = pidList
+                        Toast.makeText(activity, "Success", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(activity, "Failed", Toast.LENGTH_SHORT).show()
+                    }
                 } else {
                     Toast.makeText(activity, "Failed", Toast.LENGTH_SHORT).show()
                 }
@@ -37,8 +41,12 @@ class SettingsFragment : Fragment() {
             uri?.let {
                 val pidList = PIDCSVFile.readStream(activity?.contentResolver?.openInputStream(uri))
                 if(pidList != null) {
-                    DIDs.list3E = pidList
-                    Toast.makeText(activity, "Success", Toast.LENGTH_SHORT).show()
+                    if(PIDCSVFile.write(CSV_3E_NAME, context, pidList, true)) {
+                        DIDs.list3E = pidList
+                        Toast.makeText(activity, "Success", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(activity, "Failed", Toast.LENGTH_SHORT).show()
+                    }
                 } else {
                     Toast.makeText(activity, "Failed", Toast.LENGTH_SHORT).show()
                 }
@@ -67,14 +75,14 @@ class SettingsFragment : Fragment() {
 
         view.findViewById<Button>(R.id.button22CSV).setOnClickListener {
             var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
-            chooseFile.type = "*/*"
+            chooseFile.type = "text/*"
             chooseFile = Intent.createChooser(chooseFile, "Choose a 22 CSV")
             resultPickLauncher22.launch(chooseFile)
         }
 
         view.findViewById<Button>(R.id.button3ECSV).setOnClickListener {
             var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
-            chooseFile.type = "*/*"
+            chooseFile.type = "text/*"
             chooseFile = Intent.createChooser(chooseFile, "Choose a 3E CSV")
             resultPickLauncher3E.launch(chooseFile)
         }
