@@ -64,18 +64,6 @@ class ColorFragment : Fragment() {
             findNavController().navigateUp()
         }
 
-        val rSeek = view.findViewById<SeekBar>(R.id.seekBarColorR)
-        val gSeek = view.findViewById<SeekBar>(R.id.seekBarColorG)
-        val bSeek = view.findViewById<SeekBar>(R.id.seekBarColorB)
-        rSeek.max = 255
-        gSeek.max = 255
-        bSeek.max = 255
-        rSeek.progress = ColorSettings.mR
-        gSeek.progress = ColorSettings.mG
-        bSeek.progress = ColorSettings.mB
-        doSetColor()
-
-
         view.findViewById<SeekBar>(R.id.seekBarColorR).setOnSeekBarChangeListener(object :
             SeekBar.OnSeekBarChangeListener {
             override fun onStopTrackingTouch(seekBar: SeekBar) {
@@ -115,8 +103,27 @@ class ColorFragment : Fragment() {
             }
         })
 
-        //Set background color
-        view.setBackgroundColor(Color.rgb(ColorSettings.mR, ColorSettings.mG, ColorSettings.mB))
+        //Set color picker
+        val iColor = view.findViewById<ImageView>(R.id.imageViewColor)
+        iColor.setBackgroundColor(Color.rgb(ColorSettings.mR, ColorSettings.mG, ColorSettings.mB))
+
+        //setup seek bars
+        val rSeek = view.findViewById<SeekBar>(R.id.seekBarColorR)
+        val gSeek = view.findViewById<SeekBar>(R.id.seekBarColorG)
+        val bSeek = view.findViewById<SeekBar>(R.id.seekBarColorB)
+        rSeek.max = 255
+        gSeek.max = 255
+        bSeek.max = 255
+        rSeek.progress = ColorSettings.mR
+        gSeek.progress = ColorSettings.mG
+        bSeek.progress = ColorSettings.mB
+        doSetColor()
+
+        //Set colors
+        view.setBackgroundColor(Settings.colorList[COLOR_BG_NORMAL])
+        view.findViewById<TextView>(R.id.textViewColorR).setTextColor(Settings.colorList[COLOR_TEXT])
+        view.findViewById<TextView>(R.id.textViewColorG).setTextColor(Settings.colorList[COLOR_TEXT])
+        view.findViewById<TextView>(R.id.textViewColorB).setTextColor(Settings.colorList[COLOR_TEXT])
     }
 
     private fun doSave() {
@@ -131,20 +138,20 @@ class ColorFragment : Fragment() {
             val rText = currentView.findViewById<TextView>(R.id.textViewColorR)
             val gText = currentView.findViewById<TextView>(R.id.textViewColorG)
             val bText = currentView.findViewById<TextView>(R.id.textViewColorB)
+            val iColor = currentView.findViewById<ImageView>(R.id.imageViewColor)
 
+            //Get colors from seek bars
             ColorSettings.mR = rSeek.progress
             ColorSettings.mG = gSeek.progress
             ColorSettings.mB = bSeek.progress
 
-            val ci = ColorSettings.makeInverse()
-            rText.setTextColor(ci)
-            gText.setTextColor(ci)
-            bText.setTextColor(ci)
+            //set text
             rText.text = getString(R.string.textview_color_r, rSeek.progress)
             gText.text = getString(R.string.textview_color_g, gSeek.progress)
             bText.text = getString(R.string.textview_color_b, bSeek.progress)
 
-            currentView.setBackgroundColor(ColorSettings.makeColor())
+            //update color
+            iColor.setBackgroundColor(ColorSettings.makeColor())
         }
     }
 }

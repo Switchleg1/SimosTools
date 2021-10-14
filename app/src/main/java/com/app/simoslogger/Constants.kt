@@ -37,17 +37,21 @@ val STATE_NONE          = 0 // we're doing nothing
 val STATE_CONNECTING    = 1 // now initiating an outgoing connection
 val STATE_CONNECTED     = 2 // now connected to a remote device
 
+//List of available tasks
 val TASK_NONE       = 0
 val TASK_FLASHING   = 1
 val TASK_LOGGING    = 2 // uploading to remote device
 val TASK_RD_VIN     = 3 // download from remote device
 val TASK_CLEAR_DTC  = 4
 
+val TASK_END_DELAY  = 500
+
 //Intent constants
 val REQUEST_LOCATION_PERMISSION = 1
 val REQUEST_READ_STORAGE        = 2
 val REQUEST_WRITE_STORAGE       = 3
 
+//Service info
 val CHANNEL_ID = "BTService"
 val CHANNEL_NAME = "BTService"
 

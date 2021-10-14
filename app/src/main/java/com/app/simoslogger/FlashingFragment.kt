@@ -136,27 +136,3 @@ class FlashingFragment : Fragment() {
         }
     }
 }
-
-
-//if(BTService.getState() == STATE_CONNECTED) {
-//    var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
-//    chooseFile.type = "*/*"
-//    chooseFile = Intent.createChooser(chooseFile, "Choose a bin")
-//     resultPickLauncher.launch(intent)
-//}
-
-/*var resultPickLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-    if (result.resultCode == Activity.RESULT_OK) {
-        val uri: Uri? = data?.data
-        var fileStream: InputStream? = null
-
-        if(uri != null)
-            fileStream = activity?.contentResolver?.openInputStream(uri);
-
-        if(uri != null && BTService.getState() == STATE_CONNECTED) {
-            Toast.makeText(activity, "Upload started", Toast.LENGTH_SHORT).show()
-            mConversationArrayAdapter?.add("Upload started.")
-            //BTService.upload(fileStream)
-        }
-    }
-}*/

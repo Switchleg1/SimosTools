@@ -673,7 +673,7 @@ class BTService: Service() {
                 }
 
                 //Ready for next task?
-                if(mTask == TASK_NONE && mTaskNext != TASK_NONE && mTaskTimeNext < System.currentTimeMillis()){
+                if(mTask == TASK_NONE && mTaskNext != TASK_NONE && mTaskTimeNext < System.currentTimeMillis()) {
                     startNextTask()
                 }
             }
@@ -693,8 +693,8 @@ class BTService: Service() {
             }
 
             //queue up next task and set start time
-            mTaskNext = newTask
-            mTaskTimeNext = System.currentTimeMillis() + 500
+            mTaskNext       = newTask
+            mTaskTimeNext   = System.currentTimeMillis() + TASK_END_DELAY
 
             //If we are doing something call for a stop
             if(mTask != TASK_NONE) {
@@ -714,10 +714,10 @@ class BTService: Service() {
 
         private fun startNextTask() {
             //Broadcast a new message
-            mTask = mTaskNext
-            mTaskNext = TASK_NONE
-            mTaskCount = 0
-            mTaskTime = System.currentTimeMillis()
+            mTask       = mTaskNext
+            mTaskNext   = TASK_NONE
+            mTaskCount  = 0
+            mTaskTime   = System.currentTimeMillis()
 
             //send new task
             val intentMessage = Intent(MESSAGE_TASK_CHANGE.toString())
