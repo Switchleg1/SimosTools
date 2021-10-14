@@ -8,9 +8,8 @@
 
     <Button
         android:id="@+id/button_flashing"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_width="0dp"
+        android:layout_height="64dp"
         android:text="@string/button_flashing"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/imageView"
@@ -18,9 +17,9 @@
 
     <Button
         android:id="@+id/button_logging"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_width="0dp"
+        android:layout_height="64dp"
+        android:layout_marginTop="8dp"
         android:text="@string/button_logging"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/imageView"
@@ -38,20 +37,21 @@
 
     <Button
         android:id="@+id/buttonStopService"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_width="0dp"
+        android:layout_height="64dp"
+        android:layout_marginBottom="8dp"
         android:text="@string/button_exit"
-        app:layout_constraintStart_toStartOf="@+id/buttonSettings"
-        app:layout_constraintTop_toBottomOf="@+id/buttonSettings" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/imageView" />
 
     <Button
         android:id="@+id/buttonSettings"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_width="0dp"
+        android:layout_height="64dp"
         android:text="@string/button_settings"
-        app:layout_constraintStart_toStartOf="@+id/button_flashing"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/imageView"
         app:layout_constraintTop_toBottomOf="@+id/button_flashing" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

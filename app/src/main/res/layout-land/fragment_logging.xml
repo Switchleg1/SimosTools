@@ -19,7 +19,7 @@
 
     <Button
         android:id="@+id/button_back"
-        android:layout_width="wrap_content"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="32dp"
         android:text="@string/button_back"
@@ -28,7 +28,7 @@
 
     <Button
         android:id="@+id/buttonReset"
-        android:layout_width="wrap_content"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:text="@string/button_reset"

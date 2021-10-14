@@ -8,21 +8,21 @@
 
     <Button
         android:id="@+id/buttonBack"
-        android:layout_width="wrap_content"
+        android:layout_width="125dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginBottom="8dp"
         android:text="@string/button_back"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toEndOf="@+id/buttonSave" />
 
     <Button
         android:id="@+id/buttonSave"
-        android:layout_width="wrap_content"
+        android:layout_width="125dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
+        android:layout_marginStart="8dp"
         android:text="@string/button_save"
-        app:layout_constraintEnd_toStartOf="@+id/buttonBack"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/buttonBack" />
 
     <ScrollView
@@ -214,7 +214,7 @@
             </LinearLayout>
 
             <TextView
-                android:id="@+id/textView"
+                android:id="@+id/textViewPIDCSV"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="32sp"
@@ -248,6 +248,12 @@
                 android:text="@string/button_set_bg_normal_color"
                 android:textColor="#5E35B1" />
 
+            <View
+                android:id="@+id/divider2"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
             <Button
                 android:id="@+id/buttonSetBGWarningColor"
                 style="@style/Widget.AppCompat.Button.Colored"
@@ -255,6 +261,12 @@
                 android:layout_height="wrap_content"
                 android:text="@string/button_set_bg_warning_color"
                 android:textColor="#5E35B1" />
+
+            <View
+                android:id="@+id/divider3"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
 
             <Button
                 android:id="@+id/buttonSetTextColor"
@@ -264,6 +276,12 @@
                 android:text="@string/button_set_text_color"
                 android:textColor="#5E35B1" />
 
+            <View
+                android:id="@+id/divider4"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
             <Button
                 android:id="@+id/buttonSetBarNormalColor"
                 style="@style/Widget.AppCompat.Button.Colored"
@@ -271,6 +289,12 @@
                 android:layout_height="wrap_content"
                 android:text="@string/button_set_bar_normal_color"
                 android:textColor="#5E35B1" />
+
+            <View
+                android:id="@+id/divider5"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
 
             <Button
                 android:id="@+id/buttonSetBarWarnColor"
@@ -280,6 +304,12 @@
                 android:text="@string/button_set_bar_warn_color"
                 android:textColor="#5E35B1" />
 
+            <View
+                android:id="@+id/divider6"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
             <Button
                 android:id="@+id/buttonSetErrorColor"
                 style="@style/Widget.AppCompat.Button.Colored"
@@ -287,6 +317,12 @@
                 android:layout_height="wrap_content"
                 android:text="@string/button_set_st_error"
                 android:textColor="#5E35B1" />
+
+            <View
+                android:id="@+id/divider7"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
 
             <Button
                 android:id="@+id/buttonSetNoneColor"
@@ -296,6 +332,12 @@
                 android:text="@string/button_set_st_none"
                 android:textColor="#5E35B1" />
 
+            <View
+                android:id="@+id/divider8"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
             <Button
                 android:id="@+id/buttonSetConnectingColor"
                 style="@style/Widget.AppCompat.Button.Colored"
@@ -304,13 +346,26 @@
                 android:text="@string/button_set_st_connecting"
                 android:textColor="#5E35B1" />
 
+            <View
+                android:id="@+id/divider9"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
             <Button
                 android:id="@+id/buttonSetConnectedColor"
                 style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/button_set_st_connected"
-                android:textColor="#5E35B1" />
+                android:textColor="#5E35B1"
+                tools:ignore="TextContrastCheck" />
+
+            <View
+                android:id="@+id/divider10"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
 
             <Button
                 android:id="@+id/buttonSetLoggingColor"
@@ -319,6 +374,12 @@
                 android:layout_height="wrap_content"
                 android:text="@string/button_set_st_logging"
                 android:textColor="#5E35B1" />
+
+            <View
+                android:id="@+id/divider11"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
 
             <Button
                 android:id="@+id/buttonSetWritingColor"

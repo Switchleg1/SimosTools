@@ -208,6 +208,7 @@ class SettingsFragment : Fragment() {
             currentView.findViewById<TextView>(R.id.textViewLoggingMode).setTextColor(Settings.colorList[COLOR_TEXT])
             currentView.findViewById<TextView>(R.id.textViewMiscOptions).setTextColor(Settings.colorList[COLOR_TEXT])
             currentView.findViewById<TextView>(R.id.textViewCalcHPOptions).setTextColor(Settings.colorList[COLOR_TEXT])
+            currentView.findViewById<TextView>(R.id.textViewPIDCSV).setTextColor(Settings.colorList[COLOR_TEXT])
             currentView.findViewById<TextView>(R.id.textViewColorOptions).setTextColor(Settings.colorList[COLOR_TEXT])
             currentView.findViewById<RadioButton>(R.id.radioButtonDownloads).setTextColor(Settings.colorList[COLOR_TEXT])
             currentView.findViewById<RadioButton>(R.id.radioButtonDocuments).setTextColor(Settings.colorList[COLOR_TEXT])

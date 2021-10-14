@@ -46,7 +46,7 @@ class FlashingFragment : Fragment() {
         view.findViewById<ListView>(R.id.bt_message).setBackgroundColor(Color.WHITE)
 
 
-        view.findViewById<Button>(R.id.button_back2).setOnClickListener {
+        view.findViewById<Button>(R.id.buttonBack2).setOnClickListener {
             findNavController().navigateUp()
         }
 
