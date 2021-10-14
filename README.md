@@ -1,3 +1,4 @@
+![alt text](https://github.com/Switchleg1/Simos-Logger/blob/master/app/src/main/res/drawable/simoslogger.png?raw=true)
 # Simos Logger
 
 Will use the BLE ISOTP bridge by bri3d to log Simo ECUs https://github.com/Switchleg1/esp32-isotp-ble-bridge/tree/BridgeLEG
