@@ -155,7 +155,7 @@ object ConfigFile {
                 }
                 "ColorBGWarn" -> {
                     val l = parseLong(value, 16)
-                    Settings.colorList[COLOR_BG_WARNING] = l.toColorInt()
+                    Settings.colorList[COLOR_BG_WARN] = l.toColorInt()
                 }
                 "ColorText" -> {
                     val l = parseLong(value, 16)
@@ -230,7 +230,7 @@ object ConfigFile {
         mProperties["GearRatio.7"] = DEFAULT_GEAR_RATIOS[6].toString()
         mProperties["GearRatio.Final"] = DEFAULT_GEAR_RATIOS[7].toString()
         mProperties["ColorBGNormal"] = DEFAULT_COLOR_LIST[COLOR_BG_NORMAL].toColorHex()
-        mProperties["ColorBGWarn"] = DEFAULT_COLOR_LIST[COLOR_BG_WARNING].toColorHex()
+        mProperties["ColorBGWarn"] = DEFAULT_COLOR_LIST[COLOR_BG_WARN].toColorHex()
         mProperties["ColorText"] = DEFAULT_COLOR_LIST[COLOR_TEXT].toColorHex()
         mProperties["ColorBarNormal"] = DEFAULT_COLOR_LIST[COLOR_BAR_NORMAL].toColorHex()
         mProperties["ColorBarWarn"] = DEFAULT_COLOR_LIST[COLOR_BAR_WARN].toColorHex()

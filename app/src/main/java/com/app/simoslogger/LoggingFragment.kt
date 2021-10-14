@@ -271,7 +271,7 @@ class LoggingFragment : Fragment() {
                             if ((did.value > did.warnMax) or (did.value < did.warnMin)) {
 
                                 if (!data.lastColor) {
-                                    progressBar?.progressTintList = ColorStateList.valueOf(Settings.colorList[COLOR_BG_WARNING])
+                                    progressBar?.progressTintList = ColorStateList.valueOf(Settings.colorList[COLOR_BAR_WARN])
                                 }
 
                                 data.lastColor = true
@@ -291,7 +291,7 @@ class LoggingFragment : Fragment() {
                     //If any visible PIDS are in warning state set background color to warn
                     if(anyWarning) {
                         if(!mViewModel.lastWarning) {
-                            view?.setBackgroundColor(Settings.colorList[COLOR_BG_WARNING])
+                            view?.setBackgroundColor(Settings.colorList[COLOR_BG_WARN])
                         }
 
                         mViewModel.lastWarning = true

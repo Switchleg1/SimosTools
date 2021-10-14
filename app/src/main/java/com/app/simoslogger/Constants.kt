@@ -155,7 +155,7 @@ val TQ_CONSTANT = 16.3f
 
 //Color index
 val COLOR_BG_NORMAL     = 0
-val COLOR_BG_WARNING    = 1
+val COLOR_BG_WARN       = 1
 val COLOR_TEXT          = 2
 val COLOR_BAR_NORMAL    = 3
 val COLOR_BAR_WARN      = 4

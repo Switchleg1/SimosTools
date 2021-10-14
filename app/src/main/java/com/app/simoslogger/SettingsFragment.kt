@@ -41,7 +41,7 @@ class SettingsFragment : Fragment() {
         }
 
         view.findViewById<Button>(R.id.buttonSetBGWarningColor).setOnClickListener {
-            ColorSettings.getColor(COLOR_BG_WARNING)
+            ColorSettings.getColor(COLOR_BG_WARN)
             findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
@@ -171,8 +171,8 @@ class SettingsFragment : Fragment() {
             //Set color boxes
             currentView.findViewById<Button>(R.id.buttonSetBGNormalColor).setTextColor(ColorSettings.mColorList[COLOR_BG_NORMAL].toColorInverse())
             currentView.findViewById<Button>(R.id.buttonSetBGNormalColor).setBackgroundColor(ColorSettings.mColorList[COLOR_BG_NORMAL])
-            currentView.findViewById<Button>(R.id.buttonSetBGWarningColor).setTextColor(ColorSettings.mColorList[COLOR_BG_WARNING].toColorInverse())
-            currentView.findViewById<Button>(R.id.buttonSetBGWarningColor).setBackgroundColor(ColorSettings.mColorList[COLOR_BG_WARNING])
+            currentView.findViewById<Button>(R.id.buttonSetBGWarningColor).setTextColor(ColorSettings.mColorList[COLOR_BG_WARN].toColorInverse())
+            currentView.findViewById<Button>(R.id.buttonSetBGWarningColor).setBackgroundColor(ColorSettings.mColorList[COLOR_BG_WARN])
             currentView.findViewById<Button>(R.id.buttonSetTextColor).setTextColor(ColorSettings.mColorList[COLOR_TEXT].toColorInverse())
             currentView.findViewById<Button>(R.id.buttonSetTextColor).setBackgroundColor(ColorSettings.mColorList[COLOR_TEXT])
             currentView.findViewById<Button>(R.id.buttonSetBarNormalColor).setTextColor(ColorSettings.mColorList[COLOR_BAR_NORMAL].toColorInverse())
@@ -323,7 +323,7 @@ class SettingsFragment : Fragment() {
 
             //Set Colors
             ConfigFile.set("ColorBGNormal", ColorSettings.mColorList[COLOR_BG_NORMAL].toColorHex())
-            ConfigFile.set("ColorBGWarn", ColorSettings.mColorList[COLOR_BG_WARNING].toColorHex())
+            ConfigFile.set("ColorBGWarn", ColorSettings.mColorList[COLOR_BG_WARN].toColorHex())
             ConfigFile.set("ColorText", ColorSettings.mColorList[COLOR_TEXT].toColorHex())
             ConfigFile.set("ColorBarNormal", ColorSettings.mColorList[COLOR_BAR_NORMAL].toColorHex())
             ConfigFile.set("ColorBarWarn", ColorSettings.mColorList[COLOR_BAR_WARN].toColorHex())
