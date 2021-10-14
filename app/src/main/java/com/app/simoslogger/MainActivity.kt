@@ -43,15 +43,17 @@ class MainActivity : AppCompatActivity() {
         mViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
         if(!mViewModel.mStarted) {
+            //Start debuglog
             DebugLog.create(DEBUG_FILENAME, applicationContext)
 
             //Read config file
             ConfigFile.read(CFG_FILENAME, applicationContext)
 
-            //Read pid files
-            PIDCSVFile.write(CSV_3E_NAME, applicationContext, DIDs.list3E)
-            PIDCSVFile.write(CSV_22_NAME, applicationContext, DIDs.list22)
+            //Write pid default files
+            PIDCSVFile.write(CSV_3E_NAME, applicationContext, DIDs.list3E, false)
+            PIDCSVFile.write(CSV_22_NAME, applicationContext, DIDs.list22, false)
 
+            //Read pid files
             val pid3EList = PIDCSVFile.read(CSV_3E_NAME, applicationContext)
             if(pid3EList != null)
                 DIDs.list3E = pid3EList

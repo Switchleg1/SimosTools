@@ -1,7 +1,8 @@
 package com.app.simoslogger
 
+import android.app.Activity
 import android.content.Intent
-import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import androidx.fragment.app.Fragment
@@ -12,9 +13,38 @@ import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import android.widget.SeekBar.OnSeekBarChangeListener
-import androidx.core.graphics.toColor
+import androidx.activity.result.contract.ActivityResultContracts
 
 class SettingsFragment : Fragment() {
+    var resultPickLauncher22 = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val uri: Uri? = result.data?.data
+            uri?.let {
+                val pidList = PIDCSVFile.readStream(activity?.contentResolver?.openInputStream(uri))
+                if(pidList != null) {
+                    DIDs.list22 = pidList
+                    Toast.makeText(activity, "Success", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(activity, "Failed", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    var resultPickLauncher3E = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val uri: Uri? = result.data?.data
+            uri?.let {
+                val pidList = PIDCSVFile.readStream(activity?.contentResolver?.openInputStream(uri))
+                if(pidList != null) {
+                    DIDs.list3E = pidList
+                    Toast.makeText(activity, "Success", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(activity, "Failed", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,6 +63,20 @@ class SettingsFragment : Fragment() {
 
         view.findViewById<Button>(R.id.buttonSave).setOnClickListener {
             doSave()
+        }
+
+        view.findViewById<Button>(R.id.button22CSV).setOnClickListener {
+            var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
+            chooseFile.type = "*/*"
+            chooseFile = Intent.createChooser(chooseFile, "Choose a 22 CSV")
+            resultPickLauncher22.launch(chooseFile)
+        }
+
+        view.findViewById<Button>(R.id.button3ECSV).setOnClickListener {
+            var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
+            chooseFile.type = "*/*"
+            chooseFile = Intent.createChooser(chooseFile, "Choose a 3E CSV")
+            resultPickLauncher3E.launch(chooseFile)
         }
 
         view.findViewById<Button>(R.id.buttonSetBGNormalColor).setOnClickListener {

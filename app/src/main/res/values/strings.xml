@@ -58,6 +58,9 @@
     <string name="textview_settings_misc_options">Misc options:</string>
     <string name="textview_settings_color_options">Color options:</string>
     <string name="textview_settings_hp_options">Calculated HP options:</string>
+    <string name="textview_settings_import_csv">Import PID CSV:</string>
+    <string name="textview_settings_import_22_csv">22 CSV</string>
+    <string name="textview_settings_import_3E_csv">3E CSV</string>
     <string name="textview_color_r">R: <xliff:g id="value">%1$d</xliff:g></string>
     <string name="textview_color_g">G: <xliff:g id="value">%1$d</xliff:g></string>
     <string name="textview_color_b">B: <xliff:g id="value">%1$d</xliff:g></string>

@@ -214,6 +214,25 @@
             </LinearLayout>
 
             <TextView
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="32sp"
+                android:text="@string/textview_settings_import_csv" />
+
+            <Button
+                android:id="@+id/button22CSV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/textview_settings_import_22_csv" />
+
+            <Button
+                android:id="@+id/button3ECSV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/textview_settings_import_3E_csv" />
+
+            <TextView
                 android:id="@+id/textViewColorOptions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -308,6 +327,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/button_set_st_writing"
                 android:textColor="#5E35B1" />
+
         </LinearLayout>
     </ScrollView>
 

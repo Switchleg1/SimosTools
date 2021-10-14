@@ -12,6 +12,7 @@ object PIDCSVFile {
         if(context == null)
             return null
 
+        //get file path and check if file exists
         val path = context.getExternalFilesDir("")
         val csvFile = File(path, "/$fileName")
         if (!csvFile.exists()) {
@@ -19,18 +20,26 @@ object PIDCSVFile {
             return null
         }
 
-        val inStream = BufferedReader(InputStreamReader(FileInputStream(csvFile)))
+        return readStream(FileInputStream(csvFile))
+    }
+
+    fun readStream(fileStream: InputStream?):Array<DIDStruct?>? {
+
+        val inStream = BufferedReader(InputStreamReader(fileStream))
+        //is the file empty?
         if(!inStream.ready()) {
             Log.i(TAG, "file is empty.")
             return null
         }
 
+        //check header
         val cfgLine = inStream.readLine()
         if(cfgLine == CSV_CFG_LINE + "\n") {
             Log.i(TAG, "config line does not match")
             return null
         }
 
+        //read PIDS
         var i = 0
         var pidList: Array<DIDStruct?>? = null
         while(inStream.ready() && i < MAX_PIDS) {
@@ -62,18 +71,18 @@ object PIDCSVFile {
 
                     //Build did
                     pidList[i++] = DIDStruct(l,
-                                            pidStrings[5]!!.toInt(),
-                                            pidStrings[6]!!.toBoolean(),
-                                            pidStrings[7]!!.toFloat(),
-                                            pidStrings[8]!!.toFloat(),
-                                            pidStrings[9]!!.toFloat(),
-                                            pidStrings[10]!!.toFloat(),
-                                            pidStrings[11]!!.toFloat(),
-                                            0.0f,
-                                            pidStrings[2]!!,
-                                            pidStrings[3]!!,
-                                            pidStrings[0]!!,
-                                            pidStrings[1]!!)
+                        pidStrings[5]!!.toInt(),
+                        pidStrings[6]!!.toBoolean(),
+                        pidStrings[7]!!.toFloat(),
+                        pidStrings[8]!!.toFloat(),
+                        pidStrings[9]!!.toFloat(),
+                        pidStrings[10]!!.toFloat(),
+                        pidStrings[11]!!.toFloat(),
+                        0.0f,
+                        pidStrings[2]!!,
+                        pidStrings[3]!!,
+                        pidStrings[0]!!,
+                        pidStrings[1]!!)
                 } catch(e: Exception) {
                     Log.e(TAG, "Unable to create DIDStructure ${pidList?.count()}")
                     return null
@@ -86,22 +95,27 @@ object PIDCSVFile {
         return pidList
     }
 
-    fun write(fileName: String?, context: Context?, pidList: Array<DIDStruct?>?): Boolean {
+    fun write(fileName: String?, context: Context?, pidList: Array<DIDStruct?>?, overWrite: Boolean): Boolean {
         pidList?.let { list ->
             if (context == null)
                 return false
 
+            //get filename and check if it exists
             val path = context.getExternalFilesDir("")
             val csvFile = File(path, "/$fileName")
             if (csvFile.exists()) {
-                return false
+                if(overWrite) csvFile.delete()
+                    else return false
             }
 
+            //Create new file
             csvFile.createNewFile()
             val outStream = FileOutputStream(csvFile)
 
+            //write header
             outStream.write((CSV_CFG_LINE + "\n").toByteArray())
 
+            //write pids
             for (i in 0 until list.count()) {
                 val did = list[i]
                 did?.let {
@@ -122,6 +136,7 @@ object PIDCSVFile {
                 }
             }
 
+            //close file and return
             outStream.close()
 
             return true
