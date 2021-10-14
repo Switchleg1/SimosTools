@@ -73,7 +73,7 @@ class FlashingFragment : Fragment() {
 
         val filter = IntentFilter()
         filter.addAction(MESSAGE_STATE_CHANGE.toString())
-        filter.addAction(MESSAGE_READ.toString())
+        //filter.addAction(MESSAGE_READ.toString())
         filter.addAction(MESSAGE_READ_VIN.toString())
         filter.addAction(MESSAGE_READ_DTC.toString())
         this.activity?.registerReceiver(mBroadcastReceiver, filter)

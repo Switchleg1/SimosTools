@@ -686,11 +686,13 @@ class BTService: Service() {
 
         fun setTaskState(newTask: Int)
         {
+            //if we are not connected abort
             if (mState != STATE_CONNECTED) {
                 mTask = TASK_NONE
                 return
             }
 
+            //queue up next task and set start time
             mTaskNext = newTask
             mTaskTimeNext = System.currentTimeMillis() + 500
 
@@ -702,6 +704,11 @@ class BTService: Service() {
                 bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_CLEAR
                 mWriteQueue.add(bleHeader.toByteArray())
                 mTask = TASK_NONE
+
+                //Send TASK_NONE
+                val intentMessage = Intent(MESSAGE_TASK_CHANGE.toString())
+                intentMessage.putExtra("newTask", mTask)
+                sendBroadcast(intentMessage)
             }
         }
 
@@ -711,6 +718,8 @@ class BTService: Service() {
             mTaskNext = TASK_NONE
             mTaskCount = 0
             mTaskTime = System.currentTimeMillis()
+
+            //send new task
             val intentMessage = Intent(MESSAGE_TASK_CHANGE.toString())
             intentMessage.putExtra("newTask", mTask)
             sendBroadcast(intentMessage)
