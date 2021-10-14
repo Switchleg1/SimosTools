@@ -44,7 +44,9 @@ object PIDCSVFile {
                 Log.i(TAG, "PID $i,$d: ${pidStrings[d]}")
                 d++
             }
-            pidStrings[d++] = pidString
+            pidStrings[d] = pidString
+            Log.i(TAG, "PID $i,$d: ${pidStrings[d]}")
+            d++
 
             if(d == CSV_VALUE_COUNT) {
                 try {
@@ -52,7 +54,7 @@ object PIDCSVFile {
                     pidList = pidList?.copyOf(i+1) ?: arrayOfNulls(1)
 
                     //make sure the length is legal
-                    if(pidStrings[5]!!.toInt() != 1 || pidStrings[5]!!.toInt() != 2 || pidStrings[5]!!.toInt() != 4)
+                    if(pidStrings[5]!!.toInt() != 1 && pidStrings[5]!!.toInt() != 2 && pidStrings[5]!!.toInt() != 4)
                         throw throw RuntimeException("Unexpected pid length: ${pidStrings[5]!!}")
 
                     //convert address
@@ -76,6 +78,8 @@ object PIDCSVFile {
                     Log.e(TAG, "Unable to create DIDStructure ${pidList?.count()}")
                     return null
                 }
+            } else {
+                return null
             }
         }
 

@@ -19,6 +19,10 @@ import java.io.File
 import java.io.FileWriter
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Semaphore
+import android.R.attr.name
+
+
+
 
 
 // Header we expect to receive on BLE packets
@@ -524,8 +528,10 @@ class BTService: Service() {
     private inner class ConnectionThread: Thread() {
         //variables
         private var mTask: Int = TASK_NONE
+        private var mTaskNext: Int = TASK_NONE
         private var mTaskCount: Int = 0
         private var mTaskTime: Long = 0
+        private var mTaskTimeNext: Long = 0
         private var mBufferedWriter: BufferedWriter? = null
 
         init {
@@ -581,10 +587,15 @@ class BTService: Service() {
                                 sendBroadcast(intentMessage)
                             }
                             TASK_RD_VIN -> {
-                                //Broadcast a new message
-                                val intentMessage = Intent(MESSAGE_READ_VIN.toString())
-                                intentMessage.putExtra("readBuffer", buff!!.copyOfRange(8, buff.size))
-                                sendBroadcast(intentMessage)
+                                val vinBuff = buff!!.copyOfRange(8, buff.size)
+
+                                //was it successful?
+                                if(vinBuff[0] == 0x62.toByte()) {
+                                    //Broadcast a new message
+                                    val intentMessage = Intent(MESSAGE_READ_VIN.toString())
+                                    intentMessage.putExtra("readBuffer", vinBuff.copyOfRange(2, vinBuff.size))
+                                    sendBroadcast(intentMessage)
+                                }
 
                                 setTaskState(TASK_NONE)
                             }
@@ -660,6 +671,11 @@ class BTService: Service() {
                         break
                     }
                 }
+
+                //Ready for next task?
+                if(mTask == TASK_NONE && mTaskNext != TASK_NONE && mTaskTimeNext < System.currentTimeMillis()){
+                    startNextTask()
+                }
             }
             logClose()
         }
@@ -675,10 +691,26 @@ class BTService: Service() {
                 return
             }
 
+            mTaskNext = newTask
+            mTaskTimeNext = System.currentTimeMillis() + 500
+
+            //If we are doing something call for a stop
+            if(mTask != TASK_NONE) {
+                //Set persist delay
+                val bleHeader = BLEHeader()
+                bleHeader.cmdSize = 0
+                bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_CLEAR
+                mWriteQueue.add(bleHeader.toByteArray())
+                mTask = TASK_NONE
+            }
+        }
+
+        private fun startNextTask() {
             //Broadcast a new message
+            mTask = mTaskNext
+            mTaskNext = TASK_NONE
             mTaskCount = 0
             mTaskTime = System.currentTimeMillis()
-            mTask = newTask
             val intentMessage = Intent(MESSAGE_TASK_CHANGE.toString())
             intentMessage.putExtra("newTask", mTask)
             sendBroadcast(intentMessage)
