@@ -21,7 +21,7 @@ class SettingsFragment : Fragment() {
             val uri: Uri? = result.data?.data
             uri?.let {
                 val pidList = PIDCSVFile.readStream(activity?.contentResolver?.openInputStream(uri))
-                if(pidList != null) {
+                if(pidList != null && pidList.count() == 32) {
                     DIDs.list22 = pidList
                     Toast.makeText(activity, "Success", Toast.LENGTH_SHORT).show()
                 } else {
