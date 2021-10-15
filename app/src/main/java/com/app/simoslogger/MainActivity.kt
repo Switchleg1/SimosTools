@@ -24,6 +24,10 @@ import androidx.navigation.ui.onNavDestinationSelected
 import android.graphics.drawable.ColorDrawable
 import androidx.lifecycle.ViewModelProvider
 import java.lang.Exception
+import android.os.StrictMode
+
+import android.R.attr.name
+import android.os.StrictMode.ThreadPolicy
 
 
 class MainViewModel : ViewModel() {
@@ -40,6 +44,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         mViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
         if(!mViewModel.mStarted) {
@@ -242,12 +247,12 @@ class MainActivity : AppCompatActivity() {
     private fun checkPermission(permission: String, requestCode: Int): Boolean {
         if (ContextCompat.checkSelfPermission(this@MainActivity, permission) == PackageManager.PERMISSION_DENIED) {
             // Requesting the permission
-            Log.i(TAG, "Checking permission $permission")
+            DebugLog.i(TAG, "Asking for permission $permission")
             ActivityCompat.requestPermissions(this@MainActivity, arrayOf(permission), requestCode)
             return false
         }
 
-        Log.i(TAG, "Already granted $permission")
+        DebugLog.d(TAG, "Already granted $permission")
 
         return true
     }

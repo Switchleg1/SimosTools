@@ -24,29 +24,47 @@ object ConfigFile {
     private val mProperties = SProperties()
 
     fun write(fileName: String?, context: Context?) {
-        val path = context?.getExternalFilesDir("")
-        val propertiesFile = File(path, "/$fileName")
-        if(!propertiesFile.exists()) {
-            propertiesFile.createNewFile()
-        }
+        DebugLog.i(TAG, "Writing config file.")
+        try {
 
-        val propertiesOutputStream = FileOutputStream(propertiesFile)
-        mProperties.store(propertiesOutputStream, "save to properties file")
+            val path = context?.getExternalFilesDir("")
+            val propertiesFile = File(path, "/$fileName")
+            if (!propertiesFile.exists()) {
+                propertiesFile.createNewFile()
+            }
+
+            val propertiesOutputStream = FileOutputStream(propertiesFile)
+            mProperties.store(propertiesOutputStream, "save to properties file")
+            propertiesOutputStream.close()
+            DebugLog.i(TAG, "successful.")
+        } catch(e: Exception) {
+            DebugLog.e(TAG, "unable to write config file.", e)
+            DebugLog.i(TAG, "failed.")
+        }
     }
 
     fun read(fileName: String?, context: Context?) {
-        val path = context?.getExternalFilesDir("")
-        val propertiesFile = File(path, "/$fileName")
-        if(!propertiesFile.exists()) {
-            propertiesFile.createNewFile()
-            writeDefaultConfig(fileName, context)
-        }
+        DebugLog.i(TAG, "Reading config file.")
 
-        val inputStream = FileInputStream(propertiesFile)
-        mProperties.load(inputStream)
+        try {
+            val path = context?.getExternalFilesDir("")
+            val propertiesFile = File(path, "/$fileName")
+            if (!propertiesFile.exists()) {
+                propertiesFile.createNewFile()
+                writeDefaultConfig(fileName, context)
+            }
 
-        mProperties.forEach{(k, v) ->
-            processKey(k.toString(), v.toString())
+            val inputStream = FileInputStream(propertiesFile)
+            mProperties.load(inputStream)
+
+            mProperties.forEach { (k, v) ->
+                processKey(k.toString(), v.toString())
+            }
+            inputStream.close()
+            DebugLog.i(TAG, "successful.")
+        } catch(e: Exception) {
+            DebugLog.e(TAG, "unable to read config file.", e)
+            DebugLog.i(TAG, "failed.")
         }
     }
 
@@ -59,7 +77,7 @@ object ConfigFile {
     }
 
     private fun processKey(key: String, value: String) {
-        Log.i(TAG, "$key: $value")
+        DebugLog.d(TAG, "Found $key=$value")
 
         try {
             when (key) {
@@ -202,13 +220,20 @@ object ConfigFile {
                     if(f > 0f && f < 5f)
                         Settings.displaySize = f
                 }
+                "LogFile" -> {
+                    val i = value.toInt()
+                    if(i in 1 .. 0xF)
+                        Settings.logFlags = i
+                }
             }
         } catch (e: Exception) {
-            Log.e(TAG, e.toString())
+            DebugLog.e(TAG, "Exception parsing $key=$value: ", e)
         }
     }
 
     private fun writeDefaultConfig(filename: String?, context: Context?) {
+        DebugLog.i(TAG, "Writing default config file.")
+
         mProperties["Mode"] = "22"
         mProperties["OutputDirectory"] = "Downloads"
         mProperties["UpdateRate"] = (11-DEFAULT_UPDATE_RATE).toString()
@@ -242,6 +267,7 @@ object ConfigFile {
         mProperties["ColorStateWriting"] = DEFAULT_COLOR_LIST[COLOR_ST_WRITING].toColorHex()
         mProperties["AlwaysPortrait"] = DEFAULT_ALWAYS_PORTRAIT.toString()
         mProperties["DisplaySize"] = DEFAULT_DISPLAY_SIZE.toString()
+        mProperties["LogFile"] = DEFAULT_LOG_FLAGS.toString()
 
         write(filename, context)
     }

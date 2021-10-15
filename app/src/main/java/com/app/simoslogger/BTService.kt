@@ -137,7 +137,7 @@ class BTService: Service() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             super.onScanResult(callbackType, result)
             result.device?.let { device ->
-                Log.i(TAG, "Found BLE device! ${device.name}")
+                DebugLog.i(TAG, "Found BLE device! ${device.name}")
 
                 if (mBluetoothDevice == null && device.name.contains(BLE_DEVICE_NAME, true)) {
                     mBluetoothDevice = device
@@ -145,7 +145,7 @@ class BTService: Service() {
                     if (mScanning)
                         stopScanning()
 
-                    Log.i(TAG, "Initiating connection to ${device.name}")
+                    DebugLog.i(TAG, "Initiating connection to ${device.name}")
                     device.connectGatt(applicationContext, false, mGattCallback, 2)
                 }
             }
@@ -153,7 +153,7 @@ class BTService: Service() {
 
         override fun onScanFailed(errorCode: Int) {
             super.onScanFailed(errorCode)
-            Log.e(TAG, "onScanFailed: code $errorCode")
+            DebugLog.d(TAG, "onScanFailed: code $errorCode")
         }
     }
 
@@ -162,46 +162,53 @@ class BTService: Service() {
 
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
             super.onConnectionStateChange(gatt, status, newState)
-            val deviceAddress = gatt.device.address
+
+            //get device name
+            val deviceName = gatt.device.name
+
+            //If we are connected to the wrong device close and return
+            if(mBluetoothDevice != gatt.device) {
+                DebugLog.d(TAG, "Connection made to wrong device, connection closed: $deviceName")
+                gatt.safeClose()
+                return
+            }
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    Log.w(TAG, "Successfully connected to $deviceAddress")
-
-                    //made connection, store our gatt
-                    mBluetoothGatt = gatt
+                    DebugLog.i(TAG, "Successfully connected to $deviceName")
 
                     try {
+                        //made connection, store our gatt
+                        mBluetoothGatt = gatt
+
                         //discover gatt table
-                        mBluetoothGatt?.let { newGatt ->
-                            Handler(Looper.getMainLooper()).post {
-                                newGatt.discoverServices()
-                            }
-                        } ?: error("Gatt is invalid")
+                        Handler(Looper.getMainLooper()).post {
+                            gatt.discoverServices()
+                        }
                     } catch (e: Exception) {
-                        Log.e(TAG,"Exception requesting to discover services", e)
+                        DebugLog.e(TAG, "Exception while requesting to discover services: ", e)
                         doDisconnect()
                     }
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                    Log.w(TAG, "Successfully disconnected from $deviceAddress")
+                    DebugLog.i(TAG, "Successfully disconnected from $deviceName")
 
                     //disable the read notification
                     disableNotifications(gatt.getService(BLE_SERVICE_UUID).getCharacteristic(BLE_DATA_RX_UUID))
 
                     //If gatt doesn't match ours make sure we close it
                     if(gatt != mBluetoothGatt) {
-                        gatt.close()
+                        gatt.safeClose()
                     }
 
                     //Do a full disconnect
                     doDisconnect()
                 }
             } else {
-                Log.w(TAG, "Error $status encountered for $deviceAddress! Disconnecting...")
+                DebugLog.i(TAG, "Error $status encountered for $deviceName! Disconnecting...")
 
                 //If gatt doesn't match ours make sure we close it
                 if(gatt != mBluetoothGatt) {
-                    gatt.close()
+                    gatt.safeClose()
                 }
 
                 //Set new connection error state
@@ -214,22 +221,29 @@ class BTService: Service() {
 
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
             super.onServicesDiscovered(gatt, status)
+
+            //If gatt doesn't match ours make sure we close it
+            if(gatt != mBluetoothGatt) {
+                gatt.safeClose()
+                return
+            }
+
+            //If success request MTU
             if(status == BluetoothGatt.GATT_SUCCESS) {
+                //Request new MTU
                 with(gatt) {
-                    Log.w(TAG, "Discovered ${services.size} services for ${device.address}")
+                    DebugLog.i(TAG, "Discovered ${services.size} services for ${device.address}")
+
                     printGattTable()
                     try {
-                        mBluetoothGatt?.requestMtu(BLE_GATT_MTU_SIZE) ?: error("Gatt is invalid")
+                        requestMtu(BLE_GATT_MTU_SIZE)
                     } catch (e: Exception) {
-                        Log.e(TAG,"Exception while discovering services", e)
+                        DebugLog.e(TAG,"Exception while discovering services:", e)
                         doDisconnect()
                     }
                 }
             } else {
-                //If gatt doesn't match ours make sure we close it
-                if(gatt != mBluetoothGatt) {
-                    gatt.close()
-                }
+                DebugLog.i(TAG, "Failed to discover services for ${gatt.device.address}")
 
                 //Set new connection error state
                 mErrorStatus = status.toString()
@@ -241,9 +255,21 @@ class BTService: Service() {
 
         override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
             super.onMtuChanged(gatt, mtu, status)
-            Log.w(TAG,"ATT MTU changed to $mtu, success: ${status == BluetoothGatt.GATT_SUCCESS}")
 
+            DebugLog.i(TAG, "ATT MTU changed to $mtu, success: ${status == BluetoothGatt.GATT_SUCCESS}")
+
+            //get device name
+            val deviceName = gatt.device.name
             if(status == BluetoothGatt.GATT_SUCCESS) {
+
+                //Make sure we are on the right connection
+                if(gatt != mBluetoothGatt) {
+                    DebugLog.i(TAG, "Gatt does not match mBluetoothGatt, closing connection to $deviceName")
+
+                    gatt.safeClose()
+                    return
+                }
+
                 //Set new connection state
                 setConnectionState(STATE_CONNECTED)
                 try {
@@ -252,13 +278,13 @@ class BTService: Service() {
                         enableNotifications(ourGatt.getService(BLE_SERVICE_UUID)!!.getCharacteristic(BLE_DATA_RX_UUID))
                     } ?: error("Gatt is invalid")
                 } catch (e: Exception) {
-                    Log.e(TAG,"Exception setting mtu", e)
+                    DebugLog.e(TAG,"Exception setting mtu", e)
                     doDisconnect()
                 }
             } else {
                 //If gatt doesn't match ours make sure we close it
                 if(gatt != mBluetoothGatt) {
-                    gatt.close()
+                    gatt.safeClose()
                 }
 
                 //Set new connection error state
@@ -273,10 +299,10 @@ class BTService: Service() {
             super.onDescriptorWrite(gatt, descriptor, status)
             when (status) {
                 BluetoothGatt.GATT_SUCCESS -> {
-                    Log.d("onDescWrite", "success ${descriptor.toString()}")
+                    DebugLog.d("onDescWrite", "success ${descriptor.toString()}")
                 }
                 else -> {
-                    Log.d("onDescWrite", "failed ${descriptor.toString()}")
+                    DebugLog.d("onDescWrite", "failed ${descriptor.toString()}")
                 }
             }
         }
@@ -286,13 +312,13 @@ class BTService: Service() {
             with(characteristic) {
                 when (status) {
                     BluetoothGatt.GATT_SUCCESS -> {
-                        Log.i(TAG, "Read characteristic $uuid:\n${value}")
+                        DebugLog.i(TAG, "Read characteristic $uuid:\n${value}")
                     }
                     BluetoothGatt.GATT_READ_NOT_PERMITTED -> {
-                        Log.e(TAG, "Read not permitted for $uuid!")
+                        DebugLog.d(TAG, "Read not permitted for $uuid!")
                     }
                     else -> {
-                        Log.e(TAG, "Characteristic read failed for $uuid, error: $status")
+                        DebugLog.d(TAG, "Characteristic read failed for $uuid, error: $status")
                     }
                 }
             }
@@ -303,16 +329,16 @@ class BTService: Service() {
             with(characteristic) {
                 when (status) {
                     BluetoothGatt.GATT_SUCCESS -> {
-                        Log.i("BluetoothGattCallback", "Wrote to characteristic $uuid | value: $value")
+                        DebugLog.i("BluetoothGattCallback", "Wrote to characteristic $uuid | value: $value")
                     }
                     BluetoothGatt.GATT_INVALID_ATTRIBUTE_LENGTH -> {
-                        Log.e("BluetoothGattCallback", "Write exceeded connection ATT MTU!")
+                        DebugLog.d("BluetoothGattCallback", "Write exceeded connection ATT MTU!")
                     }
                     BluetoothGatt.GATT_WRITE_NOT_PERMITTED -> {
-                        Log.e("BluetoothGattCallback", "Write not permitted for $uuid!")
+                        DebugLog.d("BluetoothGattCallback", "Write not permitted for $uuid!")
                     }
                     else -> {
-                        Log.e("BluetoothGattCallback", "Characteristic write failed for $uuid, error: $status")
+                        DebugLog.d("BluetoothGattCallback", "Characteristic write failed for $uuid, error: $status")
                     }
                 }
             }
@@ -322,7 +348,7 @@ class BTService: Service() {
         override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
             super.onCharacteristicChanged(gatt, characteristic)
             with(characteristic) {
-                Log.i("BluetoothGattCallback", "Characteristic $uuid changed | value: $value")
+                DebugLog.i("BluetoothGattCallback", "Characteristic $uuid changed | value: $value")
 
                 //parse packet and check for multiple responses
                 val bleHeader = BLEHeader()
@@ -339,16 +365,29 @@ class BTService: Service() {
         }
     }
 
+    private fun BluetoothGatt.safeClose() {
+        //get device name
+        val deviceName = this.device.name
+
+        DebugLog.i(TAG, "Closing connection to $deviceName")
+
+        try {
+            this.close()
+        } catch(e: Exception){
+            DebugLog.e(TAG, "Exception while closing connection to $deviceName", e)
+        }
+    }
+
     private fun BluetoothGatt.printGattTable() {
         if (services.isEmpty()) {
-            Log.i("printGattTable", "No service and characteristic available, call discoverServices() first?")
+            DebugLog.i("printGattTable", "No service and characteristic available, call discoverServices() first?")
             return
         }
         services.forEach { service ->
             val characteristicsTable = service.characteristics.joinToString(separator = "\n|--", prefix = "|--") {
                 it.uuid.toString()
             }
-            Log.i("printGattTable", "\nService ${service.uuid}\nCharacteristics:\n$characteristicsTable")
+            DebugLog.i("printGattTable", "\nService ${service.uuid}\nCharacteristics:\n$characteristicsTable")
         }
     }
 
@@ -364,38 +403,38 @@ class BTService: Service() {
             characteristic.isIndicatable() -> BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
             characteristic.isNotifiable() -> BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
             else -> {
-                Log.e("ConnectionManager", "${characteristic.uuid} doesn't support notifications/indications")
+                DebugLog.d("ConnectionManager", "${characteristic.uuid} doesn't support notifications/indications")
                 return
             }
         }
 
         characteristic.getDescriptor(BLE_CCCD_UUID)?.let { cccDescriptor ->
             if (mBluetoothGatt?.setCharacteristicNotification(characteristic, true) == false) {
-                Log.e("ConnectionManager", "setCharacteristicNotification failed for ${characteristic.uuid}")
+                DebugLog.d("ConnectionManager", "setCharacteristicNotification failed for ${characteristic.uuid}")
                 return
             }
             writeDescriptor(cccDescriptor, payload)
-        } ?: Log.e("ConnectionManager", "${characteristic.uuid} doesn't contain the CCC descriptor!")
+        } ?: DebugLog.d("ConnectionManager", "${characteristic.uuid} doesn't contain the CCC descriptor!")
     }
 
     private fun disableNotifications(characteristic: BluetoothGattCharacteristic) {
         if (!characteristic.isNotifiable() && !characteristic.isIndicatable()) {
-            Log.e("ConnectionManager", "${characteristic.uuid} doesn't support indications/notifications")
+            DebugLog.d("ConnectionManager", "${characteristic.uuid} doesn't support indications/notifications")
             return
         }
 
         characteristic.getDescriptor(BLE_CCCD_UUID)?.let { cccDescriptor ->
             if (mBluetoothGatt?.setCharacteristicNotification(characteristic, false) == false) {
-                Log.e("ConnectionManager", "setCharacteristicNotification failed for ${characteristic.uuid}")
+                DebugLog.d("ConnectionManager", "setCharacteristicNotification failed for ${characteristic.uuid}")
                 return
             }
             writeDescriptor(cccDescriptor, BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE)
-        } ?: Log.e("ConnectionManager", "${characteristic.uuid} doesn't contain the CCC descriptor!")
+        } ?: DebugLog.d("ConnectionManager", "${characteristic.uuid} doesn't contain the CCC descriptor!")
     }
 
     @Synchronized
     private fun stopScanning() {
-        Log.i(TAG, "Stop Scanning")
+        DebugLog.i(TAG, "Stop Scanning")
         if (mScanning) {
             (getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter.bluetoothLeScanner.stopScan(mScanCallback)
             mScanning = false
@@ -434,7 +473,7 @@ class BTService: Service() {
     private fun doConnect() {
         doDisconnect()
 
-        Log.w(TAG, "Searching for BLE device.")
+        DebugLog.i(TAG, "Searching for BLE device.")
 
         val filter = listOf(
             ScanFilter.Builder().setServiceUuid(ParcelUuid.fromString(BLE_SERVICE_UUID.toString()))
@@ -457,14 +496,18 @@ class BTService: Service() {
 
     @Synchronized
     private fun doDisconnect(newState: Int = STATE_NONE, errorMessage: Boolean = false) {
-        Log.w(TAG, "Disconnecting from BLE device.")
+
+        //get device name
+        val deviceName = mBluetoothDevice?.name ?: "Not connected"
+        DebugLog.i(TAG, "Disconnecting from BLE device: $deviceName")
+
         if (mScanning)
             stopScanning()
 
         closeConnectionThread()
 
-        if (mBluetoothGatt != null) {
-            mBluetoothGatt!!.close()
+        mBluetoothGatt?.let {
+            it.safeClose()
             mBluetoothGatt = null
         }
 
@@ -487,17 +530,17 @@ class BTService: Service() {
 
     @Synchronized
     private fun closeConnectionThread() {
-        if(mConnectionThread != null) {
-            mConnectionThread!!.cancel()
-            mConnectionThread = null
-        }
+        mConnectionThread?.cancel()
+        mConnectionThread = null
     }
 
     @Synchronized
     private fun createConnectionThread() {
         mConnectionThread = ConnectionThread()
-        mConnectionThread?.priority = BLE_THREAD_PRIORITY
-        mConnectionThread?.start()
+        mConnectionThread?.let { thread ->
+            thread.priority = BLE_THREAD_PRIORITY
+            thread.start()
+        }
     }
 
     @Synchronized
@@ -527,45 +570,44 @@ class BTService: Service() {
 
     private inner class ConnectionThread: Thread() {
         //variables
-        private var mTask: Int = TASK_NONE
-        private var mTaskNext: Int = TASK_NONE
-        private var mTaskCount: Int = 0
-        private var mTaskTime: Long = 0
+        private var mTask: Int          = TASK_NONE
+        private var mTaskNext: Int      = TASK_NONE
+        private var mTaskCount: Int     = 0
+        private var mTaskTime: Long     = 0
         private var mTaskTimeNext: Long = 0
-        private var mBufferedWriter: BufferedWriter? = null
+        private var mTaskTimeOut: Long  = 0
+
 
         init {
             setTaskState(TASK_NONE)
-            Log.d(TAG, "create ConnectionThread")
+            DebugLog.d(TAG, "create ConnectionThread")
         }
 
         override fun run() {
-            Log.i(TAG, "BEGIN mConnectionThread")
-            logCreate()
+            DebugLog.i(TAG, "BEGIN mConnectionThread")
 
             while (mState == STATE_CONNECTED && !currentThread().isInterrupted) {
                 //See if there are any packets waiting to be sent
                 if (!mWriteQueue.isEmpty() && mWriteSemaphore.tryAcquire()) {
                     try {
-                        val txChar = mBluetoothGatt!!.getService(BLE_SERVICE_UUID)!!
-                            .getCharacteristic(BLE_DATA_TX_UUID)
-                        val writeType = when {
-                            txChar.isWritable() -> BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
-                            txChar.isWritableWithoutResponse() -> BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
-                            else -> error("Characteristic ${txChar.uuid} cannot be written to")
-                        }
-
                         val buff = mWriteQueue.poll()
-                        if(buff != null)
-                            logAdd(true, buff)
+                        buff?.let {
+                            DebugLog.c(TAG, buff,true)
 
-                        mBluetoothGatt?.let { gatt ->
-                            txChar.writeType = writeType
-                            txChar.value = buff
-                            gatt.writeCharacteristic(txChar)
-                        } ?: error("Not connected to a BLE device!")
+                            mBluetoothGatt?.let { gatt ->
+                                val txChar = gatt.getService(BLE_SERVICE_UUID)!!.getCharacteristic(BLE_DATA_TX_UUID)
+                                val writeType = when {
+                                    txChar.isWritable() -> BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+                                    txChar.isWritableWithoutResponse() -> BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+                                    else -> error("Characteristic ${txChar.uuid} cannot be written to")
+                                }
+                                txChar.writeType = writeType
+                                txChar.value = it
+                                gatt.writeCharacteristic(txChar)
+                            } ?: error("Not connected to a BLE device!")
+                        }
                     } catch (e: Exception) {
-                        Log.e(TAG, "Exception during write", e)
+                        DebugLog.e(TAG, "Exception during write", e)
                         mWriteSemaphore.release()
                         cancel()
                         break
@@ -577,7 +619,7 @@ class BTService: Service() {
                     try {
                         val buff = mReadQueue.poll()
                         if(buff != null)
-                            logAdd(false, buff)
+                            DebugLog.c(TAG, buff,false)
                         
                         when (mTask) {
                             TASK_NONE -> {
@@ -615,6 +657,7 @@ class BTService: Service() {
                                 if(mTaskCount < UDSLogger.frameCount()) {
                                     //If we failed init abort
                                     if(result != UDS_OK) {
+                                        DebugLog.i(TAG, "Unable to initialize logging, UDS Error: $result")
                                         setTaskState(TASK_NONE)
                                     } else { //else continue init
                                         mWriteQueue.add(UDSLogger.buildFrame(mTaskCount))
@@ -640,8 +683,7 @@ class BTService: Service() {
                                     //Set LED
                                     val bleHeader = BLEHeader()
                                     bleHeader.cmdSize = 4
-                                    bleHeader.cmdFlags =
-                                        BLE_COMMAND_FLAG_SETTINGS or BRG_SETTING_LED_COLOR
+                                    bleHeader.cmdFlags = BLE_COMMAND_FLAG_SETTINGS or BRG_SETTING_LED_COLOR
                                     var dataBytes = byteArrayOf(
                                         0x00.toByte(),
                                         0x00.toByte(),
@@ -664,20 +706,34 @@ class BTService: Service() {
                             }
                         }
 
+                        if(mTaskNext != TASK_NONE) {
+                            mTaskTimeNext = System.currentTimeMillis() + TASK_END_DELAY
+
+                            //Write debug log
+                            DebugLog.d(TAG, "Packet extended task start delay.")
+                        }
+
+
                         mTaskCount++
                     } catch (e: Exception) {
-                        Log.e(TAG, "Exception during read", e)
+                        DebugLog.e(TAG, "Exception during read", e)
                         cancel()
                         break
                     }
                 }
 
                 //Ready for next task?
-                if(mTask == TASK_NONE && mTaskNext != TASK_NONE && mTaskTimeNext < System.currentTimeMillis()) {
-                    startNextTask()
+                if(mTaskNext != TASK_NONE) {
+                    if(mTaskTimeNext < System.currentTimeMillis()) {
+                        DebugLog.d(TAG, "Task finished.")
+                        startNextTask()
+                    } else if(mTaskTimeOut < System.currentTimeMillis()) {
+                        //Write debug log
+                        DebugLog.d(TAG, "Task failed to finish.")
+                        startNextTask()
+                    }
                 }
             }
-            logClose()
         }
 
         fun cancel() {
@@ -695,20 +751,33 @@ class BTService: Service() {
             //queue up next task and set start time
             mTaskNext       = newTask
             mTaskTimeNext   = System.currentTimeMillis() + TASK_END_DELAY
+            mTaskTimeOut   = System.currentTimeMillis() + TASK_END_TIMEOUT
 
             //If we are doing something call for a stop
             if(mTask != TASK_NONE) {
-                //Set persist delay
-                val bleHeader = BLEHeader()
-                bleHeader.cmdSize = 0
-                bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_CLEAR
-                mWriteQueue.add(bleHeader.toByteArray())
+                //Write debug log
+                DebugLog.i(TAG, "Task stopped: $mTask")
+
+                //set task to none
                 mTask = TASK_NONE
 
-                //Send TASK_NONE
+                //Broadcast TASK_NONE
                 val intentMessage = Intent(MESSAGE_TASK_CHANGE.toString())
                 intentMessage.putExtra("newTask", mTask)
                 sendBroadcast(intentMessage)
+
+                //Disable persist mode
+                val bleHeader = BLEHeader()
+                bleHeader.cmdSize = 0
+                bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_CLEAR
+                var buf = bleHeader.toByteArray()
+
+                //Set LED to green
+                bleHeader.cmdSize = 4
+                bleHeader.cmdFlags = BLE_COMMAND_FLAG_SETTINGS or BRG_SETTING_LED_COLOR
+                val dataBytes = byteArrayOf(0x00.toByte(), 0x00.toByte(), 0x80.toByte(), 0x00.toByte())
+                buf += bleHeader.toByteArray() + dataBytes
+                mWriteQueue.add(buf)
             }
         }
 
@@ -718,6 +787,9 @@ class BTService: Service() {
             mTaskNext   = TASK_NONE
             mTaskCount  = 0
             mTaskTime   = System.currentTimeMillis()
+
+            //Write debug log
+            DebugLog.i(TAG, "Task started: $mTask")
 
             //send new task
             val intentMessage = Intent(MESSAGE_TASK_CHANGE.toString())
@@ -741,17 +813,11 @@ class BTService: Service() {
                     buf = bleHeader.toByteArray() + dataBytes
                     mWriteQueue.add(buf)
 
-                    //Set st_min
-                    bleHeader.cmdSize = 2
-                    bleHeader.cmdFlags = BLE_COMMAND_FLAG_SETTINGS or BRG_SETTING_ISOTP_STMIN
-                    dataBytes = byteArrayOf(0x5E.toByte(), 0x01.toByte())
-                    buf = bleHeader.toByteArray() + dataBytes
-                    mWriteQueue.add(buf)
-
                     //Write first frame
                     mWriteQueue.add(UDSLogger.buildFrame(0))
                 }
                 TASK_RD_VIN -> {
+                    //Send vin request
                     val bleHeader = BLEHeader()
                     bleHeader.cmdSize = 3
                     bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_CLEAR
@@ -760,80 +826,16 @@ class BTService: Service() {
                     mWriteQueue.add(buf)
                 }
                 TASK_CLEAR_DTC -> {
-                    //Set st_min
-                    val bleHeader = BLEHeader()
-                    bleHeader.cmdSize = 2
-                    bleHeader.cmdFlags = BLE_COMMAND_FLAG_SETTINGS or BRG_SETTING_ISOTP_STMIN
-                    var dataBytes = byteArrayOf(0x5E.toByte(), 0x01.toByte())
-                    var buf = bleHeader.toByteArray() + dataBytes
-                    mWriteQueue.add(buf)
-
                     //Send clear request
+                    val bleHeader = BLEHeader()
                     bleHeader.rxID = 0x7E8
                     bleHeader.txID = 0x700
                     bleHeader.cmdSize = 1
                     bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_CLEAR
-                    dataBytes = byteArrayOf(0x04.toByte())
-                    buf = bleHeader.toByteArray() + dataBytes
-                    mWriteQueue.add(buf)
-                }
-                TASK_NONE -> {
-                    //Clear any persist messages
-                    val bleHeader = BLEHeader()
-                    bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_CLEAR
-                    mWriteQueue.add(bleHeader.toByteArray())
-
-                    //Set LED to green
-                    bleHeader.cmdSize = 4
-                    bleHeader.cmdFlags = BLE_COMMAND_FLAG_SETTINGS or BRG_SETTING_LED_COLOR
-                    val dataBytes = byteArrayOf(0x00.toByte(), 0x00.toByte(), 0x80.toByte(), 0x00.toByte())
+                    val dataBytes = byteArrayOf(0x04.toByte())
                     val buf = bleHeader.toByteArray() + dataBytes
                     mWriteQueue.add(buf)
                 }
-            }
-        }
-
-        private fun logCreate() {
-            if(!LOG_COMMUNICATIONS)
-                return
-
-            logClose()
-
-            val path = applicationContext.getExternalFilesDir("")
-            Log.i(TAG, "$path/data.log")
-            val logFile = File(path, "/data.log")
-
-            try {
-                logFile.createNewFile()
-                mBufferedWriter = BufferedWriter(FileWriter(logFile, true))
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-
-        private fun logClose() {
-            if(!LOG_COMMUNICATIONS)
-                return
-
-            if(mBufferedWriter != null) {
-                mBufferedWriter!!.close()
-                mBufferedWriter = null
-            }
-        }
-
-        private fun logAdd(from: Boolean, buff: ByteArray?) {
-            if(!LOG_COMMUNICATIONS)
-                return
-
-            if(mBufferedWriter == null || buff == null)
-                return
-
-            try {
-                if(from) mBufferedWriter!!.append("->[${buff.count()}]:${buff.toHex()}")
-                else mBufferedWriter!!.append("<-[${buff.count()}]:${buff.toHex()}")
-                mBufferedWriter!!.newLine()
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
         }
     }

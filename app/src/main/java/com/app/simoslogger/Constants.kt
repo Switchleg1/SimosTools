@@ -44,7 +44,8 @@ val TASK_LOGGING    = 2 // uploading to remote device
 val TASK_RD_VIN     = 3 // download from remote device
 val TASK_CLEAR_DTC  = 4
 
-val TASK_END_DELAY  = 500
+val TASK_END_DELAY      = 500
+val TASK_END_TIMEOUT    = 5000
 
 //Intent constants
 val REQUEST_LOCATION_PERMISSION = 1
@@ -122,36 +123,40 @@ val CSV_22_NAME     = "PIDList22.csv"
 val CFG_FILENAME    = "config.cfg"
 val DEBUG_FILENAME  = "debug.log"
 
-//Log communications?
-val LOG_COMMUNICATIONS  = false
-val LOG_DEBUG           = true
+//Log files
+val LOG_NONE            = 0
+val LOG_INFO            = 1
+val LOG_DEBUG           = 2
+val LOG_EXCEPTION       = 4
+val LOG_COMMUNICATIONS  = 8
 
-//Some default settings
-val DEFAULT_KEEP_SCREEN_ON = true
-val DEFAULT_INVERT_CRUISE = false
-val DEFAULT_UPDATE_RATE = 4
-val DEFAULT_DIRECTORY = Environment.DIRECTORY_DOWNLOADS
-val DEFAULT_PERSIST_DELAY = 20
-val DEFAULT_PERSIST_Q_DELAY = 10
-val DEFAULT_CALCULATE_HP = true
-val DEFAULT_USE_MS2 = true
-val DEFAULT_TIRE_DIAMETER = 0.632f
-val DEFAULT_CURB_WEIGHT = 1500f
-val DEFAULT_DRAG_COEFFICIENT = 0.000002
-val DEFAULT_GEAR_RATIOS = floatArrayOf(2.92f, 1.79f, 1.14f, 0.78f, 0.58f, 0.46f, 0.0f, 4.77f)
-val DEFAULT_COLOR_LIST = intArrayOf(Color.rgb(255, 255, 255),
-                                    Color.rgb(127, 127, 255),
-                                    Color.rgb(0,   0,   0),
-                                    Color.rgb(0,   255, 0),
-                                    Color.rgb(255, 0,   0),
-                                    Color.rgb(255, 0,   0),
-                                    Color.rgb(100, 0,   255),
-                                    Color.rgb(100, 100, 255),
-                                    Color.rgb(0,   0,   255),
-                                    Color.rgb(255, 255, 0),
-                                    Color.rgb(0,   255, 0))
-val DEFAULT_ALWAYS_PORTRAIT = false
-val DEFAULT_DISPLAY_SIZE = 1f
+//Default settings
+val DEFAULT_KEEP_SCREEN_ON      = true
+val DEFAULT_INVERT_CRUISE       = false
+val DEFAULT_UPDATE_RATE         = 4
+val DEFAULT_DIRECTORY           = Environment.DIRECTORY_DOWNLOADS
+val DEFAULT_PERSIST_DELAY       = 20
+val DEFAULT_PERSIST_Q_DELAY     = 10
+val DEFAULT_CALCULATE_HP        = true
+val DEFAULT_USE_MS2             = true
+val DEFAULT_TIRE_DIAMETER       = 0.632f
+val DEFAULT_CURB_WEIGHT         = 1500f
+val DEFAULT_DRAG_COEFFICIENT    = 0.000002
+val DEFAULT_GEAR_RATIOS         = floatArrayOf(2.92f, 1.79f, 1.14f, 0.78f, 0.58f, 0.46f, 0.0f, 4.77f)
+val DEFAULT_COLOR_LIST          = intArrayOf(Color.rgb(255, 255, 255),
+                                            Color.rgb(127, 127, 255),
+                                            Color.rgb(0,   0,   0),
+                                            Color.rgb(0,   255, 0),
+                                            Color.rgb(255, 0,   0),
+                                            Color.rgb(255, 0,   0),
+                                            Color.rgb(100, 0,   255),
+                                            Color.rgb(100, 100, 255),
+                                            Color.rgb(0,   0,   255),
+                                            Color.rgb(255, 255, 0),
+                                            Color.rgb(0,   255, 0))
+val DEFAULT_ALWAYS_PORTRAIT     = false
+val DEFAULT_DISPLAY_SIZE        = 1f
+val DEFAULT_LOG_FLAGS           = LOG_INFO or LOG_EXCEPTION
 
 //TQ/HP Calculations
 val KG_TO_N = 9.80665f

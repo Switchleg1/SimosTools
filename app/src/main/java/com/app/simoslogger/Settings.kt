@@ -16,4 +16,5 @@ object Settings {
     var colorList = DEFAULT_COLOR_LIST
     var alwaysPortrait = DEFAULT_ALWAYS_PORTRAIT
     var displaySize = DEFAULT_DISPLAY_SIZE
+    var logFlags = DEFAULT_LOG_FLAGS
 }

@@ -217,7 +217,7 @@ class LoggingFragment : Fragment() {
                 }
             }
         } catch(e: Exception) {
-            Log.e(TAG, "Unable to update text")
+            DebugLog.e(TAG, "Unable to update text", e)
         }
     }
 
@@ -285,7 +285,7 @@ class LoggingFragment : Fragment() {
                             }
                         }
                     } catch (e: Exception) {
-                        Log.e(TAG, "Unable to update display")
+                        DebugLog.e(TAG, "Unable to update display", e)
                     }
 
                     //If any visible PIDS are in warning state set background color to warn

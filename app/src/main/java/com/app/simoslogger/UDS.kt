@@ -291,8 +291,7 @@ object UDSLogger {
                     0x00.toByte()
                 )
 
-                Log.d(TAG, writeBuffer.toHex())
-                Log.d(TAG, writeBuffer.count().toString())
+                DebugLog.d(TAG, "Building 3E frame $index with length ${writeBuffer.count()}: ${writeBuffer.toHex()}")
 
                 return writeBuffer
             }
@@ -314,8 +313,7 @@ object UDSLogger {
                 0x32.toByte()
             ) + memoryOffset.toArray4() + selectArray.count().toArray2() + selectArray
 
-            Log.d(TAG, writeBuffer.toHex())
-            Log.d(TAG, writeBuffer.count().toString())
+            DebugLog.d(TAG, "Building 3E frame $index with length ${writeBuffer.count()}: ${writeBuffer.toHex()}")
 
             return writeBuffer
         }
