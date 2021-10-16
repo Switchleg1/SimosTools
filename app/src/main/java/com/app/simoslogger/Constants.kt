@@ -44,7 +44,7 @@ val TASK_LOGGING    = 2 // uploading to remote device
 val TASK_RD_VIN     = 3 // download from remote device
 val TASK_CLEAR_DTC  = 4
 
-val TASK_END_DELAY      = 500
+val TASK_END_DELAY      = 1000
 val TASK_END_TIMEOUT    = 5000
 
 //Intent constants
@@ -126,9 +126,10 @@ val DEBUG_FILENAME  = "debug.log"
 //Log files
 val LOG_NONE            = 0
 val LOG_INFO            = 1
-val LOG_DEBUG           = 2
-val LOG_EXCEPTION       = 4
-val LOG_COMMUNICATIONS  = 8
+val LOG_WARNING         = 2
+val LOG_DEBUG           = 4
+val LOG_EXCEPTION       = 8
+val LOG_COMMUNICATIONS  = 16
 
 //Default settings
 val DEFAULT_KEEP_SCREEN_ON      = true
@@ -156,7 +157,7 @@ val DEFAULT_COLOR_LIST          = intArrayOf(Color.rgb(255, 255, 255),
                                             Color.rgb(0,   255, 0))
 val DEFAULT_ALWAYS_PORTRAIT     = false
 val DEFAULT_DISPLAY_SIZE        = 1f
-val DEFAULT_LOG_FLAGS           = LOG_INFO or LOG_EXCEPTION
+val DEFAULT_LOG_FLAGS           = LOG_INFO or LOG_WARNING or LOG_EXCEPTION
 
 //TQ/HP Calculations
 val KG_TO_N = 9.80665f

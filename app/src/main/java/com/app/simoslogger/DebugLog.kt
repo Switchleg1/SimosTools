@@ -47,6 +47,16 @@ object DebugLog {
         newLine()
     }
 
+    fun w(tag: String, text: String) {
+        Log.w(tag, text)
+
+        if((Settings.logFlags and LOG_WARNING) == 0)
+            return
+
+        add("${timeStamp()} [W] $tag: $text")
+        newLine()
+    }
+
     fun d(tag: String, text: String) {
         Log.d(tag, text)
 

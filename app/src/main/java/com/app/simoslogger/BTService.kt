@@ -153,7 +153,7 @@ class BTService: Service() {
 
         override fun onScanFailed(errorCode: Int) {
             super.onScanFailed(errorCode)
-            DebugLog.d(TAG, "onScanFailed: code $errorCode")
+            DebugLog.w(TAG, "onScanFailed: code $errorCode")
         }
     }
 
@@ -168,7 +168,7 @@ class BTService: Service() {
 
             //If we are connected to the wrong device close and return
             if(mBluetoothDevice != gatt.device) {
-                DebugLog.d(TAG, "Connection made to wrong device, connection closed: $deviceName")
+                DebugLog.w(TAG, "Connection made to wrong device, connection closed: $deviceName")
                 gatt.safeClose()
                 return
             }
@@ -302,7 +302,7 @@ class BTService: Service() {
                     DebugLog.d("onDescWrite", "success ${descriptor.toString()}")
                 }
                 else -> {
-                    DebugLog.d("onDescWrite", "failed ${descriptor.toString()}")
+                    DebugLog.w("onDescWrite", "failed ${descriptor.toString()}")
                 }
             }
         }
@@ -312,13 +312,13 @@ class BTService: Service() {
             with(characteristic) {
                 when (status) {
                     BluetoothGatt.GATT_SUCCESS -> {
-                        DebugLog.i(TAG, "Read characteristic $uuid:\n${value}")
+                        DebugLog.d(TAG, "Read characteristic $uuid | length: ${value.count()}")
                     }
                     BluetoothGatt.GATT_READ_NOT_PERMITTED -> {
-                        DebugLog.d(TAG, "Read not permitted for $uuid!")
+                        DebugLog.w(TAG, "Read not permitted for $uuid!")
                     }
                     else -> {
-                        DebugLog.d(TAG, "Characteristic read failed for $uuid, error: $status")
+                        DebugLog.w(TAG, "Characteristic read failed for $uuid, error: $status")
                     }
                 }
             }
@@ -329,16 +329,16 @@ class BTService: Service() {
             with(characteristic) {
                 when (status) {
                     BluetoothGatt.GATT_SUCCESS -> {
-                        DebugLog.i("BluetoothGattCallback", "Wrote to characteristic $uuid | value: $value")
+                        DebugLog.d("BluetoothGattCallback", "Wrote to characteristic $uuid | length: ${value.count()}")
                     }
                     BluetoothGatt.GATT_INVALID_ATTRIBUTE_LENGTH -> {
-                        DebugLog.d("BluetoothGattCallback", "Write exceeded connection ATT MTU!")
+                        DebugLog.w("BluetoothGattCallback", "Write exceeded connection ATT MTU!")
                     }
                     BluetoothGatt.GATT_WRITE_NOT_PERMITTED -> {
-                        DebugLog.d("BluetoothGattCallback", "Write not permitted for $uuid!")
+                        DebugLog.w("BluetoothGattCallback", "Write not permitted for $uuid!")
                     }
                     else -> {
-                        DebugLog.d("BluetoothGattCallback", "Characteristic write failed for $uuid, error: $status")
+                        DebugLog.w("BluetoothGattCallback", "Characteristic write failed for $uuid, error: $status")
                     }
                 }
             }
@@ -348,7 +348,7 @@ class BTService: Service() {
         override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
             super.onCharacteristicChanged(gatt, characteristic)
             with(characteristic) {
-                DebugLog.i("BluetoothGattCallback", "Characteristic $uuid changed | value: $value")
+                DebugLog.d("BluetoothGattCallback", "Characteristic $uuid changed | length: ${value.count()}")
 
                 //parse packet and check for multiple responses
                 val bleHeader = BLEHeader()
@@ -380,14 +380,14 @@ class BTService: Service() {
 
     private fun BluetoothGatt.printGattTable() {
         if (services.isEmpty()) {
-            DebugLog.i("printGattTable", "No service and characteristic available, call discoverServices() first?")
+            DebugLog.w("printGattTable", "No service and characteristic available, call discoverServices() first?")
             return
         }
         services.forEach { service ->
             val characteristicsTable = service.characteristics.joinToString(separator = "\n|--", prefix = "|--") {
                 it.uuid.toString()
             }
-            DebugLog.i("printGattTable", "\nService ${service.uuid}\nCharacteristics:\n$characteristicsTable")
+            DebugLog.d("printGattTable", "\nService ${service.uuid}\nCharacteristics:\n$characteristicsTable")
         }
     }
 
@@ -403,33 +403,33 @@ class BTService: Service() {
             characteristic.isIndicatable() -> BluetoothGattDescriptor.ENABLE_INDICATION_VALUE
             characteristic.isNotifiable() -> BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
             else -> {
-                DebugLog.d("ConnectionManager", "${characteristic.uuid} doesn't support notifications/indications")
+                DebugLog.w("ConnectionManager", "${characteristic.uuid} doesn't support notifications/indications")
                 return
             }
         }
 
         characteristic.getDescriptor(BLE_CCCD_UUID)?.let { cccDescriptor ->
             if (mBluetoothGatt?.setCharacteristicNotification(characteristic, true) == false) {
-                DebugLog.d("ConnectionManager", "setCharacteristicNotification failed for ${characteristic.uuid}")
+                DebugLog.w("ConnectionManager", "setCharacteristicNotification failed for ${characteristic.uuid}")
                 return
             }
             writeDescriptor(cccDescriptor, payload)
-        } ?: DebugLog.d("ConnectionManager", "${characteristic.uuid} doesn't contain the CCC descriptor!")
+        } ?: DebugLog.w("ConnectionManager", "${characteristic.uuid} doesn't contain the CCC descriptor!")
     }
 
     private fun disableNotifications(characteristic: BluetoothGattCharacteristic) {
         if (!characteristic.isNotifiable() && !characteristic.isIndicatable()) {
-            DebugLog.d("ConnectionManager", "${characteristic.uuid} doesn't support indications/notifications")
+            DebugLog.w("ConnectionManager", "${characteristic.uuid} doesn't support indications/notifications")
             return
         }
 
         characteristic.getDescriptor(BLE_CCCD_UUID)?.let { cccDescriptor ->
             if (mBluetoothGatt?.setCharacteristicNotification(characteristic, false) == false) {
-                DebugLog.d("ConnectionManager", "setCharacteristicNotification failed for ${characteristic.uuid}")
+                DebugLog.w("ConnectionManager", "setCharacteristicNotification failed for ${characteristic.uuid}")
                 return
             }
             writeDescriptor(cccDescriptor, BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE)
-        } ?: DebugLog.d("ConnectionManager", "${characteristic.uuid} doesn't contain the CCC descriptor!")
+        } ?: DebugLog.w("ConnectionManager", "${characteristic.uuid} doesn't contain the CCC descriptor!")
     }
 
     @Synchronized
@@ -713,7 +713,6 @@ class BTService: Service() {
                             DebugLog.d(TAG, "Packet extended task start delay.")
                         }
 
-
                         mTaskCount++
                     } catch (e: Exception) {
                         DebugLog.e(TAG, "Exception during read", e)
@@ -725,11 +724,11 @@ class BTService: Service() {
                 //Ready for next task?
                 if(mTaskNext != TASK_NONE) {
                     if(mTaskTimeNext < System.currentTimeMillis()) {
-                        DebugLog.d(TAG, "Task finished.")
+                        DebugLog.i(TAG, "Task finished.")
                         startNextTask()
                     } else if(mTaskTimeOut < System.currentTimeMillis()) {
                         //Write debug log
-                        DebugLog.d(TAG, "Task failed to finish.")
+                        DebugLog.w(TAG, "Task failed to finish.")
                         startNextTask()
                     }
                 }
@@ -740,6 +739,7 @@ class BTService: Service() {
             interrupt()
         }
 
+        @Synchronized
         fun setTaskState(newTask: Int)
         {
             //if we are not connected abort
@@ -749,9 +749,9 @@ class BTService: Service() {
             }
 
             //queue up next task and set start time
-            mTaskNext       = newTask
             mTaskTimeNext   = System.currentTimeMillis() + TASK_END_DELAY
-            mTaskTimeOut   = System.currentTimeMillis() + TASK_END_TIMEOUT
+            mTaskTimeOut    = System.currentTimeMillis() + TASK_END_TIMEOUT
+            mTaskNext       = newTask
 
             //If we are doing something call for a stop
             if(mTask != TASK_NONE) {
@@ -781,6 +781,7 @@ class BTService: Service() {
             }
         }
 
+        @Synchronized
         private fun startNextTask() {
             //Broadcast a new message
             mTask       = mTaskNext

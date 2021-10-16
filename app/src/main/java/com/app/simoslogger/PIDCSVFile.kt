@@ -32,6 +32,8 @@ object PIDCSVFile {
 
         //is the file empty?
         if(!inStream.ready()) {
+            //close file and return
+            inStream.close()
             DebugLog.i(TAG, "file is empty.")
             return null
         }
@@ -39,6 +41,8 @@ object PIDCSVFile {
         //check header
         val cfgLine = inStream.readLine()
         if(cfgLine == CSV_CFG_LINE + "\n") {
+            //close file and return
+            inStream.close()
             DebugLog.i(TAG, "config line does not match")
             return null
         }
@@ -88,16 +92,22 @@ object PIDCSVFile {
                         pidStrings[0]!!,
                         pidStrings[1]!!)
                 } catch(e: Exception) {
+                    //close file and return
+                    inStream.close()
                     DebugLog.e(TAG, "Unable to create DIDStructure ${pidList?.count()}", e)
                     DebugLog.i(TAG, "failed.")
                     return null
                 }
             } else {
+                //close file and return
+                inStream.close()
                 DebugLog.i(TAG, "failed.")
                 return null
             }
         }
 
+        //close file and return
+        inStream.close()
         DebugLog.i(TAG, "successful.")
         return pidList
     }
@@ -148,6 +158,8 @@ object PIDCSVFile {
 
                             outStream.write((writeString + "\n").toByteArray())
                         } catch(e: Exception) {
+                            //close file and return
+                            outStream.close()
                             DebugLog.e(TAG, "Unable to write PID", e)
                             DebugLog.i(TAG, "failed.")
                             return false
