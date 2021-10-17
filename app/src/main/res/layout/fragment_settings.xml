@@ -11,7 +11,6 @@
         android:layout_width="125dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginBottom="8dp"
         android:text="@string/button_back"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/buttonSave" />
@@ -28,7 +27,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="64dp"
+        android:layout_marginBottom="48dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -49,8 +48,9 @@
 
             <SeekBar
                 android:id="@+id/seekBarDisplaySize"
+                android:contentDescription="@string/textview_settings_displaysize"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
 
             <TextView
                 android:id="@+id/textViewUpdateRate"
@@ -62,8 +62,9 @@
 
             <SeekBar
                 android:id="@+id/seekBarUpdateRate"
+                android:contentDescription="@string/textview_settings_updaterate"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
 
             <TextView
                 android:id="@+id/textViewPersistDelay"
@@ -75,6 +76,7 @@
 
             <SeekBar
                 android:id="@+id/seekBarPersistDelay"
+                android:contentDescription="@string/textview_settings_persist_delay"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
@@ -88,6 +90,7 @@
 
             <SeekBar
                 android:id="@+id/seekBarPersistQDelay"
+                android:contentDescription="@string/textview_settings_persist_q_delay"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
@@ -129,8 +132,8 @@
             <RadioGroup
                 android:id="@+id/radioGroupMode"
                 android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:layout_marginTop="8dp" >
+                android:layout_height="250dp"
+                android:layout_marginTop="8dp">
 
                 <TextView
                     android:id="@+id/textViewLoggingMode"
@@ -141,18 +144,32 @@
                     app:lineHeight="60dp" />
 
                 <RadioButton
+                    android:id="@+id/radioButton22A"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="@string/radio_settings_mode_22A" />
+
+                <RadioButton
+                    android:id="@+id/radioButton22B"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="@string/radio_settings_mode_22B" />
+
+                <RadioButton
+                    android:id="@+id/radioButton22C"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="@string/radio_settings_mode_22C" />
+
+                <RadioButton
                     android:id="@+id/radioButton3E"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:minHeight="48dp"
                     android:text="@string/radio_settings_mode_3E" />
-
-                <RadioButton
-                    android:id="@+id/radioButton22"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:minHeight="48dp"
-                    android:text="@string/radio_settings_mode_22" />
 
             </RadioGroup>
 
@@ -160,8 +177,8 @@
                 android:id="@+id/textViewMiscOptions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/textview_settings_misc_options"
                 android:layout_marginTop="8dp"
+                android:text="@string/textview_settings_misc_options"
                 android:textSize="32sp" />
 
             <CheckBox
@@ -189,8 +206,8 @@
                 android:id="@+id/textViewCalcHPOptions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/textview_settings_hp_options"
                 android:layout_marginTop="8dp"
+                android:text="@string/textview_settings_hp_options"
                 android:textSize="32sp" />
 
             <LinearLayout
@@ -217,14 +234,26 @@
                 android:id="@+id/textViewPIDCSV"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="32sp"
-                android:text="@string/textview_settings_import_csv" />
+                android:text="@string/textview_settings_import_csv"
+                android:textSize="32sp" />
 
             <Button
-                android:id="@+id/button22CSV"
+                android:id="@+id/button22ACSV"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/textview_settings_import_22_csv" />
+                android:text="@string/textview_settings_import_22a_csv" />
+
+            <Button
+                android:id="@+id/button22BCSV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/textview_settings_import_22b_csv" />
+
+            <Button
+                android:id="@+id/button22CCSV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/textview_settings_import_22c_csv" />
 
             <Button
                 android:id="@+id/button3ECSV"
@@ -236,8 +265,8 @@
                 android:id="@+id/textViewColorOptions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/textview_settings_color_options"
                 android:layout_marginTop="8dp"
+                android:text="@string/textview_settings_color_options"
                 android:textSize="32sp" />
 
             <Button

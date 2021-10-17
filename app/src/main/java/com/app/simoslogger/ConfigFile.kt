@@ -82,8 +82,10 @@ object ConfigFile {
             when (key) {
                 "Mode" -> {
                     when (value) {
-                        "22" -> UDSLogger.setMode(UDS_LOGGING_22)
                         "3E" -> UDSLogger.setMode(UDS_LOGGING_3E)
+                        "22A" -> UDSLogger.setMode(UDS_LOGGING_22A)
+                        "22B" -> UDSLogger.setMode(UDS_LOGGING_22B)
+                        "22C" -> UDSLogger.setMode(UDS_LOGGING_22C)
                     }
                 }
                 "UpdateRate" -> {
@@ -233,7 +235,7 @@ object ConfigFile {
     private fun writeDefaultConfig(filename: String?, context: Context?) {
         DebugLog.i(TAG, "Writing default config file.")
 
-        mProperties["Mode"] = "22"
+        mProperties["Mode"] = "22A"
         mProperties["OutputDirectory"] = "Downloads"
         mProperties["UpdateRate"] = (11-DEFAULT_UPDATE_RATE).toString()
         mProperties["InvertCruise"] = DEFAULT_INVERT_CRUISE.toString()

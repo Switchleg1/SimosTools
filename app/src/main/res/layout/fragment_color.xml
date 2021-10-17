@@ -8,6 +8,7 @@
 
     <ImageView
         android:id="@+id/imageViewColor"
+        android:contentDescription="@string/app_name"
         android:layout_width="0dp"
         android:layout_height="75dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -19,7 +20,6 @@
         android:layout_width="125dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginBottom="8dp"
         android:text="@string/button_cancel"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/buttonSaveColor" />
@@ -29,13 +29,13 @@
         android:layout_width="125dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginBottom="8dp"
         android:text="@string/button_save"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <SeekBar
         android:id="@+id/seekBarColorR"
+        android:contentDescription="@string/textview_color_r"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -44,6 +44,7 @@
 
     <SeekBar
         android:id="@+id/seekBarColorG"
+        android:contentDescription="@string/textview_color_g"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
@@ -52,6 +53,7 @@
 
     <SeekBar
         android:id="@+id/seekBarColorB"
+        android:contentDescription="@string/textview_color_b"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"

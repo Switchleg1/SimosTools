@@ -16,14 +16,52 @@ import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.activity.result.contract.ActivityResultContracts
 
 class SettingsFragment : Fragment() {
-    var resultPickLauncher22 = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    var resultPickLauncher22a = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val uri: Uri? = result.data?.data
             uri?.let {
                 val pidList = PIDCSVFile.readStream(activity?.contentResolver?.openInputStream(uri))
                 if(pidList != null && pidList.count() == 32) {
-                    if(PIDCSVFile.write(CSV_22_NAME, context, pidList, true)) {
-                        DIDs.list22 = pidList
+                    if(PIDCSVFile.write(CSV_22A_NAME, context, pidList, true)) {
+                        DIDs.list22a = pidList
+                        Toast.makeText(activity, "Success", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(activity, "Failed", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(activity, "Failed", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    var resultPickLauncher22b = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val uri: Uri? = result.data?.data
+            uri?.let {
+                val pidList = PIDCSVFile.readStream(activity?.contentResolver?.openInputStream(uri))
+                if(pidList != null && pidList.count() == 32) {
+                    if(PIDCSVFile.write(CSV_22B_NAME, context, pidList, true)) {
+                        DIDs.list22b = pidList
+                        Toast.makeText(activity, "Success", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(activity, "Failed", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(activity, "Failed", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    var resultPickLauncher22c = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val uri: Uri? = result.data?.data
+            uri?.let {
+                val pidList = PIDCSVFile.readStream(activity?.contentResolver?.openInputStream(uri))
+                if(pidList != null && pidList.count() == 32) {
+                    if(PIDCSVFile.write(CSV_22C_NAME, context, pidList, true)) {
+                        DIDs.list22c = pidList
                         Toast.makeText(activity, "Success", Toast.LENGTH_SHORT).show()
                     } else {
                         Toast.makeText(activity, "Failed", Toast.LENGTH_SHORT).show()
@@ -73,11 +111,25 @@ class SettingsFragment : Fragment() {
             doSave()
         }
 
-        view.findViewById<Button>(R.id.button22CSV).setOnClickListener {
+        view.findViewById<Button>(R.id.button22ACSV).setOnClickListener {
             var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
             chooseFile.type = "text/*"
-            chooseFile = Intent.createChooser(chooseFile, "Choose a 22 CSV")
-            resultPickLauncher22.launch(chooseFile)
+            chooseFile = Intent.createChooser(chooseFile, "Choose a 22A CSV")
+            resultPickLauncher22a.launch(chooseFile)
+        }
+
+        view.findViewById<Button>(R.id.button22BCSV).setOnClickListener {
+            var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
+            chooseFile.type = "text/*"
+            chooseFile = Intent.createChooser(chooseFile, "Choose a 22B CSV")
+            resultPickLauncher22b.launch(chooseFile)
+        }
+
+        view.findViewById<Button>(R.id.button22CCSV).setOnClickListener {
+            var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
+            chooseFile.type = "text/*"
+            chooseFile = Intent.createChooser(chooseFile, "Choose a 22C CSV")
+            resultPickLauncher22c.launch(chooseFile)
         }
 
         view.findViewById<Button>(R.id.button3ECSV).setOnClickListener {
@@ -214,7 +266,9 @@ class SettingsFragment : Fragment() {
             currentView.findViewById<RadioButton>(R.id.radioButtonDocuments).setTextColor(Settings.colorList[COLOR_TEXT])
             currentView.findViewById<RadioButton>(R.id.radioButtonApplication).setTextColor(Settings.colorList[COLOR_TEXT])
             currentView.findViewById<RadioButton>(R.id.radioButton3E).setTextColor(Settings.colorList[COLOR_TEXT])
-            currentView.findViewById<RadioButton>(R.id.radioButton22).setTextColor(Settings.colorList[COLOR_TEXT])
+            currentView.findViewById<RadioButton>(R.id.radioButton22A).setTextColor(Settings.colorList[COLOR_TEXT])
+            currentView.findViewById<RadioButton>(R.id.radioButton22B).setTextColor(Settings.colorList[COLOR_TEXT])
+            currentView.findViewById<RadioButton>(R.id.radioButton22C).setTextColor(Settings.colorList[COLOR_TEXT])
             currentView.findViewById<CheckBox>(R.id.checkBoxInvertCruise).setTextColor(Settings.colorList[COLOR_TEXT])
             currentView.findViewById<CheckBox>(R.id.checkBoxScreenOn).setTextColor(Settings.colorList[COLOR_TEXT])
             currentView.findViewById<CheckBox>(R.id.checkBoxAlwaysPortrait).setTextColor(Settings.colorList[COLOR_TEXT])
@@ -285,10 +339,19 @@ class SettingsFragment : Fragment() {
             }
 
             //Get logging mode
-            if (UDSLogger.getMode() == UDS_LOGGING_3E) {
-                currentView.findViewById<RadioButton>(R.id.radioButton3E).isChecked = true
-            } else {
-                currentView.findViewById<RadioButton>(R.id.radioButton22).isChecked = true
+            when {
+                UDSLogger.getMode() == UDS_LOGGING_3E -> {
+                    currentView.findViewById<RadioButton>(R.id.radioButton3E).isChecked = true
+                }
+                UDSLogger.getMode() == UDS_LOGGING_22A -> {
+                    currentView.findViewById<RadioButton>(R.id.radioButton22A).isChecked = true
+                }
+                UDSLogger.getMode() == UDS_LOGGING_22B -> {
+                    currentView.findViewById<RadioButton>(R.id.radioButton22B).isChecked = true
+                }
+                else -> {
+                    currentView.findViewById<RadioButton>(R.id.radioButton22C).isChecked = true
+                }
             }
 
             //Get output directory
@@ -340,10 +403,19 @@ class SettingsFragment : Fragment() {
             ConfigFile.set("PersistQDelay", currentView.findViewById<SeekBar>(R.id.seekBarPersistQDelay).progress.toString())
 
             // Set logging mode
-            if(currentView.findViewById<RadioButton>(R.id.radioButton3E).isChecked) {
-                ConfigFile.set("Mode", "3E")
-            } else {
-                ConfigFile.set("Mode", "22")
+            when {
+                currentView.findViewById<RadioButton>(R.id.radioButton3E).isChecked -> {
+                    ConfigFile.set("Mode", "3E")
+                }
+                currentView.findViewById<RadioButton>(R.id.radioButton22A).isChecked -> {
+                    ConfigFile.set("Mode", "22A")
+                }
+                currentView.findViewById<RadioButton>(R.id.radioButton22B).isChecked -> {
+                    ConfigFile.set("Mode", "22B")
+                }
+                else -> {
+                    ConfigFile.set("Mode", "22C")
+                }
             }
 
             // Set default output folder

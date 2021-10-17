@@ -9,7 +9,7 @@ import kotlin.math.sqrt
 object UDSLogger {
     private val TAG = "UDSLogger"
     private var mLastEnabled = false
-    private var mMode = UDS_LOGGING_22
+    private var mMode = UDS_LOGGING_22A
     private var mTorquePID = -1
     private var mEngineRPMPID = -1
     private var mMS2PID = -1
@@ -82,12 +82,8 @@ object UDSLogger {
 
     fun setMode(mode: Int) {
         when(mode) {
-            UDS_LOGGING_22 -> {
-                mMode = mode
-            }
-            UDS_LOGGING_3E -> {
-                mMode = mode
-            }
+            in UDS_LOGGING_22A .. UDS_LOGGING_22C -> mMode = mode
+            UDS_LOGGING_3E  -> mMode = mode
         }
     }
 
@@ -96,39 +92,27 @@ object UDSLogger {
     }
 
     fun frameCount(): Int {
-        when(mMode) {
-            UDS_LOGGING_22 -> {
-                return frameCount22()
-            }
-            UDS_LOGGING_3E -> {
-                return frameCount3E()
-            }
+        return when (mMode) {
+            in UDS_LOGGING_22A .. UDS_LOGGING_22C -> frameCount22()
+            UDS_LOGGING_3E -> frameCount3E()
+            else -> 0
         }
-        return 0
     }
 
     fun buildFrame(index: Int): ByteArray {
-        when(mMode) {
-            UDS_LOGGING_22 -> {
-                return buildFrame22(index)
-            }
-            UDS_LOGGING_3E -> {
-                return buildFrame3E(index)
-            }
+        return when(mMode) {
+            in UDS_LOGGING_22A .. UDS_LOGGING_22C -> return buildFrame22(index)
+            UDS_LOGGING_3E -> return buildFrame3E(index)
+            else -> byteArrayOf()
         }
-        return byteArrayOf()
     }
 
     fun processFrame(tick: Int, buff: ByteArray?, context: Context): Int {
-        when(mMode) {
-            UDS_LOGGING_22 -> {
-                return processFrame22(tick, buff, context)
-            }
-            UDS_LOGGING_3E -> {
-                return processFrame3E(tick, buff, context)
-            }
+        return when(mMode) {
+            in UDS_LOGGING_22A .. UDS_LOGGING_22C -> processFrame22(tick, buff, context)
+            UDS_LOGGING_3E  -> processFrame3E(tick, buff, context)
+            else -> UDS_ERROR_NULL
         }
-        return UDS_ERROR_NULL
     }
 
     private fun resetHPPIDS() {
@@ -143,24 +127,7 @@ object UDSLogger {
     }
 
     private fun findHPPIDS() {
-        if(mMode == UDS_LOGGING_22) {
-            DIDs.list22?.let { list ->
-                for (x in 0 until list.count()) {
-                    //Look for torque PID
-                    if (list[x]?.address == 0x437C.toLong()) {
-                        mTorquePID = x
-                    }
-
-                    //Look for rpm PID
-                    if (list[x]?.address == 0xf40C.toLong()) {
-                        mEngineRPMPID = x
-                    }
-                }
-                //Did we find the PIDs required?
-                if (mEngineRPMPID != -1 && mTorquePID != -1)
-                    mFoundTQPIDS = true
-            }
-        } else {
+        if(mMode == UDS_LOGGING_3E) {
             DIDs.list3E?.let { list ->
                 for (x in 0 until list.count()) {
                     //Look for torque PID
@@ -194,11 +161,32 @@ object UDSLogger {
 
             if(mEngineRPMPID != -1 && mTorquePID != -1)
                 mFoundTQPIDS = true
+        } else {
+            DIDs.list()?.let { list ->
+                for (x in 0 until list.count()) {
+                    //Look for torque PID
+                    if (list[x]?.address == 0x437C.toLong()) {
+                        mTorquePID = x
+                    }
+
+                    //Look for rpm PID
+                    if (list[x]?.address == 0xf40C.toLong()) {
+                        mEngineRPMPID = x
+                    }
+                }
+                //Did we find the PIDs required?
+                if (mEngineRPMPID != -1 && mTorquePID != -1)
+                    mFoundTQPIDS = true
+            }
         }
     }
 
     private fun frameCount22(): Int {
-        return 8
+        DIDs.list()?.let { list ->
+            if(list.count() > 0)
+                return (list.count()-1) / 8 + 1
+        }
+        return 0
     }
 
     private fun frameCount3E(): Int {
@@ -210,7 +198,7 @@ object UDSLogger {
     }
 
     private fun buildFrame22(index: Int): ByteArray {
-        DIDs.list22?.let { list ->
+        DIDs.list()?.let { list ->
             val bleHeader = BLEHeader()
             bleHeader.cmdSize = 1
             bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_ADD
@@ -222,41 +210,18 @@ object UDSLogger {
             }
 
             var buff: ByteArray = byteArrayOf(0x22.toByte())
-            if (index % 2 == 0) {
-                //Write P1 PIDS
-                for (i in 0 until 8) {
-                    val did: DIDStruct? = list[i]
-                    did?.let {
-                        bleHeader.cmdSize += 2
-                        buff += ((did.address and 0xFF00) shr 8).toByte()
-                        buff += (did.address and 0xFF).toByte()
-                    }
-                }
-            } else {
-                //Write P2 PIDS
-                var startIndex = 8 + ((index % 4) / 2 * 4)
-                var endIndex = startIndex + 4
-                for (i in startIndex until endIndex) {
-                    val did: DIDStruct? = list[i]
-                    did?.let {
-                        bleHeader.cmdSize += 2
-                        buff += ((did.address and 0xFF00) shr 8).toByte()
-                        buff += (did.address and 0xFF).toByte()
-                    }
-                }
-                //Write P3 PIDS
-                startIndex = 16 + ((index % 8) / 2 * 4)
-                endIndex = startIndex + 4
-                for (i in startIndex until endIndex) {
-                    val did: DIDStruct? = list[i]
-                    did?.let {
-                        bleHeader.cmdSize += 2
-                        buff += ((did.address and 0xFF00) shr 8).toByte()
-                        buff += (did.address and 0xFF).toByte()
-                    }
+            val startIndex = if(index * 8 > list.count()) list.count()
+                else index * 8
+            val endIndex = if(startIndex + 8 > list.count()) list.count()
+                else startIndex + 8
+            for (i in startIndex until endIndex) {
+                val did: DIDStruct? = list[i]
+                did?.let {
+                    bleHeader.cmdSize += 2
+                    buff += ((did.address and 0xFF00) shr 8).toByte()
+                    buff += (did.address and 0xFF).toByte()
                 }
             }
-
             return bleHeader.toByteArray() + buff
         }
 
@@ -321,7 +286,7 @@ object UDSLogger {
     }
 
     fun processFrame22(tick: Int, buff: ByteArray?, context: Context): Int {
-        DIDs.list22?.let { list ->
+        DIDs.list()?.let { list ->
             // if the buffer is null abort
             if (buff == null) {
                 return UDS_ERROR_NULL
@@ -346,7 +311,7 @@ object UDSLogger {
             }
 
             //In init state
-            if (tick <= frameCount22()) {
+            if (tick < frameCount22()) {
                 return UDS_OK
             }
 
@@ -379,7 +344,7 @@ object UDSLogger {
             }
 
             //Update Log every 2nd tick
-            if (tick % 2 == 0) {
+            if (tick % frameCount22() == 0) {
                 val dEnable = list[list.count() - 1]
                 if ((!Settings.invertCruise && dEnable?.value != 0.0f) ||
                     (Settings.invertCruise && dEnable?.value == 0.0f)) {
@@ -473,7 +438,7 @@ object UDSLogger {
             }
 
             //still in the initial setup?
-            if (tick <= frameCount3E()) {
+            if (tick < frameCount3E()) {
                 return UDS_OK
             }
 

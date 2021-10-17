@@ -128,13 +128,12 @@ class BTService: Service() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             super.onScanResult(callbackType, result)
             result.device?.let { device ->
-                DebugLog.i(TAG, "Found BLE device! ${device.name}")
+                DebugLog.i(TAG, "Found BLE device ${device.name}")
 
                 if (mBluetoothDevice == null && device.name.contains(BLE_DEVICE_NAME, true)) {
                     mBluetoothDevice = device
 
-                    if (mScanning)
-                        stopScanning()
+                    stopScanning()
 
                     DebugLog.i(TAG, "Initiating connection to ${device.name}")
                     device.connectGatt(applicationContext, false, mGattCallback, 2)
@@ -223,7 +222,7 @@ class BTService: Service() {
             if(status == BluetoothGatt.GATT_SUCCESS) {
                 //Request new MTU
                 with(gatt) {
-                    DebugLog.i(TAG, "Discovered ${services.size} services for ${device.address}")
+                    DebugLog.i(TAG, "Discovered ${services.size} services for ${device.name}")
 
                     printGattTable()
                     try {
@@ -234,7 +233,7 @@ class BTService: Service() {
                     }
                 }
             } else {
-                DebugLog.i(TAG, "Failed to discover services for ${gatt.device.address}")
+                DebugLog.w(TAG, "Failed to discover services for ${gatt.device.name}")
 
                 //Set new connection error state
                 mErrorStatus = status.toString()
@@ -423,8 +422,8 @@ class BTService: Service() {
 
     @Synchronized
     private fun stopScanning() {
-        DebugLog.i(TAG, "Stop Scanning")
-        if (mScanning) {
+        if(mScanning) {
+            DebugLog.i(TAG, "Stop Scanning")
             (getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter.bluetoothLeScanner.stopScan(mScanCallback)
             mScanning = false
         }
@@ -485,9 +484,7 @@ class BTService: Service() {
 
     @Synchronized
     private fun doDisconnect(newState: Int = STATE_NONE, errorMessage: Boolean = false) {
-        if (mScanning)
-            stopScanning()
-
+        stopScanning()
         closeConnectionThread()
 
         //get device name
@@ -508,8 +505,7 @@ class BTService: Service() {
 
     @Synchronized
     private fun doTimeout() {
-        if(mScanning)
-            stopScanning()
+        stopScanning()
 
         if(mState != STATE_CONNECTED) {
             //Set new connection status
@@ -525,6 +521,8 @@ class BTService: Service() {
 
     @Synchronized
     private fun createConnectionThread() {
+        closeConnectionThread()
+
         mConnectionThread = ConnectionThread()
         mConnectionThread?.let { thread ->
             thread.priority = BLE_THREAD_PRIORITY
@@ -535,9 +533,11 @@ class BTService: Service() {
     @Synchronized
     private fun setConnectionState(newState: Int, errorMessage: Boolean = false)
     {
+        if(mState == newState)
+            return
+
         when(newState) {
             STATE_CONNECTED -> {
-                closeConnectionThread()
                 createConnectionThread()
             }
             STATE_NONE -> {
@@ -566,14 +566,13 @@ class BTService: Service() {
         private var mTaskTimeNext: Long = 0
         private var mTaskTimeOut: Long  = 0
 
-
         init {
             setTaskState(TASK_NONE)
             DebugLog.d(TAG, "create ConnectionThread")
         }
 
         override fun run() {
-            DebugLog.i(TAG, "BEGIN mConnectionThread")
+            DebugLog.d(TAG, "BEGIN mConnectionThread")
 
             while (mState == STATE_CONNECTED && !currentThread().isInterrupted) {
                 //See if there are any packets waiting to be sent
@@ -603,7 +602,7 @@ class BTService: Service() {
                     }
                 }
 
-                //See if there are any packets waiting to be sent
+                //See if there are any packets waiting to be read
                 if (!mReadQueue.isEmpty()) {
                     try {
                         val buff = mReadQueue.poll()
@@ -646,54 +645,62 @@ class BTService: Service() {
                                     if (mTaskCount < UDSLogger.frameCount()) {
                                         //If we failed init abort
                                         if (result != UDS_OK) {
-                                            DebugLog.i(TAG, "Unable to initialize logging, UDS Error: $result")
+                                            DebugLog.w(TAG, "Unable to initialize logging, UDS Error: $result")
                                             setTaskState(TASK_NONE)
                                         } else { //else continue init
                                             mWriteQueue.add(UDSLogger.buildFrame(mTaskCount))
                                         }
-                                    }
-
-                                    //Broadcast new PID data
-                                    if (mTaskCount % Settings.updateRate == 0) {
-                                        val intentMessage = Intent(MESSAGE_READ_LOG.toString())
-                                        intentMessage.putExtra("readCount", mTaskCount)
-                                        intentMessage.putExtra("readTime", System.currentTimeMillis() - mTaskTime)
-                                        intentMessage.putExtra("readResult", result)
-                                        sendBroadcast(intentMessage)
-                                    }
-
-                                    //If we changed logging write states broadcast a new message and set LED color
-                                    if (UDSLogger.isEnabled() != mLogWriteState) {
-                                        //Broadcast new message
-                                        val intentMessage = Intent(MESSAGE_WRITE_LOG.toString())
-                                        intentMessage.putExtra("enabled", UDSLogger.isEnabled())
-                                        sendBroadcast(intentMessage)
-
-                                        //Set LED
-                                        val bleHeader = BLEHeader()
-                                        bleHeader.cmdSize = 4
-                                        bleHeader.cmdFlags = BLE_COMMAND_FLAG_SETTINGS or BRG_SETTING_LED_COLOR
-                                        val dataBytes = if(UDSLogger.isEnabled()) {
-                                            //Blue
-                                            byteArrayOf(0x00.toByte(),
-                                                        0x80.toByte(),
-                                                        0x00.toByte(),
-                                                        0x00.toByte())
-                                        } else {
-                                            //Green
-                                            byteArrayOf(0x00.toByte(),
-                                                        0x00.toByte(),
-                                                        0x80.toByte(),
-                                                        0x00.toByte())
+                                    } else { //We are receiving data
+                                        //Broadcast new PID data
+                                        if (mTaskCount % Settings.updateRate == 0) {
+                                            val intentMessage = Intent(MESSAGE_READ_LOG.toString())
+                                            intentMessage.putExtra("readCount", mTaskCount)
+                                            intentMessage.putExtra("readTime", System.currentTimeMillis() - mTaskTime)
+                                            intentMessage.putExtra("readResult", result)
+                                            sendBroadcast(intentMessage)
                                         }
-                                        val buf = bleHeader.toByteArray() + dataBytes
-                                        mWriteQueue.add(buf)
 
-                                        //Update current write state
-                                        mLogWriteState = UDSLogger.isEnabled()
+                                        //If we changed logging write states broadcast a new message and set LED color
+                                        if (UDSLogger.isEnabled() != mLogWriteState) {
+                                            //Broadcast new message
+                                            val intentMessage = Intent(MESSAGE_WRITE_LOG.toString())
+                                            intentMessage.putExtra("enabled", UDSLogger.isEnabled())
+                                            sendBroadcast(intentMessage)
+
+                                            //Set LED
+                                            val bleHeader = BLEHeader()
+                                            bleHeader.cmdSize = 4
+                                            bleHeader.cmdFlags =
+                                                BLE_COMMAND_FLAG_SETTINGS or BRG_SETTING_LED_COLOR
+                                            val dataBytes = if (UDSLogger.isEnabled()) {
+                                                //Blue
+                                                byteArrayOf(
+                                                    0x00.toByte(),
+                                                    0x80.toByte(),
+                                                    0x00.toByte(),
+                                                    0x00.toByte()
+                                                )
+                                            } else {
+                                                //Green
+                                                byteArrayOf(
+                                                    0x00.toByte(),
+                                                    0x00.toByte(),
+                                                    0x80.toByte(),
+                                                    0x00.toByte()
+                                                )
+                                            }
+                                            val buf = bleHeader.toByteArray() + dataBytes
+                                            mWriteQueue.add(buf)
+
+                                            //Update current write state
+                                            mLogWriteState = UDSLogger.isEnabled()
+                                        }
                                     }
                                 }
                             }
+
+                            //increment task packet count
+                            mTaskCount++
 
                             //check if we are ready to switch to a new task
                             if (mTaskNext != TASK_NONE) {
@@ -702,9 +709,6 @@ class BTService: Service() {
                                 //Write debug log
                                 DebugLog.d(TAG, "Packet extended task start delay.")
                             }
-
-                            //increment task packet count
-                            mTaskCount++
                         }
                     } catch (e: Exception) {
                         DebugLog.e(TAG, "Exception during read", e)
@@ -725,6 +729,7 @@ class BTService: Service() {
                     }
                 }
             }
+            DebugLog.d(TAG, "END mConnectionThread")
         }
 
         fun cancel() {
@@ -773,7 +778,6 @@ class BTService: Service() {
             }
         }
 
-        @Synchronized
         private fun startNextTask() {
             //Broadcast a new message
             mTask       = mTaskNext

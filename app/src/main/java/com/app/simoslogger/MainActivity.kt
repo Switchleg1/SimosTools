@@ -22,7 +22,6 @@ import androidx.navigation.Navigation.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
 import android.graphics.drawable.ColorDrawable
 import androidx.lifecycle.ViewModelProvider
-import java.lang.Exception
 
 class MainViewModel : ViewModel() {
     var mStarted: Boolean = false
@@ -49,16 +48,26 @@ class MainActivity : AppCompatActivity() {
 
             //Write pid default files
             PIDCSVFile.write(CSV_3E_NAME, applicationContext, DIDs.list3E, false)
-            PIDCSVFile.write(CSV_22_NAME, applicationContext, DIDs.list22, false)
+            PIDCSVFile.write(CSV_22A_NAME, applicationContext, DIDs.list22a, false)
+            PIDCSVFile.write(CSV_22B_NAME, applicationContext, DIDs.list22b, false)
+            PIDCSVFile.write(CSV_22C_NAME, applicationContext, DIDs.list22c, false)
 
             //Read pid files
             val pid3EList = PIDCSVFile.read(CSV_3E_NAME, applicationContext)
             if (pid3EList != null)
                 DIDs.list3E = pid3EList
 
-            val pid22List = PIDCSVFile.read(CSV_22_NAME, applicationContext)
-            if (pid22List != null && pid22List.count() == 32)
-                DIDs.list22 = pid22List
+            var pid22List = PIDCSVFile.read(CSV_22A_NAME, applicationContext)
+            if (pid22List != null)
+                DIDs.list22a = pid22List
+
+            pid22List = PIDCSVFile.read(CSV_22B_NAME, applicationContext)
+            if (pid22List != null)
+                DIDs.list22b = pid22List
+
+            pid22List = PIDCSVFile.read(CSV_22C_NAME, applicationContext)
+            if (pid22List != null)
+                DIDs.list22c = pid22List
 
             //Start our BT Service
             val serviceIntent = Intent(this, BTService::class.java)

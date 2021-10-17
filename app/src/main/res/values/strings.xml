@@ -44,7 +44,9 @@
     <string name="check_settings_always_portrait">Always use portrait view?</string>
     <!-- Strings used for radio buttons -->
     <string name="radio_settings_mode_3E">3E</string>
-    <string name="radio_settings_mode_22">22</string>
+    <string name="radio_settings_mode_22A">22A</string>
+    <string name="radio_settings_mode_22B">22B</string>
+    <string name="radio_settings_mode_22C">22C</string>
     <string name="radio_settings_mode_downloads">Downloads</string>
     <string name="radio_settings_mode_documents">Documents</string>
     <string name="radio_settings_mode_application">Application</string>
@@ -59,7 +61,9 @@
     <string name="textview_settings_color_options">Color options:</string>
     <string name="textview_settings_hp_options">Calculated HP options:</string>
     <string name="textview_settings_import_csv">Import PID CSV:</string>
-    <string name="textview_settings_import_22_csv">22 CSV</string>
+    <string name="textview_settings_import_22a_csv">22A CSV</string>
+    <string name="textview_settings_import_22b_csv">22B CSV</string>
+    <string name="textview_settings_import_22c_csv">22C CSV</string>
     <string name="textview_settings_import_3E_csv">3E CSV</string>
     <string name="textview_color_r">R: <xliff:g id="value">%1$d</xliff:g></string>
     <string name="textview_color_g">G: <xliff:g id="value">%1$d</xliff:g></string>
