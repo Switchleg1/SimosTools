@@ -10,7 +10,6 @@ import android.widget.Button
 import androidx.core.content.ContextCompat.startForegroundService
 import androidx.navigation.fragment.findNavController
 
-
 class FirstFragment : Fragment() {
     private val TAG = "FirstFragment"
     override fun onCreateView(
@@ -24,11 +23,11 @@ class FirstFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        view.findViewById<Button>(R.id.button_flashing).setOnClickListener {
+        view.findViewById<Button>(R.id.buttonFlashing).setOnClickListener {
             findNavController().navigate(R.id.action_FirstFragment_to_FlashFragment)
         }
 
-        view.findViewById<Button>(R.id.button_logging).setOnClickListener {
+        view.findViewById<Button>(R.id.buttonLogging).setOnClickListener {
             //Start Logging
             val serviceIntent = Intent(context, BTService::class.java)
             serviceIntent.action = BT_DO_CHECK_PID.toString()
@@ -46,10 +45,11 @@ class FirstFragment : Fragment() {
         }
 
         view.findViewById<Button>(R.id.buttonStopService).setOnClickListener {
+            //shutdown service and close app
             val serviceIntent = Intent(context, BTService::class.java)
             serviceIntent.action = BT_STOP_SERVICE.toString()
-            startForegroundService(this.requireContext(), serviceIntent)
-            this.requireActivity().finish()
+            startForegroundService(requireContext(), serviceIntent)
+            requireActivity().finish()
         }
 
         //Set background color

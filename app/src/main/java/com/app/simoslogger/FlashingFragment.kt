@@ -16,7 +16,6 @@ import androidx.core.content.ContextCompat.startForegroundService
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
-
 class FlashingViewModel : ViewModel() {
     var mConversationArrayAdapter: ArrayAdapter<String>? = null
     var mConnectedDeviceName: String? = null

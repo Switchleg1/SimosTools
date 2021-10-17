@@ -5,6 +5,7 @@ import android.util.Log
 import java.io.*
 import java.lang.Exception
 import java.time.Instant
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 object DebugLog {
@@ -113,6 +114,9 @@ object DebugLog {
     }
 
     private fun timeStamp(): String {
-        return DateTimeFormatter.ISO_INSTANT.format(Instant.now())
+        return DateTimeFormatter
+            .ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
+            .withZone(ZoneOffset.systemDefault())
+            .format(Instant.now())
     }
 }

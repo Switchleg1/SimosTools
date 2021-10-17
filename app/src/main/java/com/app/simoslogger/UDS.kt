@@ -1,7 +1,6 @@
 package com.app.simoslogger
 
 import android.content.Context
-import android.util.Log
 import java.lang.Exception
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -517,20 +516,12 @@ object UDSLogger {
 
             val dEnable = list[list.count() - 1]
             if ((!Settings.invertCruise && dEnable?.value != 0.0f) ||
-                (Settings.invertCruise && dEnable?.value == 0.0f)
-            ) {
+                (Settings.invertCruise && dEnable?.value == 0.0f)) {
                 //If we were not enabled before we must open a log to start writing
                 if (!mLastEnabled) {
                     val currentDateTime = LocalDateTime.now()
-                    LogFile.create(
-                        "simoslogger-${
-                            currentDateTime.format(
-                                DateTimeFormatter.ofPattern(
-                                    "yyyy_MM_dd-HH_mm_ss"
-                                )
-                            )
-                        }.csv", context
-                    )
+                    LogFile.create("simoslogger-${currentDateTime.format(
+                        DateTimeFormatter.ofPattern("yyyy_MM_dd-HH_mm_ss"))}.csv", context)
 
                     //Add time its required
                     var strItems: String? = "Time"

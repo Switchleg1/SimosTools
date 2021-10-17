@@ -32,20 +32,20 @@ val MESSAGE_READ_LOG        = 7
 val MESSAGE_WRITE_LOG       = 8
 
 // Constants that indicate the current connection state
-val STATE_ERROR         = -1 // we're doing nothing
-val STATE_NONE          = 0 // we're doing nothing
-val STATE_CONNECTING    = 1 // now initiating an outgoing connection
-val STATE_CONNECTED     = 2 // now connected to a remote device
+val STATE_ERROR             = -1 // we're doing nothing
+val STATE_NONE              = 0 // we're doing nothing
+val STATE_CONNECTING        = 1 // now initiating an outgoing connection
+val STATE_CONNECTED         = 2 // now connected to a remote device
 
 //List of available tasks
-val TASK_NONE       = 0
-val TASK_FLASHING   = 1
-val TASK_LOGGING    = 2 // uploading to remote device
-val TASK_RD_VIN     = 3 // download from remote device
-val TASK_CLEAR_DTC  = 4
+val TASK_NONE               = 0
+val TASK_FLASHING           = 1
+val TASK_LOGGING            = 2 // uploading to remote device
+val TASK_RD_VIN             = 3 // download from remote device
+val TASK_CLEAR_DTC          = 4
 
-val TASK_END_DELAY      = 1000
-val TASK_END_TIMEOUT    = 5000
+val TASK_END_DELAY          = 750
+val TASK_END_TIMEOUT        = 5000
 
 //Intent constants
 val REQUEST_LOCATION_PERMISSION = 1
@@ -67,25 +67,25 @@ val BT_DO_STOP_PID      = 6
 val BT_DO_CLEAR_DTC     = 7
 
 //BLE settings
-val BLE_DEVICE_NAME      = "BLE_TO_ISOTP"
-val BLE_GATT_MTU_SIZE    = 512
-val BLE_SCAN_PERIOD      = 5000L
+val BLE_DEVICE_NAME         = "BLE_TO_ISOTP"
+val BLE_GATT_MTU_SIZE       = 512
+val BLE_SCAN_PERIOD         = 5000L
 val BLE_CONNECTION_PRIORITY = BluetoothGatt.CONNECTION_PRIORITY_HIGH
-val BLE_THREAD_PRIORITY = 5 //Priority (max is 10)
+val BLE_THREAD_PRIORITY     = 5 //Priority (max is 10)
 
 //ISOTP bridge UUIDS
-val BLE_CCCD_UUID    = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
-val BLE_SERVICE_UUID = UUID.fromString("0000abf0-0000-1000-8000-00805f9b34fb")
-val BLE_DATA_TX_UUID = UUID.fromString("0000abf1-0000-1000-8000-00805f9b34fb")
-val BLE_DATA_RX_UUID = UUID.fromString("0000abf2-0000-1000-8000-00805f9b34fb")
-val BLE_CMD_TX_UUID  = UUID.fromString("0000abf3-0000-1000-8000-00805f9b34fb")
-val BLE_CMD_RX_UUID  = UUID.fromString("0000abf4-0000-1000-8000-00805f9b34fb")
+val BLE_CCCD_UUID           = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
+val BLE_SERVICE_UUID        = UUID.fromString("0000abf0-0000-1000-8000-00805f9b34fb")
+val BLE_DATA_TX_UUID        = UUID.fromString("0000abf1-0000-1000-8000-00805f9b34fb")
+val BLE_DATA_RX_UUID        = UUID.fromString("0000abf2-0000-1000-8000-00805f9b34fb")
+val BLE_CMD_TX_UUID         = UUID.fromString("0000abf3-0000-1000-8000-00805f9b34fb")
+val BLE_CMD_RX_UUID         = UUID.fromString("0000abf4-0000-1000-8000-00805f9b34fb")
 
 //ISOTP bridge BLE header defaults
-val BLE_HEADER_ID = 0xF1
-val BLE_HEADER_PT = 0xF2
-val BLE_HEADER_RX = 0x7E8
-val BLE_HEADER_TX = 0x7E0
+val BLE_HEADER_ID           = 0xF1
+val BLE_HEADER_PT           = 0xF2
+val BLE_HEADER_RX           = 0x7E8
+val BLE_HEADER_TX           = 0x7E0
 
 //ISOTP bridge command flags
 val BLE_COMMAND_FLAG_PER_ENABLE     = 1
@@ -112,16 +112,16 @@ val UDS_ERROR_CMDSIZE   = 4
 val UDS_ERROR_UNKNOWN   = 5
 
 //Logging modes
-val UDS_LOGGING_22 = 0
-val UDS_LOGGING_3E = 1
+val UDS_LOGGING_22      = 0
+val UDS_LOGGING_3E      = 1
 
-val MAX_PIDS        = 100
-val CSV_CFG_LINE    = "Name,Unit,Equation,Format,Address,Length,Signed,ProgMin,ProgMax,WarnMin,WarnMax,Smoothing"
-val CSV_VALUE_COUNT = 12
-val CSV_3E_NAME     = "PIDList3E.csv"
-val CSV_22_NAME     = "PIDList22.csv"
-val CFG_FILENAME    = "config.cfg"
-val DEBUG_FILENAME  = "debug.log"
+val MAX_PIDS            = 100
+val CSV_CFG_LINE        = "Name,Unit,Equation,Format,Address,Length,Signed,ProgMin,ProgMax,WarnMin,WarnMax,Smoothing"
+val CSV_VALUE_COUNT     = 12
+val CSV_3E_NAME         = "PIDList3E.csv"
+val CSV_22_NAME         = "PIDList22.csv"
+val CFG_FILENAME        = "config.cfg"
+val DEBUG_FILENAME      = "debug.log"
 
 //Log files
 val LOG_NONE            = 0
@@ -160,8 +160,8 @@ val DEFAULT_DISPLAY_SIZE        = 1f
 val DEFAULT_LOG_FLAGS           = LOG_INFO or LOG_WARNING or LOG_EXCEPTION
 
 //TQ/HP Calculations
-val KG_TO_N = 9.80665f
-val TQ_CONSTANT = 16.3f
+val KG_TO_N             = 9.80665f
+val TQ_CONSTANT         = 16.3f
 
 //Color index
 val COLOR_BG_NORMAL     = 0

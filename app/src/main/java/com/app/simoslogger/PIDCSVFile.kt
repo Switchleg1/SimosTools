@@ -1,7 +1,6 @@
 package com.app.simoslogger
 
 import android.content.Context
-import android.util.Log
 import java.io.*
 import java.lang.Long.parseLong
 

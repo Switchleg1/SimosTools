@@ -13,7 +13,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.*
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
@@ -24,11 +23,6 @@ import androidx.navigation.ui.onNavDestinationSelected
 import android.graphics.drawable.ColorDrawable
 import androidx.lifecycle.ViewModelProvider
 import java.lang.Exception
-import android.os.StrictMode
-
-import android.R.attr.name
-import android.os.StrictMode.ThreadPolicy
-
 
 class MainViewModel : ViewModel() {
     var mStarted: Boolean = false
@@ -44,10 +38,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         mViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
-        if(!mViewModel.mStarted) {
+        if (!mViewModel.mStarted) {
             //Start debuglog
             DebugLog.create(DEBUG_FILENAME, applicationContext)
 
@@ -60,19 +53,13 @@ class MainActivity : AppCompatActivity() {
 
             //Read pid files
             val pid3EList = PIDCSVFile.read(CSV_3E_NAME, applicationContext)
-            if(pid3EList != null)
+            if (pid3EList != null)
                 DIDs.list3E = pid3EList
 
             val pid22List = PIDCSVFile.read(CSV_22_NAME, applicationContext)
-            if(pid22List != null && pid22List.count() == 32)
+            if (pid22List != null && pid22List.count() == 32)
                 DIDs.list22 = pid22List
-        }
 
-        //Init view
-        setContentView(R.layout.activity_main)
-        setSupportActionBar(findViewById(R.id.toolbar))
-
-        if(!mViewModel.mStarted) {
             //Start our BT Service
             val serviceIntent = Intent(this, BTService::class.java)
             serviceIntent.action = BT_START_SERVICE.toString()
@@ -80,9 +67,13 @@ class MainActivity : AppCompatActivity() {
 
             //get permissions
             getPermissions()
+
+            //Save started
+            mViewModel.mStarted = true
         }
 
-        mViewModel.mStarted = true
+        setContentView(R.layout.activity_main)
+        setSupportActionBar(findViewById(R.id.toolbar))
     }
 
     override fun onResume() {
