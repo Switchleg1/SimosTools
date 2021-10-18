@@ -47,27 +47,37 @@ class MainActivity : AppCompatActivity() {
             ConfigFile.read(CFG_FILENAME, applicationContext)
 
             //Write pid default files
-            PIDCSVFile.write(CSV_3E_NAME, applicationContext, DIDs.list3E, false)
-            PIDCSVFile.write(CSV_22A_NAME, applicationContext, DIDs.list22a, false)
-            PIDCSVFile.write(CSV_22B_NAME, applicationContext, DIDs.list22b, false)
-            PIDCSVFile.write(CSV_22C_NAME, applicationContext, DIDs.list22c, false)
+            PIDCSVFile.write(getString(R.string.filename_3E_csv, "a"), applicationContext, PIDs.list3Ea, false)
+            PIDCSVFile.write(getString(R.string.filename_3E_csv, "b"), applicationContext, PIDs.list3Eb, false)
+            PIDCSVFile.write(getString(R.string.filename_3E_csv, "c"), applicationContext, PIDs.list3Ec, false)
+            PIDCSVFile.write(getString(R.string.filename_22_csv, "a"), applicationContext, PIDs.list22a, false)
+            PIDCSVFile.write(getString(R.string.filename_22_csv, "b"), applicationContext, PIDs.list22b, false)
+            PIDCSVFile.write(getString(R.string.filename_22_csv, "c"), applicationContext, PIDs.list22c, false)
 
             //Read pid files
-            val pid3EList = PIDCSVFile.read(CSV_3E_NAME, applicationContext)
+            var pid3EList = PIDCSVFile.read(getString(R.string.filename_3E_csv, "a"), applicationContext, CSV_3E_MASK)
             if (pid3EList != null)
-                DIDs.list3E = pid3EList
+                PIDs.list3Ea = pid3EList
 
-            var pid22List = PIDCSVFile.read(CSV_22A_NAME, applicationContext)
-            if (pid22List != null)
-                DIDs.list22a = pid22List
+            pid3EList = PIDCSVFile.read(getString(R.string.filename_3E_csv, "b"), applicationContext, CSV_3E_MASK)
+            if (pid3EList != null)
+                PIDs.list3Ea = pid3EList
 
-            pid22List = PIDCSVFile.read(CSV_22B_NAME, applicationContext)
-            if (pid22List != null)
-                DIDs.list22b = pid22List
+            pid3EList = PIDCSVFile.read(getString(R.string.filename_3E_csv, "c"), applicationContext, CSV_3E_MASK)
+            if (pid3EList != null)
+                PIDs.list3Ea = pid3EList
 
-            pid22List = PIDCSVFile.read(CSV_22C_NAME, applicationContext)
+            var pid22List = PIDCSVFile.read(getString(R.string.filename_22_csv, "a"), applicationContext, CSV_22_MASK)
             if (pid22List != null)
-                DIDs.list22c = pid22List
+                PIDs.list22a = pid22List
+
+            pid22List = PIDCSVFile.read(getString(R.string.filename_22_csv, "b"), applicationContext, CSV_22_MASK)
+            if (pid22List != null)
+                PIDs.list22b = pid22List
+
+            pid22List = PIDCSVFile.read(getString(R.string.filename_22_csv, "c"), applicationContext, CSV_22_MASK)
+            if (pid22List != null)
+                PIDs.list22c = pid22List
 
             //Start our BT Service
             val serviceIntent = Intent(this, BTService::class.java)

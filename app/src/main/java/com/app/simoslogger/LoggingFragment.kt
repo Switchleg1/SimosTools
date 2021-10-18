@@ -57,17 +57,21 @@ class LoggingFragment : Fragment() {
         }
 
         view.findViewById<Button>(R.id.buttonReset).setOnClickListener {
-            mViewModel.dataList?.let { dataList ->
-                for (i in 0 until dataList.count()) {
-                    val data = dataList[i]
-                    data?.let {
-                        val did = DIDs.list()!![i]
-                        did?.let {
-                            data.max = did.value
-                            data.min = did.value
+            try {
+                mViewModel.dataList?.let { dataList ->
+                    for (i in 0 until dataList.count()) {
+                        val data = dataList[i]
+                        data?.let {
+                            val did = PIDs.getList()!![i]
+                            did?.let {
+                                data.max = did.value
+                                data.min = did.value
+                            }
                         }
                     }
                 }
+            } catch (e: Exception) {
+                DebugLog.e(TAG, "Unable to reset min/max list.", e)
             }
 
             updatePIDText()
@@ -91,7 +95,7 @@ class LoggingFragment : Fragment() {
         mPackCount?.setTextColor(Settings.colorList[COLOR_BAR_NORMAL])
 
         //Build layout
-        DIDs.list()?.let { list ->
+        PIDs.getList()?.let { list ->
             if (mViewModel.dataList == null || mViewModel.dataList?.count() != list.count()) {
                 mViewModel.dataList = arrayOfNulls(list.count())
             }
@@ -196,8 +200,8 @@ class LoggingFragment : Fragment() {
 
         //Update text
         try {
-            for (i in 0 until DIDs.list()!!.count()) {
-                val did = DIDs.list()!![i]
+            for (i in 0 until PIDs.getList()!!.count()) {
+                val did = PIDs.getList()!![i]
                 val layout = mPIDS!![i]
                 val textView = layout!!.findViewById<TextView>(R.id.pid_land_text)
                 mViewModel.dataList?.let { datalist ->
@@ -239,9 +243,9 @@ class LoggingFragment : Fragment() {
                     //Set the UI values
                     var anyWarning = false
                     try {
-                        for (i in 0 until DIDs.list()!!.count()) {
+                        for (i in 0 until PIDs.getList()!!.count()) {
                             //get the current did
-                            val did = DIDs.list()!![i]!!
+                            val did = PIDs.getList()!![i]!!
                             val layout = mPIDS!![i]
                             val data = mViewModel.dataList!![i]!!
                             val progressBar = layout!!.findViewById<ProgressBar>(R.id.pid_land_progress)

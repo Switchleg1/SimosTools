@@ -52,6 +52,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
+            <View
+                android:id="@+id/divider12"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
             <TextView
                 android:id="@+id/textViewUpdateRate"
                 android:layout_width="wrap_content"
@@ -65,6 +71,12 @@
                 android:contentDescription="@string/textview_settings_updaterate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
+
+            <View
+                android:id="@+id/divider13"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
 
             <TextView
                 android:id="@+id/textViewPersistDelay"
@@ -80,6 +92,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
+            <View
+                android:id="@+id/divider14"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
             <TextView
                 android:id="@+id/textViewPersistQDelay"
                 android:layout_width="match_parent"
@@ -94,84 +112,219 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
+            <View
+                android:id="@+id/divider15"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
+            <TextView
+                android:id="@+id/textViewOutputDirectory"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="@string/textview_settings_directory"
+                android:layout_marginTop="8dp"
+                app:autoSizeTextType="uniform"
+                app:lineHeight="60dp" />
+
             <RadioGroup
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginTop="8dp">
-
-                <TextView
-                    android:id="@+id/textViewOutputDirectory"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:text="@string/textview_settings_directory"
-                    app:autoSizeTextType="uniform"
-                    app:lineHeight="60dp" />
+                android:layout_height="50dp"
+                android:orientation="horizontal">
 
                 <RadioButton
                     android:id="@+id/radioButtonDownloads"
-                    android:layout_width="match_parent"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:minHeight="48dp"
                     android:text="@string/radio_settings_mode_downloads" />
 
                 <RadioButton
                     android:id="@+id/radioButtonDocuments"
-                    android:layout_width="match_parent"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:minHeight="48dp"
                     android:text="@string/radio_settings_mode_documents" />
 
                 <RadioButton
                     android:id="@+id/radioButtonApplication"
-                    android:layout_width="match_parent"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:minHeight="48dp"
                     android:text="@string/radio_settings_mode_application" />
             </RadioGroup>
 
+            <View
+                android:id="@+id/divider16"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
+            <TextView
+                android:id="@+id/textViewLoggingMode"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="@string/textview_settings_mode"
+                android:layout_marginTop="8dp"
+                app:autoSizeTextType="uniform"
+                app:lineHeight="60dp" />
+
             <RadioGroup
                 android:id="@+id/radioGroupMode"
                 android:layout_width="match_parent"
-                android:layout_height="250dp"
-                android:layout_marginTop="8dp">
-
-                <TextView
-                    android:id="@+id/textViewLoggingMode"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:text="@string/textview_settings_mode"
-                    app:autoSizeTextType="uniform"
-                    app:lineHeight="60dp" />
+                android:layout_height="50dp"
+                android:orientation="horizontal">
 
                 <RadioButton
-                    android:id="@+id/radioButton22A"
-                    android:layout_width="match_parent"
+                    android:id="@+id/radioButton22"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:minHeight="48dp"
-                    android:text="@string/radio_settings_mode_22A" />
-
-                <RadioButton
-                    android:id="@+id/radioButton22B"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:minHeight="48dp"
-                    android:text="@string/radio_settings_mode_22B" />
-
-                <RadioButton
-                    android:id="@+id/radioButton22C"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:minHeight="48dp"
-                    android:text="@string/radio_settings_mode_22C" />
+                    android:text="@string/radio_settings_mode_22" />
 
                 <RadioButton
                     android:id="@+id/radioButton3E"
-                    android:layout_width="match_parent"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:minHeight="48dp"
                     android:text="@string/radio_settings_mode_3E" />
 
             </RadioGroup>
+
+            <View
+                android:id="@+id/divider17"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
+            <TextView
+                android:id="@+id/textViewLoggingList"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="@string/textview_settings_list"
+                android:layout_marginTop="8dp"
+                app:autoSizeTextType="uniform"
+                app:lineHeight="60dp" />
+
+            <RadioGroup
+                android:id="@+id/radioGroupList"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radioButtonA"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="@string/radio_settings_list_a" />
+
+                <RadioButton
+                    android:id="@+id/radioButtonB"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="@string/radio_settings_list_b" />
+
+                <RadioButton
+                    android:id="@+id/radioButtonC"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="@string/radio_settings_list_c" />
+
+            </RadioGroup>
+
+            <View
+                android:id="@+id/divider20"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
+            <TextView
+                android:id="@+id/textViewPIDCSV"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="@string/textview_settings_import_csv"
+                android:layout_marginTop="8dp"
+                app:autoSizeTextType="uniform"
+                app:lineHeight="60dp" />
+
+            <LinearLayout
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:orientation="horizontal" >
+
+                <Button
+                    android:id="@+id/button22ACSV"
+                    style="@style/Widget.AppCompat.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/textview_settings_import_22a_csv" />
+
+                <Button
+                    android:id="@+id/button22BCSV"
+                    style="@style/Widget.AppCompat.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/textview_settings_import_22b_csv" />
+
+                <Button
+                    android:id="@+id/button22CCSV"
+                    style="@style/Widget.AppCompat.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/textview_settings_import_22c_csv" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:orientation="horizontal" >
+
+                <Button
+                    android:id="@+id/button3EACSV"
+                    style="@style/Widget.AppCompat.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/textview_settings_import_3Ea_csv" />
+
+                <Button
+                    android:id="@+id/button3EBCSV"
+                    style="@style/Widget.AppCompat.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/textview_settings_import_3Eb_csv" />
+
+                <Button
+                    android:id="@+id/button3ECCSV"
+                    style="@style/Widget.AppCompat.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/textview_settings_import_3Ec_csv" />
+
+            </LinearLayout>
+
+            <View
+                android:id="@+id/divider18"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
 
             <TextView
                 android:id="@+id/textViewMiscOptions"
@@ -202,6 +355,12 @@
                 android:minHeight="48dp"
                 android:text="@string/check_settings_always_portrait" />
 
+            <View
+                android:id="@+id/divider19"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
             <TextView
                 android:id="@+id/textViewCalcHPOptions"
                 android:layout_width="match_parent"
@@ -217,49 +376,26 @@
 
                 <CheckBox
                     android:id="@+id/checkBoxCalcHP"
-                    android:layout_width="150dp"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:minHeight="48dp"
                     android:text="@string/check_settings_calculate_hp" />
 
                 <CheckBox
                     android:id="@+id/checkBoxUseAccel"
-                    android:layout_width="match_parent"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:minHeight="48dp"
                     android:text="@string/check_settings_use_accelerometers" />
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/textViewPIDCSV"
+            <View
+                android:id="@+id/divider21"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/textview_settings_import_csv"
-                android:textSize="32sp" />
-
-            <Button
-                android:id="@+id/button22ACSV"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/textview_settings_import_22a_csv" />
-
-            <Button
-                android:id="@+id/button22BCSV"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/textview_settings_import_22b_csv" />
-
-            <Button
-                android:id="@+id/button22CCSV"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/textview_settings_import_22c_csv" />
-
-            <Button
-                android:id="@+id/button3ECSV"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/textview_settings_import_3E_csv" />
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
 
             <TextView
                 android:id="@+id/textViewColorOptions"

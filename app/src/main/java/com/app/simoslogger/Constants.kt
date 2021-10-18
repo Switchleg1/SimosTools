@@ -112,18 +112,21 @@ val UDS_ERROR_CMDSIZE           = 4
 val UDS_ERROR_UNKNOWN           = 5
 
 //Logging modes
-val UDS_LOGGING_3E              = 0
-val UDS_LOGGING_22A             = 1
-val UDS_LOGGING_22B             = 2
-val UDS_LOGGING_22C             = 3
+val UDS_LOGGING_22              = 0
+val UDS_LOGGING_3E              = 1
+
+//PID Index
+val PID_LIST_A                  = 0
+val PID_LIST_B                  = 1
+val PID_LIST_C                  = 2
+
+//CSV PID Bitmask
+val CSV_22_MASK                 = 0xFFFF.toLong()
+val CSV_3E_MASK                 = 0xFFFFFFFF
 
 val MAX_PIDS                    = 100
 val CSV_CFG_LINE                = "Name,Unit,Equation,Format,Address,Length,Signed,ProgMin,ProgMax,WarnMin,WarnMax,Smoothing"
 val CSV_VALUE_COUNT             = 12
-val CSV_3E_NAME                 = "PIDList3E.csv"
-val CSV_22A_NAME                = "PIDList22a.csv"
-val CSV_22B_NAME                = "PIDList22b.csv"
-val CSV_22C_NAME                = "PIDList22c.csv"
 val CFG_FILENAME                = "config.cfg"
 val DEBUG_FILENAME              = "debug.log"
 
@@ -198,5 +201,6 @@ fun Int.toArray2(): ByteArray = byteArrayOf((this and 0xFF00 shr 8).toByte(), (t
 fun Long.toColorInt(): Int = (this.toInt() and 0xFFFFFF) or 0xFF000000.toInt()
 fun Long.toHex2(): String = "%04x".format(this)
 fun Long.toHex4(): String = "%08x".format(this)
+fun Long.toHex(): String = "%16x".format(this)
 fun Long.toArray4(): ByteArray = byteArrayOf((this and 0xFF000000 shr 24).toByte(), (this and 0xFF0000 shr 16).toByte(), (this and 0xFF00 shr 8).toByte(), (this and 0xFF).toByte())
 fun ByteArray.toHex(): String = joinToString(separator = " ") { eachByte -> "%02x".format(eachByte) }

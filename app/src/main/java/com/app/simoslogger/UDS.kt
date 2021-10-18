@@ -9,7 +9,7 @@ import kotlin.math.sqrt
 object UDSLogger {
     private val TAG = "UDSLogger"
     private var mLastEnabled = false
-    private var mMode = UDS_LOGGING_22A
+    private var mMode = UDS_LOGGING_22
     private var mTorquePID = -1
     private var mEngineRPMPID = -1
     private var mMS2PID = -1
@@ -28,7 +28,7 @@ object UDSLogger {
     }
 
     fun getTorque(): Float {
-        DIDs.list()?.let { list ->
+        PIDs.getList()?.let { list ->
             if (Settings.calculateHP) {
                 if (mFoundMS2PIDS && Settings.useMS2Torque) {
                     try {
@@ -62,7 +62,7 @@ object UDSLogger {
     }
 
     fun getHP(tq: Float): Float {
-        DIDs.list()?.let { list ->
+        PIDs.getList()?.let { list ->
             if (Settings.calculateHP && mEngineRPMPID != -1) {
                 return try {
                     val rpmValue = list[mEngineRPMPID]!!.value
@@ -82,8 +82,8 @@ object UDSLogger {
 
     fun setMode(mode: Int) {
         when(mode) {
-            in UDS_LOGGING_22A .. UDS_LOGGING_22C -> mMode = mode
-            UDS_LOGGING_3E  -> mMode = mode
+            UDS_LOGGING_22 -> mMode = mode
+            UDS_LOGGING_3E -> mMode = mode
         }
     }
 
@@ -93,7 +93,7 @@ object UDSLogger {
 
     fun frameCount(): Int {
         return when (mMode) {
-            in UDS_LOGGING_22A .. UDS_LOGGING_22C -> frameCount22()
+            UDS_LOGGING_22 -> frameCount22()
             UDS_LOGGING_3E -> frameCount3E()
             else -> 0
         }
@@ -101,7 +101,7 @@ object UDSLogger {
 
     fun buildFrame(index: Int): ByteArray {
         return when(mMode) {
-            in UDS_LOGGING_22A .. UDS_LOGGING_22C -> return buildFrame22(index)
+            UDS_LOGGING_22 -> return buildFrame22(index)
             UDS_LOGGING_3E -> return buildFrame3E(index)
             else -> byteArrayOf()
         }
@@ -109,8 +109,8 @@ object UDSLogger {
 
     fun processFrame(tick: Int, buff: ByteArray?, context: Context): Int {
         return when(mMode) {
-            in UDS_LOGGING_22A .. UDS_LOGGING_22C -> processFrame22(tick, buff, context)
-            UDS_LOGGING_3E  -> processFrame3E(tick, buff, context)
+            UDS_LOGGING_22 -> processFrame22(tick, buff, context)
+            UDS_LOGGING_3E -> processFrame3E(tick, buff, context)
             else -> UDS_ERROR_NULL
         }
     }
@@ -128,7 +128,7 @@ object UDSLogger {
 
     private fun findHPPIDS() {
         if(mMode == UDS_LOGGING_3E) {
-            DIDs.list3E?.let { list ->
+            PIDs.getList()?.let { list ->
                 for (x in 0 until list.count()) {
                     //Look for torque PID
                     if (list[x]?.address == 0xd0015344) {
@@ -162,7 +162,7 @@ object UDSLogger {
             if(mEngineRPMPID != -1 && mTorquePID != -1)
                 mFoundTQPIDS = true
         } else {
-            DIDs.list()?.let { list ->
+            PIDs.getList()?.let { list ->
                 for (x in 0 until list.count()) {
                     //Look for torque PID
                     if (list[x]?.address == 0x437C.toLong()) {
@@ -182,7 +182,7 @@ object UDSLogger {
     }
 
     private fun frameCount22(): Int {
-        DIDs.list()?.let { list ->
+        PIDs.getList()?.let { list ->
             if(list.count() > 0)
                 return (list.count()-1) / 8 + 1
         }
@@ -191,14 +191,14 @@ object UDSLogger {
 
     private fun frameCount3E(): Int {
         return try {
-            (DIDs.list3E!!.count() * 5 / 0x8F) + 2
+            (PIDs.getList()!!.count() * 5 / 0x8F) + 2
         } catch (e: Exception) {
             0
         }
     }
 
     private fun buildFrame22(index: Int): ByteArray {
-        DIDs.list()?.let { list ->
+        PIDs.getList()?.let { list ->
             val bleHeader = BLEHeader()
             bleHeader.cmdSize = 1
             bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_ADD
@@ -215,7 +215,7 @@ object UDSLogger {
             val endIndex = if(startIndex + 8 > list.count()) list.count()
                 else startIndex + 8
             for (i in startIndex until endIndex) {
-                val did: DIDStruct? = list[i]
+                val did: PIDStruct? = list[i]
                 did?.let {
                     bleHeader.cmdSize += 2
                     buff += ((did.address and 0xFF00) shr 8).toByte()
@@ -229,10 +229,10 @@ object UDSLogger {
     }
 
     private fun buildFrame3E(index: Int): ByteArray {
-        DIDs.list3E?.let { list ->
+        PIDs.getList()?.let { list ->
             var addressArray: ByteArray = byteArrayOf()
             for (i in 0 until list.count()) {
-                val did: DIDStruct? = list[i]
+                val did: PIDStruct? = list[i]
                 did?.let {
                     addressArray += (did.length and 0xFF).toByte()
                     addressArray += did.address.toArray4()
@@ -285,8 +285,8 @@ object UDSLogger {
         return byteArrayOf()
     }
 
-    fun processFrame22(tick: Int, buff: ByteArray?, context: Context): Int {
-        DIDs.list()?.let { list ->
+    private fun processFrame22(tick: Int, buff: ByteArray?, context: Context): Int {
+        PIDs.getList()?.let { list ->
             // if the buffer is null abort
             if (buff == null) {
                 return UDS_ERROR_NULL
@@ -318,24 +318,24 @@ object UDSLogger {
             // process the data in the buffer
             var i = 1
             while (i < bleHeader.cmdSize - 3) {
-                val did: DIDStruct =
-                    DIDs.getDID(((bData[i++] and 0xFF) shl 8) + (bData[i++] and 0xFF).toLong())
+                val did: PIDStruct =
+                    PIDs.getPID(((bData[i++] and 0xFF) shl 8) + (bData[i++] and 0xFF).toLong())
                         ?: return UDS_ERROR_UNKNOWN
                 if (did.length == 1) {
                     if (did.signed) {
-                        DIDs.setValue(did, (bData[i++] and 0xFF).toByte().toFloat())
+                        PIDs.setValue(did, (bData[i++] and 0xFF).toByte().toFloat())
                     } else {
-                        DIDs.setValue(did, (bData[i++] and 0xFF).toFloat())
+                        PIDs.setValue(did, (bData[i++] and 0xFF).toFloat())
                     }
                 } else {
                     if (did.signed) {
-                        DIDs.setValue(
+                        PIDs.setValue(
                             did,
                             (((bData[i++] and 0xFF) shl 8) + (bData[i++] and 0xFF)).toShort()
                                 .toFloat()
                         )
                     } else {
-                        DIDs.setValue(
+                        PIDs.setValue(
                             did,
                             (((bData[i++] and 0xFF) shl 8) + (bData[i++] and 0xFF)).toFloat()
                         )
@@ -413,7 +413,7 @@ object UDSLogger {
     }
 
     private fun processFrame3E(tick: Int, buff: ByteArray?, context: Context): Int {
-        DIDs.list3E?.let { list ->
+        PIDs.getList()?.let { list ->
             // if the buffer is null abort
             if (buff == null) {
                 return UDS_ERROR_NULL
@@ -445,7 +445,7 @@ object UDSLogger {
             //Update PID Values
             var dPos = 1
             for (i in 0 until list.count()) {
-                val did: DIDStruct? = list[i]
+                val did: PIDStruct? = list[i]
 
                 try {
                     //make sure we are in range
@@ -463,15 +463,15 @@ object UDSLogger {
                     //set pid values
                     if (did.signed) {
                         when (did.length) {
-                            1 -> DIDs.setValue(did, newValue.toByte().toFloat())
-                            2 -> DIDs.setValue(did, newValue.toShort().toFloat())
-                            4 -> DIDs.setValue(did, newValue.toFloat())
+                            1 -> PIDs.setValue(did, newValue.toByte().toFloat())
+                            2 -> PIDs.setValue(did, newValue.toShort().toFloat())
+                            4 -> PIDs.setValue(did, newValue.toFloat())
                         }
                     } else {
                         when (did.length) {
-                            1 -> DIDs.setValue(did, newValue.toFloat())
-                            2 -> DIDs.setValue(did, newValue.toFloat())
-                            4 -> DIDs.setValue(did, Float.fromBits(newValue))
+                            1 -> PIDs.setValue(did, newValue.toFloat())
+                            2 -> PIDs.setValue(did, newValue.toFloat())
+                            4 -> PIDs.setValue(did, Float.fromBits(newValue))
                         }
                     }
                 } catch (e: Exception) {

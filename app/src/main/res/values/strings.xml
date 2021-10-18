@@ -43,10 +43,11 @@
     <string name="check_settings_use_accelerometers">Use Accelerometers? (3E)</string>
     <string name="check_settings_always_portrait">Always use portrait view?</string>
     <!-- Strings used for radio buttons -->
+    <string name="radio_settings_mode_22">22</string>
     <string name="radio_settings_mode_3E">3E</string>
-    <string name="radio_settings_mode_22A">22A</string>
-    <string name="radio_settings_mode_22B">22B</string>
-    <string name="radio_settings_mode_22C">22C</string>
+    <string name="radio_settings_list_a">A</string>
+    <string name="radio_settings_list_b">B</string>
+    <string name="radio_settings_list_c">C</string>
     <string name="radio_settings_mode_downloads">Downloads</string>
     <string name="radio_settings_mode_documents">Documents</string>
     <string name="radio_settings_mode_application">Application</string>
@@ -56,15 +57,18 @@
     <string name="textview_settings_persist_delay">Transfer delay: <xliff:g id="rate">%1$d</xliff:g></string>
     <string name="textview_settings_persist_q_delay">Queued delay: <xliff:g id="rate">%1$d</xliff:g></string>
     <string name="textview_settings_mode">Logging Mode:</string>
+    <string name="textview_settings_list">Use PID List:</string>
     <string name="textview_settings_directory">Output Directory:</string>
     <string name="textview_settings_misc_options">Misc options:</string>
     <string name="textview_settings_color_options">Color options:</string>
     <string name="textview_settings_hp_options">Calculated HP options:</string>
     <string name="textview_settings_import_csv">Import PID CSV:</string>
-    <string name="textview_settings_import_22a_csv">22A CSV</string>
-    <string name="textview_settings_import_22b_csv">22B CSV</string>
-    <string name="textview_settings_import_22c_csv">22C CSV</string>
-    <string name="textview_settings_import_3E_csv">3E CSV</string>
+    <string name="textview_settings_import_22a_csv">22 A CSV</string>
+    <string name="textview_settings_import_22b_csv">22 B CSV</string>
+    <string name="textview_settings_import_22c_csv">22 C CSV</string>
+    <string name="textview_settings_import_3Ea_csv">3E A CSV</string>
+    <string name="textview_settings_import_3Eb_csv">3E B CSV</string>
+    <string name="textview_settings_import_3Ec_csv">3E C CSV</string>
     <string name="textview_color_r">R: <xliff:g id="value">%1$d</xliff:g></string>
     <string name="textview_color_g">G: <xliff:g id="value">%1$d</xliff:g></string>
     <string name="textview_color_b">B: <xliff:g id="value">%1$d</xliff:g></string>
@@ -85,4 +89,7 @@
     <string name="textPIDP"><xliff:g id="pid_str">%1$s</xliff:g>: <xliff:g id="pid_val">%2$s</xliff:g> <xliff:g id="pid_unit">%3$s</xliff:g>\n[<xliff:g id="pid_unit">%4$s</xliff:g>:<xliff:g id="pid_unit">%5$s</xliff:g>]</string>
     <string name="textPIDL"><xliff:g id="pid_str">%1$s</xliff:g>: <xliff:g id="pid_val">%2$s</xliff:g> <xliff:g id="pid_unit">%3$s</xliff:g> [<xliff:g id="pid_unit">%4$s</xliff:g>:<xliff:g id="pid_unit">%5$s</xliff:g>]</string>
     <string name="textVIN">VIN: <xliff:g id="vin_str">%1$s</xliff:g></string>
+    <!-- Strings used for filenames -->
+    <string name="filename_22_csv">PIDList22<xliff:g id="pid_list">%1$s</xliff:g>.csv</string>
+    <string name="filename_3E_csv">PIDList3E<xliff:g id="pid_list">%1$s</xliff:g>.csv</string>
 </resources>

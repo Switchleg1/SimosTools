@@ -7,7 +7,7 @@ import java.lang.Long.parseLong
 object PIDCSVFile {
     private val TAG = "PIDCSVFile"
 
-    fun read(fileName: String?, context: Context?):Array<DIDStruct?>? {
+    fun read(fileName: String?, context: Context?, addressMask: Long):Array<PIDStruct?>? {
         context?.let {
             DebugLog.i(TAG, "Reading $fileName.")
 
@@ -19,13 +19,13 @@ object PIDCSVFile {
                 return null
             }
 
-            return readStream(FileInputStream(csvFile))
+            return readStream(FileInputStream(csvFile), addressMask)
         }
 
         return null
     }
 
-    fun readStream(fileStream: InputStream?):Array<DIDStruct?>? {
+    fun readStream(fileStream: InputStream?, addressMask: Long):Array<PIDStruct?>? {
         //get stream
         val inStream = BufferedReader(InputStreamReader(fileStream))
 
@@ -48,7 +48,7 @@ object PIDCSVFile {
 
         //read PIDS
         var i = 0
-        var pidList: Array<DIDStruct?>? = null
+        var pidList: Array<PIDStruct?>? = null
         while(inStream.ready() && i < MAX_PIDS) {
             var pidString = inStream.readLine()
             val pidStrings: Array<String?> = arrayOfNulls(CSV_VALUE_COUNT)
@@ -71,13 +71,15 @@ object PIDCSVFile {
 
                     //make sure the length is legal
                     if(pidStrings[5]!!.toInt() != 1 && pidStrings[5]!!.toInt() != 2 && pidStrings[5]!!.toInt() != 4)
-                        throw throw RuntimeException("Unexpected pid length: ${pidStrings[5]!!}")
+                        throw RuntimeException("Unexpected pid length: ${pidStrings[5]!!}")
 
                     //convert address
                     val l = parseLong(pidStrings[4]!!.substringAfter("0x"), 16)
+                    if(l and addressMask != l)
+                        throw RuntimeException("Unexpected address 0x${l.toHex()}, max address 0x$addressMask")
 
                     //Build did
-                    pidList[i++] = DIDStruct(l,
+                    pidList[i++] = PIDStruct(l,
                         pidStrings[5]!!.toInt(),
                         pidStrings[6]!!.toBoolean(),
                         pidStrings[7]!!.toFloat(),
@@ -93,7 +95,7 @@ object PIDCSVFile {
                 } catch(e: Exception) {
                     //close file and return
                     inStream.close()
-                    DebugLog.e(TAG, "Unable to create DIDStructure ${pidList?.count()}", e)
+                    DebugLog.e(TAG, "Unable to create PIDStructure ${pidList?.count()}", e)
                     DebugLog.i(TAG, "failed.")
                     return null
                 }
@@ -111,7 +113,7 @@ object PIDCSVFile {
         return pidList
     }
 
-    fun write(fileName: String?, context: Context?, pidList: Array<DIDStruct?>?, overWrite: Boolean): Boolean {
+    fun write(fileName: String?, context: Context?, pidList: Array<PIDStruct?>?, overWrite: Boolean): Boolean {
         pidList?.let { list ->
             context?.let {
                 DebugLog.i(TAG, "Writing $fileName.")
