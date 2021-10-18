@@ -168,7 +168,8 @@ class LoggingFragment : Fragment() {
         updatePIDText()
 
         //Set background color
-        view.setBackgroundColor(Settings.colorList[COLOR_BG_NORMAL])
+        if(mViewModel.lastWarning) view.setBackgroundColor(Settings.colorList[COLOR_BG_WARN])
+            else view.setBackgroundColor(Settings.colorList[COLOR_BG_NORMAL])
     }
 
     override fun onResume() {

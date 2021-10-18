@@ -53,7 +53,7 @@ object PIDs {
         PIDStruct(0x200c, 2, true, 0f,  -5f,    -4f,  1f,     0.7f, 0f,"x / 100",               "%04.2f","Retard cylinder 3",   "°"),
         PIDStruct(0x200d, 2, true, 0f,  -5f,    -4f,  1f,     0.7f, 0f,"x / 100",               "%04.2f","Retard cylinder 4",   "°"),
         PIDStruct(0x1001, 1, false,-40f,55f,    -35f, 50f,    0.7f, 0f,"x * 0.75 - 48",         "%03.1f","Intake Air Temp",     "°C"),
-        PIDStruct(0x1041, 1, true, -40f,55f,    -35f, 50f,    0.7f, 0f,"x * 0.005859375 + 144", "%03.1f","Turbo Air Temp",      "°C"),
+        PIDStruct(0x1041, 2, true, -40f,55f,    -500f,500f,   0.7f, 0f,"x * 0.005859375 + 144", "%03.1f","Turbo Air Temp",      "°C"),
         PIDStruct(0x295c, 1, false,0f,  1f,     -1f,  2f,     0.0f, 0f,"x",                     "%01.0f","Flaps Actual",        ""),
         PIDStruct(0x295d, 1, false,0f,  1f,     -1f,  2f,     0.0f, 0f,"x",                     "%01.0f","Flaps Setpoint",      ""),
         PIDStruct(0x2904, 2, false,0f,  20f,    -1f,  10f,    0.0f, 0f,"x",                     "%02.0f","Misfire Sum Global",  ""),
