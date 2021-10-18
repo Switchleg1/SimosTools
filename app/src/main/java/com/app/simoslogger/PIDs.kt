@@ -20,7 +20,8 @@ object PIDs {
     private val TAG         = "PIDs"
     private var mListIndex  = PID_LIST_A
 
-    var list22a: Array<PIDStruct?>? = arrayOf(
+    var list22: Array<Array<PIDStruct?>?> = arrayOf(
+        arrayOf( //list22a
         PIDStruct(0x2033, 2, false,0f,  220f,   -20f, 200f,   0.0f, 0f,"x / 347.947",           "%05.1f","Vehicle Speed",       "km/hr"),
         PIDStruct(0xf40C, 2, false,0f,  7000f,  -1f,  6000f,  0.0f, 0f,"x / 4",                 "%05.1f","Engine Speed",        "rpm"),
         PIDStruct(0x39c0, 2, false,0f,  300f,   0f,   300f,   0.0f, 0f,"x / 10",                "%05.1f","MAP Actual",          "kpa"),
@@ -68,9 +69,7 @@ object PIDs {
         PIDStruct(0x11cd, 1, false,0f,  6f,     -1f,  10f,    0.0f, 0f,"x - 40",                "%02.0f","Coolant Temp",        "°C"),
         PIDStruct(0x14a6, 1, false,0f,  2f,     8f,   16f,    0.8f, 0f,"x * 0.1015625",         "%01.0f","Battery Voltage",     "V"),
         PIDStruct(0x203c, 2, false,0f,  2f,     -1f,  100f,   0.0f, 0f,"x",                     "%01.0f","Cruise Control",      ""),
-    )
-
-    var list22b: Array<PIDStruct?>? = arrayOf(
+    ), arrayOf( //list22b
         PIDStruct(0x2033, 2, false,0f,  220f,   -20f, 200f,   0.0f, 0f,"x / 347.947",           "%05.1f","Vehicle Speed",       "km/hr"),
         PIDStruct(0xf40C, 2, false,0f,  7000f,  -1f,  6000f,  0.0f, 0f,"x / 4",                 "%05.1f","Engine Speed",        "rpm"),
         PIDStruct(0x39c0, 2, false,0f,  300f,   0f,   300f,   0.0f, 0f,"x / 10",                "%05.1f","MAP Actual",          "kpa"),
@@ -103,9 +102,7 @@ object PIDs {
         PIDStruct(0x201e, 2, true, -10f,10f,    -50f, 50f,    0.0f, 0f,"x / 10",                "%03.1f","Intake Cam Position", "°"),
         PIDStruct(0x210f, 2, false,0f,  6f,     -1f,  10f,    0.0f, 0f,"x",                     "%01.0f","Gear",                ""),
         PIDStruct(0x203c, 2, false,0f,  2f,     -1f,  100f,   0.0f, 0f,"x",                     "%01.0f","Cruise Control",      ""),
-    )
-
-    var list22c: Array<PIDStruct?>? = arrayOf(
+    ), arrayOf(//list22c
         PIDStruct(0x2033, 2, false,0f,  220f,   -20f, 200f,   0.0f, 0f,"x / 347.947",           "%05.1f","Vehicle Speed",       "km/hr"),
         PIDStruct(0xf40C, 2, false,0f,  7000f,  -1f,  6000f,  0.0f, 0f,"x / 4",                 "%05.1f","Engine Speed",        "rpm"),
         PIDStruct(0x39c0, 2, false,0f,  300f,   0f,   300f,   0.0f, 0f,"x / 10",                "%05.1f","MAP Actual",          "kpa"),
@@ -130,9 +127,10 @@ object PIDs {
         PIDStruct(0x167c, 1, false,0f,  1f,     -1f,  100f,   0.0f, 0f,"x",                     "%03.1f","Valve Lift Position", ""),
         PIDStruct(0x210f, 2, false,0f,  6f,     -1f,  10f,    0.0f, 0f,"x",                     "%01.0f","Gear",                ""),
         PIDStruct(0x203c, 2, false,0f,  2f,     -1f,  100f,   0.0f, 0f,"x",                     "%01.0f","Cruise Control",      ""),
-    )
+    ))
 
-    var list3Ea: Array<PIDStruct?>? = arrayOf(
+    var list3E: Array<Array<PIDStruct?>?> = arrayOf(
+        arrayOf(//list3Ea
         PIDStruct(0xd000ee2a, 1, false,-10f, 10f,    -1000f,1000f,  0.8f, 0f,"(x - 127) / 10",    "%05.3f","Accel. Lat",          "m/s2"),
         PIDStruct(0xd00141ba, 2, false,-10f, 10f,    -1000f,1000f,  0.4f, 0f,"(x - 512) / 32",    "%05.3f","Accel. Long",         "m/s2"),
         PIDStruct(0xd00097b4, 4, false,0f,   2f,     -100f, 1000f,  0.0f, 0f,"x * 1000",          "%05.3f","Airmass Actual",      "g/stk"),
@@ -199,9 +197,7 @@ object PIDs {
         PIDStruct(0xd0015c2c, 2, false,-10f, 0f,     -1000f,1000f,  0.0f, 0f,"x / 655.35999997",  "%05.3f","Wastegate Setpoint",  "%"),
         PIDStruct(0xd0015c5e, 2, false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"x / 32",            "%03.1f","Wastegate Flow Req",  "kg/h"),
         PIDStruct(0xd001b6cd, 1, false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"x",                 "%01.0f","Cruise Control",      ""),
-    )
-
-    var list3Eb: Array<PIDStruct?>? = arrayOf(
+    ), arrayOf(//list3Eb
         PIDStruct(0xd000ee2a, 1, false,-10f, 10f,    -1000f,1000f,  0.8f, 0f,"(x - 127) / 10",    "%05.3f","Accel. Lat",          "m/s2"),
         PIDStruct(0xd00141ba, 2, false,-10f, 10f,    -1000f,1000f,  0.4f, 0f,"(x - 512) / 32",    "%05.3f","Accel. Long",         "m/s2"),
         PIDStruct(0xd00097b4, 4, false,0f,   2f,     -100f, 1000f,  0.0f, 0f,"x * 1000",          "%05.3f","Airmass Actual",      "g/stk"),
@@ -268,9 +264,7 @@ object PIDs {
         PIDStruct(0xd0015c2c, 2, false,-10f, 0f,     -1000f,1000f,  0.0f, 0f,"x / 655.35999997",  "%05.3f","Wastegate Setpoint",  "%"),
         PIDStruct(0xd0015c5e, 2, false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"x / 32",            "%03.1f","Wastegate Flow Req",  "kg/h"),
         PIDStruct(0xd001b6cd, 1, false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"x",                 "%01.0f","Cruise Control",      ""),
-    )
-
-    var list3Ec: Array<PIDStruct?>? = arrayOf(
+    ), arrayOf(//list3Ec
         PIDStruct(0xd000ee2a, 1, false,-10f, 10f,    -1000f,1000f,  0.8f, 0f,"(x - 127) / 10",    "%05.3f","Accel. Lat",          "m/s2"),
         PIDStruct(0xd00141ba, 2, false,-10f, 10f,    -1000f,1000f,  0.4f, 0f,"(x - 512) / 32",    "%05.3f","Accel. Long",         "m/s2"),
         PIDStruct(0xd00097b4, 4, false,0f,   2f,     -100f, 1000f,  0.0f, 0f,"x * 1000",          "%05.3f","Airmass Actual",      "g/stk"),
@@ -337,7 +331,7 @@ object PIDs {
         PIDStruct(0xd0015c2c, 2, false,-10f, 0f,     -1000f,1000f,  0.0f, 0f,"x / 655.35999997",  "%05.3f","Wastegate Setpoint",  "%"),
         PIDStruct(0xd0015c5e, 2, false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"x / 32",            "%03.1f","Wastegate Flow Req",  "kg/h"),
         PIDStruct(0xd001b6cd, 1, false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"x",                 "%01.0f","Cruise Control",      ""),
-    )
+    ))
     
     fun setIndex(index: Int) {
         if(index in 0..2)
@@ -351,40 +345,27 @@ object PIDs {
     fun getList(mode: Int = UDSLogger.getMode(), index: Int = mListIndex): Array<PIDStruct?>? {
         when(mode) {
             UDS_LOGGING_22  -> {
-                return when(index) {
-                    PID_LIST_A -> list22a
-                    PID_LIST_B -> list22b
-                    PID_LIST_C -> list22c
-                    else -> list22a
-                }
+                if(index in 0 until list22.count())
+                    return list22[index]
             }
             UDS_LOGGING_3E  -> {
-                return when(index) {
-                    PID_LIST_A -> list3Ea
-                    PID_LIST_B -> list3Eb
-                    PID_LIST_C -> list3Ec
-                    else -> list3Ea
-                }
+                if(index in 0 until list3E.count())
+                    return list3E[index]
             }
         }
-        return list22a
+
+        return null
     }
 
     fun setList(mode: Int = UDSLogger.getMode(), index: Int = mListIndex, list: Array<PIDStruct?>?) {
         when(mode) {
             UDS_LOGGING_22  -> {
-                when(index) {
-                    PID_LIST_A -> list22a = list
-                    PID_LIST_B -> list22b = list
-                    PID_LIST_C -> list22c = list
-                }
+                if(index in 0 until list22.count())
+                    list22[index] = list
             }
             UDS_LOGGING_3E  -> {
-                when(index) {
-                    PID_LIST_A -> list3Ea = list
-                    PID_LIST_B -> list3Eb = list
-                    PID_LIST_C -> list3Ec = list
-                }
+                if(index in 0 until list3E.count())
+                    list3E[index] = list
             }
         }
     }

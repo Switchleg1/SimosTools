@@ -47,37 +47,37 @@ class MainActivity : AppCompatActivity() {
             ConfigFile.read(CFG_FILENAME, applicationContext)
 
             //Write pid default files
-            PIDCSVFile.write(getString(R.string.filename_3E_csv, "a"), applicationContext, PIDs.list3Ea, false)
-            PIDCSVFile.write(getString(R.string.filename_3E_csv, "b"), applicationContext, PIDs.list3Eb, false)
-            PIDCSVFile.write(getString(R.string.filename_3E_csv, "c"), applicationContext, PIDs.list3Ec, false)
-            PIDCSVFile.write(getString(R.string.filename_22_csv, "a"), applicationContext, PIDs.list22a, false)
-            PIDCSVFile.write(getString(R.string.filename_22_csv, "b"), applicationContext, PIDs.list22b, false)
-            PIDCSVFile.write(getString(R.string.filename_22_csv, "c"), applicationContext, PIDs.list22c, false)
+            PIDCSVFile.write(getString(R.string.filename_3E_csv, "a"), applicationContext, PIDs.getList(UDS_LOGGING_3E, PID_LIST_A), false)
+            PIDCSVFile.write(getString(R.string.filename_3E_csv, "b"), applicationContext, PIDs.getList(UDS_LOGGING_3E, PID_LIST_B), false)
+            PIDCSVFile.write(getString(R.string.filename_3E_csv, "c"), applicationContext, PIDs.getList(UDS_LOGGING_3E, PID_LIST_C), false)
+            PIDCSVFile.write(getString(R.string.filename_22_csv, "a"), applicationContext, PIDs.getList(UDS_LOGGING_22, PID_LIST_A), false)
+            PIDCSVFile.write(getString(R.string.filename_22_csv, "b"), applicationContext, PIDs.getList(UDS_LOGGING_22, PID_LIST_B), false)
+            PIDCSVFile.write(getString(R.string.filename_22_csv, "c"), applicationContext, PIDs.getList(UDS_LOGGING_22, PID_LIST_C), false)
 
             //Read pid files
             var pid3EList = PIDCSVFile.read(getString(R.string.filename_3E_csv, "a"), applicationContext, CSV_3E_ADD_MIN, CSV_3E_ADD_MAX)
             if (pid3EList != null)
-                PIDs.list3Ea = pid3EList
+                PIDs.setList(UDS_LOGGING_3E, PID_LIST_A, pid3EList)
 
             pid3EList = PIDCSVFile.read(getString(R.string.filename_3E_csv, "b"), applicationContext, CSV_3E_ADD_MIN, CSV_3E_ADD_MAX)
             if (pid3EList != null)
-                PIDs.list3Ea = pid3EList
+                PIDs.setList(UDS_LOGGING_3E, PID_LIST_B, pid3EList)
 
             pid3EList = PIDCSVFile.read(getString(R.string.filename_3E_csv, "c"), applicationContext, CSV_3E_ADD_MIN, CSV_3E_ADD_MAX)
             if (pid3EList != null)
-                PIDs.list3Ea = pid3EList
+                PIDs.setList(UDS_LOGGING_3E, PID_LIST_C, pid3EList)
 
             var pid22List = PIDCSVFile.read(getString(R.string.filename_22_csv, "a"), applicationContext, CSV_22_ADD_MIN, CSV_22_ADD_MAX)
             if (pid22List != null)
-                PIDs.list22a = pid22List
+                PIDs.setList(UDS_LOGGING_22, PID_LIST_A, pid22List)
 
             pid22List = PIDCSVFile.read(getString(R.string.filename_22_csv, "b"), applicationContext, CSV_22_ADD_MIN, CSV_22_ADD_MAX)
             if (pid22List != null)
-                PIDs.list22b = pid22List
+                PIDs.setList(UDS_LOGGING_22, PID_LIST_B, pid22List)
 
             pid22List = PIDCSVFile.read(getString(R.string.filename_22_csv, "c"), applicationContext, CSV_22_ADD_MIN, CSV_22_ADD_MAX)
             if (pid22List != null)
-                PIDs.list22c = pid22List
+                PIDs.setList(UDS_LOGGING_22, PID_LIST_C, pid22List)
 
             //Start our BT Service
             val serviceIntent = Intent(this, BTService::class.java)
