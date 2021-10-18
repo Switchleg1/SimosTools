@@ -31,9 +31,11 @@ class SettingsFragment : Fragment() {
         if (result.resultCode == Activity.RESULT_OK) {
             val uri: Uri? = result.data?.data
             uri?.let {
-                val mask = if(mViewModel.logMode == UDS_LOGGING_22) CSV_22_MASK
-                    else CSV_3E_MASK
-                val pidList = PIDCSVFile.readStream(activity?.contentResolver?.openInputStream(uri), mask)
+                val addMin = if(mViewModel.logMode == UDS_LOGGING_22) CSV_22_ADD_MIN
+                    else CSV_3E_ADD_MIN
+                val addMax = if(mViewModel.logMode == UDS_LOGGING_22) CSV_22_ADD_MAX
+                    else CSV_3E_ADD_MAX
+                val pidList = PIDCSVFile.readStream(activity?.contentResolver?.openInputStream(uri), addMin, addMax)
                 if(pidList != null) {
                     if(PIDCSVFile.write(mViewModel.CSVFileName, context, pidList, true)) {
                         PIDs.setList(mViewModel.logMode, mViewModel.pidList, pidList)

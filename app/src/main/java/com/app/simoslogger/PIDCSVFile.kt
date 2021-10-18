@@ -7,9 +7,9 @@ import java.lang.Long.parseLong
 object PIDCSVFile {
     private val TAG = "PIDCSVFile"
 
-    fun read(fileName: String?, context: Context?, addressMask: Long):Array<PIDStruct?>? {
+    fun read(fileName: String?, context: Context?, addressMin: Long, addressMax: Long):Array<PIDStruct?>? {
         context?.let {
-            DebugLog.i(TAG, "Reading $fileName.")
+            DebugLog.i(TAG, "reading $fileName.")
 
             //get file path and check if file exists
             val path = it.getExternalFilesDir("")
@@ -19,13 +19,13 @@ object PIDCSVFile {
                 return null
             }
 
-            return readStream(FileInputStream(csvFile), addressMask)
+            return readStream(FileInputStream(csvFile), addressMin, addressMax)
         }
 
         return null
     }
 
-    fun readStream(fileStream: InputStream?, addressMask: Long):Array<PIDStruct?>? {
+    fun readStream(fileStream: InputStream?, addressMin: Long, addressMax: Long):Array<PIDStruct?>? {
         //get stream
         val inStream = BufferedReader(InputStreamReader(fileStream))
 
@@ -73,10 +73,12 @@ object PIDCSVFile {
                     if(pidStrings[5]!!.toInt() != 1 && pidStrings[5]!!.toInt() != 2 && pidStrings[5]!!.toInt() != 4)
                         throw RuntimeException("Unexpected pid length: ${pidStrings[5]!!}")
 
-                    //convert address
+                    //convert address and error check
                     val l = parseLong(pidStrings[4]!!.substringAfter("0x"), 16)
-                    if(l and addressMask != l)
-                        throw RuntimeException("Unexpected address 0x${l.toHex()}, max address 0x$addressMask")
+                    if(l < addressMin)
+                        throw Exception("Unexpected address 0x${l.toHex()}, min address 0x${addressMin.toHex()}")
+                    if(l > addressMax)
+                        throw Exception("Unexpected address 0x${l.toHex()}, max address 0x${addressMax.toHex()}")
 
                     //Build did
                     pidList[i++] = PIDStruct(l,
@@ -95,7 +97,7 @@ object PIDCSVFile {
                 } catch(e: Exception) {
                     //close file and return
                     inStream.close()
-                    DebugLog.e(TAG, "Unable to create PIDStructure ${pidList?.count()}", e)
+                    DebugLog.e(TAG, "unable to create PIDStructure ${pidList?.count()}", e)
                     DebugLog.i(TAG, "failed.")
                     return null
                 }
@@ -116,7 +118,7 @@ object PIDCSVFile {
     fun write(fileName: String?, context: Context?, pidList: Array<PIDStruct?>?, overWrite: Boolean): Boolean {
         pidList?.let { list ->
             context?.let {
-                DebugLog.i(TAG, "Writing $fileName.")
+                DebugLog.i(TAG, "writing $fileName.")
 
                 //get filename and check if it exists
                 val path = it.getExternalFilesDir("")
@@ -161,7 +163,7 @@ object PIDCSVFile {
                         } catch(e: Exception) {
                             //close file and return
                             outStream.close()
-                            DebugLog.e(TAG, "Unable to write PID", e)
+                            DebugLog.e(TAG, "unable to write PID", e)
                             DebugLog.i(TAG, "failed.")
                             return false
                         }

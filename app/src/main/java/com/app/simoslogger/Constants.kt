@@ -121,8 +121,10 @@ val PID_LIST_B                  = 1
 val PID_LIST_C                  = 2
 
 //CSV PID Bitmask
-val CSV_22_MASK                 = 0xFFFF.toLong()
-val CSV_3E_MASK                 = 0xFFFFFFFF
+val CSV_22_ADD_MIN              = 0x1000.toLong()
+val CSV_22_ADD_MAX              = 0xFFFF.toLong()
+val CSV_3E_ADD_MIN              = 0x10000000.toLong()
+val CSV_3E_ADD_MAX              = 0xFFFFFFFF
 
 val MAX_PIDS                    = 100
 val CSV_CFG_LINE                = "Name,Unit,Equation,Format,Address,Length,Signed,ProgMin,ProgMax,WarnMin,WarnMax,Smoothing"

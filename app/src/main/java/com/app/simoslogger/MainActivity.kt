@@ -55,27 +55,27 @@ class MainActivity : AppCompatActivity() {
             PIDCSVFile.write(getString(R.string.filename_22_csv, "c"), applicationContext, PIDs.list22c, false)
 
             //Read pid files
-            var pid3EList = PIDCSVFile.read(getString(R.string.filename_3E_csv, "a"), applicationContext, CSV_3E_MASK)
+            var pid3EList = PIDCSVFile.read(getString(R.string.filename_3E_csv, "a"), applicationContext, CSV_3E_ADD_MIN, CSV_3E_ADD_MAX)
             if (pid3EList != null)
                 PIDs.list3Ea = pid3EList
 
-            pid3EList = PIDCSVFile.read(getString(R.string.filename_3E_csv, "b"), applicationContext, CSV_3E_MASK)
+            pid3EList = PIDCSVFile.read(getString(R.string.filename_3E_csv, "b"), applicationContext, CSV_3E_ADD_MIN, CSV_3E_ADD_MAX)
             if (pid3EList != null)
                 PIDs.list3Ea = pid3EList
 
-            pid3EList = PIDCSVFile.read(getString(R.string.filename_3E_csv, "c"), applicationContext, CSV_3E_MASK)
+            pid3EList = PIDCSVFile.read(getString(R.string.filename_3E_csv, "c"), applicationContext, CSV_3E_ADD_MIN, CSV_3E_ADD_MAX)
             if (pid3EList != null)
                 PIDs.list3Ea = pid3EList
 
-            var pid22List = PIDCSVFile.read(getString(R.string.filename_22_csv, "a"), applicationContext, CSV_22_MASK)
+            var pid22List = PIDCSVFile.read(getString(R.string.filename_22_csv, "a"), applicationContext, CSV_22_ADD_MIN, CSV_22_ADD_MAX)
             if (pid22List != null)
                 PIDs.list22a = pid22List
 
-            pid22List = PIDCSVFile.read(getString(R.string.filename_22_csv, "b"), applicationContext, CSV_22_MASK)
+            pid22List = PIDCSVFile.read(getString(R.string.filename_22_csv, "b"), applicationContext, CSV_22_ADD_MIN, CSV_22_ADD_MAX)
             if (pid22List != null)
                 PIDs.list22b = pid22List
 
-            pid22List = PIDCSVFile.read(getString(R.string.filename_22_csv, "c"), applicationContext, CSV_22_MASK)
+            pid22List = PIDCSVFile.read(getString(R.string.filename_22_csv, "c"), applicationContext, CSV_22_ADD_MIN, CSV_22_ADD_MAX)
             if (pid22List != null)
                 PIDs.list22c = pid22List
 
