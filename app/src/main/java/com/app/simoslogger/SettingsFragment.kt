@@ -132,57 +132,57 @@ class SettingsFragment : Fragment() {
         }
 
         view.findViewById<Button>(R.id.buttonSetBGNormalColor).setOnClickListener {
-            ColorSettings.getColor(COLOR_BG_NORMAL)
+            ColorSettings.getColor(ColorIndex.BG_NORMAL)
             findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetBGWarningColor).setOnClickListener {
-            ColorSettings.getColor(COLOR_BG_WARN)
+            ColorSettings.getColor(ColorIndex.BG_WARN)
             findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetTextColor).setOnClickListener {
-            ColorSettings.getColor(COLOR_TEXT)
+            ColorSettings.getColor(ColorIndex.TEXT)
             findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetBarNormalColor).setOnClickListener {
-            ColorSettings.getColor(COLOR_BAR_NORMAL)
+            ColorSettings.getColor(ColorIndex.BAR_NORMAL)
             findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetBarWarnColor).setOnClickListener {
-            ColorSettings.getColor(COLOR_BAR_WARN)
+            ColorSettings.getColor(ColorIndex.BAR_WARN)
             findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetErrorColor).setOnClickListener {
-            ColorSettings.getColor(COLOR_ST_ERROR)
+            ColorSettings.getColor(ColorIndex.ST_ERROR)
             findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetNoneColor).setOnClickListener {
-            ColorSettings.getColor(COLOR_ST_NONE)
+            ColorSettings.getColor(ColorIndex.ST_NONE)
             findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetConnectingColor).setOnClickListener {
-            ColorSettings.getColor(COLOR_ST_CONNECTING)
+            ColorSettings.getColor(ColorIndex.ST_CONNECTING)
             findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetConnectedColor).setOnClickListener {
-            ColorSettings.getColor(COLOR_ST_CONNECTED)
+            ColorSettings.getColor(ColorIndex.ST_CONNECTED)
             findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetLoggingColor).setOnClickListener {
-            ColorSettings.getColor(COLOR_ST_LOGGING)
+            ColorSettings.getColor(ColorIndex.ST_LOGGING)
             findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetWritingColor).setOnClickListener {
-            ColorSettings.getColor(COLOR_ST_WRITING)
+            ColorSettings.getColor(ColorIndex.ST_WRITING)
             findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
@@ -244,57 +244,57 @@ class SettingsFragment : Fragment() {
     private fun doSetColor() {
         view?.let { currentView ->
             //Set font color
-            currentView.findViewById<TextView>(R.id.textViewDisplaySize).setTextColor(Settings.colorList[COLOR_TEXT])
-            currentView.findViewById<TextView>(R.id.textViewUpdateRate).setTextColor(Settings.colorList[COLOR_TEXT])
-            currentView.findViewById<TextView>(R.id.textViewPersistDelay).setTextColor(Settings.colorList[COLOR_TEXT])
-            currentView.findViewById<TextView>(R.id.textViewPersistQDelay).setTextColor(Settings.colorList[COLOR_TEXT])
-            currentView.findViewById<TextView>(R.id.textViewOutputDirectory).setTextColor(Settings.colorList[COLOR_TEXT])
-            currentView.findViewById<TextView>(R.id.textViewLoggingMode).setTextColor(Settings.colorList[COLOR_TEXT])
-            currentView.findViewById<TextView>(R.id.textViewLoggingList).setTextColor(Settings.colorList[COLOR_TEXT])
-            currentView.findViewById<TextView>(R.id.textViewPIDCSV).setTextColor(Settings.colorList[COLOR_TEXT])
-            currentView.findViewById<TextView>(R.id.textViewMiscOptions).setTextColor(Settings.colorList[COLOR_TEXT])
-            currentView.findViewById<TextView>(R.id.textViewCalcHPOptions).setTextColor(Settings.colorList[COLOR_TEXT])
-            currentView.findViewById<TextView>(R.id.textViewColorOptions).setTextColor(Settings.colorList[COLOR_TEXT])
-            currentView.findViewById<RadioButton>(R.id.radioButtonDownloads).setTextColor(Settings.colorList[COLOR_TEXT])
-            currentView.findViewById<RadioButton>(R.id.radioButtonDocuments).setTextColor(Settings.colorList[COLOR_TEXT])
-            currentView.findViewById<RadioButton>(R.id.radioButtonApplication).setTextColor(Settings.colorList[COLOR_TEXT])
-            currentView.findViewById<RadioButton>(R.id.radioButton3E).setTextColor(Settings.colorList[COLOR_TEXT])
-            currentView.findViewById<RadioButton>(R.id.radioButton22).setTextColor(Settings.colorList[COLOR_TEXT])
-            currentView.findViewById<RadioButton>(R.id.radioButtonA).setTextColor(Settings.colorList[COLOR_TEXT])
-            currentView.findViewById<RadioButton>(R.id.radioButtonB).setTextColor(Settings.colorList[COLOR_TEXT])
-            currentView.findViewById<RadioButton>(R.id.radioButtonC).setTextColor(Settings.colorList[COLOR_TEXT])
-            currentView.findViewById<CheckBox>(R.id.checkBoxInvertCruise).setTextColor(Settings.colorList[COLOR_TEXT])
-            currentView.findViewById<CheckBox>(R.id.checkBoxScreenOn).setTextColor(Settings.colorList[COLOR_TEXT])
-            currentView.findViewById<CheckBox>(R.id.checkBoxAlwaysPortrait).setTextColor(Settings.colorList[COLOR_TEXT])
-            currentView.findViewById<CheckBox>(R.id.checkBoxCalcHP).setTextColor(Settings.colorList[COLOR_TEXT])
-            currentView.findViewById<CheckBox>(R.id.checkBoxUseAccel).setTextColor(Settings.colorList[COLOR_TEXT])
+            currentView.findViewById<TextView>(R.id.textViewDisplaySize).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
+            currentView.findViewById<TextView>(R.id.textViewUpdateRate).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
+            currentView.findViewById<TextView>(R.id.textViewPersistDelay).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
+            currentView.findViewById<TextView>(R.id.textViewPersistQDelay).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
+            currentView.findViewById<TextView>(R.id.textViewOutputDirectory).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
+            currentView.findViewById<TextView>(R.id.textViewLoggingMode).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
+            currentView.findViewById<TextView>(R.id.textViewLoggingList).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
+            currentView.findViewById<TextView>(R.id.textViewPIDCSV).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
+            currentView.findViewById<TextView>(R.id.textViewMiscOptions).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
+            currentView.findViewById<TextView>(R.id.textViewCalcHPOptions).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
+            currentView.findViewById<TextView>(R.id.textViewColorOptions).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
+            currentView.findViewById<RadioButton>(R.id.radioButtonDownloads).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
+            currentView.findViewById<RadioButton>(R.id.radioButtonDocuments).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
+            currentView.findViewById<RadioButton>(R.id.radioButtonApplication).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
+            currentView.findViewById<RadioButton>(R.id.radioButton3E).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
+            currentView.findViewById<RadioButton>(R.id.radioButton22).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
+            currentView.findViewById<RadioButton>(R.id.radioButtonA).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
+            currentView.findViewById<RadioButton>(R.id.radioButtonB).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
+            currentView.findViewById<RadioButton>(R.id.radioButtonC).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
+            currentView.findViewById<CheckBox>(R.id.checkBoxInvertCruise).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
+            currentView.findViewById<CheckBox>(R.id.checkBoxScreenOn).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
+            currentView.findViewById<CheckBox>(R.id.checkBoxAlwaysPortrait).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
+            currentView.findViewById<CheckBox>(R.id.checkBoxCalcHP).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
+            currentView.findViewById<CheckBox>(R.id.checkBoxUseAccel).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
 
             //Set color boxes
-            currentView.findViewById<Button>(R.id.buttonSetBGNormalColor).setTextColor(ColorSettings.mColorList[COLOR_BG_NORMAL].toColorInverse())
-            currentView.findViewById<Button>(R.id.buttonSetBGNormalColor).setBackgroundColor(ColorSettings.mColorList[COLOR_BG_NORMAL])
-            currentView.findViewById<Button>(R.id.buttonSetBGWarningColor).setTextColor(ColorSettings.mColorList[COLOR_BG_WARN].toColorInverse())
-            currentView.findViewById<Button>(R.id.buttonSetBGWarningColor).setBackgroundColor(ColorSettings.mColorList[COLOR_BG_WARN])
-            currentView.findViewById<Button>(R.id.buttonSetTextColor).setTextColor(ColorSettings.mColorList[COLOR_TEXT].toColorInverse())
-            currentView.findViewById<Button>(R.id.buttonSetTextColor).setBackgroundColor(ColorSettings.mColorList[COLOR_TEXT])
-            currentView.findViewById<Button>(R.id.buttonSetBarNormalColor).setTextColor(ColorSettings.mColorList[COLOR_BAR_NORMAL].toColorInverse())
-            currentView.findViewById<Button>(R.id.buttonSetBarNormalColor).setBackgroundColor(ColorSettings.mColorList[COLOR_BAR_NORMAL])
-            currentView.findViewById<Button>(R.id.buttonSetBarWarnColor).setTextColor(ColorSettings.mColorList[COLOR_BAR_WARN].toColorInverse())
-            currentView.findViewById<Button>(R.id.buttonSetBarWarnColor).setBackgroundColor(ColorSettings.mColorList[COLOR_BAR_WARN])
-            currentView.findViewById<Button>(R.id.buttonSetErrorColor).setTextColor(ColorSettings.mColorList[COLOR_ST_ERROR].toColorInverse())
-            currentView.findViewById<Button>(R.id.buttonSetErrorColor).setBackgroundColor(ColorSettings.mColorList[COLOR_ST_ERROR])
-            currentView.findViewById<Button>(R.id.buttonSetNoneColor).setTextColor(ColorSettings.mColorList[COLOR_ST_NONE].toColorInverse())
-            currentView.findViewById<Button>(R.id.buttonSetNoneColor).setBackgroundColor(ColorSettings.mColorList[COLOR_ST_NONE])
-            currentView.findViewById<Button>(R.id.buttonSetConnectingColor).setTextColor(ColorSettings.mColorList[COLOR_ST_CONNECTING].toColorInverse())
-            currentView.findViewById<Button>(R.id.buttonSetConnectingColor).setBackgroundColor(ColorSettings.mColorList[COLOR_ST_CONNECTING])
-            currentView.findViewById<Button>(R.id.buttonSetConnectedColor).setTextColor(ColorSettings.mColorList[COLOR_ST_CONNECTED].toColorInverse())
-            currentView.findViewById<Button>(R.id.buttonSetConnectedColor).setBackgroundColor(ColorSettings.mColorList[COLOR_ST_CONNECTED])
-            currentView.findViewById<Button>(R.id.buttonSetLoggingColor).setTextColor(ColorSettings.mColorList[COLOR_ST_LOGGING].toColorInverse())
-            currentView.findViewById<Button>(R.id.buttonSetLoggingColor).setBackgroundColor(ColorSettings.mColorList[COLOR_ST_LOGGING])
-            currentView.findViewById<Button>(R.id.buttonSetWritingColor).setTextColor(ColorSettings.mColorList[COLOR_ST_WRITING].toColorInverse())
-            currentView.findViewById<Button>(R.id.buttonSetWritingColor).setBackgroundColor(ColorSettings.mColorList[COLOR_ST_WRITING])
+            currentView.findViewById<Button>(R.id.buttonSetBGNormalColor).setTextColor(ColorSettings.mColorList[ColorIndex.BG_NORMAL.ordinal].toColorInverse())
+            currentView.findViewById<Button>(R.id.buttonSetBGNormalColor).setBackgroundColor(ColorSettings.mColorList[ColorIndex.BG_NORMAL.ordinal])
+            currentView.findViewById<Button>(R.id.buttonSetBGWarningColor).setTextColor(ColorSettings.mColorList[ColorIndex.BG_WARN.ordinal].toColorInverse())
+            currentView.findViewById<Button>(R.id.buttonSetBGWarningColor).setBackgroundColor(ColorSettings.mColorList[ColorIndex.BG_WARN.ordinal])
+            currentView.findViewById<Button>(R.id.buttonSetTextColor).setTextColor(ColorSettings.mColorList[ColorIndex.TEXT.ordinal].toColorInverse())
+            currentView.findViewById<Button>(R.id.buttonSetTextColor).setBackgroundColor(ColorSettings.mColorList[ColorIndex.TEXT.ordinal])
+            currentView.findViewById<Button>(R.id.buttonSetBarNormalColor).setTextColor(ColorSettings.mColorList[ColorIndex.BAR_NORMAL.ordinal].toColorInverse())
+            currentView.findViewById<Button>(R.id.buttonSetBarNormalColor).setBackgroundColor(ColorSettings.mColorList[ColorIndex.BAR_NORMAL.ordinal])
+            currentView.findViewById<Button>(R.id.buttonSetBarWarnColor).setTextColor(ColorSettings.mColorList[ColorIndex.BAR_WARN.ordinal].toColorInverse())
+            currentView.findViewById<Button>(R.id.buttonSetBarWarnColor).setBackgroundColor(ColorSettings.mColorList[ColorIndex.BAR_WARN.ordinal])
+            currentView.findViewById<Button>(R.id.buttonSetErrorColor).setTextColor(ColorSettings.mColorList[ColorIndex.ST_ERROR.ordinal].toColorInverse())
+            currentView.findViewById<Button>(R.id.buttonSetErrorColor).setBackgroundColor(ColorSettings.mColorList[ColorIndex.ST_ERROR.ordinal])
+            currentView.findViewById<Button>(R.id.buttonSetNoneColor).setTextColor(ColorSettings.mColorList[ColorIndex.ST_NONE.ordinal].toColorInverse())
+            currentView.findViewById<Button>(R.id.buttonSetNoneColor).setBackgroundColor(ColorSettings.mColorList[ColorIndex.ST_NONE.ordinal])
+            currentView.findViewById<Button>(R.id.buttonSetConnectingColor).setTextColor(ColorSettings.mColorList[ColorIndex.ST_CONNECTING.ordinal].toColorInverse())
+            currentView.findViewById<Button>(R.id.buttonSetConnectingColor).setBackgroundColor(ColorSettings.mColorList[ColorIndex.ST_CONNECTING.ordinal])
+            currentView.findViewById<Button>(R.id.buttonSetConnectedColor).setTextColor(ColorSettings.mColorList[ColorIndex.ST_CONNECTED.ordinal].toColorInverse())
+            currentView.findViewById<Button>(R.id.buttonSetConnectedColor).setBackgroundColor(ColorSettings.mColorList[ColorIndex.ST_CONNECTED.ordinal])
+            currentView.findViewById<Button>(R.id.buttonSetLoggingColor).setTextColor(ColorSettings.mColorList[ColorIndex.ST_LOGGING.ordinal].toColorInverse())
+            currentView.findViewById<Button>(R.id.buttonSetLoggingColor).setBackgroundColor(ColorSettings.mColorList[ColorIndex.ST_LOGGING.ordinal])
+            currentView.findViewById<Button>(R.id.buttonSetWritingColor).setTextColor(ColorSettings.mColorList[ColorIndex.ST_WRITING.ordinal].toColorInverse())
+            currentView.findViewById<Button>(R.id.buttonSetWritingColor).setBackgroundColor(ColorSettings.mColorList[ColorIndex.ST_WRITING.ordinal])
 
             //Set background color
-            currentView.setBackgroundColor(Settings.colorList[COLOR_BG_NORMAL])
+            currentView.setBackgroundColor(Settings.colorList[ColorIndex.BG_NORMAL.ordinal])
         }
     }
 
@@ -423,21 +423,21 @@ class SettingsFragment : Fragment() {
             ConfigFile.set("AlwaysPortrait", currentView.findViewById<CheckBox>(R.id.checkBoxAlwaysPortrait).isChecked.toString())
 
             //Set Colors
-            ConfigFile.set("ColorBGNormal", ColorSettings.mColorList[COLOR_BG_NORMAL].toColorHex())
-            ConfigFile.set("ColorBGWarn", ColorSettings.mColorList[COLOR_BG_WARN].toColorHex())
-            ConfigFile.set("ColorText", ColorSettings.mColorList[COLOR_TEXT].toColorHex())
-            ConfigFile.set("ColorBarNormal", ColorSettings.mColorList[COLOR_BAR_NORMAL].toColorHex())
-            ConfigFile.set("ColorBarWarn", ColorSettings.mColorList[COLOR_BAR_WARN].toColorHex())
-            ConfigFile.set("ColorStateError", ColorSettings.mColorList[COLOR_ST_ERROR].toColorHex())
-            ConfigFile.set("ColorStateNone", ColorSettings.mColorList[COLOR_ST_NONE].toColorHex())
-            ConfigFile.set("ColorStateConnecting", ColorSettings.mColorList[COLOR_ST_CONNECTING].toColorHex())
-            ConfigFile.set("ColorStateConnected", ColorSettings.mColorList[COLOR_ST_CONNECTED].toColorHex())
-            ConfigFile.set("ColorStateLogging", ColorSettings.mColorList[COLOR_ST_LOGGING].toColorHex())
-            ConfigFile.set("ColorStateWriting", ColorSettings.mColorList[COLOR_ST_WRITING].toColorHex())
+            ConfigFile.set("ColorBGNormal", ColorSettings.mColorList[ColorIndex.BG_NORMAL.ordinal].toColorHex())
+            ConfigFile.set("ColorBGWarn", ColorSettings.mColorList[ColorIndex.BG_WARN.ordinal].toColorHex())
+            ConfigFile.set("ColorText", ColorSettings.mColorList[ColorIndex.TEXT.ordinal].toColorHex())
+            ConfigFile.set("ColorBarNormal", ColorSettings.mColorList[ColorIndex.BAR_NORMAL.ordinal].toColorHex())
+            ConfigFile.set("ColorBarWarn", ColorSettings.mColorList[ColorIndex.BAR_WARN.ordinal].toColorHex())
+            ConfigFile.set("ColorStateError", ColorSettings.mColorList[ColorIndex.ST_ERROR.ordinal].toColorHex())
+            ConfigFile.set("ColorStateNone", ColorSettings.mColorList[ColorIndex.ST_NONE.ordinal].toColorHex())
+            ConfigFile.set("ColorStateConnecting", ColorSettings.mColorList[ColorIndex.ST_CONNECTING.ordinal].toColorHex())
+            ConfigFile.set("ColorStateConnected", ColorSettings.mColorList[ColorIndex.ST_CONNECTED.ordinal].toColorHex())
+            ConfigFile.set("ColorStateLogging", ColorSettings.mColorList[ColorIndex.ST_LOGGING.ordinal].toColorHex())
+            ConfigFile.set("ColorStateWriting", ColorSettings.mColorList[ColorIndex.ST_WRITING.ordinal].toColorHex())
 
-            //Stop logging
+            //Stop all tasks
             val serviceIntent = Intent(context, BTService::class.java)
-            serviceIntent.action = BT_DO_STOP_PID.toString()
+            serviceIntent.action = BTServiceTask.DO_STOP_TASK.toString()
             ContextCompat.startForegroundService(this.requireContext(), serviceIntent)
 
             // Write config

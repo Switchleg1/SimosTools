@@ -22,49 +22,78 @@ import android.os.Environment
 import java.util.*
 
 // Message types sent from the BluetoothChatService Handler
-val MESSAGE_STATE_CHANGE        = 1
-val MESSAGE_TASK_CHANGE         = 2
-val MESSAGE_TOAST               = 3
-val MESSAGE_READ                = 4
-val MESSAGE_READ_VIN            = 5
-val MESSAGE_READ_DTC            = 6
-val MESSAGE_READ_LOG            = 7
-val MESSAGE_WRITE_LOG           = 8
+enum class GUIMessage {
+    STATE_CHANGE,
+    TASK_CHANGE,
+    TOAST,
+    READ,
+    ECU_INFO,
+    CLEAR_DTC,
+    READ_LOG,
+    WRITE_LOG,
+}
 
 // Constants that indicate the current connection state
-val STATE_ERROR                 = -1 // we're doing nothing
-val STATE_NONE                  = 0 // we're doing nothing
-val STATE_CONNECTING            = 1 // now initiating an outgoing connection
-val STATE_CONNECTED             = 2 // now connected to a remote device
+enum class BLEConnectionState {
+    ERROR,
+    NONE,
+    CONNECTING,
+    CONNECTED;
+
+    var errorMessage: String = ""
+    var deviceName: String = ""
+}
 
 //List of available tasks
-val TASK_NONE                   = 0
-val TASK_FLASHING               = 1
-val TASK_LOGGING                = 2 // uploading to remote device
-val TASK_RD_VIN                 = 3 // download from remote device
-val TASK_CLEAR_DTC              = 4
+enum class UDSTask {
+    NONE,
+    LOGGING,
+    FLASHING,
+    INFO,
+    DTC
+}
+
+//BT functions
+enum class BTServiceTask {
+    STOP_SERVICE,
+    START_SERVICE,
+    DO_CONNECT,
+    DO_DISCONNECT,
+    DO_START_LOG,
+    DO_START_FLASH,
+    DO_GET_INFO,
+    DO_CLEAR_DTC,
+    DO_STOP_TASK
+}
+
+//Intent constants
+enum class RequiredPermissions {
+    LOCATION,
+    READ_STORAGE,
+    WRITE_STORAGE,
+}
+
+//Color index
+enum class ColorIndex {
+    BG_NORMAL,
+    BG_WARN,
+    TEXT,
+    BAR_NORMAL,
+    BAR_WARN,
+    ST_ERROR,
+    ST_NONE,
+    ST_CONNECTING,
+    ST_CONNECTED,
+    ST_LOGGING,
+    ST_WRITING
+}
 
 val TASK_END_DELAY              = 500
 val TASK_END_TIMEOUT            = 3000
 
-//Intent constants
-val REQUEST_LOCATION_PERMISSION = 1
-val REQUEST_READ_STORAGE        = 2
-val REQUEST_WRITE_STORAGE       = 3
-
 //Service info
 val CHANNEL_ID                  = "BTService"
 val CHANNEL_NAME                = "BTService"
-
-//BT functions
-val BT_STOP_SERVICE             = 0
-val BT_START_SERVICE            = 1
-val BT_DO_CONNECT               = 2
-val BT_DO_DISCONNECT            = 3
-val BT_DO_CHECK_VIN             = 4
-val BT_DO_CHECK_PID             = 5
-val BT_DO_STOP_PID              = 6
-val BT_DO_CLEAR_DTC             = 7
 
 //BLE settings
 val BLE_DEVICE_NAME             = "BLE_TO_ISOTP"
@@ -171,19 +200,6 @@ val DEFAULT_LOG_FLAGS           = LOG_INFO or LOG_WARNING or LOG_EXCEPTION
 //TQ/HP Calculations
 val KG_TO_N                     = 9.80665f
 val TQ_CONSTANT                 = 16.3f
-
-//Color index
-val COLOR_BG_NORMAL             = 0
-val COLOR_BG_WARN               = 1
-val COLOR_TEXT                  = 2
-val COLOR_BAR_NORMAL            = 3
-val COLOR_BAR_WARN              = 4
-val COLOR_ST_ERROR              = 5
-val COLOR_ST_NONE               = 6
-val COLOR_ST_CONNECTING         = 7
-val COLOR_ST_CONNECTED          = 8
-val COLOR_ST_LOGGING            = 9
-val COLOR_ST_WRITING            = 10
 
 //Additional properties
 infix fun Byte.shl(that: Int): Int = this.toInt().shl(that)

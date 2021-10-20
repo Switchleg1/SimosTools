@@ -59,8 +59,7 @@ class BTService: Service() {
 
     // Member fields
     private var mScanning: Boolean = false
-    private var mState: Int = STATE_NONE
-    private var mErrorStatus: String = ""
+    private var mConnectionState: BLEConnectionState = BLEConnectionState.NONE
     private val mWriteSemaphore: Semaphore = Semaphore(1)
     private val mReadQueue = ConcurrentLinkedQueue<ByteArray>()
     private val mWriteQueue = ConcurrentLinkedQueue<ByteArray>()
@@ -81,30 +80,15 @@ class BTService: Service() {
         super.onStartCommand(intent, flags, startId)
 
         when (intent.action) {
-            BT_START_SERVICE.toString() -> {
-                doStartService()
-            }
-            BT_STOP_SERVICE.toString() -> {
-                doStopService()
-            }
-            BT_DO_CONNECT.toString() -> {
-                doConnect()
-            }
-            BT_DO_DISCONNECT.toString() -> {
-                doDisconnect()
-            }
-            BT_DO_CHECK_VIN.toString() -> {
-                mConnectionThread?.setTaskState(TASK_RD_VIN)
-            }
-            BT_DO_CHECK_PID.toString() -> {
-                mConnectionThread?.setTaskState(TASK_LOGGING)
-            }
-            BT_DO_STOP_PID.toString() -> {
-                mConnectionThread?.setTaskState(TASK_NONE)
-            }
-            BT_DO_CLEAR_DTC.toString() -> {
-                mConnectionThread?.setTaskState(TASK_CLEAR_DTC)
-            }
+            BTServiceTask.STOP_SERVICE.toString()   -> doStopService()
+            BTServiceTask.START_SERVICE.toString()  -> doStartService()
+            BTServiceTask.DO_CONNECT.toString()     -> doConnect()
+            BTServiceTask.DO_DISCONNECT.toString()  -> doDisconnect()
+            BTServiceTask.DO_START_LOG.toString()   -> mConnectionThread?.setTaskState(UDSTask.LOGGING)
+            BTServiceTask.DO_START_FLASH.toString() -> mConnectionThread?.setTaskState(UDSTask.FLASHING)
+            BTServiceTask.DO_GET_INFO.toString()    -> mConnectionThread?.setTaskState(UDSTask.INFO)
+            BTServiceTask.DO_CLEAR_DTC.toString()   -> mConnectionThread?.setTaskState(UDSTask.DTC)
+            BTServiceTask.DO_STOP_TASK.toString()   -> mConnectionThread?.setTaskState(UDSTask.NONE)
         }
 
         // If we get killed, after returning from here, restart
@@ -202,10 +186,11 @@ class BTService: Service() {
                 }
 
                 //Set new connection error state
-                mErrorStatus = status.toString()
+                val bleState = BLEConnectionState.ERROR
+                bleState.errorMessage = status.toString()
 
                 //Do a full disconnect
-                doDisconnect(STATE_ERROR, true)
+                doDisconnect(bleState)
             }
         }
 
@@ -236,10 +221,11 @@ class BTService: Service() {
                 DebugLog.w(TAG, "Failed to discover services for ${gatt.device.name}")
 
                 //Set new connection error state
-                mErrorStatus = status.toString()
+                val bleState = BLEConnectionState.ERROR
+                bleState.errorMessage = status.toString()
 
                 //Do a full disconnect
-                doDisconnect(STATE_ERROR, true)
+                doDisconnect(bleState)
             }
         }
 
@@ -261,7 +247,7 @@ class BTService: Service() {
                 }
 
                 //Set new connection state
-                setConnectionState(STATE_CONNECTED)
+                setConnectionState(BLEConnectionState.CONNECTED)
                 try {
                     gatt.requestConnectionPriority(BLE_CONNECTION_PRIORITY)
                     enableNotifications(gatt.getService(BLE_SERVICE_UUID)!!.getCharacteristic(BLE_DATA_RX_UUID))
@@ -276,10 +262,11 @@ class BTService: Service() {
                 }
 
                 //Set new connection error state
-                mErrorStatus = status.toString()
+                val newState = BLEConnectionState.ERROR
+                newState.errorMessage = status.toString()
 
                 //Do a full disconnect
-                doDisconnect(STATE_ERROR, true)
+                doDisconnect(newState)
             }
         }
 
@@ -475,7 +462,7 @@ class BTService: Service() {
         }, BLE_SCAN_PERIOD)
 
         //Set new connection status
-        setConnectionState(STATE_CONNECTING)
+        setConnectionState(BLEConnectionState.CONNECTING)
 
         //Start scanning for BLE devices
         (getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter.bluetoothLeScanner.startScan(filter, settings, mScanCallback)
@@ -483,7 +470,7 @@ class BTService: Service() {
     }
 
     @Synchronized
-    private fun doDisconnect(newState: Int = STATE_NONE, errorMessage: Boolean = false) {
+    private fun doDisconnect(newState: BLEConnectionState = BLEConnectionState.NONE) {
         stopScanning()
         closeConnectionThread()
 
@@ -500,16 +487,16 @@ class BTService: Service() {
         }
 
         //Set new connection status
-        setConnectionState(newState, errorMessage)
+        setConnectionState(newState)
     }
 
     @Synchronized
     private fun doTimeout() {
         stopScanning()
 
-        if(mState != STATE_CONNECTED) {
+        if(mConnectionState != BLEConnectionState.CONNECTED) {
             //Set new connection status
-            setConnectionState(STATE_NONE)
+            setConnectionState(BLEConnectionState.NONE)
         }
     }
 
@@ -531,50 +518,44 @@ class BTService: Service() {
     }
 
     @Synchronized
-    private fun setConnectionState(newState: Int, errorMessage: Boolean = false)
+    private fun setConnectionState(newState: BLEConnectionState)
     {
-        if(mState == newState)
+        if(mConnectionState == newState)
             return
 
         when(newState) {
-            STATE_CONNECTED -> {
-                createConnectionThread()
-            }
-            STATE_NONE -> {
-                closeConnectionThread()
-            }
-            STATE_ERROR -> {
-                closeConnectionThread()
-            }
+            BLEConnectionState.ERROR -> closeConnectionThread()
+            BLEConnectionState.NONE -> closeConnectionThread()
+            BLEConnectionState.CONNECTING -> {}
+            BLEConnectionState.CONNECTED -> createConnectionThread()
         }
         //Broadcast a new message
-        mState = newState
-        val intentMessage = Intent(MESSAGE_STATE_CHANGE.toString())
-        intentMessage.putExtra("newState", mState)
-        intentMessage.putExtra("cDevice", mBluetoothGatt?.device?.name)
-        if(errorMessage)
-            intentMessage.putExtra("newError", mErrorStatus)
+        mConnectionState = newState
+        mConnectionState.errorMessage = newState.errorMessage
+        mConnectionState.deviceName = mBluetoothGatt?.device?.name ?: ""
+        val intentMessage = Intent(GUIMessage.STATE_CHANGE.toString())
+        intentMessage.putExtra(GUIMessage.STATE_CHANGE.toString(), mConnectionState)
         sendBroadcast(intentMessage)
     }
 
     private inner class ConnectionThread: Thread() {
         //variables
-        private var mTask: Int          = TASK_NONE
-        private var mTaskNext: Int      = TASK_NONE
-        private var mTaskCount: Int     = 0
+        private var mTask: UDSTask  = UDSTask.NONE
+        private var mTaskNext: UDSTask  = UDSTask.NONE
+        private var mTaskTick: Int      = 0
         private var mTaskTime: Long     = 0
         private var mTaskTimeNext: Long = 0
         private var mTaskTimeOut: Long  = 0
 
         init {
-            setTaskState(TASK_NONE)
+            setTaskState(UDSTask.NONE)
             DebugLog.d(TAG, "create ConnectionThread")
         }
 
         override fun run() {
             DebugLog.d(TAG, "BEGIN mConnectionThread")
 
-            while (mState == STATE_CONNECTED && !currentThread().isInterrupted) {
+            while (mConnectionState == BLEConnectionState.CONNECTED && !currentThread().isInterrupted) {
                 //See if there are any packets waiting to be sent
                 if (!mWriteQueue.isEmpty() && mWriteSemaphore.tryAcquire()) {
                     try {
@@ -610,100 +591,18 @@ class BTService: Service() {
                             DebugLog.c(TAG, buff, false)
 
                             when (mTask) {
-                                TASK_NONE -> {
-                                    //Broadcast a new message
-                                    val intentMessage = Intent(MESSAGE_READ.toString())
-                                    intentMessage.putExtra("readBuffer", buff.copyOfRange(8, buff.size))
-                                    sendBroadcast(intentMessage)
-                                }
-                                TASK_RD_VIN -> {
-                                    val vinBuff = buff.copyOfRange(8, buff.size)
-
-                                    //was it successful?
-                                    if (vinBuff[0] == 0x62.toByte()) {
-                                        //Broadcast a new message
-                                        val intentMessage = Intent(MESSAGE_READ_VIN.toString())
-                                        intentMessage.putExtra("readBuffer", vinBuff.copyOfRange(3, vinBuff.size))
-                                        sendBroadcast(intentMessage)
-                                    }
-
-                                    setTaskState(TASK_NONE)
-                                }
-                                TASK_CLEAR_DTC -> {
-                                    //Broadcast a new message
-                                    val intentMessage = Intent(MESSAGE_READ_DTC.toString())
-                                    intentMessage.putExtra("readBuffer", buff.copyOfRange(8, buff.size))
-                                    sendBroadcast(intentMessage)
-
-                                    setTaskState(TASK_NONE)
-                                }
-                                TASK_LOGGING -> {
-                                    //Process frame
-                                    val result = UDSLogger.processFrame(mTaskCount, buff, applicationContext)
-
-                                    //Are we still sending initial frames?
-                                    if (mTaskCount < UDSLogger.frameCount()) {
-                                        //If we failed init abort
-                                        if (result != UDS_OK) {
-                                            DebugLog.w(TAG, "Unable to initialize logging, UDS Error: $result")
-                                            setTaskState(TASK_NONE)
-                                        } else { //else continue init
-                                            mWriteQueue.add(UDSLogger.buildFrame(mTaskCount))
-                                        }
-                                    } else { //We are receiving data
-                                        //Broadcast new PID data
-                                        if (mTaskCount % Settings.updateRate == 0) {
-                                            val intentMessage = Intent(MESSAGE_READ_LOG.toString())
-                                            intentMessage.putExtra("readCount", mTaskCount)
-                                            intentMessage.putExtra("readTime", System.currentTimeMillis() - mTaskTime)
-                                            intentMessage.putExtra("readResult", result)
-                                            sendBroadcast(intentMessage)
-                                        }
-
-                                        //If we changed logging write states broadcast a new message and set LED color
-                                        if (UDSLogger.isEnabled() != mLogWriteState) {
-                                            //Broadcast new message
-                                            val intentMessage = Intent(MESSAGE_WRITE_LOG.toString())
-                                            intentMessage.putExtra("enabled", UDSLogger.isEnabled())
-                                            sendBroadcast(intentMessage)
-
-                                            //Set LED
-                                            val bleHeader = BLEHeader()
-                                            bleHeader.cmdSize = 4
-                                            bleHeader.cmdFlags =
-                                                BLE_COMMAND_FLAG_SETTINGS or BRG_SETTING_LED_COLOR
-                                            val dataBytes = if (UDSLogger.isEnabled()) {
-                                                //Blue
-                                                byteArrayOf(
-                                                    0x00.toByte(),
-                                                    0x80.toByte(),
-                                                    0x00.toByte(),
-                                                    0x00.toByte()
-                                                )
-                                            } else {
-                                                //Green
-                                                byteArrayOf(
-                                                    0x00.toByte(),
-                                                    0x00.toByte(),
-                                                    0x80.toByte(),
-                                                    0x00.toByte()
-                                                )
-                                            }
-                                            val buf = bleHeader.toByteArray() + dataBytes
-                                            mWriteQueue.add(buf)
-
-                                            //Update current write state
-                                            mLogWriteState = UDSLogger.isEnabled()
-                                        }
-                                    }
-                                }
+                                UDSTask.NONE     -> processPacketNone(buff)
+                                UDSTask.LOGGING  -> processPacketLogging(buff)
+                                UDSTask.FLASHING -> processPacketFlashing(buff)
+                                UDSTask.INFO     -> processPacketGetInfo(buff)
+                                UDSTask.DTC      -> processPacketClearDTC(buff)
                             }
 
                             //increment task packet count
-                            mTaskCount++
+                            mTaskTick++
 
                             //check if we are ready to switch to a new task
-                            if (mTaskNext != TASK_NONE) {
+                            if (mTaskNext != UDSTask.NONE) {
                                 mTaskTimeNext = System.currentTimeMillis() + TASK_END_DELAY
 
                                 //Write debug log
@@ -718,7 +617,7 @@ class BTService: Service() {
                 }
 
                 //Ready for next task?
-                if(mTaskNext != TASK_NONE) {
+                if(mTaskNext != UDSTask.NONE) {
                     if(mTaskTimeNext < System.currentTimeMillis()) {
                         DebugLog.i(TAG, "Task finished.")
                         startNextTask()
@@ -737,11 +636,11 @@ class BTService: Service() {
         }
 
         @Synchronized
-        fun setTaskState(newTask: Int)
+        fun setTaskState(newTask: UDSTask)
         {
             //if we are not connected abort
-            if (mState != STATE_CONNECTED) {
-                mTask = TASK_NONE
+            if (mConnectionState != BLEConnectionState.CONNECTED) {
+                mTask = UDSTask.NONE
                 return
             }
 
@@ -751,89 +650,190 @@ class BTService: Service() {
             mTaskNext       = newTask
 
             //If we are doing something call for a stop
-            if(mTask != TASK_NONE) {
+            if(mTask != UDSTask.NONE) {
                 //Write debug log
                 DebugLog.i(TAG, "Task stopped: $mTask")
 
                 //set task to none
-                mTask = TASK_NONE
+                mTask = UDSTask.NONE
 
                 //Broadcast TASK_NONE
-                val intentMessage = Intent(MESSAGE_TASK_CHANGE.toString())
-                intentMessage.putExtra("newTask", mTask)
+                val intentMessage = Intent(GUIMessage.TASK_CHANGE.toString())
+                intentMessage.putExtra(GUIMessage.TASK_CHANGE.toString(), mTask)
                 sendBroadcast(intentMessage)
 
-                //Disable persist mode
-                val bleHeader = BLEHeader()
-                bleHeader.cmdSize = 0
-                bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_CLEAR
-                var buf = bleHeader.toByteArray()
-
-                //Set LED to green
-                bleHeader.cmdSize = 4
-                bleHeader.cmdFlags = BLE_COMMAND_FLAG_SETTINGS or BRG_SETTING_LED_COLOR
-                val dataBytes = byteArrayOf(0x00.toByte(), 0x00.toByte(), 0x80.toByte(), 0x00.toByte())
-                buf += bleHeader.toByteArray() + dataBytes
-                mWriteQueue.add(buf)
+                stopTask()
             }
         }
 
         private fun startNextTask() {
             //Broadcast a new message
             mTask       = mTaskNext
-            mTaskNext   = TASK_NONE
-            mTaskCount  = 0
+            mTaskNext   = UDSTask.NONE
+            mTaskTick   = 0
             mTaskTime   = System.currentTimeMillis()
 
             //Write debug log
             DebugLog.i(TAG, "Task started: $mTask")
 
             //send new task
-            val intentMessage = Intent(MESSAGE_TASK_CHANGE.toString())
-            intentMessage.putExtra("newTask", mTask)
+            val intentMessage = Intent(GUIMessage.TASK_CHANGE.toString())
+            intentMessage.putExtra(GUIMessage.TASK_CHANGE.toString(), mTask)
             sendBroadcast(intentMessage)
 
             when (mTask) {
-                TASK_LOGGING -> {
-                    //Set persist delay
-                    val bleHeader = BLEHeader()
-                    bleHeader.cmdSize = 2
-                    bleHeader.cmdFlags = BLE_COMMAND_FLAG_SETTINGS or BRG_SETTING_PERSIST_DELAY
-                    var dataBytes = byteArrayOf((Settings.persistDelay and 0xFF).toByte(), ((Settings.persistDelay and 0xFF00) shr 8).toByte())
-                    var buf = bleHeader.toByteArray() + dataBytes
-                    mWriteQueue.add(buf)
+                UDSTask.LOGGING     -> startTaskLogging()
+                UDSTask.FLASHING    -> startTaskFlashing()
+                UDSTask.INFO        -> startTaskGetInfo()
+                UDSTask.DTC         -> startTaskClearDTC()
+                UDSTask.NONE        -> {}
+            }
+        }
 
-                    //Set persist Q delay
-                    bleHeader.cmdSize = 2
-                    bleHeader.cmdFlags = BLE_COMMAND_FLAG_SETTINGS or BRG_SETTING_PERSIST_Q_DELAY
-                    dataBytes = byteArrayOf((Settings.persistQDelay and 0xFF).toByte(), ((Settings.persistQDelay and 0xFF00) shr 8).toByte())
-                    buf = bleHeader.toByteArray() + dataBytes
-                    mWriteQueue.add(buf)
+        private fun stopTask() {
+            //Set LED to green
+            setBridgeLED(0,0x80, 0)
 
-                    //Write first frame
-                    mWriteQueue.add(UDSLogger.buildFrame(0))
+            //clear current persist messages
+            clearBridgePersist()
+        }
+
+        private fun startTaskLogging(){
+            //set connection settings
+            setBridgePersistDelay(Settings.persistDelay)
+            setBridgePersistQDelay(Settings.persistQDelay)
+
+            //Write first frame
+            mWriteQueue.add(UDSLogger.buildFrame(0))
+        }
+
+        private fun startTaskFlashing(){
+
+        }
+
+        private fun startTaskGetInfo(){
+            mWriteQueue.add(UDSInfo.buildECUInfo(0))
+        }
+
+        private fun startTaskClearDTC() {
+            mWriteQueue.add(UDSdtc.buildClearDTC(0))
+        }
+
+        private fun processPacketNone(buff: ByteArray) {
+            //Broadcast a new message
+            val intentMessage = Intent(GUIMessage.READ.toString())
+            intentMessage.putExtra(GUIMessage.READ.toString(), buff.copyOfRange(8, buff.size))
+            sendBroadcast(intentMessage)
+        }
+
+        private fun processPacketLogging(buff: ByteArray) {
+            //Process frame
+            val result = UDSLogger.processFrame(mTaskTick, buff, applicationContext)
+
+            //Are we still sending initial frames?
+            if (mTaskTick < UDSLogger.frameCount()) {
+                //If we failed init abort
+                if (result != UDS_OK) {
+                    DebugLog.w(TAG, "Unable to initialize logging, UDS Error: $result")
+                    setTaskState(UDSTask.NONE)
+                } else { //else continue init
+                    mWriteQueue.add(UDSLogger.buildFrame(mTaskTick))
                 }
-                TASK_RD_VIN -> {
-                    //Send vin request
-                    val bleHeader = BLEHeader()
-                    bleHeader.cmdSize = 3
-                    bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_CLEAR
-                    val dataBytes = byteArrayOf(0x22.toByte(), 0xF1.toByte(), 0x90.toByte())
-                    val buf = bleHeader.toByteArray() + dataBytes
-                    mWriteQueue.add(buf)
+            } else { //We are receiving data
+                //Broadcast new PID data
+                if (mTaskTick % Settings.updateRate == 0) {
+                    val intentMessage = Intent(GUIMessage.READ_LOG.toString())
+                    intentMessage.putExtra("readCount", mTaskTick)
+                    intentMessage.putExtra("readTime", System.currentTimeMillis() - mTaskTime)
+                    intentMessage.putExtra("readResult", result)
+                    sendBroadcast(intentMessage)
                 }
-                TASK_CLEAR_DTC -> {
-                    //Send clear request
-                    val bleHeader = BLEHeader()
-                    bleHeader.rxID = 0x7E8
-                    bleHeader.txID = 0x700
-                    bleHeader.cmdSize = 1
-                    bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_CLEAR
-                    val dataBytes = byteArrayOf(0x04.toByte())
-                    val buf = bleHeader.toByteArray() + dataBytes
-                    mWriteQueue.add(buf)
+
+                //If we changed logging write states broadcast a new message and set LED color
+                if (UDSLogger.isEnabled() != mLogWriteState) {
+                    //Broadcast new message
+                    val intentMessage = Intent(GUIMessage.WRITE_LOG.toString())
+                    intentMessage.putExtra(GUIMessage.WRITE_LOG.toString(), UDSLogger.isEnabled())
+                    sendBroadcast(intentMessage)
+
+                    if (UDSLogger.isEnabled()) {
+                        setBridgeLED(0,0, 0x80)
+                    } else {
+                        setBridgeLED(0,0x80, 0)
+                    }
+
+                    //Update current write state
+                    mLogWriteState = UDSLogger.isEnabled()
                 }
             }
+        }
+
+        private fun processPacketFlashing(buff: ByteArray) {
+
+        }
+
+        private fun processPacketGetInfo(buff: ByteArray) {
+            if(UDSInfo.processECUInfo(mTaskTick, buff) == UDS_OK) {
+                val intentMessage = Intent(GUIMessage.ECU_INFO.toString())
+                intentMessage.putExtra(GUIMessage.ECU_INFO.toString(), UDSInfo.getInfo())
+                sendBroadcast(intentMessage)
+
+                if(mTaskTick < UDSInfo.getCount()-1)
+                    mWriteQueue.add(UDSInfo.buildECUInfo(mTaskTick+1))
+            } else {
+                setTaskState(UDSTask.NONE)
+            }
+        }
+
+        private fun processPacketClearDTC(buff: ByteArray) {
+            if(UDSdtc.processClearDTC(mTaskTick, buff) == UDS_OK) {
+                val intentMessage = Intent(GUIMessage.CLEAR_DTC.toString())
+                intentMessage.putExtra(GUIMessage.CLEAR_DTC.toString(), UDSdtc.getInfo())
+                sendBroadcast(intentMessage)
+
+                if(mTaskTick < UDSdtc.getCount())
+                    mWriteQueue.add(UDSdtc.buildClearDTC(mTaskTick+1))
+            } else {
+                setTaskState(UDSTask.NONE)
+            }
+        }
+
+        private fun clearBridgePersist() {
+            //Disable persist mode
+            val bleHeader = BLEHeader()
+            bleHeader.cmdSize = 0
+            bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_CLEAR
+            mWriteQueue.add(bleHeader.toByteArray())
+        }
+
+        private fun setBridgePersistDelay(delay: Int) {
+            //Set persist delay
+            val bleHeader = BLEHeader()
+            bleHeader.cmdSize = 2
+            bleHeader.cmdFlags = BLE_COMMAND_FLAG_SETTINGS or BRG_SETTING_PERSIST_DELAY
+            val dataBytes = byteArrayOf((delay and 0xFF).toByte(), ((delay and 0xFF00) shr 8).toByte())
+            val buff = bleHeader.toByteArray() + dataBytes
+            mWriteQueue.add(buff)
+        }
+
+        private fun setBridgePersistQDelay(delay: Int) {
+            //Set persist Q delay
+            val bleHeader = BLEHeader()
+            bleHeader.cmdSize = 2
+            bleHeader.cmdFlags = BLE_COMMAND_FLAG_SETTINGS or BRG_SETTING_PERSIST_Q_DELAY
+            val dataBytes = byteArrayOf((delay and 0xFF).toByte(), ((delay and 0xFF00) shr 8).toByte())
+            val buff = bleHeader.toByteArray() + dataBytes
+            mWriteQueue.add(buff)
+        }
+
+        private fun setBridgeLED(r: Int, g: Int, b: Int) {
+            //Set LED color
+            val bleHeader = BLEHeader()
+            bleHeader.cmdSize = 4
+            bleHeader.cmdFlags = BLE_COMMAND_FLAG_SETTINGS or BRG_SETTING_LED_COLOR
+            val dataBytes = byteArrayOf((b and 0xFF).toByte(), (r and 0xFF).toByte(), (g and 0xFF).toByte(), 0x00.toByte())
+            val buff = bleHeader.toByteArray() + dataBytes
+            mWriteQueue.add(buff)
         }
     }
 }

@@ -22,13 +22,12 @@ import androidx.navigation.Navigation.findNavController
 import androidx.navigation.ui.onNavDestinationSelected
 import android.graphics.drawable.ColorDrawable
 import androidx.lifecycle.ViewModelProvider
+import java.lang.Exception
 
 class MainViewModel : ViewModel() {
-    var mStarted: Boolean = false
-    var mState: Int = STATE_NONE
-    var mTask: Int = TASK_NONE
-    var mDeviceName: String? = ""
-    var mConnectionError: String? = ""
+    var started: Boolean = false
+    var connectionState: BLEConnectionState = BLEConnectionState.NONE
+    var currentTask: UDSTask = UDSTask.NONE
 }
 
 class MainActivity : AppCompatActivity() {
@@ -39,7 +38,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         mViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
-        if (!mViewModel.mStarted) {
+        if (!mViewModel.started) {
             //Start debuglog
             DebugLog.create(DEBUG_FILENAME, applicationContext)
 
@@ -81,14 +80,14 @@ class MainActivity : AppCompatActivity() {
 
             //Start our BT Service
             val serviceIntent = Intent(this, BTService::class.java)
-            serviceIntent.action = BT_START_SERVICE.toString()
+            serviceIntent.action = BTServiceTask.START_SERVICE.toString()
             ContextCompat.startForegroundService(this, serviceIntent)
 
             //get permissions
             getPermissions()
 
             //Save started
-            mViewModel.mStarted = true
+            mViewModel.started = true
         }
 
         setContentView(R.layout.activity_main)
@@ -101,10 +100,10 @@ class MainActivity : AppCompatActivity() {
         setStatus()
 
         val filter = IntentFilter()
-        filter.addAction(MESSAGE_STATE_CHANGE.toString())
-        filter.addAction(MESSAGE_TASK_CHANGE.toString())
-        filter.addAction(MESSAGE_WRITE_LOG.toString())
-        filter.addAction(MESSAGE_TOAST.toString())
+        filter.addAction(GUIMessage.STATE_CHANGE.toString())
+        filter.addAction(GUIMessage.TASK_CHANGE.toString())
+        filter.addAction(GUIMessage.WRITE_LOG.toString())
+        filter.addAction(GUIMessage.TOAST.toString())
         registerReceiver(mBroadcastReceiver, filter)
     }
 
@@ -123,7 +122,7 @@ class MainActivity : AppCompatActivity() {
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         val item = menu.findItem(R.id.action_connect)
 
-        if (mViewModel.mState > STATE_NONE) {
+        if (mViewModel.connectionState > BLEConnectionState.NONE) {
             item.title = getString(R.string.action_disconnect)
         } else {
             item.title = getString(R.string.action_connect)
@@ -137,19 +136,11 @@ class MainActivity : AppCompatActivity() {
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
             R.id.action_connect -> {
-                when(mViewModel.mState) {
-                    STATE_ERROR -> {
-                        doConnect()
-                    }
-                    STATE_NONE -> {
-                        doConnect()
-                    }
-                    STATE_CONNECTING -> {
-                        doDisconnect()
-                    }
-                    STATE_CONNECTED -> {
-                        doDisconnect()
-                    }
+                when(mViewModel.connectionState) {
+                    BLEConnectionState.NONE -> doConnect()
+                    BLEConnectionState.ERROR -> doConnect()
+                    BLEConnectionState.CONNECTING -> doDisconnect()
+                    BLEConnectionState.CONNECTED -> doDisconnect()
                 }
                 return true
             }
@@ -167,7 +158,7 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.action_exit -> {
                 val serviceIntent = Intent(this, BTService::class.java)
-                serviceIntent.action = BT_STOP_SERVICE.toString()
+                serviceIntent.action = BTServiceTask.STOP_SERVICE.toString()
                 ContextCompat.startForegroundService(this, serviceIntent)
                 finish()
 
@@ -180,20 +171,20 @@ class MainActivity : AppCompatActivity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
-            REQUEST_LOCATION_PERMISSION -> {
+            RequiredPermissions.LOCATION.ordinal -> {
                 if (grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) {
                     doConnect()
                 }
             }
-            REQUEST_READ_STORAGE -> {
-                if(checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, REQUEST_WRITE_STORAGE)) {
-                    if(checkPermission(Manifest.permission.ACCESS_FINE_LOCATION, REQUEST_LOCATION_PERMISSION)) {
+            RequiredPermissions.READ_STORAGE.ordinal -> {
+                if(checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, RequiredPermissions.WRITE_STORAGE.ordinal)) {
+                    if(checkPermission(Manifest.permission.ACCESS_FINE_LOCATION, RequiredPermissions.LOCATION.ordinal)) {
                         doConnect()
                     }
                 }
             }
-            REQUEST_WRITE_STORAGE -> {
-                if(checkPermission(Manifest.permission.ACCESS_FINE_LOCATION, REQUEST_LOCATION_PERMISSION)) {
+            RequiredPermissions.WRITE_STORAGE.ordinal -> {
+                if(checkPermission(Manifest.permission.ACCESS_FINE_LOCATION, RequiredPermissions.LOCATION.ordinal)) {
                     doConnect()
                 }
             }
@@ -203,50 +194,26 @@ class MainActivity : AppCompatActivity() {
     private val mBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             when (intent.action) {
-                MESSAGE_TASK_CHANGE.toString() -> {
-                    when (intent.getIntExtra("newTask", -1)) {
-                        TASK_RD_VIN -> {
-                            mViewModel.mTask= TASK_RD_VIN
-                        }
-                        TASK_LOGGING -> {
-                            mViewModel.mTask = TASK_LOGGING
-                        }
-                        TASK_NONE -> {
-                            mViewModel.mTask = TASK_NONE
-                        }
-                    }
+                GUIMessage.TASK_CHANGE.toString() -> {
+                    mViewModel.currentTask = intent.getSerializableExtra(GUIMessage.TASK_CHANGE.toString()) as UDSTask
                     setStatus()
                 }
-                MESSAGE_STATE_CHANGE.toString() -> {
-                    when (intent.getIntExtra("newState", -1)) {
-                        STATE_CONNECTED -> {
-                            mViewModel.mDeviceName = intent.getStringExtra("cDevice")
-                            mViewModel.mState = STATE_CONNECTED
-                        }
-                        STATE_CONNECTING -> {
-                            mViewModel.mState = STATE_CONNECTING
-                        }
-                        STATE_NONE -> {
-                            mViewModel.mState = STATE_NONE
-                        }
-                        STATE_ERROR -> {
-                            mViewModel.mConnectionError = intent.getStringExtra("newError")
-                            mViewModel.mState = STATE_ERROR
-                        }
-                    }
-                    mViewModel.mTask = TASK_NONE
+                GUIMessage.STATE_CHANGE.toString() -> {
+                    val connectionState = intent.getSerializableExtra(GUIMessage.STATE_CHANGE.toString()) as BLEConnectionState
+                    mViewModel.connectionState = connectionState
+                    mViewModel.currentTask = UDSTask.NONE
                     invalidateOptionsMenu()
                     setStatus()
                 }
-                MESSAGE_WRITE_LOG.toString() -> {
-                    if(intent.getBooleanExtra("enabled", false)) {
-                        setActionBarColor(Settings.colorList[COLOR_ST_WRITING])
+                GUIMessage.WRITE_LOG.toString() -> {
+                    if(intent.getBooleanExtra(GUIMessage.WRITE_LOG.toString(), false)) {
+                        setActionBarColor(Settings.colorList[ColorIndex.ST_WRITING.ordinal])
                     } else {
-                        setActionBarColor(Settings.colorList[COLOR_ST_LOGGING])
+                        setActionBarColor(Settings.colorList[ColorIndex.ST_LOGGING.ordinal])
                     }
                 }
-                MESSAGE_TOAST.toString() -> {
-                    val nToast = intent.getStringExtra("newToast")
+                GUIMessage.TOAST.toString() -> {
+                    val nToast = intent.getStringExtra(GUIMessage.TOAST.toString())
                     Toast.makeText(context, nToast, Toast.LENGTH_SHORT).show()
                 }
             }
@@ -275,7 +242,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun doConnect() {
         //If we are already connecting abort
-        if(mViewModel.mState > STATE_NONE)
+        if(mViewModel.connectionState > BLEConnectionState.NONE)
             return
 
         //if BT is off ask to enable
@@ -286,52 +253,55 @@ class MainActivity : AppCompatActivity() {
         }
 
         //If we don't have permission ask
-        if(!checkPermission(Manifest.permission.ACCESS_FINE_LOCATION, REQUEST_LOCATION_PERMISSION)) {
+        if(!checkPermission(Manifest.permission.ACCESS_FINE_LOCATION, RequiredPermissions.LOCATION.ordinal)) {
             return
         }
 
         //Tell service to connect
         val serviceIntent = Intent(baseContext, BTService::class.java)
-        serviceIntent.action = BT_DO_CONNECT.toString()
+        serviceIntent.action = BTServiceTask.DO_CONNECT.toString()
         startForegroundService(serviceIntent)
     }
 
     private fun doDisconnect() {
         val serviceIntent = Intent(baseContext, BTService::class.java)
-        serviceIntent.action = BT_DO_DISCONNECT.toString()
+        serviceIntent.action = BTServiceTask.DO_DISCONNECT.toString()
         startForegroundService(serviceIntent)
     }
 
     private fun setStatus() {
         var newString = ""
-        when(mViewModel.mTask) {
-            TASK_NONE -> {
-                when(mViewModel.mState) {
-                    STATE_CONNECTED -> {
-                        newString = getString(R.string.title_connected_to, mViewModel.mDeviceName)
-                        setActionBarColor(Settings.colorList[COLOR_ST_CONNECTED])
+        when(mViewModel.currentTask) {
+            UDSTask.NONE -> {
+                when(mViewModel.connectionState) {
+                    BLEConnectionState.ERROR -> {
+                        newString = getString(R.string.title_error, mViewModel.connectionState.errorMessage)
+                        setActionBarColor(Settings.colorList[ColorIndex.ST_ERROR.ordinal])
                     }
-                    STATE_CONNECTING -> {
-                        newString = getString(R.string.title_connecting)
-                        setActionBarColor(Settings.colorList[COLOR_ST_CONNECTING])
-                    }
-                    STATE_NONE -> {
+                    BLEConnectionState.NONE -> {
                         newString = getString(R.string.title_not_connected)
-                        setActionBarColor(Settings.colorList[COLOR_ST_NONE])
+                        setActionBarColor(Settings.colorList[ColorIndex.ST_NONE.ordinal])
                     }
-                    STATE_ERROR -> {
-                        newString = getString(R.string.title_error, mViewModel.mConnectionError)
-                        setActionBarColor(Settings.colorList[COLOR_ST_ERROR])
+                    BLEConnectionState.CONNECTING -> {
+                        newString = getString(R.string.title_connecting)
+                        setActionBarColor(Settings.colorList[ColorIndex.ST_CONNECTING.ordinal])
+                    }
+                    BLEConnectionState.CONNECTED -> {
+                        newString = getString(R.string.title_connected_to, mViewModel.connectionState.deviceName)
+                        setActionBarColor(Settings.colorList[ColorIndex.ST_CONNECTED.ordinal])
                     }
                 }
             }
-            TASK_LOGGING -> {
+            UDSTask.LOGGING -> {
                 newString = "Logging"
-                setActionBarColor(Settings.colorList[COLOR_ST_LOGGING])
+                setActionBarColor(Settings.colorList[ColorIndex.ST_LOGGING.ordinal])
             }
-            TASK_RD_VIN -> {
-                newString = "Getting VIN"
+            UDSTask.FLASHING -> {
+                newString = "Flashing"
+                setActionBarColor(Settings.colorList[ColorIndex.ST_LOGGING.ordinal])
             }
+            UDSTask.INFO -> newString = "Getting ECU Info"
+            UDSTask.DTC -> newString = "Clearing DTC"
         }
         supportActionBar?.title = getString(R.string.app_name) + " - " + newString
     }
@@ -344,9 +314,9 @@ class MainActivity : AppCompatActivity() {
             finish()
         }
 
-        if(checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE, REQUEST_READ_STORAGE)) {
-            if(checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, REQUEST_WRITE_STORAGE)) {
-                if(checkPermission(Manifest.permission.ACCESS_FINE_LOCATION, REQUEST_LOCATION_PERMISSION)) {
+        if(checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE, RequiredPermissions.READ_STORAGE.ordinal)) {
+            if(checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, RequiredPermissions.WRITE_STORAGE.ordinal)) {
+                if(checkPermission(Manifest.permission.ACCESS_FINE_LOCATION, RequiredPermissions.LOCATION.ordinal)) {
                     doConnect()
                 }
             }

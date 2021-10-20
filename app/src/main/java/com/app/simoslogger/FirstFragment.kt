@@ -30,7 +30,7 @@ class FirstFragment : Fragment() {
         view.findViewById<Button>(R.id.buttonLogging).setOnClickListener {
             //Start Logging
             val serviceIntent = Intent(context, BTService::class.java)
-            serviceIntent.action = BT_DO_CHECK_PID.toString()
+            serviceIntent.action = BTServiceTask.DO_START_LOG.toString()
             startForegroundService(this.requireContext(), serviceIntent)
 
             findNavController().navigate(R.id.action_FirstFragment_to_LogFragment)
@@ -47,12 +47,12 @@ class FirstFragment : Fragment() {
         view.findViewById<Button>(R.id.buttonStopService).setOnClickListener {
             //shutdown service and close app
             val serviceIntent = Intent(context, BTService::class.java)
-            serviceIntent.action = BT_STOP_SERVICE.toString()
+            serviceIntent.action = BTServiceTask.STOP_SERVICE.toString()
             startForegroundService(requireContext(), serviceIntent)
             requireActivity().finish()
         }
 
         //Set background color
-        view.setBackgroundColor(Settings.colorList[COLOR_BG_NORMAL])
+        view.setBackgroundColor(Settings.colorList[ColorIndex.BG_NORMAL.ordinal])
     }
 }

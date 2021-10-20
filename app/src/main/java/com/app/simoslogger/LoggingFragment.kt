@@ -92,7 +92,7 @@ class LoggingFragment : Fragment() {
 
         //Set packet textview
         mPackCount = view.findViewById<TextView>(R.id.textViewPackCount)
-        mPackCount?.setTextColor(Settings.colorList[COLOR_BAR_NORMAL])
+        mPackCount?.setTextColor(Settings.colorList[ColorIndex.BAR_NORMAL.ordinal])
 
         //Build layout
         PIDs.getList()?.let { list ->
@@ -142,14 +142,14 @@ class LoggingFragment : Fragment() {
                         did.format.format(data.max)
                     )
                     textView.textSize = 18 * Settings.displaySize
-                    textView.setTextColor(Settings.colorList[COLOR_TEXT])
+                    textView.setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
 
                     //Setup the progress bar
                     val progBar = pidLayout.findViewById<ProgressBar>(R.id.pid_land_progress)
                     progBar.min = (progMin * data.multiplier).toInt()
                     progBar.max = (progMax * data.multiplier).toInt()
                     progBar.scaleY *= Settings.displaySize
-                    progBar.progressTintList = ColorStateList.valueOf(Settings.colorList[COLOR_BAR_NORMAL])
+                    progBar.progressTintList = ColorStateList.valueOf(Settings.colorList[ColorIndex.BAR_NORMAL.ordinal])
                     progBar.progress = when(data.inverted) {
                         true -> ((did.progMax - (did.value - did.progMin)) * data.multiplier).toInt()
                         false -> (did.value * data.multiplier).toInt()
@@ -168,15 +168,15 @@ class LoggingFragment : Fragment() {
         updatePIDText()
 
         //Set background color
-        if(mViewModel.lastWarning) view.setBackgroundColor(Settings.colorList[COLOR_BG_WARN])
-            else view.setBackgroundColor(Settings.colorList[COLOR_BG_NORMAL])
+        if(mViewModel.lastWarning) view.setBackgroundColor(Settings.colorList[ColorIndex.BG_WARN.ordinal])
+            else view.setBackgroundColor(Settings.colorList[ColorIndex.BG_NORMAL.ordinal])
     }
 
     override fun onResume() {
         super.onResume()
 
         val filter = IntentFilter()
-        filter.addAction(MESSAGE_READ_LOG.toString())
+        filter.addAction(GUIMessage.READ_LOG.toString())
         this.activity?.registerReceiver(mBroadcastReceiver, filter)
     }
 
@@ -226,8 +226,7 @@ class LoggingFragment : Fragment() {
     private val mBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             when (intent.action) {
-                MESSAGE_READ_LOG.toString() -> {
-                    //val readBuff = intent.getByteArrayExtra("readBuffer") ?: return
+                GUIMessage.READ_LOG.toString() -> {
                     val readCount = intent.getIntExtra("readCount", 0)
                     val readTime = intent.getLongExtra("readTime", 0)
                     val readResult = intent.getIntExtra("readResult", UDS_ERROR_NULL)
@@ -273,14 +272,14 @@ class LoggingFragment : Fragment() {
                             if ((did.value > did.warnMax) or (did.value < did.warnMin)) {
 
                                 if (!data.lastColor) {
-                                    progressBar?.progressTintList = ColorStateList.valueOf(Settings.colorList[COLOR_BAR_WARN])
+                                    progressBar?.progressTintList = ColorStateList.valueOf(Settings.colorList[ColorIndex.BAR_WARN.ordinal])
                                 }
 
                                 data.lastColor = true
                                 anyWarning = true
                             } else {
                                 if (data.lastColor) {
-                                    progressBar?.progressTintList = ColorStateList.valueOf(Settings.colorList[COLOR_BAR_NORMAL])
+                                    progressBar?.progressTintList = ColorStateList.valueOf(Settings.colorList[ColorIndex.BAR_NORMAL.ordinal])
                                 }
 
                                 data.lastColor = false
@@ -293,13 +292,13 @@ class LoggingFragment : Fragment() {
                     //If any visible PIDS are in warning state set background color to warn
                     if(anyWarning) {
                         if(!mViewModel.lastWarning) {
-                            view?.setBackgroundColor(Settings.colorList[COLOR_BG_WARN])
+                            view?.setBackgroundColor(Settings.colorList[ColorIndex.BG_WARN.ordinal])
                         }
 
                         mViewModel.lastWarning = true
                     } else {
                         if(mViewModel.lastWarning) {
-                            view?.setBackgroundColor(Settings.colorList[COLOR_BG_NORMAL])
+                            view?.setBackgroundColor(Settings.colorList[ColorIndex.BG_NORMAL.ordinal])
                         }
 
                         mViewModel.lastWarning = false
@@ -311,13 +310,13 @@ class LoggingFragment : Fragment() {
                     if (UDSLogger.isEnabled()) {
                         //Highlight packet count in red since we are logging
                         if(!mViewModel.lastEnabled) {
-                            mPackCount?.setTextColor(Settings.colorList[COLOR_BAR_WARN])
+                            mPackCount?.setTextColor(Settings.colorList[ColorIndex.BAR_WARN.ordinal])
                         }
                         mViewModel.lastEnabled = true
                     } else {
                         //Not logging set packet count to black
                         if(mViewModel.lastEnabled) {
-                            mPackCount?.setTextColor(Settings.colorList[COLOR_BAR_NORMAL])
+                            mPackCount?.setTextColor(Settings.colorList[ColorIndex.BAR_NORMAL.ordinal])
                         }
                         mViewModel.lastEnabled = false
                     }

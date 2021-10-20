@@ -17,8 +17,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
 class FlashingViewModel : ViewModel() {
-    var mConversationArrayAdapter: ArrayAdapter<String>? = null
-    var mConnectedDeviceName: String? = null
+    var conversationArrayAdapter: ArrayAdapter<String>? = null
 }
 
 class FlashingFragment : Fragment() {
@@ -39,9 +38,9 @@ class FlashingFragment : Fragment() {
         //Get view model
         mViewModel = ViewModelProvider(this).get(FlashingViewModel::class.java)
 
-        if(mViewModel.mConversationArrayAdapter == null)
-            mViewModel.mConversationArrayAdapter = ArrayAdapter(requireActivity(), R.layout.message)
-        view.findViewById<ListView>(R.id.bt_message).adapter = mViewModel.mConversationArrayAdapter
+        if(mViewModel.conversationArrayAdapter == null)
+            mViewModel.conversationArrayAdapter = ArrayAdapter(requireActivity(), R.layout.message)
+        view.findViewById<ListView>(R.id.bt_message).adapter = mViewModel.conversationArrayAdapter
         view.findViewById<ListView>(R.id.bt_message).setBackgroundColor(Color.WHITE)
 
 
@@ -52,29 +51,27 @@ class FlashingFragment : Fragment() {
         view.findViewById<Button>(R.id.buttonCheckVIN).setOnClickListener {
             // Get the message bytes and tell the BluetoothChatService to write
             val serviceIntent = Intent(context, BTService::class.java)
-            serviceIntent.action = BT_DO_CHECK_VIN.toString()
+            serviceIntent.action = BTServiceTask.DO_GET_INFO.toString()
             startForegroundService(this.requireContext(), serviceIntent)
         }
 
         view.findViewById<Button>(R.id.buttonClearDTC).setOnClickListener {
             // Get the message bytes and tell the BluetoothChatService to write
             val serviceIntent = Intent(context, BTService::class.java)
-            serviceIntent.action = BT_DO_CLEAR_DTC.toString()
+            serviceIntent.action = BTServiceTask.DO_CLEAR_DTC.toString()
             startForegroundService(this.requireContext(), serviceIntent)
         }
 
         //Set background color
-        view.setBackgroundColor(Settings.colorList[COLOR_BG_NORMAL])
+        view.setBackgroundColor(Settings.colorList[ColorIndex.BG_NORMAL.ordinal])
     }
 
     override fun onResume() {
         super.onResume()
 
         val filter = IntentFilter()
-        filter.addAction(MESSAGE_STATE_CHANGE.toString())
-        //filter.addAction(MESSAGE_READ.toString())
-        filter.addAction(MESSAGE_READ_VIN.toString())
-        filter.addAction(MESSAGE_READ_DTC.toString())
+        filter.addAction(GUIMessage.ECU_INFO.toString())
+        filter.addAction(GUIMessage.CLEAR_DTC.toString())
         this.activity?.registerReceiver(mBroadcastReceiver, filter)
     }
 
@@ -87,51 +84,17 @@ class FlashingFragment : Fragment() {
     private val mBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             when (intent.action) {
-                MESSAGE_STATE_CHANGE.toString() -> {
-                    when (intent.getIntExtra("newState", -1)) {
-                        STATE_CONNECTED -> {
-                            val cDevice = intent.getStringExtra("cDevice")
-                            mViewModel.mConnectedDeviceName = cDevice
-                        }
-                    }
-                }
-                MESSAGE_READ.toString() -> {
-                    val readBuff = intent.getByteArrayExtra("readBuffer")
-
-                    // construct a string from the valid bytes in the buffer
-                    if(readBuff != null) {
-                        val readString = String(readBuff)
-                        mViewModel.mConversationArrayAdapter?.add(mViewModel.mConnectedDeviceName.toString() + ":  $readString")
-
-                        val btMessage = view?.findViewById<ListView>(R.id.bt_message)!!
-                        btMessage.setSelection(btMessage.adapter.count - 1)
-                    }
-                }
-                MESSAGE_READ_VIN.toString() -> {
-                    val readBuff = intent.getByteArrayExtra("readBuffer")
-
-                    // construct a string from the valid bytes in the buffer
-                    if(readBuff != null) {
-                        val readString = String(readBuff)
-                        mViewModel.mConversationArrayAdapter?.add("VIN: $readString")
-
-                        val btMessage = view?.findViewById<ListView>(R.id.bt_message)!!
-                        btMessage.setSelection(btMessage.adapter.count - 1)
-                    }
-                }
-                MESSAGE_READ_DTC.toString() -> {
-                    val readBuff = intent.getByteArrayExtra("readBuffer")
-
-                    // construct a string from the valid bytes in the buffer
-                    if(readBuff != null) {
-                        val readString = String(readBuff)
-                        mViewModel.mConversationArrayAdapter?.add("DTC: $readString")
-
-                        val btMessage = view?.findViewById<ListView>(R.id.bt_message)!!
-                        btMessage.setSelection(btMessage.adapter.count - 1)
-                    }
-                }
+                GUIMessage.ECU_INFO.toString()  -> doWriteMessage(intent.getStringExtra(GUIMessage.ECU_INFO.toString())?: "")
+                GUIMessage.CLEAR_DTC.toString() -> doWriteMessage(intent.getStringExtra(GUIMessage.CLEAR_DTC.toString())?: "")
             }
         }
+    }
+
+    private fun doWriteMessage(message: String) {
+        // construct a string from the valid bytes in the buffer
+        mViewModel.conversationArrayAdapter?.add(message)
+
+        val btMessage = view?.findViewById<ListView>(R.id.bt_message)!!
+        btMessage.setSelection(btMessage.adapter.count - 1)
     }
 }

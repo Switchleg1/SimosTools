@@ -29,8 +29,8 @@ object ColorSettings {
             mColorList[i] = Settings.colorList[i]
     }
 
-    fun getColor(index: Int) {
-        mColorIndex = index
+    fun getColor(index: ColorIndex) {
+        mColorIndex = index.ordinal
         val c = mColorList[mColorIndex]
         mR = (c and 0xFF0000) shr 16
         mG = (c and 0xFF00) shr 8
@@ -119,10 +119,10 @@ class ColorFragment : Fragment() {
         iColor.setBackgroundColor(Color.rgb(ColorSettings.mR, ColorSettings.mG, ColorSettings.mB))
 
         //Set colors
-        view.setBackgroundColor(Settings.colorList[COLOR_BG_NORMAL])
-        view.findViewById<TextView>(R.id.textViewColorR).setTextColor(Settings.colorList[COLOR_TEXT])
-        view.findViewById<TextView>(R.id.textViewColorG).setTextColor(Settings.colorList[COLOR_TEXT])
-        view.findViewById<TextView>(R.id.textViewColorB).setTextColor(Settings.colorList[COLOR_TEXT])
+        view.setBackgroundColor(Settings.colorList[ColorIndex.BG_NORMAL.ordinal])
+        view.findViewById<TextView>(R.id.textViewColorR).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
+        view.findViewById<TextView>(R.id.textViewColorG).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
+        view.findViewById<TextView>(R.id.textViewColorB).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
     }
 
     private fun doSave() {
