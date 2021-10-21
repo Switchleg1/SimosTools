@@ -12,8 +12,6 @@ object Settings {
     var tireDiameter            = DEFAULT_TIRE_DIAMETER
     var curbWeight              = DEFAULT_CURB_WEIGHT
     var dragCoefficient: Double = DEFAULT_DRAG_COEFFICIENT
-    var gearRatios              = DEFAULT_GEAR_RATIOS
-    var colorList               = DEFAULT_COLOR_LIST
     var alwaysPortrait          = DEFAULT_ALWAYS_PORTRAIT
     var displaySize             = DEFAULT_DISPLAY_SIZE
     var logFlags                = DEFAULT_LOG_FLAGS

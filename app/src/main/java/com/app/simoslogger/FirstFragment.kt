@@ -53,6 +53,6 @@ class FirstFragment : Fragment() {
         }
 
         //Set background color
-        view.setBackgroundColor(Settings.colorList[ColorIndex.BG_NORMAL.ordinal])
+        view.setBackgroundColor(ColorList.BG_NORMAL.value)
     }
 }

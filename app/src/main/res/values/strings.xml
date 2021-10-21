@@ -16,8 +16,8 @@
     <string name="button_exit">Exit</string>
     <string name="button_flashing">Tools</string>
     <string name="button_logging">Logging</string>
-    <string name="button_check_vin">VIN</string>
-    <string name="button_clear_dtc">DTC</string>
+    <string name="button_check_vin">ECU Info</string>
+    <string name="button_clear_dtc">Clear DTC</string>
     <string name="button_back">Back</string>
     <string name="button_stop">Stop</string>
     <string name="button_start">Start</string>

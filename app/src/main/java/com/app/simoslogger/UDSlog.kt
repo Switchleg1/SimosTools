@@ -9,7 +9,7 @@ import kotlin.math.sqrt
 object UDSLogger {
     private val TAG = "UDSlog"
     private var mLastEnabled = false
-    private var mMode = UDS_LOGGING_22
+    private var mMode = UDSLoggingMode.MODE_22
     private var mTorquePID = -1
     private var mEngineRPMPID = -1
     private var mMS2PID = -1
@@ -38,7 +38,7 @@ object UDSLogger {
                             val ms2Value = sqrt(list[mMS2PID]!!.value)
                             val velValue = list[mVelocityPID]!!.value
                             val weightValue = Settings.curbWeight * KG_TO_N
-                            val ratioValue = sqrt(Settings.gearRatios[gearValue - 1] * Settings.gearRatios[7])
+                            val ratioValue = sqrt(GearRatios.values()[gearValue - 1].ratio * GearRatios.FINAL.ratio)
                             val dragValue = 1.0 + ((velValue * velValue).toDouble() * Settings.dragCoefficient)
 
                             return ((weightValue * ms2Value / ratioValue / mTireCircumference / TQ_CONSTANT).toDouble() * dragValue).toFloat()
@@ -80,38 +80,32 @@ object UDSLogger {
         return mLastEnabled
     }
 
-    fun setMode(mode: Int) {
-        when(mode) {
-            UDS_LOGGING_22 -> mMode = mode
-            UDS_LOGGING_3E -> mMode = mode
-        }
+    fun setMode(mode: UDSLoggingMode) {
+        mMode = mode
     }
 
-    fun getMode(): Int {
+    fun getMode(): UDSLoggingMode {
         return mMode
     }
 
     fun frameCount(): Int {
         return when (mMode) {
-            UDS_LOGGING_22 -> frameCount22()
-            UDS_LOGGING_3E -> frameCount3E()
-            else -> 0
+            UDSLoggingMode.MODE_22 -> frameCount22()
+            UDSLoggingMode.MODE_3E -> frameCount3E()
         }
     }
 
     fun buildFrame(index: Int): ByteArray {
         return when(mMode) {
-            UDS_LOGGING_22 -> return buildFrame22(index)
-            UDS_LOGGING_3E -> return buildFrame3E(index)
-            else -> byteArrayOf()
+            UDSLoggingMode.MODE_22 -> buildFrame22(index)
+            UDSLoggingMode.MODE_3E -> buildFrame3E(index)
         }
     }
 
-    fun processFrame(tick: Int, buff: ByteArray?, context: Context): Int {
+    fun processFrame(tick: Int, buff: ByteArray?, context: Context): UDSReturn {
         return when(mMode) {
-            UDS_LOGGING_22 -> processFrame22(tick, buff, context)
-            UDS_LOGGING_3E -> processFrame3E(tick, buff, context)
-            else -> UDS_ERROR_NULL
+            UDSLoggingMode.MODE_22 -> processFrame22(tick, buff, context)
+            UDSLoggingMode.MODE_3E -> processFrame3E(tick, buff, context)
         }
     }
 
@@ -127,58 +121,65 @@ object UDSLogger {
     }
 
     private fun findHPPIDS() {
-        if(mMode == UDS_LOGGING_3E) {
-            PIDs.getList()?.let { list ->
-                for (x in 0 until list.count()) {
-                    //Look for torque PID
-                    if (list[x]?.address == 0xd0015344) {
-                        mTorquePID = x
-                    }
-                    //Look for rpm PID
-                    if (list[x]?.address == 0xd0012400) {
-                        mEngineRPMPID = x
-                    }
+        when(mMode) {
+            UDSLoggingMode.MODE_22 -> findHPPIDS22()
+            UDSLoggingMode.MODE_3E -> findHPPIDS3E()
+        }
+    }
 
-                    //Look for MS2 PID
-                    if (list[x]?.address == 0xd00141ba) {
-                        mMS2PID = x
-                    }
+    private fun findHPPIDS22() {
+        PIDs.getList()?.let { list ->
+            for (x in 0 until list.count()) {
+                //Look for torque PID
+                if (list[x]?.address == 0x437C.toLong()) {
+                    mTorquePID = x
+                }
 
-                    //Look for Gear PID
-                    if (list[x]?.address == 0xd000f39a) {
-                        mGearPID = x
-                    }
-
-                    //Look for Velocity PID
-                    if (list[x]?.address == 0xd00155b6) {
-                        mVelocityPID = x
-                    }
+                //Look for rpm PID
+                if (list[x]?.address == 0xf40C.toLong()) {
+                    mEngineRPMPID = x
                 }
             }
             //Did we find the PIDs required?
-            if(mEngineRPMPID != -1 && mMS2PID != -1 && mGearPID != -1 && mVelocityPID != -1)
-                mFoundMS2PIDS = true
-
-            if(mEngineRPMPID != -1 && mTorquePID != -1)
+            if (mEngineRPMPID != -1 && mTorquePID != -1)
                 mFoundTQPIDS = true
-        } else {
-            PIDs.getList()?.let { list ->
-                for (x in 0 until list.count()) {
-                    //Look for torque PID
-                    if (list[x]?.address == 0x437C.toLong()) {
-                        mTorquePID = x
-                    }
+        }
+    }
 
-                    //Look for rpm PID
-                    if (list[x]?.address == 0xf40C.toLong()) {
-                        mEngineRPMPID = x
-                    }
+    private fun findHPPIDS3E() {
+        PIDs.getList()?.let { list ->
+            for (x in 0 until list.count()) {
+                //Look for torque PID
+                if (list[x]?.address == 0xd0015344) {
+                    mTorquePID = x
                 }
-                //Did we find the PIDs required?
-                if (mEngineRPMPID != -1 && mTorquePID != -1)
-                    mFoundTQPIDS = true
+                //Look for rpm PID
+                if (list[x]?.address == 0xd0012400) {
+                    mEngineRPMPID = x
+                }
+
+                //Look for MS2 PID
+                if (list[x]?.address == 0xd00141ba) {
+                    mMS2PID = x
+                }
+
+                //Look for Gear PID
+                if (list[x]?.address == 0xd000f39a) {
+                    mGearPID = x
+                }
+
+                //Look for Velocity PID
+                if (list[x]?.address == 0xd00155b6) {
+                    mVelocityPID = x
+                }
             }
         }
+        //Did we find the PIDs required?
+        if(mEngineRPMPID != -1 && mMS2PID != -1 && mGearPID != -1 && mVelocityPID != -1)
+            mFoundMS2PIDS = true
+
+        if(mEngineRPMPID != -1 && mTorquePID != -1)
+            mFoundTQPIDS = true
     }
 
     private fun frameCount22(): Int {
@@ -204,9 +205,9 @@ object UDSLogger {
                 val bleHeader = BLEHeader()
                 bleHeader.cmdSize = 1
                 bleHeader.cmdFlags = when (index) {
-                    0 -> BLE_COMMAND_FLAG_PER_ADD or BLE_COMMAND_FLAG_PER_CLEAR
-                    frameCount22() - 1 -> BLE_COMMAND_FLAG_PER_ADD or BLE_COMMAND_FLAG_PER_ENABLE
-                    else -> BLE_COMMAND_FLAG_PER_ADD
+                    0 -> BLECommandFlags.PER_ADD.value or BLECommandFlags.PER_CLEAR.value
+                    frameCount22() - 1 -> BLECommandFlags.PER_ADD.value or BLECommandFlags.PER_ENABLE.value
+                    else -> BLECommandFlags.PER_ADD.value
                 }
 
                 //add pids to buffer
@@ -246,7 +247,7 @@ object UDSLogger {
             if ((index * 0x8F >= addressArray.count()) and (index == frameCount3E() - 1)) {
                 val bleHeader = BLEHeader()
                 bleHeader.cmdSize = 6
-                bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_CLEAR or BLE_COMMAND_FLAG_PER_ADD or BLE_COMMAND_FLAG_PER_ENABLE
+                bleHeader.cmdFlags = BLECommandFlags.PER_CLEAR.value or BLECommandFlags.PER_ADD.value or BLECommandFlags.PER_ENABLE.value
 
                 val writeBuffer: ByteArray = bleHeader.toByteArray() + byteArrayOf(
                     0x3e.toByte(),
@@ -271,7 +272,7 @@ object UDSLogger {
             val selectArray: ByteArray = addressArray.copyOfRange(index * 0x8F, endOfArray)
             val bleHeader = BLEHeader()
             bleHeader.cmdSize = 8 + selectArray.count()
-            bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_CLEAR
+            bleHeader.cmdFlags = BLECommandFlags.PER_CLEAR.value
 
             val memoryOffset = 0xB001E700 + (index * 0x8F)
             val writeBuffer: ByteArray = bleHeader.toByteArray() + byteArrayOf(
@@ -287,11 +288,11 @@ object UDSLogger {
         return byteArrayOf()
     }
 
-    private fun processFrame22(tick: Int, buff: ByteArray?, context: Context): Int {
+    private fun processFrame22(tick: Int, buff: ByteArray?, context: Context): UDSReturn {
         PIDs.getList()?.let { list ->
             // if the buffer is null abort
             if (buff == null) {
-                return UDS_ERROR_NULL
+                return UDSReturn.ERROR_NULL
             }
 
             // check to make sure ble header byte matches
@@ -299,22 +300,22 @@ object UDSLogger {
             bleHeader.fromByteArray(buff)
             val bData = buff.copyOfRange(8, buff.size)
             if (!bleHeader.isValid()) {
-                return UDS_ERROR_HEADER
+                return UDSReturn.ERROR_HEADER
             }
 
             // does the size of the data match the header?
             if (bData.count() != bleHeader.cmdSize) {
-                return UDS_ERROR_CMDSIZE
+                return UDSReturn.ERROR_CMDSIZE
             }
 
             // make sure we received an 'OK' from the ECU
             if (bData[0] != 0x62.toByte()) {
-                return UDS_ERROR_RESPONSE
+                return UDSReturn.ERROR_RESPONSE
             }
 
             //In init state
             if (tick < frameCount22()) {
-                return UDS_OK
+                return UDSReturn.OK
             }
 
             // process the data in the buffer
@@ -322,7 +323,7 @@ object UDSLogger {
             while (i < bleHeader.cmdSize - 3) {
                 val did: PIDStruct =
                     PIDs.getPID(((bData[i++] and 0xFF) shl 8) + (bData[i++] and 0xFF).toLong())
-                        ?: return UDS_ERROR_UNKNOWN
+                        ?: return UDSReturn.ERROR_UNKNOWN
                 if (did.length == 1) {
                     if (did.signed) {
                         PIDs.setValue(did, (bData[i++] and 0xFF).toByte().toFloat())
@@ -408,17 +409,17 @@ object UDSLogger {
                 }
             }
 
-            return UDS_OK
+            return UDSReturn.OK
         }
 
-        return UDS_ERROR_UNKNOWN
+        return UDSReturn.ERROR_UNKNOWN
     }
 
-    private fun processFrame3E(tick: Int, buff: ByteArray?, context: Context): Int {
+    private fun processFrame3E(tick: Int, buff: ByteArray?, context: Context): UDSReturn {
         PIDs.getList()?.let { list ->
             // if the buffer is null abort
             if (buff == null) {
-                return UDS_ERROR_NULL
+                return UDSReturn.ERROR_NULL
             }
 
             // check to make sure ble header byte matches
@@ -426,22 +427,22 @@ object UDSLogger {
             bleHeader.fromByteArray(buff)
             val bData = buff.copyOfRange(8, buff.size)
             if (!bleHeader.isValid()) {
-                return UDS_ERROR_HEADER
+                return UDSReturn.ERROR_HEADER
             }
 
             // does the size of the data match the header?
             if (bData.count() != bleHeader.cmdSize) {
-                return UDS_ERROR_CMDSIZE
+                return UDSReturn.ERROR_CMDSIZE
             }
 
             // make sure we received an 'OK' from the ECU
             if (bData[0] != 0x7e.toByte()) {
-                return UDS_ERROR_RESPONSE
+                return UDSReturn.ERROR_RESPONSE
             }
 
             //still in the initial setup?
             if (tick < frameCount3E()) {
-                return UDS_OK
+                return UDSReturn.OK
             }
 
             //Update PID Values
@@ -477,7 +478,7 @@ object UDSLogger {
                         }
                     }
                 } catch (e: Exception) {
-                    return UDS_ERROR_UNKNOWN
+                    return UDSReturn.ERROR_UNKNOWN
                 }
             }
 
@@ -536,9 +537,9 @@ object UDSLogger {
                 mLastEnabled = false
             }
 
-            return UDS_OK
+            return UDSReturn.OK
         }
 
-        return UDS_ERROR_UNKNOWN
+        return UDSReturn.ERROR_UNKNOWN
     }
 }

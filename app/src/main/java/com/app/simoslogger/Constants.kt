@@ -73,19 +73,73 @@ enum class RequiredPermissions {
     WRITE_STORAGE,
 }
 
-//Color index
-enum class ColorIndex {
-    BG_NORMAL,
-    BG_WARN,
-    TEXT,
-    BAR_NORMAL,
-    BAR_WARN,
-    ST_ERROR,
-    ST_NONE,
-    ST_CONNECTING,
-    ST_CONNECTED,
-    ST_LOGGING,
-    ST_WRITING
+//ISOTP bridge command flags
+enum class BLECommandFlags(val value: Int) {
+    PER_ENABLE(1),
+    PER_CLEAR(2),
+    PER_ADD(4),
+    SPLIT_PK(8),
+    SET_GET(64),
+    SETTINGS(128)
+}
+
+//ISOTP bridge internal settings
+enum class BLESettings(val value: Int) {
+    ISOTP_STMIN(1),
+    LED_COLOR(2),
+    PERSIST_DELAY(3),
+    PERSIST_Q_DELAY(4),
+    BLE_SEND_DELAY(5),
+    BLE_MULTI_DELAY(6)
+}
+
+//Color List
+enum class ColorList(var value: Int) {
+    BG_NORMAL(Color.rgb(255, 255, 255)),
+    BG_WARN(Color.rgb(127, 127, 255)),
+    TEXT(Color.rgb(0,   0,   0)),
+    BAR_NORMAL(Color.rgb(0,   255, 0)),
+    BAR_WARN(Color.rgb(255, 0,   0)),
+    ST_ERROR(Color.rgb(255, 0,   0)),
+    ST_NONE(Color.rgb(100, 0,   255)),
+    ST_CONNECTING(Color.rgb(100, 100, 255)),
+    ST_CONNECTED(Color.rgb(0,   0,   255)),
+    ST_LOGGING(Color.rgb(255, 255, 0)),
+    ST_WRITING(Color.rgb(0,   255, 0))
+}
+
+//Logging modes
+enum class UDSLoggingMode(val value: String) {
+    MODE_22("22"),
+    MODE_3E("3E")
+}
+
+//PID Index
+enum class PIDIndex {
+    A,
+    B,
+    C
+}
+
+// UDS return codes
+enum class UDSReturn {
+    OK,
+    ERROR_RESPONSE,
+    ERROR_NULL,
+    ERROR_HEADER,
+    ERROR_CMDSIZE,
+    ERROR_UNKNOWN,
+}
+
+enum class GearRatios(val gear: String, var ratio: Float) {
+    GEAR1("1", 2.92f),
+    GEAR2("2",1.79f),
+    GEAR3("3",1.14f),
+    GEAR4("4",0.78f),
+    GEAR5("5",0.58f),
+    GEAR6("6",0.46f),
+    GEAR7("7",0.0f),
+    FINAL("Final",4.77f)
 }
 
 val TASK_END_DELAY              = 500
@@ -115,39 +169,6 @@ val BLE_HEADER_ID               = 0xF1
 val BLE_HEADER_PT               = 0xF2
 val BLE_HEADER_RX               = 0x7E8
 val BLE_HEADER_TX               = 0x7E0
-
-//ISOTP bridge command flags
-val BLE_COMMAND_FLAG_PER_ENABLE = 1
-val BLE_COMMAND_FLAG_PER_CLEAR  = 2
-val BLE_COMMAND_FLAG_PER_ADD    = 4
-val BLE_COMMAND_FLAG_SPLIT_PK   = 8
-val BLE_COMMAND_FLAG_SET_GET    = 64
-val BLE_COMMAND_FLAG_SETTINGS   = 128
-
-//ISOTP bridge internal settings
-val BRG_SETTING_ISOTP_STMIN     = 1
-val BRG_SETTING_LED_COLOR       = 2
-val BRG_SETTING_PERSIST_DELAY   = 3
-val BRG_SETTING_PERSIST_Q_DELAY = 4
-val BRG_SETTING_BLE_SEND_DELAY  = 5
-val BRG_SETTING_BLE_MULTI_DELAY = 6
-
-// UDS22Logger errors
-val UDS_OK                      = 0
-val UDS_ERROR_RESPONSE          = 1
-val UDS_ERROR_NULL              = 2
-val UDS_ERROR_HEADER            = 3
-val UDS_ERROR_CMDSIZE           = 4
-val UDS_ERROR_UNKNOWN           = 5
-
-//Logging modes
-val UDS_LOGGING_22              = 0
-val UDS_LOGGING_3E              = 1
-
-//PID Index
-val PID_LIST_A                  = 0
-val PID_LIST_B                  = 1
-val PID_LIST_C                  = 2
 
 //CSV PID Bitmask
 val CSV_22_ADD_MIN              = 0x1000.toLong()
@@ -180,19 +201,7 @@ val DEFAULT_CALCULATE_HP        = true
 val DEFAULT_USE_MS2             = true
 val DEFAULT_TIRE_DIAMETER       = 0.632f
 val DEFAULT_CURB_WEIGHT         = 1500f
-val DEFAULT_DRAG_COEFFICIENT    = 0.000002
-val DEFAULT_GEAR_RATIOS         = floatArrayOf(2.92f, 1.79f, 1.14f, 0.78f, 0.58f, 0.46f, 0.0f, 4.77f)
-val DEFAULT_COLOR_LIST          = intArrayOf(Color.rgb(255, 255, 255),
-                                            Color.rgb(127, 127, 255),
-                                            Color.rgb(0,   0,   0),
-                                            Color.rgb(0,   255, 0),
-                                            Color.rgb(255, 0,   0),
-                                            Color.rgb(255, 0,   0),
-                                            Color.rgb(100, 0,   255),
-                                            Color.rgb(100, 100, 255),
-                                            Color.rgb(0,   0,   255),
-                                            Color.rgb(255, 255, 0),
-                                            Color.rgb(0,   255, 0))
+val DEFAULT_DRAG_COEFFICIENT    = 0.000003
 val DEFAULT_ALWAYS_PORTRAIT     = false
 val DEFAULT_DISPLAY_SIZE        = 1f
 val DEFAULT_LOG_FLAGS           = LOG_INFO or LOG_WARNING or LOG_EXCEPTION

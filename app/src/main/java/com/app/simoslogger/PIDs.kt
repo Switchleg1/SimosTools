@@ -18,7 +18,7 @@ data class PIDStruct(var address: Long,
 
 object PIDs {
     private val TAG         = "PIDs"
-    private var mListIndex  = PID_LIST_A
+    private var mListIndex  = PIDIndex.A
 
     var list22: Array<Array<PIDStruct?>?> = arrayOf(
         arrayOf( //list22a
@@ -333,39 +333,38 @@ object PIDs {
         PIDStruct(0xd001b6cd, 1, false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"x",                 "%01.0f","Cruise Control",      ""),
     ))
     
-    fun setIndex(index: Int) {
-        if(index in 0..2)
-            mListIndex = index
+    fun setIndex(index: PIDIndex) {
+        mListIndex = index
     }
 
-    fun getIndex(): Int {
+    fun getIndex(): PIDIndex {
         return mListIndex
     }
 
-    fun getList(mode: Int = UDSLogger.getMode(), index: Int = mListIndex): Array<PIDStruct?>? {
+    fun getList(mode: UDSLoggingMode = UDSLogger.getMode(), index: PIDIndex = mListIndex): Array<PIDStruct?>? {
         when(mode) {
-            UDS_LOGGING_22  -> {
-                if(index in 0 until list22.count())
-                    return list22[index]
+            UDSLoggingMode.MODE_22  -> {
+                if(index.ordinal in 0 until list22.count())
+                    return list22[index.ordinal]
             }
-            UDS_LOGGING_3E  -> {
-                if(index in 0 until list3E.count())
-                    return list3E[index]
+            UDSLoggingMode.MODE_3E  -> {
+                if(index.ordinal in 0 until list3E.count())
+                    return list3E[index.ordinal]
             }
         }
 
         return null
     }
 
-    fun setList(mode: Int = UDSLogger.getMode(), index: Int = mListIndex, list: Array<PIDStruct?>?) {
+    fun setList(mode: UDSLoggingMode = UDSLogger.getMode(), index: PIDIndex = mListIndex, list: Array<PIDStruct?>?) {
         when(mode) {
-            UDS_LOGGING_22  -> {
-                if(index in 0 until list22.count())
-                    list22[index] = list
+            UDSLoggingMode.MODE_22  -> {
+                if(index.ordinal in 0 until list22.count())
+                    list22[index.ordinal] = list
             }
-            UDS_LOGGING_3E  -> {
-                if(index in 0 until list3E.count())
-                    list3E[index] = list
+            UDSLoggingMode.MODE_3E  -> {
+                if(index.ordinal in 0 until list3E.count())
+                    list3E[index.ordinal] = list
             }
         }
     }

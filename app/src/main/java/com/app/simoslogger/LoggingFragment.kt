@@ -57,24 +57,7 @@ class LoggingFragment : Fragment() {
         }
 
         view.findViewById<Button>(R.id.buttonReset).setOnClickListener {
-            try {
-                mViewModel.dataList?.let { dataList ->
-                    for (i in 0 until dataList.count()) {
-                        val data = dataList[i]
-                        data?.let {
-                            val did = PIDs.getList()!![i]
-                            did?.let {
-                                data.max = did.value
-                                data.min = did.value
-                            }
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                DebugLog.e(TAG, "Unable to reset min/max list.", e)
-            }
-
-            updatePIDText()
+            resetStats()
         }
 
         //check orientation
@@ -82,17 +65,17 @@ class LoggingFragment : Fragment() {
         var layoutType = R.layout.pid_portrait
         var currentOrientation = resources.configuration.orientation
 
-        if(Settings.alwaysPortrait)
+        if (Settings.alwaysPortrait)
             currentOrientation = Configuration.ORIENTATION_PORTRAIT
 
-        if(currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+        if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
             textVal = R.string.textPIDL
             layoutType = R.layout.pid_land
         }
 
         //Set packet textview
         mPackCount = view.findViewById<TextView>(R.id.textViewPackCount)
-        mPackCount?.setTextColor(Settings.colorList[ColorIndex.BAR_NORMAL.ordinal])
+        mPackCount?.setTextColor(ColorList.BAR_NORMAL.value)
 
         //Build layout
         PIDs.getList()?.let { list ->
@@ -118,7 +101,7 @@ class LoggingFragment : Fragment() {
                     var progMin = did.progMin
 
                     //if progress bar is flipped
-                    if(did.progMin > did.progMax) {
+                    if (did.progMin > did.progMax) {
                         progMax = did.progMin
                         progMin = did.progMax
                         data.inverted = true
@@ -142,15 +125,15 @@ class LoggingFragment : Fragment() {
                         did.format.format(data.max)
                     )
                     textView.textSize = 18 * Settings.displaySize
-                    textView.setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
+                    textView.setTextColor(ColorList.TEXT.value)
 
                     //Setup the progress bar
                     val progBar = pidLayout.findViewById<ProgressBar>(R.id.pid_land_progress)
                     progBar.min = (progMin * data.multiplier).toInt()
                     progBar.max = (progMax * data.multiplier).toInt()
                     progBar.scaleY *= Settings.displaySize
-                    progBar.progressTintList = ColorStateList.valueOf(Settings.colorList[ColorIndex.BAR_NORMAL.ordinal])
-                    progBar.progress = when(data.inverted) {
+                    progBar.progressTintList = ColorStateList.valueOf(ColorList.BAR_NORMAL.value)
+                    progBar.progress = when (data.inverted) {
                         true -> ((did.progMax - (did.value - did.progMin)) * data.multiplier).toInt()
                         false -> (did.value * data.multiplier).toInt()
                     }
@@ -168,8 +151,8 @@ class LoggingFragment : Fragment() {
         updatePIDText()
 
         //Set background color
-        if(mViewModel.lastWarning) view.setBackgroundColor(Settings.colorList[ColorIndex.BG_WARN.ordinal])
-            else view.setBackgroundColor(Settings.colorList[ColorIndex.BG_NORMAL.ordinal])
+        if (mViewModel.lastWarning) view.setBackgroundColor(ColorList.BG_WARN.value)
+        else view.setBackgroundColor(ColorList.BG_NORMAL.value)
     }
 
     override fun onResume() {
@@ -192,10 +175,10 @@ class LoggingFragment : Fragment() {
         var textVal = R.string.textPIDP
         var currentOrientation = resources.configuration.orientation
 
-        if(Settings.alwaysPortrait)
+        if (Settings.alwaysPortrait)
             currentOrientation = Configuration.ORIENTATION_PORTRAIT
 
-        if(currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+        if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
             textVal = R.string.textPIDL
         }
 
@@ -218,9 +201,31 @@ class LoggingFragment : Fragment() {
                     )
                 }
             }
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             DebugLog.e(TAG, "Unable to update text", e)
         }
+    }
+
+    private fun resetStats() {
+        try {
+            mViewModel.dataList?.let { dataList ->
+                for (i in 0 until dataList.count()) {
+                    val data = dataList[i]
+                    data?.let {
+                        val did = PIDs.getList()!![i]
+                        did?.let {
+                            data.max = did.value
+                            data.min = did.value
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception)
+        {
+            DebugLog.e(TAG, "Unable to reset min/max list.", e)
+        }
+
+        updatePIDText()
     }
 
     private val mBroadcastReceiver = object : BroadcastReceiver() {
@@ -229,12 +234,17 @@ class LoggingFragment : Fragment() {
                 GUIMessage.READ_LOG.toString() -> {
                     val readCount = intent.getIntExtra("readCount", 0)
                     val readTime = intent.getLongExtra("readTime", 0)
-                    val readResult = intent.getIntExtra("readResult", UDS_ERROR_NULL)
+                    val readResult = intent.getSerializableExtra("readResult") as UDSReturn
 
                     //Make sure we received an ok
-                    if(readResult != UDS_OK) {
+                    if(readResult != UDSReturn.OK) {
                         mPackCount?.text = readResult.toString()
                         return
+                    }
+
+                    //Clear stats are startup
+                    if(readCount < 50) {
+                        resetStats()
                     }
 
                     //Update PID Text
@@ -272,14 +282,14 @@ class LoggingFragment : Fragment() {
                             if ((did.value > did.warnMax) or (did.value < did.warnMin)) {
 
                                 if (!data.lastColor) {
-                                    progressBar?.progressTintList = ColorStateList.valueOf(Settings.colorList[ColorIndex.BAR_WARN.ordinal])
+                                    progressBar?.progressTintList = ColorStateList.valueOf(ColorList.BAR_WARN.value)
                                 }
 
                                 data.lastColor = true
                                 anyWarning = true
                             } else {
                                 if (data.lastColor) {
-                                    progressBar?.progressTintList = ColorStateList.valueOf(Settings.colorList[ColorIndex.BAR_NORMAL.ordinal])
+                                    progressBar?.progressTintList = ColorStateList.valueOf(ColorList.BAR_NORMAL.value)
                                 }
 
                                 data.lastColor = false
@@ -292,13 +302,13 @@ class LoggingFragment : Fragment() {
                     //If any visible PIDS are in warning state set background color to warn
                     if(anyWarning) {
                         if(!mViewModel.lastWarning) {
-                            view?.setBackgroundColor(Settings.colorList[ColorIndex.BG_WARN.ordinal])
+                            view?.setBackgroundColor(ColorList.BG_WARN.value)
                         }
 
                         mViewModel.lastWarning = true
                     } else {
                         if(mViewModel.lastWarning) {
-                            view?.setBackgroundColor(Settings.colorList[ColorIndex.BG_NORMAL.ordinal])
+                            view?.setBackgroundColor(ColorList.BG_NORMAL.value)
                         }
 
                         mViewModel.lastWarning = false
@@ -310,13 +320,13 @@ class LoggingFragment : Fragment() {
                     if (UDSLogger.isEnabled()) {
                         //Highlight packet count in red since we are logging
                         if(!mViewModel.lastEnabled) {
-                            mPackCount?.setTextColor(Settings.colorList[ColorIndex.BAR_WARN.ordinal])
+                            mPackCount?.setTextColor(ColorList.BAR_WARN.value)
                         }
                         mViewModel.lastEnabled = true
                     } else {
                         //Not logging set packet count to black
                         if(mViewModel.lastEnabled) {
-                            mPackCount?.setTextColor(Settings.colorList[ColorIndex.BAR_NORMAL.ordinal])
+                            mPackCount?.setTextColor(ColorList.BAR_NORMAL.value)
                         }
                         mViewModel.lastEnabled = false
                     }

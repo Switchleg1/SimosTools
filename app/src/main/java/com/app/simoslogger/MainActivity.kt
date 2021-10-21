@@ -46,37 +46,37 @@ class MainActivity : AppCompatActivity() {
             ConfigFile.read(CFG_FILENAME, applicationContext)
 
             //Write pid default files
-            PIDCSVFile.write(getString(R.string.filename_3E_csv, "a"), applicationContext, PIDs.getList(UDS_LOGGING_3E, PID_LIST_A), false)
-            PIDCSVFile.write(getString(R.string.filename_3E_csv, "b"), applicationContext, PIDs.getList(UDS_LOGGING_3E, PID_LIST_B), false)
-            PIDCSVFile.write(getString(R.string.filename_3E_csv, "c"), applicationContext, PIDs.getList(UDS_LOGGING_3E, PID_LIST_C), false)
-            PIDCSVFile.write(getString(R.string.filename_22_csv, "a"), applicationContext, PIDs.getList(UDS_LOGGING_22, PID_LIST_A), false)
-            PIDCSVFile.write(getString(R.string.filename_22_csv, "b"), applicationContext, PIDs.getList(UDS_LOGGING_22, PID_LIST_B), false)
-            PIDCSVFile.write(getString(R.string.filename_22_csv, "c"), applicationContext, PIDs.getList(UDS_LOGGING_22, PID_LIST_C), false)
+            PIDCSVFile.write(getString(R.string.filename_3E_csv, "a"), applicationContext, PIDs.getList(UDSLoggingMode.MODE_3E, PIDIndex.A), false)
+            PIDCSVFile.write(getString(R.string.filename_3E_csv, "b"), applicationContext, PIDs.getList(UDSLoggingMode.MODE_3E, PIDIndex.B), false)
+            PIDCSVFile.write(getString(R.string.filename_3E_csv, "c"), applicationContext, PIDs.getList(UDSLoggingMode.MODE_3E, PIDIndex.C), false)
+            PIDCSVFile.write(getString(R.string.filename_22_csv, "a"), applicationContext, PIDs.getList(UDSLoggingMode.MODE_22, PIDIndex.A), false)
+            PIDCSVFile.write(getString(R.string.filename_22_csv, "b"), applicationContext, PIDs.getList(UDSLoggingMode.MODE_22, PIDIndex.B), false)
+            PIDCSVFile.write(getString(R.string.filename_22_csv, "c"), applicationContext, PIDs.getList(UDSLoggingMode.MODE_22, PIDIndex.C), false)
 
             //Read pid files
             var pid3EList = PIDCSVFile.read(getString(R.string.filename_3E_csv, "a"), applicationContext, CSV_3E_ADD_MIN, CSV_3E_ADD_MAX)
             if (pid3EList != null)
-                PIDs.setList(UDS_LOGGING_3E, PID_LIST_A, pid3EList)
+                PIDs.setList(UDSLoggingMode.MODE_3E, PIDIndex.A, pid3EList)
 
             pid3EList = PIDCSVFile.read(getString(R.string.filename_3E_csv, "b"), applicationContext, CSV_3E_ADD_MIN, CSV_3E_ADD_MAX)
             if (pid3EList != null)
-                PIDs.setList(UDS_LOGGING_3E, PID_LIST_B, pid3EList)
+                PIDs.setList(UDSLoggingMode.MODE_3E, PIDIndex.B, pid3EList)
 
             pid3EList = PIDCSVFile.read(getString(R.string.filename_3E_csv, "c"), applicationContext, CSV_3E_ADD_MIN, CSV_3E_ADD_MAX)
             if (pid3EList != null)
-                PIDs.setList(UDS_LOGGING_3E, PID_LIST_C, pid3EList)
+                PIDs.setList(UDSLoggingMode.MODE_3E, PIDIndex.C, pid3EList)
 
             var pid22List = PIDCSVFile.read(getString(R.string.filename_22_csv, "a"), applicationContext, CSV_22_ADD_MIN, CSV_22_ADD_MAX)
             if (pid22List != null)
-                PIDs.setList(UDS_LOGGING_22, PID_LIST_A, pid22List)
+                PIDs.setList(UDSLoggingMode.MODE_22, PIDIndex.A, pid22List)
 
             pid22List = PIDCSVFile.read(getString(R.string.filename_22_csv, "b"), applicationContext, CSV_22_ADD_MIN, CSV_22_ADD_MAX)
             if (pid22List != null)
-                PIDs.setList(UDS_LOGGING_22, PID_LIST_B, pid22List)
+                PIDs.setList(UDSLoggingMode.MODE_22, PIDIndex.B, pid22List)
 
             pid22List = PIDCSVFile.read(getString(R.string.filename_22_csv, "c"), applicationContext, CSV_22_ADD_MIN, CSV_22_ADD_MAX)
             if (pid22List != null)
-                PIDs.setList(UDS_LOGGING_22, PID_LIST_C, pid22List)
+                PIDs.setList(UDSLoggingMode.MODE_22, PIDIndex.C, pid22List)
 
             //Start our BT Service
             val serviceIntent = Intent(this, BTService::class.java)
@@ -207,9 +207,9 @@ class MainActivity : AppCompatActivity() {
                 }
                 GUIMessage.WRITE_LOG.toString() -> {
                     if(intent.getBooleanExtra(GUIMessage.WRITE_LOG.toString(), false)) {
-                        setActionBarColor(Settings.colorList[ColorIndex.ST_WRITING.ordinal])
+                        setActionBarColor(ColorList.ST_WRITING.value)
                     } else {
-                        setActionBarColor(Settings.colorList[ColorIndex.ST_LOGGING.ordinal])
+                        setActionBarColor(ColorList.ST_LOGGING.value)
                     }
                 }
                 GUIMessage.TOAST.toString() -> {
@@ -276,29 +276,29 @@ class MainActivity : AppCompatActivity() {
                 when(mViewModel.connectionState) {
                     BLEConnectionState.ERROR -> {
                         newString = getString(R.string.title_error, mViewModel.connectionState.errorMessage)
-                        setActionBarColor(Settings.colorList[ColorIndex.ST_ERROR.ordinal])
+                        setActionBarColor(ColorList.ST_ERROR.value)
                     }
                     BLEConnectionState.NONE -> {
                         newString = getString(R.string.title_not_connected)
-                        setActionBarColor(Settings.colorList[ColorIndex.ST_NONE.ordinal])
+                        setActionBarColor(ColorList.ST_NONE.value)
                     }
                     BLEConnectionState.CONNECTING -> {
                         newString = getString(R.string.title_connecting)
-                        setActionBarColor(Settings.colorList[ColorIndex.ST_CONNECTING.ordinal])
+                        setActionBarColor(ColorList.ST_CONNECTING.value)
                     }
                     BLEConnectionState.CONNECTED -> {
                         newString = getString(R.string.title_connected_to, mViewModel.connectionState.deviceName)
-                        setActionBarColor(Settings.colorList[ColorIndex.ST_CONNECTED.ordinal])
+                        setActionBarColor(ColorList.ST_CONNECTED.value)
                     }
                 }
             }
             UDSTask.LOGGING -> {
                 newString = "Logging"
-                setActionBarColor(Settings.colorList[ColorIndex.ST_LOGGING.ordinal])
+                setActionBarColor(ColorList.ST_LOGGING.value)
             }
             UDSTask.FLASHING -> {
                 newString = "Flashing"
-                setActionBarColor(Settings.colorList[ColorIndex.ST_LOGGING.ordinal])
+                setActionBarColor(ColorList.ST_LOGGING.value)
             }
             UDSTask.INFO -> newString = "Getting ECU Info"
             UDSTask.DTC -> newString = "Clearing DTC"

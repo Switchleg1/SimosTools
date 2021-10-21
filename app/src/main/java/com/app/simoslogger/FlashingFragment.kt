@@ -48,7 +48,7 @@ class FlashingFragment : Fragment() {
             findNavController().navigateUp()
         }
 
-        view.findViewById<Button>(R.id.buttonCheckVIN).setOnClickListener {
+        view.findViewById<Button>(R.id.buttonECUInfo).setOnClickListener {
             // Get the message bytes and tell the BluetoothChatService to write
             val serviceIntent = Intent(context, BTService::class.java)
             serviceIntent.action = BTServiceTask.DO_GET_INFO.toString()
@@ -63,7 +63,7 @@ class FlashingFragment : Fragment() {
         }
 
         //Set background color
-        view.setBackgroundColor(Settings.colorList[ColorIndex.BG_NORMAL.ordinal])
+        view.setBackgroundColor(ColorList.BG_NORMAL.value)
     }
 
     override fun onResume() {

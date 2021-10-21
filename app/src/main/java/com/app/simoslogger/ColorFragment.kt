@@ -14,7 +14,7 @@ object ColorSettings {
     var mG = 255
     var mB = 255
     var mColorIndex = 0
-    var mColorList = intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+    var mColorList = IntArray(ColorList.values().count())
 
     fun makeColor(): Int {
         return 0xFF000000.toInt() + ((mR and 0xFF) shl 16) + ((mG and 0xFF) shl 8) + (mB and 0xFF)
@@ -26,10 +26,10 @@ object ColorSettings {
 
     fun resetColors() {
         for(i in 0 until mColorList.count())
-            mColorList[i] = Settings.colorList[i]
+            mColorList[i] = ColorList.values()[i].value
     }
 
-    fun getColor(index: ColorIndex) {
+    fun getColor(index: ColorList) {
         mColorIndex = index.ordinal
         val c = mColorList[mColorIndex]
         mR = (c and 0xFF0000) shr 16
@@ -119,10 +119,10 @@ class ColorFragment : Fragment() {
         iColor.setBackgroundColor(Color.rgb(ColorSettings.mR, ColorSettings.mG, ColorSettings.mB))
 
         //Set colors
-        view.setBackgroundColor(Settings.colorList[ColorIndex.BG_NORMAL.ordinal])
-        view.findViewById<TextView>(R.id.textViewColorR).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
-        view.findViewById<TextView>(R.id.textViewColorG).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
-        view.findViewById<TextView>(R.id.textViewColorB).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
+        view.setBackgroundColor(ColorList.BG_NORMAL.value)
+        view.findViewById<TextView>(R.id.textViewColorR).setTextColor(ColorList.TEXT.value)
+        view.findViewById<TextView>(R.id.textViewColorG).setTextColor(ColorList.TEXT.value)
+        view.findViewById<TextView>(R.id.textViewColorB).setTextColor(ColorList.TEXT.value)
     }
 
     private fun doSave() {

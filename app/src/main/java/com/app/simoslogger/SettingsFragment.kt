@@ -18,8 +18,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
 class SettingsViewModel : ViewModel() {
-    var pidList = PID_LIST_A
-    var logMode = UDS_LOGGING_22
+    var pidList = PIDIndex.A
+    var logMode = UDSLoggingMode.MODE_22
     var CSVFileName = ""
 }
 
@@ -31,9 +31,9 @@ class SettingsFragment : Fragment() {
         if (result.resultCode == Activity.RESULT_OK) {
             val uri: Uri? = result.data?.data
             uri?.let {
-                val addMin = if(mViewModel.logMode == UDS_LOGGING_22) CSV_22_ADD_MIN
+                val addMin = if(mViewModel.logMode == UDSLoggingMode.MODE_22) CSV_22_ADD_MIN
                     else CSV_3E_ADD_MIN
-                val addMax = if(mViewModel.logMode == UDS_LOGGING_22) CSV_22_ADD_MAX
+                val addMax = if(mViewModel.logMode == UDSLoggingMode.MODE_22) CSV_22_ADD_MAX
                     else CSV_3E_ADD_MAX
                 val pidList = PIDCSVFile.readStream(activity?.contentResolver?.openInputStream(uri), addMin, addMax)
                 if(pidList != null) {
@@ -75,8 +75,8 @@ class SettingsFragment : Fragment() {
             var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
             chooseFile.type = "text/*"
             chooseFile = Intent.createChooser(chooseFile, "Choose a 22 A CSV")
-            mViewModel.logMode = UDS_LOGGING_22
-            mViewModel.pidList = PID_LIST_A
+            mViewModel.logMode = UDSLoggingMode.MODE_22
+            mViewModel.pidList = PIDIndex.A
             mViewModel.CSVFileName = getString(R.string.filename_22_csv, "a")
             resultPickLauncher.launch(chooseFile)
         }
@@ -85,8 +85,8 @@ class SettingsFragment : Fragment() {
             var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
             chooseFile.type = "text/*"
             chooseFile = Intent.createChooser(chooseFile, "Choose a 22 B CSV")
-            mViewModel.logMode = UDS_LOGGING_22
-            mViewModel.pidList = PID_LIST_B
+            mViewModel.logMode = UDSLoggingMode.MODE_22
+            mViewModel.pidList = PIDIndex.B
             mViewModel.CSVFileName = getString(R.string.filename_22_csv, "b")
             resultPickLauncher.launch(chooseFile)
         }
@@ -95,8 +95,8 @@ class SettingsFragment : Fragment() {
             var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
             chooseFile.type = "text/*"
             chooseFile = Intent.createChooser(chooseFile, "Choose a 22 C CSV")
-            mViewModel.logMode = UDS_LOGGING_22
-            mViewModel.pidList = PID_LIST_C
+            mViewModel.logMode = UDSLoggingMode.MODE_22
+            mViewModel.pidList = PIDIndex.C
             mViewModel.CSVFileName = getString(R.string.filename_22_csv, "c")
             resultPickLauncher.launch(chooseFile)
         }
@@ -105,8 +105,8 @@ class SettingsFragment : Fragment() {
             var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
             chooseFile.type = "text/*"
             chooseFile = Intent.createChooser(chooseFile, "Choose a 3E A CSV")
-            mViewModel.logMode = UDS_LOGGING_3E
-            mViewModel.pidList = PID_LIST_A
+            mViewModel.logMode = UDSLoggingMode.MODE_3E
+            mViewModel.pidList = PIDIndex.A
             mViewModel.CSVFileName = getString(R.string.filename_3E_csv, "a")
             resultPickLauncher.launch(chooseFile)
         }
@@ -115,8 +115,8 @@ class SettingsFragment : Fragment() {
             var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
             chooseFile.type = "text/*"
             chooseFile = Intent.createChooser(chooseFile, "Choose a 3E B CSV")
-            mViewModel.logMode = UDS_LOGGING_3E
-            mViewModel.pidList = PID_LIST_B
+            mViewModel.logMode = UDSLoggingMode.MODE_3E
+            mViewModel.pidList = PIDIndex.B
             mViewModel.CSVFileName = getString(R.string.filename_3E_csv, "b")
             resultPickLauncher.launch(chooseFile)
         }
@@ -125,64 +125,64 @@ class SettingsFragment : Fragment() {
             var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
             chooseFile.type = "text/*"
             chooseFile = Intent.createChooser(chooseFile, "Choose a 3E C CSV")
-            mViewModel.logMode = UDS_LOGGING_3E
-            mViewModel.pidList = PID_LIST_C
+            mViewModel.logMode = UDSLoggingMode.MODE_3E
+            mViewModel.pidList = PIDIndex.C
             mViewModel.CSVFileName = getString(R.string.filename_3E_csv, "c")
             resultPickLauncher.launch(chooseFile)
         }
 
         view.findViewById<Button>(R.id.buttonSetBGNormalColor).setOnClickListener {
-            ColorSettings.getColor(ColorIndex.BG_NORMAL)
+            ColorSettings.getColor(ColorList.BG_NORMAL)
             findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetBGWarningColor).setOnClickListener {
-            ColorSettings.getColor(ColorIndex.BG_WARN)
+            ColorSettings.getColor(ColorList.BG_WARN)
             findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetTextColor).setOnClickListener {
-            ColorSettings.getColor(ColorIndex.TEXT)
+            ColorSettings.getColor(ColorList.TEXT)
             findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetBarNormalColor).setOnClickListener {
-            ColorSettings.getColor(ColorIndex.BAR_NORMAL)
+            ColorSettings.getColor(ColorList.BAR_NORMAL)
             findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetBarWarnColor).setOnClickListener {
-            ColorSettings.getColor(ColorIndex.BAR_WARN)
+            ColorSettings.getColor(ColorList.BAR_WARN)
             findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetErrorColor).setOnClickListener {
-            ColorSettings.getColor(ColorIndex.ST_ERROR)
+            ColorSettings.getColor(ColorList.ST_ERROR)
             findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetNoneColor).setOnClickListener {
-            ColorSettings.getColor(ColorIndex.ST_NONE)
+            ColorSettings.getColor(ColorList.ST_NONE)
             findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetConnectingColor).setOnClickListener {
-            ColorSettings.getColor(ColorIndex.ST_CONNECTING)
+            ColorSettings.getColor(ColorList.ST_CONNECTING)
             findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetConnectedColor).setOnClickListener {
-            ColorSettings.getColor(ColorIndex.ST_CONNECTED)
+            ColorSettings.getColor(ColorList.ST_CONNECTED)
             findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetLoggingColor).setOnClickListener {
-            ColorSettings.getColor(ColorIndex.ST_LOGGING)
+            ColorSettings.getColor(ColorList.ST_LOGGING)
             findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetWritingColor).setOnClickListener {
-            ColorSettings.getColor(ColorIndex.ST_WRITING)
+            ColorSettings.getColor(ColorList.ST_WRITING)
             findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
@@ -244,57 +244,58 @@ class SettingsFragment : Fragment() {
     private fun doSetColor() {
         view?.let { currentView ->
             //Set font color
-            currentView.findViewById<TextView>(R.id.textViewDisplaySize).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
-            currentView.findViewById<TextView>(R.id.textViewUpdateRate).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
-            currentView.findViewById<TextView>(R.id.textViewPersistDelay).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
-            currentView.findViewById<TextView>(R.id.textViewPersistQDelay).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
-            currentView.findViewById<TextView>(R.id.textViewOutputDirectory).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
-            currentView.findViewById<TextView>(R.id.textViewLoggingMode).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
-            currentView.findViewById<TextView>(R.id.textViewLoggingList).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
-            currentView.findViewById<TextView>(R.id.textViewPIDCSV).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
-            currentView.findViewById<TextView>(R.id.textViewMiscOptions).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
-            currentView.findViewById<TextView>(R.id.textViewCalcHPOptions).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
-            currentView.findViewById<TextView>(R.id.textViewColorOptions).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
-            currentView.findViewById<RadioButton>(R.id.radioButtonDownloads).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
-            currentView.findViewById<RadioButton>(R.id.radioButtonDocuments).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
-            currentView.findViewById<RadioButton>(R.id.radioButtonApplication).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
-            currentView.findViewById<RadioButton>(R.id.radioButton3E).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
-            currentView.findViewById<RadioButton>(R.id.radioButton22).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
-            currentView.findViewById<RadioButton>(R.id.radioButtonA).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
-            currentView.findViewById<RadioButton>(R.id.radioButtonB).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
-            currentView.findViewById<RadioButton>(R.id.radioButtonC).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
-            currentView.findViewById<CheckBox>(R.id.checkBoxInvertCruise).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
-            currentView.findViewById<CheckBox>(R.id.checkBoxScreenOn).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
-            currentView.findViewById<CheckBox>(R.id.checkBoxAlwaysPortrait).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
-            currentView.findViewById<CheckBox>(R.id.checkBoxCalcHP).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
-            currentView.findViewById<CheckBox>(R.id.checkBoxUseAccel).setTextColor(Settings.colorList[ColorIndex.TEXT.ordinal])
+            val color = ColorList.TEXT.value
+            currentView.findViewById<TextView>(R.id.textViewDisplaySize).setTextColor(color)
+            currentView.findViewById<TextView>(R.id.textViewUpdateRate).setTextColor(color)
+            currentView.findViewById<TextView>(R.id.textViewPersistDelay).setTextColor(color)
+            currentView.findViewById<TextView>(R.id.textViewPersistQDelay).setTextColor(color)
+            currentView.findViewById<TextView>(R.id.textViewOutputDirectory).setTextColor(color)
+            currentView.findViewById<TextView>(R.id.textViewLoggingMode).setTextColor(color)
+            currentView.findViewById<TextView>(R.id.textViewLoggingList).setTextColor(color)
+            currentView.findViewById<TextView>(R.id.textViewPIDCSV).setTextColor(color)
+            currentView.findViewById<TextView>(R.id.textViewMiscOptions).setTextColor(color)
+            currentView.findViewById<TextView>(R.id.textViewCalcHPOptions).setTextColor(color)
+            currentView.findViewById<TextView>(R.id.textViewColorOptions).setTextColor(color)
+            currentView.findViewById<RadioButton>(R.id.radioButtonDownloads).setTextColor(color)
+            currentView.findViewById<RadioButton>(R.id.radioButtonDocuments).setTextColor(color)
+            currentView.findViewById<RadioButton>(R.id.radioButtonApplication).setTextColor(color)
+            currentView.findViewById<RadioButton>(R.id.radioButton3E).setTextColor(color)
+            currentView.findViewById<RadioButton>(R.id.radioButton22).setTextColor(color)
+            currentView.findViewById<RadioButton>(R.id.radioButtonA).setTextColor(color)
+            currentView.findViewById<RadioButton>(R.id.radioButtonB).setTextColor(color)
+            currentView.findViewById<RadioButton>(R.id.radioButtonC).setTextColor(color)
+            currentView.findViewById<CheckBox>(R.id.checkBoxInvertCruise).setTextColor(color)
+            currentView.findViewById<CheckBox>(R.id.checkBoxScreenOn).setTextColor(color)
+            currentView.findViewById<CheckBox>(R.id.checkBoxAlwaysPortrait).setTextColor(color)
+            currentView.findViewById<CheckBox>(R.id.checkBoxCalcHP).setTextColor(color)
+            currentView.findViewById<CheckBox>(R.id.checkBoxUseAccel).setTextColor(color)
 
             //Set color boxes
-            currentView.findViewById<Button>(R.id.buttonSetBGNormalColor).setTextColor(ColorSettings.mColorList[ColorIndex.BG_NORMAL.ordinal].toColorInverse())
-            currentView.findViewById<Button>(R.id.buttonSetBGNormalColor).setBackgroundColor(ColorSettings.mColorList[ColorIndex.BG_NORMAL.ordinal])
-            currentView.findViewById<Button>(R.id.buttonSetBGWarningColor).setTextColor(ColorSettings.mColorList[ColorIndex.BG_WARN.ordinal].toColorInverse())
-            currentView.findViewById<Button>(R.id.buttonSetBGWarningColor).setBackgroundColor(ColorSettings.mColorList[ColorIndex.BG_WARN.ordinal])
-            currentView.findViewById<Button>(R.id.buttonSetTextColor).setTextColor(ColorSettings.mColorList[ColorIndex.TEXT.ordinal].toColorInverse())
-            currentView.findViewById<Button>(R.id.buttonSetTextColor).setBackgroundColor(ColorSettings.mColorList[ColorIndex.TEXT.ordinal])
-            currentView.findViewById<Button>(R.id.buttonSetBarNormalColor).setTextColor(ColorSettings.mColorList[ColorIndex.BAR_NORMAL.ordinal].toColorInverse())
-            currentView.findViewById<Button>(R.id.buttonSetBarNormalColor).setBackgroundColor(ColorSettings.mColorList[ColorIndex.BAR_NORMAL.ordinal])
-            currentView.findViewById<Button>(R.id.buttonSetBarWarnColor).setTextColor(ColorSettings.mColorList[ColorIndex.BAR_WARN.ordinal].toColorInverse())
-            currentView.findViewById<Button>(R.id.buttonSetBarWarnColor).setBackgroundColor(ColorSettings.mColorList[ColorIndex.BAR_WARN.ordinal])
-            currentView.findViewById<Button>(R.id.buttonSetErrorColor).setTextColor(ColorSettings.mColorList[ColorIndex.ST_ERROR.ordinal].toColorInverse())
-            currentView.findViewById<Button>(R.id.buttonSetErrorColor).setBackgroundColor(ColorSettings.mColorList[ColorIndex.ST_ERROR.ordinal])
-            currentView.findViewById<Button>(R.id.buttonSetNoneColor).setTextColor(ColorSettings.mColorList[ColorIndex.ST_NONE.ordinal].toColorInverse())
-            currentView.findViewById<Button>(R.id.buttonSetNoneColor).setBackgroundColor(ColorSettings.mColorList[ColorIndex.ST_NONE.ordinal])
-            currentView.findViewById<Button>(R.id.buttonSetConnectingColor).setTextColor(ColorSettings.mColorList[ColorIndex.ST_CONNECTING.ordinal].toColorInverse())
-            currentView.findViewById<Button>(R.id.buttonSetConnectingColor).setBackgroundColor(ColorSettings.mColorList[ColorIndex.ST_CONNECTING.ordinal])
-            currentView.findViewById<Button>(R.id.buttonSetConnectedColor).setTextColor(ColorSettings.mColorList[ColorIndex.ST_CONNECTED.ordinal].toColorInverse())
-            currentView.findViewById<Button>(R.id.buttonSetConnectedColor).setBackgroundColor(ColorSettings.mColorList[ColorIndex.ST_CONNECTED.ordinal])
-            currentView.findViewById<Button>(R.id.buttonSetLoggingColor).setTextColor(ColorSettings.mColorList[ColorIndex.ST_LOGGING.ordinal].toColorInverse())
-            currentView.findViewById<Button>(R.id.buttonSetLoggingColor).setBackgroundColor(ColorSettings.mColorList[ColorIndex.ST_LOGGING.ordinal])
-            currentView.findViewById<Button>(R.id.buttonSetWritingColor).setTextColor(ColorSettings.mColorList[ColorIndex.ST_WRITING.ordinal].toColorInverse())
-            currentView.findViewById<Button>(R.id.buttonSetWritingColor).setBackgroundColor(ColorSettings.mColorList[ColorIndex.ST_WRITING.ordinal])
+            currentView.findViewById<Button>(R.id.buttonSetBGNormalColor).setTextColor(ColorSettings.mColorList[ColorList.BG_NORMAL.ordinal].toColorInverse())
+            currentView.findViewById<Button>(R.id.buttonSetBGNormalColor).setBackgroundColor(ColorSettings.mColorList[ColorList.BG_NORMAL.ordinal])
+            currentView.findViewById<Button>(R.id.buttonSetBGWarningColor).setTextColor(ColorSettings.mColorList[ColorList.BG_WARN.ordinal].toColorInverse())
+            currentView.findViewById<Button>(R.id.buttonSetBGWarningColor).setBackgroundColor(ColorSettings.mColorList[ColorList.BG_WARN.ordinal])
+            currentView.findViewById<Button>(R.id.buttonSetTextColor).setTextColor(ColorSettings.mColorList[ColorList.TEXT.ordinal].toColorInverse())
+            currentView.findViewById<Button>(R.id.buttonSetTextColor).setBackgroundColor(ColorSettings.mColorList[ColorList.TEXT.ordinal])
+            currentView.findViewById<Button>(R.id.buttonSetBarNormalColor).setTextColor(ColorSettings.mColorList[ColorList.BAR_NORMAL.ordinal].toColorInverse())
+            currentView.findViewById<Button>(R.id.buttonSetBarNormalColor).setBackgroundColor(ColorSettings.mColorList[ColorList.BAR_NORMAL.ordinal])
+            currentView.findViewById<Button>(R.id.buttonSetBarWarnColor).setTextColor(ColorSettings.mColorList[ColorList.BAR_WARN.ordinal].toColorInverse())
+            currentView.findViewById<Button>(R.id.buttonSetBarWarnColor).setBackgroundColor(ColorSettings.mColorList[ColorList.BAR_WARN.ordinal])
+            currentView.findViewById<Button>(R.id.buttonSetErrorColor).setTextColor(ColorSettings.mColorList[ColorList.ST_ERROR.ordinal].toColorInverse())
+            currentView.findViewById<Button>(R.id.buttonSetErrorColor).setBackgroundColor(ColorSettings.mColorList[ColorList.ST_ERROR.ordinal])
+            currentView.findViewById<Button>(R.id.buttonSetNoneColor).setTextColor(ColorSettings.mColorList[ColorList.ST_NONE.ordinal].toColorInverse())
+            currentView.findViewById<Button>(R.id.buttonSetNoneColor).setBackgroundColor(ColorSettings.mColorList[ColorList.ST_NONE.ordinal])
+            currentView.findViewById<Button>(R.id.buttonSetConnectingColor).setTextColor(ColorSettings.mColorList[ColorList.ST_CONNECTING.ordinal].toColorInverse())
+            currentView.findViewById<Button>(R.id.buttonSetConnectingColor).setBackgroundColor(ColorSettings.mColorList[ColorList.ST_CONNECTING.ordinal])
+            currentView.findViewById<Button>(R.id.buttonSetConnectedColor).setTextColor(ColorSettings.mColorList[ColorList.ST_CONNECTED.ordinal].toColorInverse())
+            currentView.findViewById<Button>(R.id.buttonSetConnectedColor).setBackgroundColor(ColorSettings.mColorList[ColorList.ST_CONNECTED.ordinal])
+            currentView.findViewById<Button>(R.id.buttonSetLoggingColor).setTextColor(ColorSettings.mColorList[ColorList.ST_LOGGING.ordinal].toColorInverse())
+            currentView.findViewById<Button>(R.id.buttonSetLoggingColor).setBackgroundColor(ColorSettings.mColorList[ColorList.ST_LOGGING.ordinal])
+            currentView.findViewById<Button>(R.id.buttonSetWritingColor).setTextColor(ColorSettings.mColorList[ColorList.ST_WRITING.ordinal].toColorInverse())
+            currentView.findViewById<Button>(R.id.buttonSetWritingColor).setBackgroundColor(ColorSettings.mColorList[ColorList.ST_WRITING.ordinal])
 
             //Set background color
-            currentView.setBackgroundColor(Settings.colorList[ColorIndex.BG_NORMAL.ordinal])
+            currentView.setBackgroundColor(ColorList.BG_NORMAL.value)
         }
     }
 
@@ -334,15 +335,15 @@ class SettingsFragment : Fragment() {
 
             //Get logging mode
             when(UDSLogger.getMode()) {
-                UDS_LOGGING_22 -> currentView.findViewById<RadioButton>(R.id.radioButton22).isChecked = true
+                UDSLoggingMode.MODE_22 -> currentView.findViewById<RadioButton>(R.id.radioButton22).isChecked = true
                 else -> currentView.findViewById<RadioButton>(R.id.radioButton3E).isChecked = true
             }
 
             //Get list index
             when(PIDs.getIndex()) {
-                PID_LIST_A -> currentView.findViewById<RadioButton>(R.id.radioButtonA).isChecked = true
-                PID_LIST_B -> currentView.findViewById<RadioButton>(R.id.radioButtonB).isChecked = true
-                else -> currentView.findViewById<RadioButton>(R.id.radioButtonC).isChecked = true
+                PIDIndex.A -> currentView.findViewById<RadioButton>(R.id.radioButtonA).isChecked = true
+                PIDIndex.B -> currentView.findViewById<RadioButton>(R.id.radioButtonB).isChecked = true
+                PIDIndex.C -> currentView.findViewById<RadioButton>(R.id.radioButtonC).isChecked = true
             }
 
             //Get output directory
@@ -423,17 +424,9 @@ class SettingsFragment : Fragment() {
             ConfigFile.set("AlwaysPortrait", currentView.findViewById<CheckBox>(R.id.checkBoxAlwaysPortrait).isChecked.toString())
 
             //Set Colors
-            ConfigFile.set("ColorBGNormal", ColorSettings.mColorList[ColorIndex.BG_NORMAL.ordinal].toColorHex())
-            ConfigFile.set("ColorBGWarn", ColorSettings.mColorList[ColorIndex.BG_WARN.ordinal].toColorHex())
-            ConfigFile.set("ColorText", ColorSettings.mColorList[ColorIndex.TEXT.ordinal].toColorHex())
-            ConfigFile.set("ColorBarNormal", ColorSettings.mColorList[ColorIndex.BAR_NORMAL.ordinal].toColorHex())
-            ConfigFile.set("ColorBarWarn", ColorSettings.mColorList[ColorIndex.BAR_WARN.ordinal].toColorHex())
-            ConfigFile.set("ColorStateError", ColorSettings.mColorList[ColorIndex.ST_ERROR.ordinal].toColorHex())
-            ConfigFile.set("ColorStateNone", ColorSettings.mColorList[ColorIndex.ST_NONE.ordinal].toColorHex())
-            ConfigFile.set("ColorStateConnecting", ColorSettings.mColorList[ColorIndex.ST_CONNECTING.ordinal].toColorHex())
-            ConfigFile.set("ColorStateConnected", ColorSettings.mColorList[ColorIndex.ST_CONNECTED.ordinal].toColorHex())
-            ConfigFile.set("ColorStateLogging", ColorSettings.mColorList[ColorIndex.ST_LOGGING.ordinal].toColorHex())
-            ConfigFile.set("ColorStateWriting", ColorSettings.mColorList[ColorIndex.ST_WRITING.ordinal].toColorHex())
+            ColorList.values().forEachIndexed { i, color ->
+                ConfigFile.set("Color.${color.name}", ColorSettings.mColorList[i].toColorHex())
+            }
 
             //Stop all tasks
             val serviceIntent = Intent(context, BTService::class.java)

@@ -19,7 +19,7 @@ object UDSdtc {
             bleHeader.rxID = 0x7E8
             bleHeader.txID = 0x700
             bleHeader.cmdSize = 1
-            bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_CLEAR
+            bleHeader.cmdFlags = BLECommandFlags.PER_CLEAR.value
 
             return bleHeader.toByteArray() + byteArrayOf(0x04.toByte())
         }
@@ -27,7 +27,7 @@ object UDSdtc {
         return byteArrayOf()
     }
 
-    fun processClearDTC(ticks: Int, buff: ByteArray?): Int {
+    fun processClearDTC(ticks: Int, buff: ByteArray?): UDSReturn {
         buff?.let {
             if(ticks < getCount()) {
                 if (buff.count() == 9 && buff[8] == 0x44.toByte()) {
@@ -36,12 +36,12 @@ object UDSdtc {
                     mLastString = "DTC: failed."
                 }
 
-                return UDS_OK
+                return UDSReturn.OK
             }
 
-            return UDS_ERROR_UNKNOWN
+            return UDSReturn.ERROR_UNKNOWN
         }
 
-        return UDS_ERROR_NULL
+        return UDSReturn.ERROR_NULL
     }
 }

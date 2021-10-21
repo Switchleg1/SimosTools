@@ -733,7 +733,7 @@ class BTService: Service() {
             //Are we still sending initial frames?
             if (mTaskTick < UDSLogger.frameCount()) {
                 //If we failed init abort
-                if (result != UDS_OK) {
+                if (result != UDSReturn.OK) {
                     DebugLog.w(TAG, "Unable to initialize logging, UDS Error: $result")
                     setTaskState(UDSTask.NONE)
                 } else { //else continue init
@@ -773,7 +773,7 @@ class BTService: Service() {
         }
 
         private fun processPacketGetInfo(buff: ByteArray) {
-            if(UDSInfo.processECUInfo(mTaskTick, buff) == UDS_OK) {
+            if(UDSInfo.processECUInfo(mTaskTick, buff) == UDSReturn.OK) {
                 val intentMessage = Intent(GUIMessage.ECU_INFO.toString())
                 intentMessage.putExtra(GUIMessage.ECU_INFO.toString(), UDSInfo.getInfo())
                 sendBroadcast(intentMessage)
@@ -786,7 +786,7 @@ class BTService: Service() {
         }
 
         private fun processPacketClearDTC(buff: ByteArray) {
-            if(UDSdtc.processClearDTC(mTaskTick, buff) == UDS_OK) {
+            if(UDSdtc.processClearDTC(mTaskTick, buff) == UDSReturn.OK) {
                 val intentMessage = Intent(GUIMessage.CLEAR_DTC.toString())
                 intentMessage.putExtra(GUIMessage.CLEAR_DTC.toString(), UDSdtc.getInfo())
                 sendBroadcast(intentMessage)
@@ -802,7 +802,7 @@ class BTService: Service() {
             //Disable persist mode
             val bleHeader = BLEHeader()
             bleHeader.cmdSize = 0
-            bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_CLEAR
+            bleHeader.cmdFlags = BLECommandFlags.PER_CLEAR.value
             mWriteQueue.add(bleHeader.toByteArray())
         }
 
@@ -810,7 +810,7 @@ class BTService: Service() {
             //Set persist delay
             val bleHeader = BLEHeader()
             bleHeader.cmdSize = 2
-            bleHeader.cmdFlags = BLE_COMMAND_FLAG_SETTINGS or BRG_SETTING_PERSIST_DELAY
+            bleHeader.cmdFlags = BLECommandFlags.SETTINGS.value or BLESettings.PERSIST_DELAY.value
             val dataBytes = byteArrayOf((delay and 0xFF).toByte(), ((delay and 0xFF00) shr 8).toByte())
             val buff = bleHeader.toByteArray() + dataBytes
             mWriteQueue.add(buff)
@@ -820,7 +820,7 @@ class BTService: Service() {
             //Set persist Q delay
             val bleHeader = BLEHeader()
             bleHeader.cmdSize = 2
-            bleHeader.cmdFlags = BLE_COMMAND_FLAG_SETTINGS or BRG_SETTING_PERSIST_Q_DELAY
+            bleHeader.cmdFlags = BLECommandFlags.SETTINGS.value or BLESettings.PERSIST_Q_DELAY.value
             val dataBytes = byteArrayOf((delay and 0xFF).toByte(), ((delay and 0xFF00) shr 8).toByte())
             val buff = bleHeader.toByteArray() + dataBytes
             mWriteQueue.add(buff)
@@ -830,7 +830,7 @@ class BTService: Service() {
             //Set LED color
             val bleHeader = BLEHeader()
             bleHeader.cmdSize = 4
-            bleHeader.cmdFlags = BLE_COMMAND_FLAG_SETTINGS or BRG_SETTING_LED_COLOR
+            bleHeader.cmdFlags = BLECommandFlags.SETTINGS.value or BLESettings.LED_COLOR.value
             val dataBytes = byteArrayOf((b and 0xFF).toByte(), (r and 0xFF).toByte(), (g and 0xFF).toByte(), 0x00.toByte())
             val buff = bleHeader.toByteArray() + dataBytes
             mWriteQueue.add(buff)

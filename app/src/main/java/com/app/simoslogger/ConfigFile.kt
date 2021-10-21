@@ -78,20 +78,19 @@ object ConfigFile {
     private fun processKey(key: String, value: String) {
         DebugLog.d(TAG, "Found $key=$value")
 
-        try {
-            when (key) {
-                "Mode" -> {
-                    when (value) {
-                        "3E" -> UDSLogger.setMode(UDS_LOGGING_3E)
-                        "22" -> UDSLogger.setMode(UDS_LOGGING_22)
 
+        try {
+            when(key.substringBefore(".")) {
+                "Mode" -> {
+                    val mode = UDSLoggingMode.values().find {it.value == value}
+                    mode?.let {
+                        UDSLogger.setMode(it)
                     }
                 }
                 "List" -> {
-                    when (value) {
-                        "A" -> PIDs.setIndex(PID_LIST_A)
-                        "B" -> PIDs.setIndex(PID_LIST_B)
-                        "C" -> PIDs.setIndex(PID_LIST_C)
+                    val mode = PIDIndex.values().find {it.name == value}
+                    mode?.let {
+                        PIDs.setIndex(it)
                     }
                 }
                 "UpdateRate" -> {
@@ -132,37 +131,10 @@ object ConfigFile {
                     val f = value.toFloat()
                     Settings.tireDiameter = f
                 }
-                "GearRatio.1" -> {
+                "GearRatio" -> {
                     val f = value.toFloat()
-                    Settings.gearRatios[0] = f
-                }
-                "GearRatio.2" -> {
-                    val f = value.toFloat()
-                    Settings.gearRatios[1] = f
-                }
-                "GearRatio.3" -> {
-                    val f = value.toFloat()
-                    Settings.gearRatios[2] = f
-                }
-                "GearRatio.4" -> {
-                    val f = value.toFloat()
-                    Settings.gearRatios[3] = f
-                }
-                "GearRatio.5" -> {
-                    val f = value.toFloat()
-                    Settings.gearRatios[4] = f
-                }
-                "GearRatio.6" -> {
-                    val f = value.toFloat()
-                    Settings.gearRatios[5] = f
-                }
-                "GearRatio.7" -> {
-                    val f = value.toFloat()
-                    Settings.gearRatios[6] = f
-                }
-                "GearRatio.Final" -> {
-                    val f = value.toFloat()
-                    Settings.gearRatios[7] = f
+                    val gear = key.substringAfter(".")
+                    (GearRatios.values().find {it.gear == gear})?.ratio = f
                 }
                 "CurbWeight" -> {
                     val f = value.toFloat()
@@ -174,49 +146,10 @@ object ConfigFile {
                     if(f > 0f && f < 5f)
                        Settings.dragCoefficient = f.toDouble() * DEFAULT_DRAG_COEFFICIENT
                 }
-                "ColorBGNormal" -> {
+                "Color" -> {
+                    val name = key.substringAfter(".")
                     val l = parseLong(value, 16)
-                    Settings.colorList[ColorIndex.BG_NORMAL.ordinal] = l.toColorInt()
-                }
-                "ColorBGWarn" -> {
-                    val l = parseLong(value, 16)
-                    Settings.colorList[ColorIndex.BG_WARN.ordinal] = l.toColorInt()
-                }
-                "ColorText" -> {
-                    val l = parseLong(value, 16)
-                    Settings.colorList[ColorIndex.TEXT.ordinal] = l.toColorInt()
-                }
-                "ColorBarNormal" -> {
-                    val l = parseLong(value, 16)
-                    Settings.colorList[ColorIndex.BAR_NORMAL.ordinal] = l.toColorInt()
-                }
-                "ColorBarWarn" -> {
-                    val l = parseLong(value, 16)
-                    Settings.colorList[ColorIndex.BAR_WARN.ordinal] = l.toColorInt()
-                }
-                "ColorStateError" -> {
-                    val l = parseLong(value, 16)
-                    Settings.colorList[ColorIndex.ST_ERROR.ordinal] = l.toColorInt()
-                }
-                "ColorStateNone" -> {
-                    val l = parseLong(value, 16)
-                    Settings.colorList[ColorIndex.ST_NONE.ordinal] = l.toColorInt()
-                }
-                "ColorStateConnecting" -> {
-                    val l = parseLong(value, 16)
-                    Settings.colorList[ColorIndex.ST_CONNECTING.ordinal] = l.toColorInt()
-                }
-                "ColorStateConnected" -> {
-                    val l = parseLong(value, 16)
-                    Settings.colorList[ColorIndex.ST_CONNECTED.ordinal] = l.toColorInt()
-                }
-                "ColorStateLogging" -> {
-                    val l = parseLong(value, 16)
-                    Settings.colorList[ColorIndex.ST_LOGGING.ordinal] = l.toColorInt()
-                }
-                "ColorStateWriting" -> {
-                    val l = parseLong(value, 16)
-                    Settings.colorList[ColorIndex.ST_WRITING.ordinal] = l.toColorInt()
+                    ColorList.valueOf(name).value = l.toColorInt()
                 }
                 "AlwaysPortrait" -> {
                     val b = value.toBoolean()
@@ -254,28 +187,12 @@ object ConfigFile {
         mProperties["TireDiameter"] = DEFAULT_TIRE_DIAMETER.toString()
         mProperties["CurbWeight"] = DEFAULT_CURB_WEIGHT.toString()
         mProperties["DragCoefficient"] = "1.0"
-        mProperties["GearRatio.1"] = DEFAULT_GEAR_RATIOS[0].toString()
-        mProperties["GearRatio.2"] = DEFAULT_GEAR_RATIOS[1].toString()
-        mProperties["GearRatio.3"] = DEFAULT_GEAR_RATIOS[2].toString()
-        mProperties["GearRatio.4"] = DEFAULT_GEAR_RATIOS[3].toString()
-        mProperties["GearRatio.5"] = DEFAULT_GEAR_RATIOS[4].toString()
-        mProperties["GearRatio.6"] = DEFAULT_GEAR_RATIOS[5].toString()
-        mProperties["GearRatio.7"] = DEFAULT_GEAR_RATIOS[6].toString()
-        mProperties["GearRatio.Final"] = DEFAULT_GEAR_RATIOS[7].toString()
-        mProperties["ColorBGNormal"] = DEFAULT_COLOR_LIST[ColorIndex.BG_NORMAL.ordinal].toColorHex()
-        mProperties["ColorBGWarn"] = DEFAULT_COLOR_LIST[ColorIndex.BG_WARN.ordinal].toColorHex()
-        mProperties["ColorText"] = DEFAULT_COLOR_LIST[ColorIndex.TEXT.ordinal].toColorHex()
-        mProperties["ColorBarNormal"] = DEFAULT_COLOR_LIST[ColorIndex.BAR_NORMAL.ordinal].toColorHex()
-        mProperties["ColorBarWarn"] = DEFAULT_COLOR_LIST[ColorIndex.BAR_WARN.ordinal].toColorHex()
-        mProperties["ColorStateError"] = DEFAULT_COLOR_LIST[ColorIndex.ST_ERROR.ordinal].toColorHex()
-        mProperties["ColorStateNone"] = DEFAULT_COLOR_LIST[ColorIndex.ST_NONE.ordinal].toColorHex()
-        mProperties["ColorStateConnecting"] = DEFAULT_COLOR_LIST[ColorIndex.ST_CONNECTING.ordinal].toColorHex()
-        mProperties["ColorStateConnected"] = DEFAULT_COLOR_LIST[ColorIndex.ST_CONNECTED.ordinal].toColorHex()
-        mProperties["ColorStateLogging"] = DEFAULT_COLOR_LIST[ColorIndex.ST_LOGGING.ordinal].toColorHex()
-        mProperties["ColorStateWriting"] = DEFAULT_COLOR_LIST[ColorIndex.ST_WRITING.ordinal].toColorHex()
-        mProperties["AlwaysPortrait"] = DEFAULT_ALWAYS_PORTRAIT.toString()
-        mProperties["DisplaySize"] = DEFAULT_DISPLAY_SIZE.toString()
-        mProperties["LogFile"] = DEFAULT_LOG_FLAGS.toString()
+        GearRatios.values().forEach {
+            mProperties["GearRatio.${it.gear}"] = it.ratio.toString()
+        }
+        ColorList.values().forEach {
+            mProperties["Color.${it.name}"] = it.value.toColorHex()
+        }
 
         write(filename, context)
     }
