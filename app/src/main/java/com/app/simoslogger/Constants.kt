@@ -31,6 +31,7 @@ enum class GUIMessage {
     CLEAR_DTC,
     READ_LOG,
     WRITE_LOG,
+    FLASH_INFO,
 }
 
 // Constants that indicate the current connection state
@@ -140,6 +141,46 @@ enum class GearRatios(val gear: String, var ratio: Float) {
     GEAR6("6",0.46f),
     GEAR7("7",0.0f),
     FINAL("Final",4.77f)
+}
+
+enum class ECUInfo(val str: String, val address: ByteArray) {
+    VIN("VIN", byteArrayOf(0xf1.toByte(), 0x90.toByte())),
+    ODX_IDENTIFIER("ASAM/ODX File Identifier", byteArrayOf(0xF1.toByte(), 0x9E.toByte())),
+    ODX_VERSION("ASAM/ODX File Version", byteArrayOf(0xF1.toByte(), 0xA2.toByte())),
+    VEHICLE_SPEED("Vehicle Speed", byteArrayOf(0xF4.toByte(), 0x0D.toByte())),
+    CAL_NUMBER("Calibration Version Numbers", byteArrayOf(0xF8.toByte(), 0x06.toByte())),
+    PART_NUMBER("VW Spare part Number", byteArrayOf(0xF1.toByte(), 0x87.toByte())),
+    ASW_VERSION("VW ASW Version", byteArrayOf(0xF1.toByte(), 0x89.toByte())),
+    HW_NUMBER("ECU Hardware Number", byteArrayOf(0xF1.toByte(), 0x91.toByte())),
+    HW_VERSION("ECU Hardware Version Number", byteArrayOf(0xF1.toByte(), 0xA3.toByte())),
+    ENGINE_CODE("Engine Code", byteArrayOf(0xF1.toByte(), 0xAD.toByte())),
+    WORKSHOP_NAME("VW Workshop Name", byteArrayOf(0xF1.toByte(), 0xAA.toByte())),
+    FLASH_STATE("State of Flash Mem", byteArrayOf(0x04.toByte(), 0x05.toByte())),
+    CODE_VALUE("VW Coding Value", byteArrayOf(0x06.toByte(), 0x00.toByte()))
+}
+
+enum class FLASH_ECU_CAL_SUBTASK {
+    NONE,
+    GET_ECU_BOX_CODE,
+    READ_FILE_FROM_STORAGE,
+    CHECK_FILE_COMPAT,
+    CHECKSUM_BIN,
+    COMPRESS_BIN,
+    ENCRYPT_BIN,
+    CLEAR_DTC,
+    OPEN_EXTENDED_DIAGNOSTIC,
+    CHECK_PROGRAMMING_PRECONDITION, //routine 0x0203
+    SA2SEEDKEY,
+    WRITE_WORKSHOP_LOG,
+    FLASH_BLOCK,
+    CHECKSUM_BLOCK, //0x0202
+    VERIFY_PROGRAMMING_DEPENDENCIES,
+    RESET_ECU;
+
+    fun next(): FLASH_ECU_CAL_SUBTASK {
+        val vals = FLASH_ECU_CAL_SUBTASK.values()
+        return vals[(this.ordinal+1) % vals.size];
+    }
 }
 
 val TASK_END_DELAY              = 500

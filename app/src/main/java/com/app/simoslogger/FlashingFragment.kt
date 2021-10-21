@@ -1,10 +1,12 @@
 package com.app.simoslogger
 
+import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,9 +14,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat.startForegroundService
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import java.net.URI
 
 class FlashingViewModel : ViewModel() {
     var conversationArrayAdapter: ArrayAdapter<String>? = null
@@ -23,6 +27,24 @@ class FlashingViewModel : ViewModel() {
 class FlashingFragment : Fragment() {
     private val TAG = "FlashingFragment"
     private lateinit var mViewModel: FlashingViewModel
+
+    var resultPickLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val uri: Uri? = result.data?.data
+            uri?.let {
+                UDSFlasher.setUri(uri)
+
+                // Tell the service to start flashing
+                val serviceIntent = Intent(context, BTService::class.java)
+                serviceIntent.action = BTServiceTask.DO_START_FLASH.toString()
+                startForegroundService(this.requireContext(), serviceIntent)
+
+                Toast.makeText(activity, "Success", Toast.LENGTH_SHORT).show()
+            }?: Toast.makeText(activity, "Failed", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(activity, "Failed", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,9 +65,11 @@ class FlashingFragment : Fragment() {
         view.findViewById<ListView>(R.id.bt_message).adapter = mViewModel.conversationArrayAdapter
         view.findViewById<ListView>(R.id.bt_message).setBackgroundColor(Color.WHITE)
 
-
-        view.findViewById<Button>(R.id.buttonBack2).setOnClickListener {
-            findNavController().navigateUp()
+        view.findViewById<Button>(R.id.buttonFlashCAL).setOnClickListener {
+            var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
+            chooseFile.type = "*/*"
+            chooseFile = Intent.createChooser(chooseFile, "Choose a CAL file")
+            resultPickLauncher.launch(chooseFile)
         }
 
         view.findViewById<Button>(R.id.buttonECUInfo).setOnClickListener {
@@ -62,6 +86,10 @@ class FlashingFragment : Fragment() {
             startForegroundService(this.requireContext(), serviceIntent)
         }
 
+        view.findViewById<Button>(R.id.buttonBack2).setOnClickListener {
+            findNavController().navigateUp()
+        }
+
         //Set background color
         view.setBackgroundColor(ColorList.BG_NORMAL.value)
     }
@@ -72,6 +100,7 @@ class FlashingFragment : Fragment() {
         val filter = IntentFilter()
         filter.addAction(GUIMessage.ECU_INFO.toString())
         filter.addAction(GUIMessage.CLEAR_DTC.toString())
+        filter.addAction(GUIMessage.FLASH_INFO.toString())
         this.activity?.registerReceiver(mBroadcastReceiver, filter)
     }
 
@@ -84,8 +113,9 @@ class FlashingFragment : Fragment() {
     private val mBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             when (intent.action) {
-                GUIMessage.ECU_INFO.toString()  -> doWriteMessage(intent.getStringExtra(GUIMessage.ECU_INFO.toString())?: "")
-                GUIMessage.CLEAR_DTC.toString() -> doWriteMessage(intent.getStringExtra(GUIMessage.CLEAR_DTC.toString())?: "")
+                GUIMessage.ECU_INFO.toString()   -> doWriteMessage(intent.getStringExtra(GUIMessage.ECU_INFO.toString())?: "")
+                GUIMessage.CLEAR_DTC.toString()  -> doWriteMessage(intent.getStringExtra(GUIMessage.CLEAR_DTC.toString())?: "")
+                GUIMessage.FLASH_INFO.toString() -> doWriteMessage(intent.getStringExtra(GUIMessage.FLASH_INFO.toString())?: "")
             }
         }
     }

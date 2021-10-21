@@ -8,19 +8,25 @@
 
     <Button
         android:id="@+id/buttonBack"
-        android:layout_width="125dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="8dp"
+        android:layout_weight="1"
         android:text="@string/button_back"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/buttonSave" />
 
     <Button
         android:id="@+id/buttonSave"
-        android:layout_width="125dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
+        android:layout_marginEnd="2dp"
+        android:layout_weight="1"
         android:text="@string/button_save"
+        app:layout_constraintEnd_toStartOf="@+id/buttonBack"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/buttonBack" />
 
