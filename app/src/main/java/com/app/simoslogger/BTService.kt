@@ -13,6 +13,7 @@ import android.os.IBinder
 import android.os.Looper
 import android.os.ParcelUuid
 import android.widget.Toast
+import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Semaphore
 
@@ -67,6 +68,7 @@ class BTService: Service() {
     private var mBluetoothDevice: BluetoothDevice? = null
     private var mConnectionThread: ConnectionThread? = null
     private var mLogWriteState: Boolean = false
+    private var mScanningTimer: Timer? = null
 
     //Gatt additional properties
     private fun BluetoothGattCharacteristic.isReadable(): Boolean = containsProperty(BluetoothGattCharacteristic.PROPERTY_READ)
@@ -410,6 +412,11 @@ class BTService: Service() {
     @Synchronized
     private fun stopScanning() {
         if(mScanning) {
+            //Disable scan timer
+            mScanningTimer?.cancel()
+            mScanningTimer?.purge()
+            mScanningTimer = null
+
             DebugLog.i(TAG, "Stop Scanning")
             (getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter.bluetoothLeScanner.stopScan(mScanCallback)
             mScanning = false
@@ -456,10 +463,19 @@ class BTService: Service() {
         )
         val settings = ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build()
 
-        //set delay to stop scanning
-        Handler(Looper.getMainLooper()).postDelayed({
-            doTimeout()
-        }, BLE_SCAN_PERIOD)
+        //Disable current scan timer
+        mScanningTimer?.cancel()
+        mScanningTimer?.purge()
+        mScanningTimer = null
+
+        //start scanning timer
+        mScanningTimer = Timer()
+        val task = object : TimerTask() {
+            override fun run() {
+                doTimeout()
+            }
+        }
+        mScanningTimer?.schedule(task, BLE_SCAN_PERIOD)
 
         //Set new connection status
         setConnectionState(BLEConnectionState.CONNECTING)

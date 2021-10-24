@@ -38,14 +38,14 @@ class LoggingFragment : Fragment() {
     private var TAG = "LoggingFragment"
     private var mPackCount: TextView? = null
     private var mLayouts: Array<View?>? = null
-    private var mProgressBars: Array<SwitchGauge?>? = null
+    private var mGauges: Array<SwitchGauge?>? = null
     private var mTextViews: Array<TextView?>? = null
     private lateinit var mViewModel: LoggingViewModel
 
     fun setColor() {
         try {
             //Build layout
-            mProgressBars?.let { prog ->
+            mGauges?.let { prog ->
                 mTextViews?.let { text ->
                     mViewModel.dataList?.let { data ->
                         for (i in 0 until prog.count()) {
@@ -136,7 +136,7 @@ class LoggingFragment : Fragment() {
                     layoutCount++
 
                 mLayouts = arrayOfNulls(layoutCount)
-                mProgressBars = arrayOfNulls(list.count())
+                mGauges = arrayOfNulls(list.count())
                 mTextViews = arrayOfNulls(list.count())
                 for (i in 0 until list.count()) {
                     //build child layout
@@ -162,11 +162,11 @@ class LoggingFragment : Fragment() {
                     }
 
                     //Store progress and text views
-                    mProgressBars!![i] = mLayouts!![i / mViewModel.pidsPerLayout]?.findViewById(progID)
+                    mGauges!![i] = mLayouts!![i / mViewModel.pidsPerLayout]?.findViewById(progID)
                     mTextViews!![i] = mLayouts!![i / mViewModel.pidsPerLayout]?.findViewById(txtID)
 
                     //make visible
-                    mProgressBars!![i]?.isVisible = true
+                    mGauges!![i]?.isVisible = true
                     mTextViews!![i]?.isVisible = true
 
                     //build new data structure if first time around
@@ -205,7 +205,7 @@ class LoggingFragment : Fragment() {
                         )
 
                         //Setup the progress bar
-                        val progressBar = mProgressBars!![i]!!
+                        val progressBar = mGauges!![i]!!
                         progressBar.setProgressColor(ColorList.GAUGE_NORMAL.value)
                         val prog = when (data.inverted) {
                             true -> (0 - (did.value - did.progMin)) * data.multiplier
@@ -330,7 +330,7 @@ class LoggingFragment : Fragment() {
                             //get the current did
                             val did = PIDs.getList()!![i]!!
                             val data = mViewModel.dataList!![i]!!
-                            val progressBar = mProgressBars!![i]!!
+                            val progressBar = mGauges!![i]!!
 
                             //set min/max
                             if (did.value > data.max)
