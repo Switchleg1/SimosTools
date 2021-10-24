@@ -5,8 +5,6 @@ import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Intent
-import android.view.Menu
-import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import android.content.IntentFilter
 import android.content.BroadcastReceiver
@@ -18,21 +16,26 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
-import androidx.navigation.Navigation.findNavController
-import androidx.navigation.ui.onNavDestinationSelected
 import android.graphics.drawable.ColorDrawable
 import androidx.lifecycle.ViewModelProvider
-import java.lang.Exception
+import java.util.*
 
 class MainViewModel : ViewModel() {
     var started: Boolean = false
     var connectionState: BLEConnectionState = BLEConnectionState.NONE
     var currentTask: UDSTask = UDSTask.NONE
+    var guiTimer: Timer? = null
 }
 
 class MainActivity : AppCompatActivity() {
     private val TAG = "MainActivity"
     private lateinit var mViewModel: MainViewModel
+
+    var resultBTLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            doConnect()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,43 +43,21 @@ class MainActivity : AppCompatActivity() {
 
         if (!mViewModel.started) {
             //Start debuglog
-            DebugLog.create(DEBUG_FILENAME, applicationContext)
+            DebugLog.create(getString(R.string.filename_debug_log), applicationContext)
 
             //Read config file
-            ConfigFile.read(CFG_FILENAME, applicationContext)
+            ConfigFile.read(getString(R.string.filename_config), applicationContext)
 
             //Write pid default files
-            PIDCSVFile.write(getString(R.string.filename_3E_csv, "a"), applicationContext, PIDs.getList(UDSLoggingMode.MODE_3E, PIDIndex.A), false)
-            PIDCSVFile.write(getString(R.string.filename_3E_csv, "b"), applicationContext, PIDs.getList(UDSLoggingMode.MODE_3E, PIDIndex.B), false)
-            PIDCSVFile.write(getString(R.string.filename_3E_csv, "c"), applicationContext, PIDs.getList(UDSLoggingMode.MODE_3E, PIDIndex.C), false)
-            PIDCSVFile.write(getString(R.string.filename_22_csv, "a"), applicationContext, PIDs.getList(UDSLoggingMode.MODE_22, PIDIndex.A), false)
-            PIDCSVFile.write(getString(R.string.filename_22_csv, "b"), applicationContext, PIDs.getList(UDSLoggingMode.MODE_22, PIDIndex.B), false)
-            PIDCSVFile.write(getString(R.string.filename_22_csv, "c"), applicationContext, PIDs.getList(UDSLoggingMode.MODE_22, PIDIndex.C), false)
+            UDSLoggingMode.values().forEach { mode ->
+                //write default
+                PIDCSVFile.write(getString(R.string.filename_pid_csv, mode.cfgName), applicationContext, PIDs.getList(mode), false)
 
-            //Read pid files
-            var pid3EList = PIDCSVFile.read(getString(R.string.filename_3E_csv, "a"), applicationContext, CSV_3E_ADD_MIN, CSV_3E_ADD_MAX)
-            if (pid3EList != null)
-                PIDs.setList(UDSLoggingMode.MODE_3E, PIDIndex.A, pid3EList)
-
-            pid3EList = PIDCSVFile.read(getString(R.string.filename_3E_csv, "b"), applicationContext, CSV_3E_ADD_MIN, CSV_3E_ADD_MAX)
-            if (pid3EList != null)
-                PIDs.setList(UDSLoggingMode.MODE_3E, PIDIndex.B, pid3EList)
-
-            pid3EList = PIDCSVFile.read(getString(R.string.filename_3E_csv, "c"), applicationContext, CSV_3E_ADD_MIN, CSV_3E_ADD_MAX)
-            if (pid3EList != null)
-                PIDs.setList(UDSLoggingMode.MODE_3E, PIDIndex.C, pid3EList)
-
-            var pid22List = PIDCSVFile.read(getString(R.string.filename_22_csv, "a"), applicationContext, CSV_22_ADD_MIN, CSV_22_ADD_MAX)
-            if (pid22List != null)
-                PIDs.setList(UDSLoggingMode.MODE_22, PIDIndex.A, pid22List)
-
-            pid22List = PIDCSVFile.read(getString(R.string.filename_22_csv, "b"), applicationContext, CSV_22_ADD_MIN, CSV_22_ADD_MAX)
-            if (pid22List != null)
-                PIDs.setList(UDSLoggingMode.MODE_22, PIDIndex.B, pid22List)
-
-            pid22List = PIDCSVFile.read(getString(R.string.filename_22_csv, "c"), applicationContext, CSV_22_ADD_MIN, CSV_22_ADD_MAX)
-            if (pid22List != null)
-                PIDs.setList(UDSLoggingMode.MODE_22, PIDIndex.C, pid22List)
+                //Read pid files
+                val pidList = PIDCSVFile.read(getString(R.string.filename_pid_csv, mode.cfgName), applicationContext, mode.addressMin, mode.addressMax)
+                if (pidList != null)
+                    PIDs.setList(mode, pidList)
+            }
 
             //Start our BT Service
             val serviceIntent = Intent(this, BTService::class.java)
@@ -85,6 +66,19 @@ class MainActivity : AppCompatActivity() {
 
             //get permissions
             getPermissions()
+
+            //start GUI timer
+            if(mViewModel.guiTimer == null) {
+                // creating timer task, timer
+                mViewModel.guiTimer = Timer()
+
+                val task = object : TimerTask() {
+                    override fun run() {
+                        timerCallback()
+                    }
+                }
+                mViewModel.guiTimer?.scheduleAtFixedRate(task, 5000, 5000)
+            }
 
             //Save started
             mViewModel.started = true
@@ -111,61 +105,6 @@ class MainActivity : AppCompatActivity() {
         super.onPause()
 
         unregisterReceiver(mBroadcastReceiver)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.menu_main, menu)
-        return true
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        val item = menu.findItem(R.id.action_connect)
-
-        if (mViewModel.connectionState > BLEConnectionState.NONE) {
-            item.title = getString(R.string.action_disconnect)
-        } else {
-            item.title = getString(R.string.action_connect)
-        }
-        return super.onPrepareOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        return when (item.itemId) {
-            R.id.action_connect -> {
-                when(mViewModel.connectionState) {
-                    BLEConnectionState.NONE -> doConnect()
-                    BLEConnectionState.ERROR -> doConnect()
-                    BLEConnectionState.CONNECTING -> doDisconnect()
-                    BLEConnectionState.CONNECTED -> doDisconnect()
-                }
-                return true
-            }
-            R.id.SettingsFragment -> {
-                val navController = findNavController(this, R.id.nav_host_fragment)
-                return item.onNavDestinationSelected(navController)
-            }
-            R.id.LoggingFragment -> {
-                val navController = findNavController(this, R.id.nav_host_fragment)
-                return item.onNavDestinationSelected(navController)
-            }
-            R.id.FlashingFragment -> {
-                val navController = findNavController(this, R.id.nav_host_fragment)
-                return item.onNavDestinationSelected(navController)
-            }
-            R.id.action_exit -> {
-                val serviceIntent = Intent(this, BTService::class.java)
-                serviceIntent.action = BTServiceTask.STOP_SERVICE.toString()
-                ContextCompat.startForegroundService(this, serviceIntent)
-                finish()
-
-                return true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -234,9 +173,19 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-    var resultBTLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            doConnect()
+    private fun timerCallback() {
+        when(mViewModel.connectionState) {
+            BLEConnectionState.ERROR     -> doConnect()
+            BLEConnectionState.NONE      -> doConnect()
+            BLEConnectionState.CONNECTED -> {
+                if(mViewModel.currentTask == UDSTask.NONE) {
+                    //Lets start logging
+                    val serviceIntent = Intent(this, BTService::class.java)
+                    serviceIntent.action = BTServiceTask.DO_START_LOG.toString()
+                    ContextCompat.startForegroundService(this, serviceIntent)
+                }
+            }
+            else -> {}
         }
     }
 

@@ -7,30 +7,31 @@
     android:id="@+id/SettingsLayout">
 
     <Button
-        android:id="@+id/buttonBack"
+        android:id="@+id/buttonSettingsReset"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="2dp"
         android:layout_marginEnd="8dp"
         android:layout_weight="1"
-        android:text="@string/button_back"
+        android:text="@string/button_reset"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/buttonSave" />
+        app:layout_constraintStart_toEndOf="@+id/buttonSettingsSave" />
 
     <Button
-        android:id="@+id/buttonSave"
+        android:id="@+id/buttonSettingsSave"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="2dp"
         android:layout_weight="1"
         android:text="@string/button_save"
-        app:layout_constraintEnd_toStartOf="@+id/buttonBack"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/buttonBack" />
+        app:layout_constraintEnd_toStartOf="@+id/buttonSettingsReset"/>
 
     <ScrollView
+        android:id="@+id/SettingsScrollview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="48dp"
@@ -43,20 +44,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/textViewDisplaySize"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/textview_settings_displaysize"
-                android:textSize="24sp" />
-
-            <SeekBar
-                android:id="@+id/seekBarDisplaySize"
-                android:contentDescription="@string/textview_settings_displaysize"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
 
             <View
                 android:id="@+id/divider12"
@@ -164,6 +151,45 @@
             </RadioGroup>
 
             <View
+                android:id="@+id/divider22"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
+            <TextView
+                android:id="@+id/textViewDisplayType"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="@string/textview_settings_display"
+                android:layout_marginTop="8dp"
+                app:autoSizeTextType="uniform"
+                app:lineHeight="60dp" />
+
+            <RadioGroup
+                android:id="@+id/radioGroupDisplayType"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radioButtonBAR"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="@string/radio_settings_display_bar" />
+
+                <RadioButton
+                    android:id="@+id/radioButtonROUND"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:text="@string/radio_settings_display_round" />
+
+            </RadioGroup>
+
+            <View
                 android:id="@+id/divider16"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -208,47 +234,6 @@
                 android:layout_height="1dp"
                 android:background="?android:attr/listDivider" />
 
-            <TextView
-                android:id="@+id/textViewLoggingList"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:text="@string/textview_settings_list"
-                android:layout_marginTop="8dp"
-                app:autoSizeTextType="uniform"
-                app:lineHeight="60dp" />
-
-            <RadioGroup
-                android:id="@+id/radioGroupList"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:orientation="horizontal">
-
-                <RadioButton
-                    android:id="@+id/radioButtonA"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:minHeight="48dp"
-                    android:text="@string/radio_settings_list_a" />
-
-                <RadioButton
-                    android:id="@+id/radioButtonB"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:minHeight="48dp"
-                    android:text="@string/radio_settings_list_b" />
-
-                <RadioButton
-                    android:id="@+id/radioButtonC"
-                    android:layout_weight="1"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:minHeight="48dp"
-                    android:text="@string/radio_settings_list_c" />
-
-            </RadioGroup>
-
             <View
                 android:id="@+id/divider20"
                 android:layout_width="match_parent"
@@ -270,59 +255,20 @@
                 android:orientation="horizontal" >
 
                 <Button
-                    android:id="@+id/button22ACSV"
+                    android:id="@+id/button22CSV"
                     style="@style/Widget.AppCompat.Button"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/textview_settings_import_22a_csv" />
+                    android:text="@string/textview_settings_import_22_csv" />
 
                 <Button
-                    android:id="@+id/button22BCSV"
+                    android:id="@+id/button3ECSV"
                     style="@style/Widget.AppCompat.Button"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/textview_settings_import_22b_csv" />
-
-                <Button
-                    android:id="@+id/button22CCSV"
-                    style="@style/Widget.AppCompat.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/textview_settings_import_22c_csv" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_height="match_parent"
-                android:layout_width="match_parent"
-                android:orientation="horizontal" >
-
-                <Button
-                    android:id="@+id/button3EACSV"
-                    style="@style/Widget.AppCompat.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/textview_settings_import_3Ea_csv" />
-
-                <Button
-                    android:id="@+id/button3EBCSV"
-                    style="@style/Widget.AppCompat.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/textview_settings_import_3Eb_csv" />
-
-                <Button
-                    android:id="@+id/button3ECCSV"
-                    style="@style/Widget.AppCompat.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/textview_settings_import_3Ec_csv" />
+                    android:text="@string/textview_settings_import_3E_csv" />
 
             </LinearLayout>
 
@@ -454,11 +400,11 @@
                 android:background="?android:attr/listDivider" />
 
             <Button
-                android:id="@+id/buttonSetBarNormalColor"
+                android:id="@+id/buttonSetGaugeNormalColor"
                 style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/button_set_bar_normal_color"
+                android:text="@string/button_set_gauge_normal_color"
                 android:textColor="#5E35B1" />
 
             <View
@@ -468,11 +414,25 @@
                 android:background="?android:attr/listDivider" />
 
             <Button
-                android:id="@+id/buttonSetBarWarnColor"
+                android:id="@+id/buttonSetGaugeWarnColor"
                 style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/button_set_bar_warn_color"
+                android:text="@string/button_set_gauge_warn_color"
+                android:textColor="#5E35B1" />
+
+            <View
+                android:id="@+id/divider23"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
+            <Button
+                android:id="@+id/buttonSetGaugeBGColor"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_set_gauge_bg_color"
                 android:textColor="#5E35B1" />
 
             <View

@@ -19,7 +19,7 @@ object LogFile {
 
         close()
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q || Settings.outputDirectory == "App" || ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q || Settings.outputDirectory == DirectoryList.APP || ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
             val path = context.getExternalFilesDir("")
             val logFile = File(path, "/$fileName")
             if (!logFile.exists()) {
@@ -33,7 +33,7 @@ object LogFile {
                 val contentValues = ContentValues()
                 contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
                 contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "application/my-custom-type")
-                contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Settings.outputDirectory)
+                contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Settings.outputDirectory.location)
                 val uri = resolver.insert(MediaStore.Files.getContentUri("external"), contentValues)
                 mOutputStream = resolver.openOutputStream(uri!!)
             } catch (e: Exception) {

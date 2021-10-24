@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ColorFragment"
-    android:id="@+id/ColorFragment">
+    android:id="@+id/ColorLayout">
 
     <ImageView
         android:id="@+id/imageViewColor"

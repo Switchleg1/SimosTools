@@ -19,14 +19,16 @@ import androidx.core.content.ContextCompat.startForegroundService
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import java.net.URI
+import androidx.lifecycle.MutableLiveData
 
-class FlashingViewModel : ViewModel() {
-    var conversationArrayAdapter: ArrayAdapter<String>? = null
-}
+import androidx.lifecycle.LiveData
+import android.widget.ArrayAdapter
+
+import android.R.attr.name
 
 class FlashingFragment : Fragment() {
     private val TAG = "FlashingFragment"
-    private lateinit var mViewModel: FlashingViewModel
+    private var mArrayAdapter: ArrayAdapter<String>? = null
 
     var resultPickLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -57,12 +59,13 @@ class FlashingFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //Get view model
-        mViewModel = ViewModelProvider(this).get(FlashingViewModel::class.java)
-
-        if(mViewModel.conversationArrayAdapter == null)
-            mViewModel.conversationArrayAdapter = ArrayAdapter(requireActivity(), R.layout.message)
-        view.findViewById<ListView>(R.id.bt_message).adapter = mViewModel.conversationArrayAdapter
+        mArrayAdapter = ArrayAdapter(requireContext(), R.layout.message)
+        mArrayAdapter?.let { adapter ->
+            Settings.msgList?.forEach {
+                adapter.add(it)
+            }
+        }
+        view.findViewById<ListView>(R.id.bt_message).adapter = mArrayAdapter
         view.findViewById<ListView>(R.id.bt_message).setBackgroundColor(Color.WHITE)
 
         view.findViewById<Button>(R.id.buttonFlashCAL).setOnClickListener {
@@ -86,16 +89,13 @@ class FlashingFragment : Fragment() {
             startForegroundService(this.requireContext(), serviceIntent)
         }
 
-        view.findViewById<Button>(R.id.buttonBack2).setOnClickListener {
-            findNavController().navigateUp()
-        }
-
-        //Set background color
-        view.setBackgroundColor(ColorList.BG_NORMAL.value)
+        setColor()
     }
 
     override fun onResume() {
         super.onResume()
+
+        setColor()
 
         val filter = IntentFilter()
         filter.addAction(GUIMessage.ECU_INFO.toString())
@@ -122,9 +122,16 @@ class FlashingFragment : Fragment() {
 
     private fun doWriteMessage(message: String) {
         // construct a string from the valid bytes in the buffer
-        mViewModel.conversationArrayAdapter?.add(message)
+        val value = Settings.msgList?: arrayOf()
+        Settings.msgList = value + message
+        mArrayAdapter?.add(message)
 
         val btMessage = view?.findViewById<ListView>(R.id.bt_message)!!
         btMessage.setSelection(btMessage.adapter.count - 1)
+    }
+
+    private fun setColor() {
+        //Set background color
+        view?.setBackgroundColor(ColorList.BG_NORMAL.value)
     }
 }

@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".FlashingFragment"
-    android:keepScreenOn="true">
+    tools:context=".FlashingFragment">
 
     <ListView
         android:id="@+id/bt_message"
@@ -23,10 +22,9 @@
         android:id="@+id/buttonFlashCAL"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="2dp"
         android:layout_weight="1"
         android:text="@string/button_flash_cal"
-        app:layout_constraintBottom_toTopOf="@+id/buttonBack2"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/buttonECUInfo"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -34,10 +32,9 @@
         android:id="@+id/buttonECUInfo"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="2dp"
         android:layout_weight="1"
         android:text="@string/button_check_vin"
-        app:layout_constraintBottom_toTopOf="@+id/buttonBack2"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/buttonClearDTC"
         app:layout_constraintStart_toEndOf="@+id/buttonFlashCAL" />
 
@@ -45,20 +42,10 @@
         android:id="@+id/buttonClearDTC"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="2dp"
         android:layout_weight="1"
         android:text="@string/button_clear_dtc"
-        app:layout_constraintBottom_toTopOf="@+id/buttonBack2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/buttonECUInfo" />
-
-    <Button
-        android:id="@+id/buttonBack2"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/button_back"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toEndOf="@+id/buttonECUInfo" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

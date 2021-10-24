@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/MainFragment">
+
+    <fragment
+        android:id="@+id/MainFragment"
+        android:name="com.app.simoslogger.MainFragment"
+        android:label="@string/nav_main"
+        tools:layout="@layout/fragment_main">
+
+        <action
+            android:id="@+id/action_MainFragment_to_ColorFragment"
+            app:destination="@id/ColorFragment"/>
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/ColorFragment"
+        android:name="com.app.simoslogger.ColorFragment"
+        android:label="@string/nav_color"
+        tools:layout="@layout/fragment_color">
+    </fragment>
+
+</navigation>

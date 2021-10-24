@@ -39,7 +39,7 @@ object PIDCSVFile {
 
         //check header
         val cfgLine = inStream.readLine()
-        if(cfgLine == CSV_CFG_LINE + "\n") {
+        if(cfgLine == CSVItems.values()[0].getHeader() + "\n") {
             //close file and return
             inStream.close()
             DebugLog.i(TAG, "config line does not match")
@@ -51,10 +51,10 @@ object PIDCSVFile {
         var pidList: Array<PIDStruct?>? = null
         while(inStream.ready() && i < MAX_PIDS) {
             var pidString = inStream.readLine()
-            val pidStrings: Array<String?> = arrayOfNulls(CSV_VALUE_COUNT)
+            val pidStrings: Array<String?> = arrayOfNulls(CSVItems.values().count())
 
             var d = 0
-            while(d < CSV_VALUE_COUNT-1 && pidString != pidString.substringBefore(",")) {
+            while(d < CSVItems.values().count()-1 && pidString != pidString.substringBefore(",")) {
                 pidStrings[d] = pidString.substringBefore(",")
                 pidString = pidString.substringAfter(",")
                 DebugLog.d(TAG, "PID $i,$d: ${pidStrings[d]}")
@@ -64,17 +64,17 @@ object PIDCSVFile {
             DebugLog.d(TAG, "PID $i,$d: ${pidStrings[d]}")
             d++
 
-            if(d == CSV_VALUE_COUNT) {
+            if(d == CSVItems.values().count()) {
                 try {
                     //make room
                     pidList = pidList?.copyOf(i+1) ?: arrayOfNulls(1)
 
                     //make sure the length is legal
-                    if(pidStrings[5]!!.toInt() != 1 && pidStrings[5]!!.toInt() != 2 && pidStrings[5]!!.toInt() != 4)
-                        throw RuntimeException("Unexpected pid length: ${pidStrings[5]!!}")
+                    if(pidStrings[CSVItems.LENGTH.ordinal]!!.toInt() != 1 && pidStrings[CSVItems.LENGTH.ordinal]!!.toInt() != 2 && pidStrings[CSVItems.LENGTH.ordinal]!!.toInt() != 4)
+                        throw RuntimeException("Unexpected pid length: ${pidStrings[CSVItems.LENGTH.ordinal]!!}")
 
                     //convert address and error check
-                    val l = parseLong(pidStrings[4]!!.substringAfter("0x"), 16)
+                    val l = parseLong(pidStrings[CSVItems.ADDRESS.ordinal]!!.substringAfter("0x"), 16)
                     if(l < addressMin)
                         throw Exception("Unexpected address 0x${l.toHex()}, min address 0x${addressMin.toHex()}")
                     if(l > addressMax)
@@ -82,18 +82,19 @@ object PIDCSVFile {
 
                     //Build did
                     pidList[i++] = PIDStruct(l,
-                        pidStrings[5]!!.toInt(),
-                        pidStrings[6]!!.toBoolean(),
-                        pidStrings[7]!!.toFloat(),
-                        pidStrings[8]!!.toFloat(),
-                        pidStrings[9]!!.toFloat(),
-                        pidStrings[10]!!.toFloat(),
-                        pidStrings[11]!!.toFloat(),
+                        pidStrings[CSVItems.LENGTH.ordinal]!!.toInt(),
+                        pidStrings[CSVItems.SIGNED.ordinal]!!.toBoolean(),
+                        pidStrings[CSVItems.PROG_MIN.ordinal]!!.toFloat(),
+                        pidStrings[CSVItems.PROG_MAX.ordinal]!!.toFloat(),
+                        pidStrings[CSVItems.WARN_MIN.ordinal]!!.toFloat(),
+                        pidStrings[CSVItems.WARN_MAX.ordinal]!!.toFloat(),
+                        pidStrings[CSVItems.SMOOTHING.ordinal]!!.toFloat(),
                         0.0f,
-                        pidStrings[2]!!,
-                        pidStrings[3]!!,
-                        pidStrings[0]!!,
-                        pidStrings[1]!!)
+                        pidStrings[CSVItems.EQUATION.ordinal]!!,
+                        pidStrings[CSVItems.FORMAT.ordinal]!!,
+                        pidStrings[CSVItems.NAME.ordinal]!!,
+                        pidStrings[CSVItems.UNIT.ordinal]!!,
+                        pidStrings[CSVItems.ENABLED.ordinal]!!.toBoolean())
                 } catch(e: Exception) {
                     //close file and return
                     inStream.close()
@@ -138,7 +139,7 @@ object PIDCSVFile {
                 val outStream = FileOutputStream(csvFile)
 
                 //write header
-                outStream.write((CSV_CFG_LINE + "\n").toByteArray())
+                outStream.write((CSVItems.values()[0].getHeader() + "\n").toByteArray())
 
                 //write pids
                 for (i in 0 until list.count()) {
@@ -157,7 +158,8 @@ object PIDCSVFile {
                                     "${addressString},${did.length}," +
                                     "${did.signed},${did.progMin}," +
                                     "${did.progMax},${did.warnMin}," +
-                                    "${did.warnMax},${did.smoothing}"
+                                    "${did.warnMax},${did.smoothing}," +
+                                    "${did.enabled}"
 
                             outStream.write((writeString + "\n").toByteArray())
                         } catch(e: Exception) {

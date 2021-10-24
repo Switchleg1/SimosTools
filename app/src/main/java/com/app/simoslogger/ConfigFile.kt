@@ -81,29 +81,22 @@ object ConfigFile {
 
         try {
             when(key.substringBefore(".")) {
-                "Mode" -> {
-                    val mode = UDSLoggingMode.values().find {it.value == value}
+                UDSLoggingMode.values()[0].key -> {
+                    val mode = UDSLoggingMode.values().find {it.cfgName == value}
                     mode?.let {
                         UDSLogger.setMode(it)
                     }
                 }
-                "List" -> {
-                    val mode = PIDIndex.values().find {it.name == value}
-                    mode?.let {
-                        PIDs.setIndex(it)
+                DirectoryList.values()[0].key -> {
+                    val dir = DirectoryList.values().find {it.cfgName == value}
+                    dir?.let {
+                        Settings.outputDirectory = it
                     }
                 }
                 "UpdateRate" -> {
                     val i = value.toInt()
                     if(i in 1..10)
                         Settings.updateRate = 11 - i
-                }
-                "OutputDirectory" -> {
-                    when(value) {
-                        "Downloads" -> Settings.outputDirectory = Environment.DIRECTORY_DOWNLOADS
-                        "Documents" -> Settings.outputDirectory = Environment.DIRECTORY_DOCUMENTS
-                        "App" -> Settings.outputDirectory = "App"
-                    }
                 }
                 "InvertCruise" -> {
                     val b = value.toBoolean()
@@ -131,10 +124,13 @@ object ConfigFile {
                     val f = value.toFloat()
                     Settings.tireDiameter = f
                 }
-                "GearRatio" -> {
+                GearRatios.values()[0].key -> {
                     val f = value.toFloat()
-                    val gear = key.substringAfter(".")
-                    (GearRatios.values().find {it.gear == gear})?.ratio = f
+                    val gearString = key.substringAfter(".")
+                    val gear = GearRatios.values().find {it.gear == gearString}
+                    gear?.let {
+                        it.ratio = f
+                    }
                 }
                 "CurbWeight" -> {
                     val f = value.toFloat()
@@ -146,24 +142,28 @@ object ConfigFile {
                     if(f > 0f && f < 5f)
                        Settings.dragCoefficient = f.toDouble() * DEFAULT_DRAG_COEFFICIENT
                 }
-                "Color" -> {
+                ColorList.values()[0].key -> {
                     val name = key.substringAfter(".")
                     val l = parseLong(value, 16)
-                    ColorList.valueOf(name).value = l.toColorInt()
+                    val color = ColorList.values().find {it.cfgName == name}
+                    color?.let {
+                        it.value = l.toColorInt()
+                    }
                 }
                 "AlwaysPortrait" -> {
                     val b = value.toBoolean()
                     Settings.alwaysPortrait = b
                 }
-                "DisplaySize" -> {
-                    val f = value.toFloat()
-                    if(f > 0f && f < 5f)
-                        Settings.displaySize = f
-                }
                 "LogFile" -> {
                     val i = value.toInt()
                     if(i in 1 .. 0xF)
                         Settings.logFlags = i
+                }
+                DisplayType.values()[0].key -> {
+                    val type = DisplayType.values().find {it.cfgName == value}
+                    type?.let {
+                        Settings.displayType = it
+                    }
                 }
             }
         } catch (e: Exception) {
@@ -174,9 +174,8 @@ object ConfigFile {
     private fun writeDefaultConfig(filename: String?, context: Context?) {
         DebugLog.i(TAG, "Writing default config file.")
 
-        mProperties["Mode"] = "22"
-        mProperties["List"] = "A"
-        mProperties["OutputDirectory"] = "Downloads"
+        mProperties[UDSLoggingMode.values()[0].key] = UDSLoggingMode.MODE_22.cfgName
+        mProperties[DirectoryList.values()[0].key] = DirectoryList.APP.cfgName
         mProperties["UpdateRate"] = (11-DEFAULT_UPDATE_RATE).toString()
         mProperties["InvertCruise"] = DEFAULT_INVERT_CRUISE.toString()
         mProperties["KeepScreenOn"] = DEFAULT_KEEP_SCREEN_ON.toString()
@@ -187,11 +186,12 @@ object ConfigFile {
         mProperties["TireDiameter"] = DEFAULT_TIRE_DIAMETER.toString()
         mProperties["CurbWeight"] = DEFAULT_CURB_WEIGHT.toString()
         mProperties["DragCoefficient"] = "1.0"
+        mProperties[DisplayType.values()[0].key] = DisplayType.BAR.cfgName
         GearRatios.values().forEach {
-            mProperties["GearRatio.${it.gear}"] = it.ratio.toString()
+            mProperties["${it.key}.${it.gear}"] = it.ratio.toString()
         }
         ColorList.values().forEach {
-            mProperties["Color.${it.name}"] = it.value.toColorHex()
+            mProperties["${it.key}.${it.cfgName}"] = it.value.toColorHex()
         }
 
         write(filename, context)

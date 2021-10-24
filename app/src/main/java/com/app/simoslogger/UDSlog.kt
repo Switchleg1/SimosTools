@@ -183,71 +183,95 @@ object UDSLogger {
     }
 
     private fun frameCount22(): Int {
-        PIDs.getList()?.let { list ->
-            if(list.count() > 0)
-                return (list.count()-1) / 8 + 1
-        }
-        return 0
+        return buildAddress22().count()
     }
 
     private fun frameCount3E(): Int {
-        return try {
-            (PIDs.getList()!!.count() * 5 / 0x8F) + 2
-        } catch (e: Exception) {
-            0
+        return (buildAddress3E().count() / 0x8F) + 2
+    }
+
+    private fun buildAddress22(): IntArray {
+        PIDs.getList()?.let { list ->
+            //build list of addresses that are enabled
+            var addressArray: IntArray = intArrayOf()
+            for (i in 0 until list.count()) {
+                val did: PIDStruct? = list[i]
+                did?.let {
+                    if (it.enabled) {
+                        addressArray += it.address.toInt()
+                    }
+                }
+            }
+
+            return addressArray
         }
+
+        return intArrayOf()
+    }
+
+    private fun buildAddress3E(): ByteArray {
+        PIDs.getList()?.let { list ->
+            //build list of addresses that are enabled
+            var addressArray: ByteArray = byteArrayOf()
+            for (i in 0 until list.count()) {
+                val did: PIDStruct? = list[i]
+                did?.let {
+                    if (it.enabled) {
+                        addressArray += (it.length and 0xFF).toByte()
+                        addressArray += it.address.toArray4()
+                    }
+                }
+            }
+            addressArray += 0
+
+            return addressArray
+        }
+
+        return byteArrayOf()
     }
 
     private fun buildFrame22(index: Int): ByteArray {
-        PIDs.getList()?.let { list ->
-            if (index in 0 until frameCount22()) {
-                //Build header
-                val bleHeader = BLEHeader()
-                bleHeader.cmdSize = 1
-                bleHeader.cmdFlags = when (index) {
-                    0 -> BLECommandFlags.PER_ADD.value or BLECommandFlags.PER_CLEAR.value
-                    frameCount22() - 1 -> BLECommandFlags.PER_ADD.value or BLECommandFlags.PER_ENABLE.value
-                    else -> BLECommandFlags.PER_ADD.value
-                }
+        val frameCount = frameCount22()
+        if (index in 0 until frameCount) {
+            //Build list of enabled PIDS
+            val addressArray = buildAddress22()
 
-                //add pids to buffer
-                var pidBuff = byteArrayOf(0x22.toByte())
-                val startIndex = if (index * 8 > list.count()) list.count()
-                else index * 8
-                val endIndex = if (startIndex + 8 > list.count()) list.count()
-                else startIndex + 8
-                for (i in startIndex until endIndex) {
-                    val did: PIDStruct? = list[i]
-                    did?.let {
-                        bleHeader.cmdSize += 2
-                        pidBuff += ((did.address and 0xFF00) shr 8).toByte()
-                        pidBuff += (did.address and 0xFF).toByte()
-                    }
-                }
-                return bleHeader.toByteArray() + pidBuff
+            //Build header
+            val bleHeader = BLEHeader()
+            bleHeader.cmdSize = 1
+            bleHeader.cmdFlags = when (index) {
+                0 -> BLECommandFlags.PER_ADD.value or BLECommandFlags.PER_CLEAR.value
+                frameCount - 1 -> BLECommandFlags.PER_ADD.value or BLECommandFlags.PER_ENABLE.value
+                else -> BLECommandFlags.PER_ADD.value
             }
+
+            //add pids to buffer
+            var pidBuff = byteArrayOf(0x22.toByte())
+            val startIndex = if (index * 8 > addressArray.count()) addressArray.count()-1
+                                else index * 8
+            val endIndex = if (startIndex + 8 > addressArray.count()) addressArray.count()-1
+                                else startIndex + 8
+            for (i in startIndex until endIndex) {
+                    bleHeader.cmdSize += 2
+                    pidBuff += addressArray[i].toArray2()
+            }
+            return bleHeader.toByteArray() + pidBuff
         }
 
         return byteArrayOf()
     }
 
     private fun buildFrame3E(index: Int): ByteArray {
-        PIDs.getList()?.let { list ->
-            var addressArray: ByteArray = byteArrayOf()
-            for (i in 0 until list.count()) {
-                val did: PIDStruct? = list[i]
-                did?.let {
-                    addressArray += (did.length and 0xFF).toByte()
-                    addressArray += did.address.toArray4()
-                }
-            }
-            addressArray += 0
+        //Build list of enabled PIDS
+        val addressArray = buildAddress3E()
 
-            //Do we even have any PIDs in the range?  If not send persist message
-            if ((index * 0x8F >= addressArray.count()) and (index == frameCount3E() - 1)) {
+        //Do we even have any PIDs in the range?  If not send persist message
+        if (index * 0x8F >= addressArray.count()) {
+            if(index == frameCount3E() - 1) {
                 val bleHeader = BLEHeader()
                 bleHeader.cmdSize = 6
-                bleHeader.cmdFlags = BLECommandFlags.PER_CLEAR.value or BLECommandFlags.PER_ADD.value or BLECommandFlags.PER_ENABLE.value
+                bleHeader.cmdFlags =
+                    BLECommandFlags.PER_CLEAR.value or BLECommandFlags.PER_ADD.value or BLECommandFlags.PER_ENABLE.value
 
                 val writeBuffer: ByteArray = bleHeader.toByteArray() + byteArrayOf(
                     0x3e.toByte(),
@@ -259,33 +283,32 @@ object UDSLogger {
                 )
 
                 DebugLog.d(TAG, "Building 3E frame $index with length ${writeBuffer.count()}: ${writeBuffer.toHex()}")
-
                 return writeBuffer
             }
 
-            //constrain copy range or we will receive an exception
-            val endOfArray = if ((1 + index) * 0x8F > addressArray.count()) {
-                addressArray.count()
-            } else {
-                (1 + index) * 0x8F
-            }
-            val selectArray: ByteArray = addressArray.copyOfRange(index * 0x8F, endOfArray)
-            val bleHeader = BLEHeader()
-            bleHeader.cmdSize = 8 + selectArray.count()
-            bleHeader.cmdFlags = BLECommandFlags.PER_CLEAR.value
-
-            val memoryOffset = 0xB001E700 + (index * 0x8F)
-            val writeBuffer: ByteArray = bleHeader.toByteArray() + byteArrayOf(
-                0x3e.toByte(),
-                0x32.toByte()
-            ) + memoryOffset.toArray4() + selectArray.count().toArray2() + selectArray
-
-            DebugLog.d(TAG, "Building 3E frame $index with length ${writeBuffer.count()}: ${writeBuffer.toHex()}")
-
-            return writeBuffer
+            DebugLog.d(TAG, "Building 3E frame $index does not exist")
+            return byteArrayOf()
         }
 
-        return byteArrayOf()
+        //constrain copy range or we will receive an exception
+        val endOfArray = if ((1 + index) * 0x8F > addressArray.count()) {
+            addressArray.count()
+        } else {
+            (1 + index) * 0x8F
+        }
+        val selectArray: ByteArray = addressArray.copyOfRange(index * 0x8F, endOfArray)
+        val bleHeader = BLEHeader()
+        bleHeader.cmdSize = 8 + selectArray.count()
+        bleHeader.cmdFlags = BLECommandFlags.PER_CLEAR.value
+
+        val memoryOffset = 0xB001E700 + (index * 0x8F)
+        val writeBuffer: ByteArray = bleHeader.toByteArray() + byteArrayOf(
+            0x3e.toByte(),
+            0x32.toByte()
+        ) + memoryOffset.toArray4() + selectArray.count().toArray2() + selectArray
+
+        DebugLog.d(TAG, "Building 3E frame $index with length ${writeBuffer.count()}: ${writeBuffer.toHex()}")
+        return writeBuffer
     }
 
     private fun processFrame22(tick: Int, buff: ByteArray?, context: Context): UDSReturn {
@@ -366,9 +389,12 @@ object UDSLogger {
                         //Start with time, its required
                         var strItems: String? = "Time"
 
-                        //Add all PIDS
+                        //Add all enabled PIDS
                         for (x in 0 until list.count()) {
-                            strItems += ",${list[x]?.name}"
+                            list[x]?.let {
+                                if (it.enabled)
+                                    strItems += ",${it.name}"
+                            }
                         }
 
                         //reset torque / rpm pids
@@ -391,7 +417,10 @@ object UDSLogger {
                     //Write new values to log
                     var strItems: String? = (bleHeader.tickCount.toFloat() / 1000.0f).toString()
                     for (x in 0 until list.count()) {
-                        strItems += ",${list[x]?.value}"
+                        list[x]?.let {
+                            if (it.enabled)
+                                strItems += ",${it.value}"
+                        }
                     }
 
                     //Calculate HP and found PIDS?

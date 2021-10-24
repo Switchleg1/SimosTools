@@ -95,31 +95,29 @@ enum class BLESettings(val value: Int) {
 }
 
 //Color List
-enum class ColorList(var value: Int) {
-    BG_NORMAL(Color.rgb(255, 255, 255)),
-    BG_WARN(Color.rgb(127, 127, 255)),
-    TEXT(Color.rgb(0,   0,   0)),
-    BAR_NORMAL(Color.rgb(0,   255, 0)),
-    BAR_WARN(Color.rgb(255, 0,   0)),
-    ST_ERROR(Color.rgb(255, 0,   0)),
-    ST_NONE(Color.rgb(100, 0,   255)),
-    ST_CONNECTING(Color.rgb(100, 100, 255)),
-    ST_CONNECTED(Color.rgb(0,   0,   255)),
-    ST_LOGGING(Color.rgb(255, 255, 0)),
-    ST_WRITING(Color.rgb(0,   255, 0))
+enum class ColorList(var value: Int, val cfgName: String) {
+    BG_NORMAL(Color.rgb(255, 255, 255), "BGNormal"),
+    BG_WARN(Color.rgb(127, 127, 255),"BGWarn"),
+    TEXT(Color.rgb(110,   140,   255), "Text"),
+    GAUGE_NORMAL(Color.rgb(0,   255, 0), "GaugeNormal"),
+    GAUGE_WARN(Color.rgb(255, 0,   0), "GaugeWarn"),
+    GAUGE_BG(Color.rgb(0, 0,   0), "GaugeBG"),
+    ST_ERROR(Color.rgb(255, 0,   0), "StateError"),
+    ST_NONE(Color.rgb(100, 0,   255), "StateNone"),
+    ST_CONNECTING(Color.rgb(100, 100, 255), "StateConnecting"),
+    ST_CONNECTED(Color.rgb(0,   0,   255), "StateConncted"),
+    ST_LOGGING(Color.rgb(255, 255, 0), "StateLogging"),
+    ST_WRITING(Color.rgb(0,   255, 0), "StateWriting");
+
+    val key = "Color"
 }
 
 //Logging modes
-enum class UDSLoggingMode(val value: String) {
-    MODE_22("22"),
-    MODE_3E("3E")
-}
+enum class UDSLoggingMode(val cfgName: String, val addressMin: Long, val addressMax: Long) {
+    MODE_22("22", 0x1000.toLong(), 0xFFFF.toLong()),
+    MODE_3E("3E", 0x10000000.toLong(), 0xFFFFFFFF);
 
-//PID Index
-enum class PIDIndex {
-    A,
-    B,
-    C
+    val key = "Mode"
 }
 
 // UDS return codes
@@ -140,7 +138,17 @@ enum class GearRatios(val gear: String, var ratio: Float) {
     GEAR5("5",0.58f),
     GEAR6("6",0.46f),
     GEAR7("7",0.0f),
-    FINAL("Final",4.77f)
+    FINAL("Final",4.77f);
+
+    val key = "GearRatio"
+}
+
+enum class DirectoryList(val cfgName: String, val location: String) {
+    APP("App",""),
+    DOWNLOADS("Downloads", Environment.DIRECTORY_DOWNLOADS),
+    DOCUMENTS("Documents", Environment.DIRECTORY_DOCUMENTS);
+
+    val key = "OutputDirectory"
 }
 
 enum class ECUInfo(val str: String, val address: ByteArray) {
@@ -178,8 +186,42 @@ enum class FLASH_ECU_CAL_SUBTASK {
     RESET_ECU;
 
     fun next(): FLASH_ECU_CAL_SUBTASK {
-        val vals = FLASH_ECU_CAL_SUBTASK.values()
+        val vals = values()
         return vals[(this.ordinal+1) % vals.size];
+    }
+}
+
+enum class DisplayType(val cfgName: String) {
+    BAR("BarGraph"),
+    ROUND("Round");
+
+    val key = "GaugeType"
+}
+
+enum class CSVItems(val csvName: String) {
+    NAME("Name"),
+    UNIT("Unit"),
+    EQUATION("Equation"),
+    FORMAT("Format"),
+    ADDRESS("Address"),
+    LENGTH("Length"),
+    SIGNED("Signed"),
+    PROG_MIN("ProgMin"),
+    PROG_MAX("ProgMax"),
+    WARN_MIN("WarnMin"),
+    WARN_MAX("WarnMax"),
+    SMOOTHING("Smoothing"),
+    ENABLED("Enabled");
+
+    fun getHeader(): String {
+        var header = ""
+        values().forEachIndexed {  i, item ->
+            header += item.csvName
+            if(i != values().count() - 1)
+                header += ","
+        }
+
+        return header
     }
 }
 
@@ -211,17 +253,7 @@ val BLE_HEADER_PT               = 0xF2
 val BLE_HEADER_RX               = 0x7E8
 val BLE_HEADER_TX               = 0x7E0
 
-//CSV PID Bitmask
-val CSV_22_ADD_MIN              = 0x1000.toLong()
-val CSV_22_ADD_MAX              = 0xFFFF.toLong()
-val CSV_3E_ADD_MIN              = 0x10000000.toLong()
-val CSV_3E_ADD_MAX              = 0xFFFFFFFF
-
 val MAX_PIDS                    = 100
-val CSV_CFG_LINE                = "Name,Unit,Equation,Format,Address,Length,Signed,ProgMin,ProgMax,WarnMin,WarnMax,Smoothing"
-val CSV_VALUE_COUNT             = 12
-val CFG_FILENAME                = "config.cfg"
-val DEBUG_FILENAME              = "debug.log"
 
 //Log files
 val LOG_NONE                    = 0
@@ -235,14 +267,13 @@ val LOG_COMMUNICATIONS          = 16
 val DEFAULT_KEEP_SCREEN_ON      = true
 val DEFAULT_INVERT_CRUISE       = false
 val DEFAULT_UPDATE_RATE         = 4
-val DEFAULT_DIRECTORY           = Environment.DIRECTORY_DOWNLOADS
 val DEFAULT_PERSIST_DELAY       = 20
 val DEFAULT_PERSIST_Q_DELAY     = 10
 val DEFAULT_CALCULATE_HP        = true
 val DEFAULT_USE_MS2             = true
 val DEFAULT_TIRE_DIAMETER       = 0.632f
 val DEFAULT_CURB_WEIGHT         = 1500f
-val DEFAULT_DRAG_COEFFICIENT    = 0.000003
+val DEFAULT_DRAG_COEFFICIENT    = 0.000005
 val DEFAULT_ALWAYS_PORTRAIT     = false
 val DEFAULT_DISPLAY_SIZE        = 1f
 val DEFAULT_LOG_FLAGS           = LOG_INFO or LOG_WARNING or LOG_EXCEPTION
@@ -270,5 +301,6 @@ fun Long.toColorInt(): Int = (this.toInt() and 0xFFFFFF) or 0xFF000000.toInt()
 fun Long.toHex2(): String = "%04x".format(this)
 fun Long.toHex4(): String = "%08x".format(this)
 fun Long.toHex(): String = "%16x".format(this)
+fun Long.toArray2(): ByteArray = byteArrayOf((this and 0xFF00 shr 8).toByte(), (this and 0xFF).toByte())
 fun Long.toArray4(): ByteArray = byteArrayOf((this and 0xFF000000 shr 24).toByte(), (this and 0xFF0000 shr 16).toByte(), (this and 0xFF00 shr 8).toByte(), (this and 0xFF).toByte())
 fun ByteArray.toHex(): String = joinToString(separator = " ") { eachByte -> "%02x".format(eachByte) }

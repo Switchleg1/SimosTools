@@ -1,44 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
-    android:orientation="vertical"
-    android:id="@+id/pid_land" >
+    android:orientation="horizontal"
+    android:id="@+id/pid_land_round"
+    android:baselineAligned="false">
 
-    <LinearLayout
-        android:layout_height="match_parent"
-        android:layout_width="match_parent"
-        android:orientation="horizontal" >
+    <RelativeLayout
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="125dp">
+
+        <com.app.simoslogger.SwitchGauge
+            android:id="@+id/pid_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
         <TextView
-            android:layout_width="350dp"
+            android:id="@+id/pid_text"
+            android:layout_width="125dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="0dp"
-            android:text="@string/textPIDP"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:id="@+id/pid_land_text" />
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:text="@string/textPID"
+            android:textSize="20sp" />
 
-        <ProgressBar
-            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="20dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:progress="0"
-            android:scaleY="4"
-            android:id="@+id/pid_land_progress" />
+    </RelativeLayout>
 
-    </LinearLayout>
+    <RelativeLayout
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="125dp">
 
-    <View
-        android:id="@+id/divider"
-        android:layout_width="match_parent"
-        android:layout_height="3dp"
-        android:background="?android:attr/listDivider" />
+        <com.app.simoslogger.SwitchGauge
+            android:id="@+id/pid_progress1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"/>
 
+        <TextView
+            android:id="@+id/pid_text1"
+            android:layout_width="140dp"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:text="@string/textPID"
+            android:textSize="20sp"
+            android:visibility="invisible"/>
 
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="125dp">
+
+        <com.app.simoslogger.SwitchGauge
+            android:id="@+id/pid_progress2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"/>
+
+        <TextView
+            android:id="@+id/pid_text2"
+            android:layout_width="140dp"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:text="@string/textPID"
+            android:textSize="20sp"
+            android:visibility="invisible"/>
+
+    </RelativeLayout>
 </LinearLayout>

@@ -13,17 +13,17 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginBottom="16dp"
-        android:text="@string/textview_fps"
+        android:text="@string/textview_fps_null"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/button_back"
+        android:id="@+id/buttonExit"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="2dp"
         android:layout_marginEnd="8dp"
-        android:text="@string/button_back"
+        android:text="@string/button_exit"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/buttonReset" />
@@ -36,7 +36,7 @@
         android:layout_marginEnd="2dp"
         android:text="@string/button_reset"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/button_back"
+        app:layout_constraintEnd_toStartOf="@+id/buttonExit"
         app:layout_constraintStart_toEndOf="@+id/textViewPackCount" />
 
     <ScrollView

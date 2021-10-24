@@ -2,7 +2,7 @@ package com.app.simoslogger
 
 object Settings {
     var updateRate              = DEFAULT_UPDATE_RATE
-    var outputDirectory:String  = DEFAULT_DIRECTORY
+    var outputDirectory         = DirectoryList.APP
     var invertCruise            = DEFAULT_INVERT_CRUISE
     var keepScreenOn            = DEFAULT_KEEP_SCREEN_ON
     var persistDelay            = DEFAULT_PERSIST_DELAY
@@ -13,6 +13,8 @@ object Settings {
     var curbWeight              = DEFAULT_CURB_WEIGHT
     var dragCoefficient: Double = DEFAULT_DRAG_COEFFICIENT
     var alwaysPortrait          = DEFAULT_ALWAYS_PORTRAIT
-    var displaySize             = DEFAULT_DISPLAY_SIZE
     var logFlags                = DEFAULT_LOG_FLAGS
+    var displayType             = DisplayType.ROUND
+
+    var msgList: Array<String>? = null
 }
