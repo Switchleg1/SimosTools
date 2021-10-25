@@ -80,7 +80,7 @@ object PIDCSVFile {
                     if(l > addressMax)
                         throw Exception("Unexpected address 0x${l.toHex()}, max address 0x${addressMax.toHex()}")
 
-                    //Build did
+                    //Build pid
                     pidList[i++] = PIDStruct(l,
                         pidStrings[CSVItems.LENGTH.ordinal]!!.toInt(),
                         pidStrings[CSVItems.SIGNED.ordinal]!!.toBoolean(),
@@ -144,23 +144,23 @@ object PIDCSVFile {
 
                 //write pids
                 for (i in 0 until list.count()) {
-                    val did = list[i]
-                    did?.let {
+                    val pid = list[i]
+                    pid?.let {
                         try {
                             val addressString =
-                                if ((did.address.toInt() and 0xFFFF0000.toInt()) != 0) {
-                                    "0x${did.address.toInt().toHex()}"
+                                if ((pid.address.toInt() and 0xFFFF0000.toInt()) != 0) {
+                                    "0x${pid.address.toInt().toHex()}"
                                 } else {
-                                    "0x${did.address.toShort().toHex()}"
+                                    "0x${pid.address.toShort().toHex()}"
                                 }
 
-                            val writeString = "${did.name},${did.unit}," +
-                                    "${did.equation},${did.format}," +
-                                    "${addressString},${did.length}," +
-                                    "${did.signed},${did.progMin}," +
-                                    "${did.progMax},${did.warnMin}," +
-                                    "${did.warnMax},${did.smoothing}," +
-                                    "${did.enabled},${did.tabs}"
+                            val writeString = "${pid.name},${pid.unit}," +
+                                    "${pid.equation},${pid.format}," +
+                                    "${addressString},${pid.length}," +
+                                    "${pid.signed},${pid.progMin}," +
+                                    "${pid.progMax},${pid.warnMin}," +
+                                    "${pid.warnMax},${pid.smoothing}," +
+                                    "${pid.enabled},${pid.tabs}"
 
                             outStream.write((writeString + "\n").toByteArray())
                         } catch(e: Exception) {

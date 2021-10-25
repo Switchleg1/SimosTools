@@ -140,7 +140,7 @@ object UDSLogger {
                     mEngineRPMPID = x
                 }
             }
-            //Did we find the PIDs required?
+            //pid we find the PIDs required?
             if (mEngineRPMPID != -1 && mTorquePID != -1)
                 mFoundTQPIDS = true
         }
@@ -174,7 +174,7 @@ object UDSLogger {
                 }
             }
         }
-        //Did we find the PIDs required?
+        //pid we find the PIDs required?
         if(mEngineRPMPID != -1 && mMS2PID != -1 && mGearPID != -1 && mVelocityPID != -1)
             mFoundMS2PIDS = true
 
@@ -195,8 +195,8 @@ object UDSLogger {
             //build list of addresses that are enabled
             var addressArray: IntArray = intArrayOf()
             for (i in 0 until list.count()) {
-                val did: PIDStruct? = list[i]
-                did?.let {
+                val pid: PIDStruct? = list[i]
+                pid?.let {
                     if (it.enabled) {
                         addressArray += it.address.toInt()
                     }
@@ -214,8 +214,8 @@ object UDSLogger {
             //build list of addresses that are enabled
             var addressArray: ByteArray = byteArrayOf()
             for (i in 0 until list.count()) {
-                val did: PIDStruct? = list[i]
-                did?.let {
+                val pid: PIDStruct? = list[i]
+                pid?.let {
                     if (it.enabled) {
                         addressArray += (it.length and 0xFF).toByte()
                         addressArray += it.address.toArray4()
@@ -344,30 +344,33 @@ object UDSLogger {
             // process the data in the buffer
             var i = 1
             while (i < bleHeader.cmdSize - 3) {
-                val did: PIDStruct =
+                val pid: PIDStruct =
                     PIDs.getPID(((bData[i++] and 0xFF) shl 8) + (bData[i++] and 0xFF).toLong())
                         ?: return UDSReturn.ERROR_UNKNOWN
-                if (did.length == 1) {
-                    if (did.signed) {
-                        PIDs.setValue(did, (bData[i++] and 0xFF).toByte().toFloat())
+                if (pid.length == 1) {
+                    if (pid.signed) {
+                        PIDs.setValue(pid, (bData[i++] and 0xFF).toByte().toFloat())
                     } else {
-                        PIDs.setValue(did, (bData[i++] and 0xFF).toFloat())
+                        PIDs.setValue(pid, (bData[i++] and 0xFF).toFloat())
                     }
                 } else {
-                    if (did.signed) {
+                    if (pid.signed) {
                         PIDs.setValue(
-                            did,
+                            pid,
                             (((bData[i++] and 0xFF) shl 8) + (bData[i++] and 0xFF)).toShort()
                                 .toFloat()
                         )
                     } else {
                         PIDs.setValue(
-                            did,
+                            pid,
                             (((bData[i++] and 0xFF) shl 8) + (bData[i++] and 0xFF)).toFloat()
                         )
                     }
                 }
             }
+
+            //Update PID data
+            PIDs.updateData()
 
             //Update Log every 2nd tick
             if (tick % frameCount22() == 0) {
@@ -477,39 +480,42 @@ object UDSLogger {
             //Update PID Values
             var dPos = 1
             for (i in 0 until list.count()) {
-                val did: PIDStruct? = list[i]
+                val pid: PIDStruct? = list[i]
 
                 try {
                     //make sure we are in range
-                    if (dPos + did!!.length > bData.count())
+                    if (dPos + pid!!.length > bData.count())
                         break
 
                     //Build the value in little endian
-                    var newValue: Int = bData[dPos + did.length - 1] and 0xFF
-                    for (d in 1 until did.length) {
+                    var newValue: Int = bData[dPos + pid.length - 1] and 0xFF
+                    for (d in 1 until pid.length) {
                         newValue = newValue shl 8
-                        newValue += bData[dPos + did.length - d - 1] and 0xFF
+                        newValue += bData[dPos + pid.length - d - 1] and 0xFF
                     }
-                    dPos += did.length
+                    dPos += pid.length
 
                     //set pid values
-                    if (did.signed) {
-                        when (did.length) {
-                            1 -> PIDs.setValue(did, newValue.toByte().toFloat())
-                            2 -> PIDs.setValue(did, newValue.toShort().toFloat())
-                            4 -> PIDs.setValue(did, newValue.toFloat())
+                    if (pid.signed) {
+                        when (pid.length) {
+                            1 -> PIDs.setValue(pid, newValue.toByte().toFloat())
+                            2 -> PIDs.setValue(pid, newValue.toShort().toFloat())
+                            4 -> PIDs.setValue(pid, newValue.toFloat())
                         }
                     } else {
-                        when (did.length) {
-                            1 -> PIDs.setValue(did, newValue.toFloat())
-                            2 -> PIDs.setValue(did, newValue.toFloat())
-                            4 -> PIDs.setValue(did, Float.fromBits(newValue))
+                        when (pid.length) {
+                            1 -> PIDs.setValue(pid, newValue.toFloat())
+                            2 -> PIDs.setValue(pid, newValue.toFloat())
+                            4 -> PIDs.setValue(pid, Float.fromBits(newValue))
                         }
                     }
                 } catch (e: Exception) {
                     return UDSReturn.ERROR_UNKNOWN
                 }
             }
+
+            //Update PID data
+            PIDs.updateData()
 
             val dEnable = list[list.count() - 1]
             if ((!Settings.invertCruise && dEnable?.value != 0.0f) ||

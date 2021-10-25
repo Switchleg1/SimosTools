@@ -141,56 +141,42 @@ class LoggingFragment : Fragment() {
                     mGauges!![i]?.isVisible = true
                     mTextViews!![i]?.isVisible = true
 
-                    //get current did and data
+                    //get current pid and data
                     val data = PIDs.getData()!![i]!!
-                    val did = list[i]
-                    did?.let {
-                        //Check for low value PIDS
-                        var progMax = did.progMax
-                        var progMin = did.progMin
+                    val pid = list[i]!!
 
-                        //if progress bar is flipped
-                        if (did.progMin > did.progMax) {
-                            progMax = did.progMin
-                            progMin = did.progMax
-                            data.inverted = true
-                        }
+                    //find text view and set text
+                    val textView = mTextViews!![i]!!
+                    textView.text = getString(
+                        R.string.textPID,
+                        pid.name,
+                        pid.format.format(pid.value),
+                        pid.unit,
+                        pid.format.format(data.min),
+                        pid.format.format(data.max)
+                    )
+                    textView.setTextColor(ColorList.TEXT.value)
 
-                        //build progress multiplier
-                        data.multiplier = 100.0f / (progMax - progMin)
-
-                        //find text view and set text
-                        val textView = mTextViews!![i]!!
-                        textView.text = getString(
-                            R.string.textPID,
-                            did.name,
-                            did.format.format(did.value),
-                            did.unit,
-                            did.format.format(data.min),
-                            did.format.format(data.max)
-                        )
-
-                        //Setup the progress bar
-                        val progressBar = mGauges!![i]!!
-                        progressBar.setProgressColor(ColorList.GAUGE_NORMAL.value, false)
-                        val prog = when (data.inverted) {
-                            true -> (0 - (did.value - did.progMin)) * data.multiplier
-                            false -> (did.value - did.progMin) * data.multiplier
-                        }
-                        progressBar.setProgress(prog, false)
-                        progressBar.setRounded(true, false)
-                        progressBar.setProgressBackgroundColor(ColorList.GAUGE_BG.value, false)
-                        progressBar.setStyle(Settings.displayType, false)
-                        when(Settings.displayType) {
-                            DisplayType.BAR   -> progressBar.setProgressWidth(250f, false)
-                            DisplayType.ROUND -> progressBar.setProgressWidth(50f, false)
-                        }
-                        progressBar.setIndex(i)
-                        progressBar.setOnLongClickListener {
-                            onGaugeClick(it)
-                        }
-                        progressBar.setEnable(did.enabled)
+                    //Setup the progress bar
+                    val gauge = mGauges!![i]!!
+                    gauge.setProgressColor(ColorList.GAUGE_NORMAL.value, false)
+                    val prog = when (data.inverted) {
+                        true -> (0 - (pid.value - pid.progMin)) * data.multiplier
+                        false -> (pid.value - pid.progMin) * data.multiplier
                     }
+                    gauge.setProgress(prog, false)
+                    gauge.setRounded(true, false)
+                    gauge.setProgressBackgroundColor(ColorList.GAUGE_BG.value, false)
+                    gauge.setStyle(Settings.displayType, false)
+                    when(Settings.displayType) {
+                        DisplayType.BAR   -> gauge.setProgressWidth(250f, false)
+                        DisplayType.ROUND -> gauge.setProgressWidth(50f, false)
+                    }
+                    gauge.setIndex(i)
+                    gauge.setOnLongClickListener {
+                        onGaugeClick(it)
+                    }
+                    gauge.setEnable(pid.enabled)
                 }
             }
         } catch (e: Exception) {
@@ -228,18 +214,18 @@ class LoggingFragment : Fragment() {
         //Update text
         try {
             for (i in 0 until PIDs.getList()!!.count()) {
-                val did = PIDs.getList()!![i]
+                val pid = PIDs.getList()!![i]
                 mTextViews?.let { textView ->
                     PIDs.getData()?.let { datalist ->
                         val data = datalist[i]
 
                         textView[i]?.text = getString(
                             R.string.textPID,
-                            did!!.name,
-                            did.format.format(did.value),
-                            did.unit,
-                            did.format.format(data?.min),
-                            did.format.format(data?.max)
+                            pid!!.name,
+                            pid.format.format(pid.value),
+                            pid.unit,
+                            pid.format.format(data?.min),
+                            pid.format.format(data?.max)
                         )
                     }
                 }
@@ -272,9 +258,9 @@ class LoggingFragment : Fragment() {
                 mTextViews?.let { text ->
                     PIDs.getData()?.let { data ->
                         for (i in 0 until prog.count()) {
-                            //get the current did
+                            //get the current pid
                             val dataList = data[i]!!
-                            if (dataList.lastColor) prog[i]?.setProgressColor(ColorList.GAUGE_WARN.value, false)
+                            if (dataList.warn) prog[i]?.setProgressColor(ColorList.GAUGE_WARN.value, false)
                             else prog[i]?.setProgressColor(ColorList.GAUGE_NORMAL.value, false)
 
                             prog[i]?.setProgressBackgroundColor(ColorList.GAUGE_BG.value, false)
@@ -324,22 +310,15 @@ class LoggingFragment : Fragment() {
                     var anyWarning = false
                     try {
                         for (i in 0 until PIDs.getList()!!.count()) {
-                            //get the current did
-                            val did = PIDs.getList()!![i]!!
+                            //get the current pid
+                            val pid = PIDs.getList()!![i]!!
                             val data = PIDs.getData()!![i]!!
-                            val progressBar = mGauges!![i]!!
-
-                            //set min/max
-                            if (did.value > data.max)
-                                data.max = did.value
-
-                            if (did.value < data.min)
-                                data.min = did.value
+                            val gauge = mGauges!![i]!!
 
                             //Update progress is the value is different
                             var newProgress = when(data.inverted) {
-                                true -> (0 - (did.value - did.progMin)) * data.multiplier
-                                false -> (did.value - did.progMin) * data.multiplier
+                                true -> (0 - (pid.value - pid.progMin)) * data.multiplier
+                                false -> (pid.value - pid.progMin) * data.multiplier
                             }
 
                             //constrain value
@@ -347,25 +326,16 @@ class LoggingFragment : Fragment() {
                                 else if(newProgress < 0f) newProgress = 0f
 
                             //check if previous value is different
-                            if (newProgress != progressBar.getProgress()) {
-                                progressBar.setProgress(newProgress)
+                            if (newProgress != gauge.getProgress()) {
+                                gauge.setProgress(newProgress, false)
                             }
 
                             //Check to see if we should be warning user
-                            if ((did.value > did.warnMax) or (did.value < did.warnMin)) {
-
-                                if (!data.lastColor) {
-                                    progressBar.setProgressColor(ColorList.GAUGE_WARN.value)
-                                }
-
-                                data.lastColor = true
+                            if(!data.warn)  {
+                                gauge.setProgressColor(ColorList.GAUGE_NORMAL.value)
                                 anyWarning = true
                             } else {
-                                if (data.lastColor) {
-                                    progressBar.setProgressColor(ColorList.GAUGE_NORMAL.value)
-                                }
-
-                                data.lastColor = false
+                                gauge.setProgressColor(ColorList.GAUGE_WARN.value)
                             }
                         }
                     } catch (e: Exception) {

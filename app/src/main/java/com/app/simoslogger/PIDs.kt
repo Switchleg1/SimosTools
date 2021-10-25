@@ -1,5 +1,6 @@
 package com.app.simoslogger
 
+import android.content.Context
 import java.lang.Exception
 
 data class PIDStruct(var address: Long,
@@ -20,7 +21,7 @@ data class PIDStruct(var address: Long,
 
 data class DATAStruct(var min: Float,
                       var max: Float,
-                      var lastColor: Boolean,
+                      var warn: Boolean,
                       var multiplier: Float,
                       var inverted: Boolean)
 
@@ -278,10 +279,10 @@ object PIDs {
                 for (i in 0 until dataList.count()) {
                     val data = dataList[i]
                     data?.let {
-                        val did = getList()!![i]
-                        did?.let {
-                            data.max = did.value
-                            data.min = did.value
+                        val pid = getList()!![i]
+                        pid?.let {
+                            data.max = pid.value
+                            data.min = pid.value
                         }
                     }
                 }
@@ -292,6 +293,32 @@ object PIDs {
         }
     }
 
+    fun updateData() {
+        try {
+            getData()?.let { dataList ->
+                for (i in 0 until dataList.count()) {
+                    val data = dataList[i]
+                    data?.let {
+                        val pid = getList()!![i]
+                        pid?.let {
+                            //set min/max
+                            if (pid.value > data.max)
+                                data.max = pid.value
+
+                            if (pid.value < data.min)
+                                data.min = pid.value
+
+                            //Check to see if we should be warning user
+                            data.warn = (pid.value > pid.warnMax) or (pid.value < pid.warnMin)
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            DebugLog.e(TAG, "Unable to update data.", e)
+        }
+    }
+
     fun getList(mode: UDSLoggingMode = UDSLogger.getMode()): Array<PIDStruct?>? {
         return when(mode) {
             UDSLoggingMode.MODE_22  -> list22
@@ -299,31 +326,54 @@ object PIDs {
         }
     }
 
+    fun buildData(mode: UDSLoggingMode = UDSLogger.getMode()) {
+        val list = getList(mode)
+        list?.let {
+            when (mode) {
+                UDSLoggingMode.MODE_22 -> data22 = arrayOfNulls(list.count())
+                UDSLoggingMode.MODE_3E -> data3E = arrayOfNulls(list.count())
+            }
+            val data = getData(mode)
+            data?.let {
+                for (i in 0 until data.count()) {
+                    val pid = list[i]!!
+                    val newData = DATAStruct(pid.value, pid.value, false, 1.0f, false)
+                    //Check for low value PIDS
+                    var progMax = pid.progMax
+                    var progMin = pid.progMin
+
+                    //if progress bar is flipped
+                    if (pid.progMin > pid.progMax) {
+                        progMax = pid.progMin
+                        progMin = pid.progMax
+                        newData.inverted = true
+                    }
+
+                    //build progress multiplier
+                    newData.multiplier = 100.0f / (progMax - progMin)
+
+                    data[i] = newData
+                }
+            }
+        }
+    }
+
     fun setList(mode: UDSLoggingMode = UDSLogger.getMode(), list: Array<PIDStruct?>?) {
         list?.let {
             when (mode) {
-                UDSLoggingMode.MODE_22 -> {
-                    list22 = it
-                    data22 = arrayOfNulls(it.count())
-                    for(i in 0 until data22!!.count())
-                        data22!![i] = DATAStruct(0.0f, 0.0f, false, 1.0f, false)
-                }
-                UDSLoggingMode.MODE_3E -> {
-                    list3E = list
-                    data3E = arrayOfNulls(it.count())
-                    for(i in 0 until data3E!!.count())
-                        data3E!![i] = DATAStruct(0.0f, 0.0f, false, 1.0f, false)
-                }
+                UDSLoggingMode.MODE_22 -> list22 = list
+                UDSLoggingMode.MODE_3E -> list3E = list
             }
+            buildData(mode)
         }
     }
 
     fun getPID(address: Long, mode: UDSLoggingMode = UDSLogger.getMode()): PIDStruct? {
         getList(mode)?.let { list ->
             for (i in 0 until list.count()) {
-                list[i]?.let { did ->
-                    if(did.address == address) {
-                        return did
+                list[i]?.let { pid ->
+                    if(pid.address == address) {
+                        return pid
                     }
                 }
             }
@@ -332,29 +382,29 @@ object PIDs {
         return null
     }
 
-    fun setValue(did: PIDStruct?, x: Float): Float {
-        did?.let {
+    fun setValue(pid: PIDStruct?, x: Float): Float {
+        pid?.let {
             //Used in smoothing calculation
-            val previousValue = did.value
+            val previousValue = pid.value
 
             //eval expression
             try {
-                did.value = eval(did.equation.replace("x", x.toString(), true))
+                pid.value = eval(pid.equation.replace("x", x.toString(), true))
             } catch (e: Exception) {
-                did.value = 0f
+                pid.value = 0f
             }
 
             //Add smoothing
-            if (did.smoothing > 0f && did.smoothing < 0.9751f)
-                did.value = ((1f - did.smoothing) * did.value) + (did.smoothing * previousValue)
+            if (pid.smoothing > 0f && pid.smoothing < 0.9751f)
+                pid.value = ((1f - pid.smoothing) * pid.value) + (pid.smoothing * previousValue)
 
-            return did.value
+            return pid.value
         }
 
         return 0f
     }
 
-    fun getValue(did: PIDStruct?): Float {
-        return did?.value ?: 0f
+    fun getValue(pid: PIDStruct?): Float {
+        return pid?.value ?: 0f
     }
 }

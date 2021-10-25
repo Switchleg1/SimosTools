@@ -118,8 +118,8 @@ open class CustomFragment : Fragment() {
                 //get list of custom PIDS
                 var customList = intArrayOf()
                 for (i in 0 until list.count()) {
-                    val did = list[i]!!
-                    if(did.enabled && did.tabs.contains(mCustomName)) {
+                    val pid = list[i]!!
+                    if(pid.enabled && pid.tabs.contains(mCustomName)) {
                         customList += i
                     }
                 }
@@ -166,27 +166,28 @@ open class CustomFragment : Fragment() {
                     mGauges!![i]?.isVisible = true
                     mTextViews!![i]?.isVisible = true
 
-                    //get current did and data
+                    //get current pid and data
                     val data = PIDs.getData()!![customList[i]]!!
-                    val did = list[customList[i]]!!
+                    val pid = list[customList[i]]!!
 
                     //find text view and set text
                     val textView = mTextViews!![i]!!
                     textView.text = getString(
                         R.string.textPID,
-                        did.name,
-                        did.format.format(did.value),
-                        did.unit,
-                        did.format.format(data.min),
-                        did.format.format(data.max)
+                        pid.name,
+                        pid.format.format(pid.value),
+                        pid.unit,
+                        pid.format.format(data.min),
+                        pid.format.format(data.max)
                     )
+                    textView.setTextColor(ColorList.TEXT.value)
 
                     //Setup the progress bar
                     val gauge = mGauges!![i]!!
                     gauge.setProgressColor(ColorList.GAUGE_NORMAL.value, false)
                     val prog = when (data.inverted) {
-                        true -> (0 - (did.value - did.progMin)) * data.multiplier
-                        false -> (did.value - did.progMin) * data.multiplier
+                        true -> (0 - (pid.value - pid.progMin)) * data.multiplier
+                        false -> (pid.value - pid.progMin) * data.multiplier
                     }
                     gauge.setProgress(prog, false)
                     gauge.setRounded(true, false)
@@ -200,7 +201,7 @@ open class CustomFragment : Fragment() {
                     gauge.setOnLongClickListener {
                         onGaugeClick(it)
                     }
-                    gauge.setEnable(did.enabled)
+                    gauge.setEnable(pid.enabled)
                 }
             }
         } catch (e: Exception) {
@@ -239,16 +240,16 @@ open class CustomFragment : Fragment() {
         try {
             for (i in 0 until mTextViews!!.count()) {
                 val index = mGauges!![i]!!.getIndex()
-                val did = PIDs.getList()!![index]
+                val pid = PIDs.getList()!![index]
                 val data = PIDs.getData()!![index]
                 mTextViews?.let { textView ->
                     textView[i]?.text = getString(
                             R.string.textPID,
-                            did!!.name,
-                            did.format.format(did.value),
-                            did.unit,
-                            did.format.format(data?.min),
-                            did.format.format(data?.max)
+                            pid!!.name,
+                            pid.format.format(pid.value),
+                            pid.unit,
+                            pid.format.format(data?.min),
+                            pid.format.format(data?.max)
                         )
                 }
             }
@@ -271,10 +272,10 @@ open class CustomFragment : Fragment() {
                 mTextViews?.let { text ->
                     PIDs.getData()?.let { data ->
                         for (i in 0 until gauges.count()) {
-                            //get the current did
+                            //get the current pid
                             val index = gauges[i]!!.getIndex()
                             val dataList = data[index]!!
-                            if (dataList.lastColor) gauges[i]?.setProgressColor(ColorList.GAUGE_WARN.value, false)
+                            if (dataList.warn) gauges[i]?.setProgressColor(ColorList.GAUGE_WARN.value, false)
                             else gauges[i]?.setProgressColor(ColorList.GAUGE_NORMAL.value, false)
 
                             gauges[i]?.setProgressBackgroundColor(ColorList.GAUGE_BG.value, false)
@@ -324,16 +325,16 @@ open class CustomFragment : Fragment() {
                     mGauges?.let { gauges ->
                         try {
                             for (i in 0 until gauges.count()) {
-                                //get the current did
+                                //get the current pid
                                 val gauge = gauges[i]!!
                                 val index = gauge.getIndex()
-                                val did = PIDs.getList()!![index]!!
+                                val pid = PIDs.getList()!![index]!!
                                 val data = PIDs.getData()!![index]!!
 
                                 //Update progress is the value is different
                                 var newProgress = when (data.inverted) {
-                                    true -> (0 - (did.value - did.progMin)) * data.multiplier
-                                    false -> (did.value - did.progMin) * data.multiplier
+                                    true -> (0 - (pid.value - pid.progMin)) * data.multiplier
+                                    false -> (pid.value - pid.progMin) * data.multiplier
                                 }
 
                                 //constrain value
@@ -342,21 +343,15 @@ open class CustomFragment : Fragment() {
 
                                 //check if previous value is different
                                 if (newProgress != gauge.getProgress()) {
-                                    gauge.setProgress(newProgress)
+                                    gauge.setProgress(newProgress, false)
                                 }
 
                                 //Check to see if we should be warning user
-                                if ((did.value > did.warnMax) or (did.value < did.warnMin)) {
-
-                                    if (!data.lastColor) {
-                                        gauge.setProgressColor(ColorList.GAUGE_WARN.value)
-                                    }
-
+                                if(!data.warn)  {
+                                    gauge.setProgressColor(ColorList.GAUGE_NORMAL.value)
                                     anyWarning = true
                                 } else {
-                                    if (data.lastColor) {
-                                        gauge.setProgressColor(ColorList.GAUGE_NORMAL.value)
-                                    }
+                                    gauge.setProgressColor(ColorList.GAUGE_WARN.value)
                                 }
                             }
                         } catch (e: Exception) {
