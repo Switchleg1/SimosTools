@@ -21,12 +21,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import java.lang.Exception
 
-data class DATAStruct(var min: Float,
-                        var max: Float,
-                        var lastColor: Boolean,
-                        var multiplier: Float,
-                        var inverted: Boolean)
-
 class LoggingViewModel : ViewModel() {
     var pidsPerLayout = 1
     var lastWarning = false
@@ -41,39 +35,6 @@ class LoggingFragment : Fragment() {
     private var mGauges: Array<SwitchGauge?>? = null
     private var mTextViews: Array<TextView?>? = null
     private lateinit var mViewModel: LoggingViewModel
-
-    fun setColor() {
-        try {
-            //Build layout
-            mGauges?.let { prog ->
-                mTextViews?.let { text ->
-                    mViewModel.dataList?.let { data ->
-                        for (i in 0 until prog.count()) {
-                            //get the current did
-                            val dataList = data[i]!!
-                            if (dataList.lastColor) prog[i]?.setProgressColor(ColorList.GAUGE_WARN.value)
-                                else prog[i]?.setProgressColor(ColorList.GAUGE_NORMAL.value)
-
-                            prog[i]?.setProgressBackgroundColor(ColorList.GAUGE_BG.value)
-                            prog[i]?.setStyle(Settings.displayType)
-
-                            when(Settings.displayType) {
-                                DisplayType.BAR   -> prog[i]?.setProgressWidth(250f)
-                                DisplayType.ROUND -> prog[i]?.setProgressWidth(50f)
-                            }
-
-                            text[i]?.setTextColor(ColorList.TEXT.value)
-                        }
-                   }
-                   //Set background color
-                   if (mViewModel.lastWarning) view?.setBackgroundColor(ColorList.BG_WARN.value)
-                        else view?.setBackgroundColor(ColorList.BG_NORMAL.value)
-               }
-            }
-        } catch(e: Exception) {
-            DebugLog.e(TAG, "Unable to update PID colors.", e)
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -90,6 +51,12 @@ class LoggingFragment : Fragment() {
         mViewModel = ViewModelProvider(this).get(LoggingViewModel::class.java)
 
         view.findViewById<Button>(R.id.buttonExit).setOnClickListener {
+            //Write pid default files
+            UDSLoggingMode.values().forEach { mode ->
+                //write current PID list
+                PIDCSVFile.write(getString(R.string.filename_pid_csv, mode.cfgName), requireActivity(), PIDs.getList(mode), true)
+            }
+
             //Stop our BT Service
             val serviceIntent = Intent(requireActivity(), BTService::class.java)
             serviceIntent.action = BTServiceTask.STOP_SERVICE.toString()
@@ -99,6 +66,15 @@ class LoggingFragment : Fragment() {
         }
 
         view.findViewById<Button>(R.id.buttonReset).setOnClickListener {
+            //Restart logging
+            var serviceIntent = Intent(requireActivity(), BTService::class.java)
+            serviceIntent.action = BTServiceTask.DO_STOP_TASK.toString()
+            ContextCompat.startForegroundService(requireActivity(), serviceIntent)
+
+            serviceIntent = Intent(requireActivity(), BTService::class.java)
+            serviceIntent.action = BTServiceTask.DO_START_LOG.toString()
+            ContextCompat.startForegroundService(requireActivity(), serviceIntent)
+
             resetStats()
         }
 
@@ -219,6 +195,11 @@ class LoggingFragment : Fragment() {
                             DisplayType.BAR   -> progressBar.setProgressWidth(250f)
                             DisplayType.ROUND -> progressBar.setProgressWidth(50f)
                         }
+                        progressBar.setIndex(i)
+                        progressBar.setOnLongClickListener {
+                            onGaugeClick(it)
+                        }
+                        progressBar.setEnable(did.enabled)
                     }
                 }
             }
@@ -252,7 +233,6 @@ class LoggingFragment : Fragment() {
 
         this.activity?.unregisterReceiver(mBroadcastReceiver)
     }
-
 
     private fun updatePIDText() {
         //Update text
@@ -299,6 +279,55 @@ class LoggingFragment : Fragment() {
         }
 
         updatePIDText()
+    }
+
+    private fun onGaugeClick(view: View?): Boolean {
+        try {
+            val gauge = (view as SwitchGauge)
+            val index = gauge.getIndex()
+            PIDs.getList()?.let {
+                val isEnabled = it[index]?.enabled == false
+                it[index]?.enabled = isEnabled
+                gauge.setEnable(isEnabled)
+            }
+        } catch (e: Exception) {
+            DebugLog.e(TAG, "Unable to change PID status", e)
+        }
+
+        return true
+    }
+
+    private fun setColor() {
+        try {
+            //Build layout
+            mGauges?.let { prog ->
+                mTextViews?.let { text ->
+                    mViewModel.dataList?.let { data ->
+                        for (i in 0 until prog.count()) {
+                            //get the current did
+                            val dataList = data[i]!!
+                            if (dataList.lastColor) prog[i]?.setProgressColor(ColorList.GAUGE_WARN.value)
+                            else prog[i]?.setProgressColor(ColorList.GAUGE_NORMAL.value)
+
+                            prog[i]?.setProgressBackgroundColor(ColorList.GAUGE_BG.value)
+                            prog[i]?.setStyle(Settings.displayType)
+
+                            when(Settings.displayType) {
+                                DisplayType.BAR   -> prog[i]?.setProgressWidth(250f)
+                                DisplayType.ROUND -> prog[i]?.setProgressWidth(50f)
+                            }
+
+                            text[i]?.setTextColor(ColorList.TEXT.value)
+                        }
+                    }
+                    //Set background color
+                    if (mViewModel.lastWarning) view?.setBackgroundColor(ColorList.BG_WARN.value)
+                    else view?.setBackgroundColor(ColorList.BG_NORMAL.value)
+                }
+            }
+        } catch(e: Exception) {
+            DebugLog.e(TAG, "Unable to update PID colors.", e)
+        }
     }
 
     private val mBroadcastReceiver = object : BroadcastReceiver() {

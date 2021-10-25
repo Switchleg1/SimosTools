@@ -94,7 +94,8 @@ object PIDCSVFile {
                         pidStrings[CSVItems.FORMAT.ordinal]!!,
                         pidStrings[CSVItems.NAME.ordinal]!!,
                         pidStrings[CSVItems.UNIT.ordinal]!!,
-                        pidStrings[CSVItems.ENABLED.ordinal]!!.toBoolean())
+                        pidStrings[CSVItems.ENABLED.ordinal]!!.toBoolean(),
+                        pidStrings[CSVItems.TABS.ordinal]!!)
                 } catch(e: Exception) {
                     //close file and return
                     inStream.close()
@@ -159,7 +160,7 @@ object PIDCSVFile {
                                     "${did.signed},${did.progMin}," +
                                     "${did.progMax},${did.warnMin}," +
                                     "${did.warnMax},${did.smoothing}," +
-                                    "${did.enabled}"
+                                    "${did.enabled},${did.tabs}"
 
                             outStream.write((writeString + "\n").toByteArray())
                         } catch(e: Exception) {

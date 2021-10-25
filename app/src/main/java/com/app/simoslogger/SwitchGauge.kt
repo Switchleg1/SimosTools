@@ -28,17 +28,21 @@ class SwitchGauge : View {
     private var currentHeight = 0f
     private var currentProgress = 0f
     private var currentStyle = DisplayType.BAR
+    private var currentIndex = 0
+    private var currentEnable = true
 
 
     override fun onDraw(canvas: Canvas) {
-        when(currentStyle) {
-            DisplayType.BAR -> {
-                drawRect(100.0f, canvas, backgroundPaint)
-                drawRect(currentProgress, canvas, progressPaint)
-            }
-            DisplayType.ROUND -> {
-                drawCircle(maxAngle, canvas, backgroundPaint)
-                drawCircle(angle, canvas, progressPaint)
+        if(currentEnable) {
+            when (currentStyle) {
+                DisplayType.BAR -> {
+                    drawRect(100.0f, canvas, backgroundPaint)
+                    drawRect(currentProgress, canvas, progressPaint)
+                }
+                DisplayType.ROUND -> {
+                    drawCircle(maxAngle, canvas, backgroundPaint)
+                    drawCircle(angle, canvas, progressPaint)
+                }
             }
         }
     }
@@ -126,5 +130,22 @@ class SwitchGauge : View {
         progressPaint.strokeCap = if (rounded) Paint.Cap.ROUND else Paint.Cap.BUTT
         backgroundPaint.strokeCap = if (rounded) Paint.Cap.ROUND else Paint.Cap.BUTT
         invalidate()
+    }
+
+    fun setIndex(ind: Int) {
+        currentIndex = ind
+    }
+
+    fun getIndex(): Int {
+        return currentIndex
+    }
+
+    fun setEnable(enabled: Boolean) {
+        currentEnable = enabled
+        invalidate()
+    }
+
+    fun getEnable(): Boolean {
+        return currentEnable
     }
 }

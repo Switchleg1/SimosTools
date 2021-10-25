@@ -10,7 +10,7 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
 class MainFragment : Fragment() {
-    private val TAG = "Main"
+    private val TAG = "MainFragment"
     private var mTabLayout: TabLayout? = null
     private var mViewPager: ViewPager2? = null
 
@@ -32,9 +32,17 @@ class MainFragment : Fragment() {
             mViewPager?.let { pager ->
                 val adapter = ViewPagerAdapter(requireActivity())
                 adapter.addFragment(LoggingFragment(), "Logging")
+                adapter.addFragment(CustomFragment1(), "Custom1")
+                adapter.addFragment(CustomFragment2(), "Custom2")
+                adapter.addFragment(CustomFragment3(), "Custom3")
+                adapter.addFragment(CustomFragment4(), "Custom4")
                 adapter.addFragment(FlashingFragment(), "Flashing")
                 adapter.addFragment(SettingsFragment(), "Settings")
                 pager.adapter = adapter
+                TabLayoutMediator(tabs, pager) { tab, position ->
+                    tab.text = adapter.getName(position)
+                }.attach()
+
                 TabLayoutMediator(tabs, pager) { tab, position ->
                     tab.text = adapter.getName(position)
                 }.attach()

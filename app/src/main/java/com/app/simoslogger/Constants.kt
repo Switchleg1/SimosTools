@@ -211,7 +211,8 @@ enum class CSVItems(val csvName: String) {
     WARN_MIN("WarnMin"),
     WARN_MAX("WarnMax"),
     SMOOTHING("Smoothing"),
-    ENABLED("Enabled");
+    ENABLED("Enabled"),
+    TABS("Tabs");
 
     fun getHeader(): String {
         var header = ""
@@ -224,6 +225,12 @@ enum class CSVItems(val csvName: String) {
         return header
     }
 }
+
+data class DATAStruct(var min: Float,
+                      var max: Float,
+                      var lastColor: Boolean,
+                      var multiplier: Float,
+                      var inverted: Boolean)
 
 val TASK_END_DELAY              = 500
 val TASK_END_TIMEOUT            = 3000
