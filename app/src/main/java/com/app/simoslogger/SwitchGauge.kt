@@ -70,7 +70,7 @@ class SwitchGauge : View {
 
     private fun calculateAngle(progress: Float) = maxAngle / maxProgress * progress
 
-    fun setStyle(style: DisplayType) {
+    fun setStyle(style: DisplayType, redraw: Boolean = true) {
         currentStyle = style
 
         when(currentStyle) {
@@ -83,14 +83,16 @@ class SwitchGauge : View {
                 backgroundPaint.style = Paint.Style.STROKE
             }
         }
-        invalidate()
+
+        if(redraw)
+            invalidate()
     }
 
     fun getStyle() : DisplayType {
         return currentStyle
     }
 
-    fun setProgress(progress: Float) {
+    fun setProgress(progress: Float, redraw: Boolean = true) {
         currentProgress = when {
             progress > 100.0f -> {
                 100.0f
@@ -103,33 +105,42 @@ class SwitchGauge : View {
             }
         }
         angle = calculateAngle(currentProgress)
-        invalidate()
+
+        if(redraw)
+            invalidate()
     }
 
     fun getProgress(): Float {
         return currentProgress
     }
 
-    fun setProgressColor(color: Int) {
+    fun setProgressColor(color: Int, redraw: Boolean = true) {
         progressPaint.color = color
-        invalidate()
+
+        if(redraw)
+            invalidate()
     }
 
-    fun setProgressBackgroundColor(color: Int) {
+    fun setProgressBackgroundColor(color: Int, redraw: Boolean = true) {
         backgroundPaint.color = color
-        invalidate()
+
+        if(redraw)
+            invalidate()
     }
 
-    fun setProgressWidth(width: Float) {
+    fun setProgressWidth(width: Float, redraw: Boolean = true) {
         progressPaint.strokeWidth = width
         backgroundPaint.strokeWidth = width
-        invalidate()
+        if(redraw)
+            invalidate()
     }
 
-    fun setRounded(rounded: Boolean) {
+    fun setRounded(rounded: Boolean, redraw: Boolean = true) {
         progressPaint.strokeCap = if (rounded) Paint.Cap.ROUND else Paint.Cap.BUTT
         backgroundPaint.strokeCap = if (rounded) Paint.Cap.ROUND else Paint.Cap.BUTT
-        invalidate()
+
+        if(redraw)
+            invalidate()
     }
 
     fun setIndex(ind: Int) {
@@ -140,9 +151,11 @@ class SwitchGauge : View {
         return currentIndex
     }
 
-    fun setEnable(enabled: Boolean) {
+    fun setEnable(enabled: Boolean, redraw: Boolean = true) {
         currentEnable = enabled
-        invalidate()
+
+        if(redraw)
+            invalidate()
     }
 
     fun getEnable(): Boolean {

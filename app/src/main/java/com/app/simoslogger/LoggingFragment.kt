@@ -182,18 +182,18 @@ class LoggingFragment : Fragment() {
 
                         //Setup the progress bar
                         val progressBar = mGauges!![i]!!
-                        progressBar.setProgressColor(ColorList.GAUGE_NORMAL.value)
+                        progressBar.setProgressColor(ColorList.GAUGE_NORMAL.value, false)
                         val prog = when (data.inverted) {
                             true -> (0 - (did.value - did.progMin)) * data.multiplier
                             false -> (did.value - did.progMin) * data.multiplier
                         }
-                        progressBar.setProgress(prog)
-                        progressBar.setRounded(true)
-                        progressBar.setProgressBackgroundColor(ColorList.GAUGE_BG.value)
-                        progressBar.setStyle(Settings.displayType)
+                        progressBar.setProgress(prog, false)
+                        progressBar.setRounded(true, false)
+                        progressBar.setProgressBackgroundColor(ColorList.GAUGE_BG.value, false)
+                        progressBar.setStyle(Settings.displayType, false)
                         when(Settings.displayType) {
-                            DisplayType.BAR   -> progressBar.setProgressWidth(250f)
-                            DisplayType.ROUND -> progressBar.setProgressWidth(50f)
+                            DisplayType.BAR   -> progressBar.setProgressWidth(250f, false)
+                            DisplayType.ROUND -> progressBar.setProgressWidth(50f, false)
                         }
                         progressBar.setIndex(i)
                         progressBar.setOnLongClickListener {
@@ -306,11 +306,11 @@ class LoggingFragment : Fragment() {
                         for (i in 0 until prog.count()) {
                             //get the current did
                             val dataList = data[i]!!
-                            if (dataList.lastColor) prog[i]?.setProgressColor(ColorList.GAUGE_WARN.value)
-                            else prog[i]?.setProgressColor(ColorList.GAUGE_NORMAL.value)
+                            if (dataList.lastColor) prog[i]?.setProgressColor(ColorList.GAUGE_WARN.value, false)
+                            else prog[i]?.setProgressColor(ColorList.GAUGE_NORMAL.value, false)
 
-                            prog[i]?.setProgressBackgroundColor(ColorList.GAUGE_BG.value)
-                            prog[i]?.setStyle(Settings.displayType)
+                            prog[i]?.setProgressBackgroundColor(ColorList.GAUGE_BG.value, false)
+                            prog[i]?.setStyle(Settings.displayType, false)
 
                             when(Settings.displayType) {
                                 DisplayType.BAR   -> prog[i]?.setProgressWidth(250f)

@@ -14,13 +14,13 @@
 
         <com.app.simoslogger.SwitchGauge
             android:id="@+id/pid_progress"
-            android:layout_width="200dp"
-            android:layout_height="125dp"/>
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 
         <TextView
             android:id="@+id/pid_text"
-            android:layout_width="125dp"
-            android:layout_height="125dp"
+            android:layout_width="140dp"
+            android:layout_height="match_parent"
             android:layout_centerInParent="true"
             android:gravity="center"
             android:text="@string/textPID"
@@ -35,14 +35,14 @@
 
         <com.app.simoslogger.SwitchGauge
             android:id="@+id/pid_progress1"
-            android:layout_width="200dp"
-            android:layout_height="125dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:visibility="invisible"/>
 
         <TextView
             android:id="@+id/pid_text1"
             android:layout_width="140dp"
-            android:layout_height="125dp"
+            android:layout_height="match_parent"
             android:layout_centerInParent="true"
             android:gravity="center"
             android:text="@string/textPID"
@@ -58,14 +58,14 @@
 
         <com.app.simoslogger.SwitchGauge
             android:id="@+id/pid_progress2"
-            android:layout_width="200dp"
-            android:layout_height="125dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:visibility="invisible"/>
 
         <TextView
             android:id="@+id/pid_text2"
             android:layout_width="140dp"
-            android:layout_height="125dp"
+            android:layout_height="match_parent"
             android:layout_centerInParent="true"
             android:gravity="center"
             android:text="@string/textPID"
