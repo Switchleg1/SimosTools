@@ -77,7 +77,7 @@
     <string name="title_not_connected">not connected</string>
     <string name="title_error">error <xliff:g id="error_name">%1$s</xliff:g></string>
     <string name="title_connected_to">connected to <xliff:g id="device_name">%1$s</xliff:g></string>
-    <string name="textPID"><xliff:g id="pid_str">%1$s</xliff:g>: <xliff:g id="pid_val">%2$s</xliff:g> <xliff:g id="pid_unit">%3$s</xliff:g>\n[<xliff:g id="pid_unit">%4$s</xliff:g>:<xliff:g id="pid_unit">%5$s</xliff:g>]</string>
+    <string name="textPID"><xliff:g id="pid_str">%1$s</xliff:g>\n<xliff:g id="pid_val">%2$s</xliff:g> <xliff:g id="pid_unit">%3$s</xliff:g>\n[<xliff:g id="pid_unit">%4$s</xliff:g>:<xliff:g id="pid_unit">%5$s</xliff:g>]</string>
     <!-- Strings used for filenames -->
     <string name="filename_pid_csv">PIDList<xliff:g id="log_mode">%1$s</xliff:g>.csv</string>
     <string name="filename_debug_log">debug.log</string>

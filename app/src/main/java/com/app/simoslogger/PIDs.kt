@@ -18,6 +18,12 @@ data class PIDStruct(var address: Long,
                      var enabled: Boolean,
                      var tabs: String)
 
+data class DATAStruct(var min: Float,
+                      var max: Float,
+                      var lastColor: Boolean,
+                      var multiplier: Float,
+                      var inverted: Boolean)
+
 object PIDs {
     private val TAG         = "PIDs"
 
@@ -140,6 +146,152 @@ object PIDs {
         PIDStruct(0xd001b6cd, 1, false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"x",                 "%01.0f","Cruise Control",      "",      true, ""),
     )
 
+    var data22: Array<DATAStruct?>? = arrayOf(
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+        DATAStruct(0.0f, 0.0f, false, 1.0f, false)
+    )
+
+    var data3E: Array<DATAStruct?>? = arrayOf(
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    DATAStruct(0.0f, 0.0f, false, 1.0f, false),
+    )
+
+    fun getData(mode: UDSLoggingMode = UDSLogger.getMode()): Array<DATAStruct?>? {
+        return when(mode) {
+            UDSLoggingMode.MODE_22  -> data22
+            UDSLoggingMode.MODE_3E  -> data3E
+        }
+    }
+
+    fun resetData() {
+        try {
+            getData()?.let { dataList ->
+                for (i in 0 until dataList.count()) {
+                    val data = dataList[i]
+                    data?.let {
+                        val did = getList()!![i]
+                        did?.let {
+                            data.max = did.value
+                            data.min = did.value
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception)
+        {
+            DebugLog.e(TAG, "Unable to reset min/max list.", e)
+        }
+    }
+
     fun getList(mode: UDSLoggingMode = UDSLogger.getMode()): Array<PIDStruct?>? {
         return when(mode) {
             UDSLoggingMode.MODE_22  -> list22
@@ -148,9 +300,21 @@ object PIDs {
     }
 
     fun setList(mode: UDSLoggingMode = UDSLogger.getMode(), list: Array<PIDStruct?>?) {
-        when(mode) {
-            UDSLoggingMode.MODE_22  -> list22 = list
-            UDSLoggingMode.MODE_3E  -> list3E = list
+        list?.let {
+            when (mode) {
+                UDSLoggingMode.MODE_22 -> {
+                    list22 = it
+                    data22 = arrayOfNulls(it.count())
+                    for(i in 0 until data22!!.count())
+                        data22!![i] = DATAStruct(0.0f, 0.0f, false, 1.0f, false)
+                }
+                UDSLoggingMode.MODE_3E -> {
+                    list3E = list
+                    data3E = arrayOfNulls(it.count())
+                    for(i in 0 until data3E!!.count())
+                        data3E!![i] = DATAStruct(0.0f, 0.0f, false, 1.0f, false)
+                }
+            }
         }
     }
 

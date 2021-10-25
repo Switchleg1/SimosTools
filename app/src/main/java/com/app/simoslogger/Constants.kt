@@ -226,12 +226,6 @@ enum class CSVItems(val csvName: String) {
     }
 }
 
-data class DATAStruct(var min: Float,
-                      var max: Float,
-                      var lastColor: Boolean,
-                      var multiplier: Float,
-                      var inverted: Boolean)
-
 val TASK_END_DELAY              = 500
 val TASK_END_TIMEOUT            = 3000
 

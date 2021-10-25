@@ -22,10 +22,8 @@ import androidx.lifecycle.ViewModelProvider
 import java.lang.Exception
 
 class LoggingViewModel : ViewModel() {
-    var pidsPerLayout = 1
     var lastWarning = false
     var lastEnabled = false
-    var dataList: Array<DATAStruct?>? = null
 }
 
 class LoggingFragment : Fragment() {
@@ -75,10 +73,12 @@ class LoggingFragment : Fragment() {
             serviceIntent.action = BTServiceTask.DO_START_LOG.toString()
             ContextCompat.startForegroundService(requireActivity(), serviceIntent)
 
-            resetStats()
+            PIDs.resetData()
+            updatePIDText()
         }
 
         //check orientation and type
+        var pidsPerLayout = 1
         var layoutType = R.layout.pid_portrait
         var currentOrientation = resources.configuration.orientation
 
@@ -88,11 +88,11 @@ class LoggingFragment : Fragment() {
         when(currentOrientation) {
             Configuration.ORIENTATION_LANDSCAPE -> {
                 layoutType = R.layout.pid_land
-                mViewModel.pidsPerLayout = 3
+                pidsPerLayout = 3
             }
             Configuration.ORIENTATION_PORTRAIT -> {
                 layoutType = R.layout.pid_portrait
-                mViewModel.pidsPerLayout = 2
+                pidsPerLayout = 2
             }
         }
 
@@ -103,12 +103,8 @@ class LoggingFragment : Fragment() {
         try {
             //Build layout
             PIDs.getList()?.let { list ->
-                if (mViewModel.dataList == null || mViewModel.dataList?.count() != list.count()) {
-                    mViewModel.dataList = arrayOfNulls(list.count())
-                }
-
-                var layoutCount = list.count() / mViewModel.pidsPerLayout
-                if(list.count() % mViewModel.pidsPerLayout != 0)
+                var layoutCount = list.count() / pidsPerLayout
+                if(list.count() % pidsPerLayout != 0)
                     layoutCount++
 
                 mLayouts = arrayOfNulls(layoutCount)
@@ -118,12 +114,12 @@ class LoggingFragment : Fragment() {
                     //build child layout
                     var progID = 0
                     var txtID = 0
-                    when(i % mViewModel.pidsPerLayout) {
+                    when(i % pidsPerLayout) {
                         0 -> {
                             val pidLayout = layoutInflater.inflate(layoutType, null)
                             val lLayout = view.findViewById<LinearLayout>(R.id.loggingLayoutScroll)
                             lLayout.addView(pidLayout)
-                            mLayouts!![i / mViewModel.pidsPerLayout] = pidLayout
+                            mLayouts!![i / pidsPerLayout] = pidLayout
                             progID = R.id.pid_progress
                             txtID = R.id.pid_text
                         }
@@ -138,21 +134,15 @@ class LoggingFragment : Fragment() {
                     }
 
                     //Store progress and text views
-                    mGauges!![i] = mLayouts!![i / mViewModel.pidsPerLayout]?.findViewById(progID)
-                    mTextViews!![i] = mLayouts!![i / mViewModel.pidsPerLayout]?.findViewById(txtID)
+                    mGauges!![i] = mLayouts!![i / pidsPerLayout]?.findViewById(progID)
+                    mTextViews!![i] = mLayouts!![i / pidsPerLayout]?.findViewById(txtID)
 
                     //make visible
                     mGauges!![i]?.isVisible = true
                     mTextViews!![i]?.isVisible = true
 
-                    //build new data structure if first time around
-                    var data = DATAStruct(0.0f, 0.0f, false, 1.0f, false)
-                    if (mViewModel.dataList!![i] == null) {
-                        mViewModel.dataList!![i] = data
-                    }
-                    data = mViewModel.dataList!![i]!!
-
-                    //get current did
+                    //get current did and data
+                    val data = PIDs.getData()!![i]!!
                     val did = list[i]
                     did?.let {
                         //Check for low value PIDS
@@ -240,7 +230,7 @@ class LoggingFragment : Fragment() {
             for (i in 0 until PIDs.getList()!!.count()) {
                 val did = PIDs.getList()!![i]
                 mTextViews?.let { textView ->
-                    mViewModel.dataList?.let { datalist ->
+                    PIDs.getData()?.let { datalist ->
                         val data = datalist[i]
 
                         textView[i]?.text = getString(
@@ -257,28 +247,6 @@ class LoggingFragment : Fragment() {
         } catch (e: Exception) {
             DebugLog.e(TAG, "Unable to update text", e)
         }
-    }
-
-    private fun resetStats() {
-        try {
-            mViewModel.dataList?.let { dataList ->
-                for (i in 0 until dataList.count()) {
-                    val data = dataList[i]
-                    data?.let {
-                        val did = PIDs.getList()!![i]
-                        did?.let {
-                            data.max = did.value
-                            data.min = did.value
-                        }
-                    }
-                }
-            }
-        } catch (e: Exception)
-        {
-            DebugLog.e(TAG, "Unable to reset min/max list.", e)
-        }
-
-        updatePIDText()
     }
 
     private fun onGaugeClick(view: View?): Boolean {
@@ -302,7 +270,7 @@ class LoggingFragment : Fragment() {
             //Build layout
             mGauges?.let { prog ->
                 mTextViews?.let { text ->
-                    mViewModel.dataList?.let { data ->
+                    PIDs.getData()?.let { data ->
                         for (i in 0 until prog.count()) {
                             //get the current did
                             val dataList = data[i]!!
@@ -346,7 +314,7 @@ class LoggingFragment : Fragment() {
 
                     //Clear stats are startup
                     if(readCount < 50) {
-                        resetStats()
+                        PIDs.resetData()
                     }
 
                     //Update PID Text
@@ -358,7 +326,7 @@ class LoggingFragment : Fragment() {
                         for (i in 0 until PIDs.getList()!!.count()) {
                             //get the current did
                             val did = PIDs.getList()!![i]!!
-                            val data = mViewModel.dataList!![i]!!
+                            val data = PIDs.getData()!![i]!!
                             val progressBar = mGauges!![i]!!
 
                             //set min/max

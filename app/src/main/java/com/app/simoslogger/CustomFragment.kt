@@ -18,10 +18,8 @@ import androidx.lifecycle.ViewModelProvider
 import java.lang.Exception
 
 class CustomViewModel : ViewModel() {
-    var pidsPerLayout = 1
     var lastWarning = false
     var lastEnabled = false
-    var dataList: Array<DATAStruct?>? = null
 }
 
 class CustomFragment1 : CustomFragment() {
@@ -96,6 +94,7 @@ open class CustomFragment : Fragment() {
         mViewModel = ViewModelProvider(this).get(CustomViewModel::class.java)
 
         //check orientation and type
+        var pidsPerLayout = 1
         var layoutType = R.layout.pid_portrait
         var currentOrientation = resources.configuration.orientation
 
@@ -105,11 +104,11 @@ open class CustomFragment : Fragment() {
         when(currentOrientation) {
             Configuration.ORIENTATION_LANDSCAPE -> {
                 layoutType = R.layout.pid_land
-                mViewModel.pidsPerLayout = 3
+                pidsPerLayout = 3
             }
             Configuration.ORIENTATION_PORTRAIT -> {
                 layoutType = R.layout.pid_portrait
-                mViewModel.pidsPerLayout = 2
+                pidsPerLayout = 2
             }
         }
 
@@ -127,12 +126,8 @@ open class CustomFragment : Fragment() {
 
                 DebugLog.d(TAG, "Custom count: ${customList.count()}")
 
-                if (mViewModel.dataList == null || mViewModel.dataList?.count() != customList.count()) {
-                    mViewModel.dataList = arrayOfNulls(customList.count())
-                }
-
-                var layoutCount = customList.count() / mViewModel.pidsPerLayout
-                if(customList.count() % mViewModel.pidsPerLayout != 0)
+                var layoutCount = customList.count() / pidsPerLayout
+                if(customList.count() % pidsPerLayout != 0)
                     layoutCount++
 
                 DebugLog.d(TAG, "Layout count: $layoutCount")
@@ -144,12 +139,12 @@ open class CustomFragment : Fragment() {
                     //build child layout
                     var progID = 0
                     var txtID = 0
-                    when(i % mViewModel.pidsPerLayout) {
+                    when(i % pidsPerLayout) {
                         0 -> {
                             val pidLayout = layoutInflater.inflate(layoutType, null)
                             val lLayout = view.findViewById<LinearLayout>(mLayoutName)
                             lLayout.addView(pidLayout)
-                            mLayouts!![i / mViewModel.pidsPerLayout] = pidLayout
+                            mLayouts!![i / pidsPerLayout] = pidLayout
                             progID = R.id.pid_progress
                             txtID = R.id.pid_text
                         }
@@ -164,69 +159,48 @@ open class CustomFragment : Fragment() {
                     }
 
                     //Store progress and text views
-                    mGauges!![i] = mLayouts!![i / mViewModel.pidsPerLayout]?.findViewById(progID)
-                    mTextViews!![i] = mLayouts!![i / mViewModel.pidsPerLayout]?.findViewById(txtID)
+                    mGauges!![i] = mLayouts!![i / pidsPerLayout]?.findViewById(progID)
+                    mTextViews!![i] = mLayouts!![i / pidsPerLayout]?.findViewById(txtID)
 
                     //make visible
                     mGauges!![i]?.isVisible = true
                     mTextViews!![i]?.isVisible = true
 
-                    //build new data structure if first time around
-                    var data = DATAStruct(0.0f, 0.0f, false, 1.0f, false)
-                    if (mViewModel.dataList!![i] == null) {
-                        mViewModel.dataList!![i] = data
+                    //get current did and data
+                    val data = PIDs.getData()!![customList[i]]!!
+                    val did = list[customList[i]]!!
+
+                    //find text view and set text
+                    val textView = mTextViews!![i]!!
+                    textView.text = getString(
+                        R.string.textPID,
+                        did.name,
+                        did.format.format(did.value),
+                        did.unit,
+                        did.format.format(data.min),
+                        did.format.format(data.max)
+                    )
+
+                    //Setup the progress bar
+                    val gauge = mGauges!![i]!!
+                    gauge.setProgressColor(ColorList.GAUGE_NORMAL.value, false)
+                    val prog = when (data.inverted) {
+                        true -> (0 - (did.value - did.progMin)) * data.multiplier
+                        false -> (did.value - did.progMin) * data.multiplier
                     }
-                    data = mViewModel.dataList!![i]!!
-
-                    //get current did
-                    val did = list[customList[i]]
-                    did?.let {
-                        //Check for low value PIDS
-                        var progMax = did.progMax
-                        var progMin = did.progMin
-
-                        //if progress bar is flipped
-                        if (did.progMin > did.progMax) {
-                            progMax = did.progMin
-                            progMin = did.progMax
-                            data.inverted = true
-                        }
-
-                        //build progress multiplier
-                        data.multiplier = 100.0f / (progMax - progMin)
-
-                        //find text view and set text
-                        val textView = mTextViews!![i]!!
-                        textView.text = getString(
-                            R.string.textPID,
-                            did.name,
-                            did.format.format(did.value),
-                            did.unit,
-                            did.format.format(data.min),
-                            did.format.format(data.max)
-                        )
-
-                        //Setup the progress bar
-                        val guage = mGauges!![i]!!
-                        guage.setProgressColor(ColorList.GAUGE_NORMAL.value, false)
-                        val prog = when (data.inverted) {
-                            true -> (0 - (did.value - did.progMin)) * data.multiplier
-                            false -> (did.value - did.progMin) * data.multiplier
-                        }
-                        guage.setProgress(prog, false)
-                        guage.setRounded(true, false)
-                        guage.setProgressBackgroundColor(ColorList.GAUGE_BG.value, false)
-                        guage.setStyle(Settings.displayType, false)
-                        when(Settings.displayType) {
-                            DisplayType.BAR   -> guage.setProgressWidth(250f, false)
-                            DisplayType.ROUND -> guage.setProgressWidth(50f, false)
-                        }
-                        guage.setIndex(customList[i])
-                        guage.setOnLongClickListener {
-                            onGaugeClick(it)
-                        }
-                        guage.setEnable(did.enabled)
+                    gauge.setProgress(prog, false)
+                    gauge.setRounded(true, false)
+                    gauge.setProgressBackgroundColor(ColorList.GAUGE_BG.value, false)
+                    gauge.setStyle(Settings.displayType, false)
+                    when(Settings.displayType) {
+                        DisplayType.BAR   -> gauge.setProgressWidth(250f, false)
+                        DisplayType.ROUND -> gauge.setProgressWidth(50f, false)
                     }
+                    gauge.setIndex(customList[i])
+                    gauge.setOnLongClickListener {
+                        onGaugeClick(it)
+                    }
+                    gauge.setEnable(did.enabled)
                 }
             }
         } catch (e: Exception) {
@@ -264,12 +238,11 @@ open class CustomFragment : Fragment() {
         //Update text
         try {
             for (i in 0 until mTextViews!!.count()) {
-                val did = PIDs.getList()!![mGauges!![i]!!.getIndex()]
+                val index = mGauges!![i]!!.getIndex()
+                val did = PIDs.getList()!![index]
+                val data = PIDs.getData()!![index]
                 mTextViews?.let { textView ->
-                    mViewModel.dataList?.let { datalist ->
-                        val data = datalist[i]
-
-                        textView[i]?.text = getString(
+                    textView[i]?.text = getString(
                             R.string.textPID,
                             did!!.name,
                             did.format.format(did.value),
@@ -277,7 +250,6 @@ open class CustomFragment : Fragment() {
                             did.format.format(data?.min),
                             did.format.format(data?.max)
                         )
-                    }
                 }
             }
         } catch (e: Exception) {
@@ -286,51 +258,31 @@ open class CustomFragment : Fragment() {
     }
 
     private fun onGaugeClick(view: View?): Boolean {
-        resetStats()
+        PIDs.resetData()
+        updatePIDText()
 
         return true
-    }
-
-    private fun resetStats() {
-        try {
-            mViewModel.dataList?.let { dataList ->
-                for (i in 0 until dataList.count()) {
-                    val data = dataList[i]
-                    data?.let {
-                        val did = PIDs.getList()!![i]
-                        did?.let {
-                            data.max = did.value
-                            data.min = did.value
-                        }
-                    }
-                }
-            }
-        } catch (e: Exception)
-        {
-            DebugLog.e(TAG, "Unable to reset min/max list.", e)
-        }
-
-        updatePIDText()
     }
 
     private fun setColor() {
         try {
             //Build layout
-            mGauges?.let { prog ->
+            mGauges?.let { gauges ->
                 mTextViews?.let { text ->
-                    mViewModel.dataList?.let { data ->
-                        for (i in 0 until prog.count()) {
+                    PIDs.getData()?.let { data ->
+                        for (i in 0 until gauges.count()) {
                             //get the current did
-                            val dataList = data[i]!!
-                            if (dataList.lastColor) prog[i]?.setProgressColor(ColorList.GAUGE_WARN.value, false)
-                            else prog[i]?.setProgressColor(ColorList.GAUGE_NORMAL.value, false)
+                            val index = gauges[i]!!.getIndex()
+                            val dataList = data[index]!!
+                            if (dataList.lastColor) gauges[i]?.setProgressColor(ColorList.GAUGE_WARN.value, false)
+                            else gauges[i]?.setProgressColor(ColorList.GAUGE_NORMAL.value, false)
 
-                            prog[i]?.setProgressBackgroundColor(ColorList.GAUGE_BG.value, false)
-                            prog[i]?.setStyle(Settings.displayType, false)
+                            gauges[i]?.setProgressBackgroundColor(ColorList.GAUGE_BG.value, false)
+                            gauges[i]?.setStyle(Settings.displayType, false)
 
                             when(Settings.displayType) {
-                                DisplayType.BAR   -> prog[i]?.setProgressWidth(250f)
-                                DisplayType.ROUND -> prog[i]?.setProgressWidth(50f)
+                                DisplayType.BAR   -> gauges[i]?.setProgressWidth(250f)
+                                DisplayType.ROUND -> gauges[i]?.setProgressWidth(50f)
                             }
 
                             text[i]?.setTextColor(ColorList.TEXT.value)
@@ -361,7 +313,7 @@ open class CustomFragment : Fragment() {
 
                     //Clear stats are startup
                     if(readCount < 50) {
-                        resetStats()
+                        PIDs.resetData()
                     }
 
                     //Update PID Text
@@ -374,15 +326,9 @@ open class CustomFragment : Fragment() {
                             for (i in 0 until gauges.count()) {
                                 //get the current did
                                 val gauge = gauges[i]!!
-                                val did = PIDs.getList()!![gauge.getIndex()]!!
-                                val data = mViewModel.dataList!![i]!!
-
-                                //set min/max
-                                if (did.value > data.max)
-                                    data.max = did.value
-
-                                if (did.value < data.min)
-                                    data.min = did.value
+                                val index = gauge.getIndex()
+                                val did = PIDs.getList()!![index]!!
+                                val data = PIDs.getData()!![index]!!
 
                                 //Update progress is the value is different
                                 var newProgress = when (data.inverted) {
@@ -406,14 +352,11 @@ open class CustomFragment : Fragment() {
                                         gauge.setProgressColor(ColorList.GAUGE_WARN.value)
                                     }
 
-                                    data.lastColor = true
                                     anyWarning = true
                                 } else {
                                     if (data.lastColor) {
                                         gauge.setProgressColor(ColorList.GAUGE_NORMAL.value)
                                     }
-
-                                    data.lastColor = false
                                 }
                             }
                         } catch (e: Exception) {
