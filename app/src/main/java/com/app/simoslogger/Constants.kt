@@ -129,6 +129,7 @@ enum class UDSReturn {
     ERROR_CMDSIZE,
     ERROR_TIME_OUT,
     ERROR_UNKNOWN,
+    COMMAND_QUEUED
 }
 
 enum class GearRatios(val gear: String, var ratio: Float) {
@@ -171,7 +172,6 @@ enum class ECUInfo(val str: String, val address: ByteArray) {
 enum class FLASH_ECU_CAL_SUBTASK {
     NONE,
     GET_ECU_BOX_CODE,
-    READ_FILE_FROM_STORAGE,
     CHECK_FILE_COMPAT,
     CHECKSUM_BIN,
     COMPRESS_BIN,
@@ -288,6 +288,41 @@ val DEFAULT_DEBUG_LOG_FLAGS     = DEBUG_LOG_INFO or DEBUG_LOG_INFO or DEBUG_LOG_
 //TQ/HP Calculations
 val KG_TO_N                     = 9.80665f
 val TQ_CONSTANT                 = 16.3f
+
+//SA2SeedKeyTape
+val VW_SEEDKEY_TAPE = byteArrayOf(
+    0x68.toByte(),
+    0x02.toByte(),
+    0x81.toByte(),
+    0x49.toByte(),
+    0x93.toByte(),
+    0xa5.toByte(),
+    0x5a.toByte(),
+    0x55.toByte(),
+    0xaa.toByte(),
+    0x4a.toByte(),
+    0x05.toByte(),
+    0x87.toByte(),
+    0x81.toByte(),
+    0x05.toByte(),
+    0x95.toByte(),
+    0x26.toByte(),
+    0x68.toByte(),
+    0x05.toByte(),
+    0x82.toByte(),
+    0x49.toByte(),
+    0x84.toByte(),
+    0x5a.toByte(),
+    0xa5.toByte(),
+    0xaa.toByte(),
+    0x55.toByte(),
+    0x87.toByte(),
+    0x03.toByte(),
+    0xf7.toByte(),
+    0x80.toByte(),
+    0x6a.toByte(),
+    0x4c.toByte()
+)
 
 //Additional properties
 infix fun Byte.shl(that: Int): Int = this.toInt().shl(that)
