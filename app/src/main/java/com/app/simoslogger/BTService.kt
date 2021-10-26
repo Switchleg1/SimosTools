@@ -785,18 +785,27 @@ class BTService: Service() {
         }
 
         private fun processPacketFlashing(buff: ByteArray) {
-            if(UDSFlasher.processFlashCAL(mTaskTick, buff) == UDSReturn.OK) {
-                if(UDSFlasher.getInfo() != "") {
-                    val intentMessage = Intent(GUIMessage.FLASH_INFO.toString())
-                    intentMessage.putExtra(GUIMessage.FLASH_INFO.toString(), UDSInfo.getInfo())
-                    sendBroadcast(intentMessage)
-                }
+            var flashStatus = UDSFlasher.processFlashCAL(mTaskTick, buff)
 
-                if(!UDSFlasher.finished())
-                    mWriteQueue.add(UDSFlasher.buildFlashCAL(mTaskTick+1))
-            } else {
-                setTaskState(UDSTask.NONE)
+            when(flashStatus){
+                UDSReturn.OK ->{
+                    if(UDSFlasher.getInfo() != "") {
+                        val intentMessage = Intent(GUIMessage.FLASH_INFO.toString())
+                        intentMessage.putExtra(GUIMessage.FLASH_INFO.toString(), UDSInfo.getInfo())
+                        sendBroadcast(intentMessage)
+                    }
+
+                    if(!UDSFlasher.finished())
+                        mWriteQueue.add(UDSFlasher.buildFlashCAL(mTaskTick+1))
+                }
+                UDSReturn.COMMAND_QUEUED ->{
+                    mWriteQueue.add(UDSFlasher.getCommand())
+                }
+                else -> {
+                    setTaskState(UDSTask.NONE)
+                }
             }
+
         }
 
         private fun processPacketGetInfo(buff: ByteArray) {
