@@ -18,12 +18,12 @@ object UDSFlasher {
         return mCommand
     }
 
-    fun finished(): Boolean {
-        return mTask == FLASH_ECU_CAL_SUBTASK.NONE
+    fun started(): Boolean {
+        return !(mTask == FLASH_ECU_CAL_SUBTASK.NONE)
     }
 
     fun setBinFile(input: InputStream) {
-        DebugLog.i(TAG, "Received BIN stream from GUI")
+        DebugLog.d(TAG, "Received BIN stream from GUI")
         bin =  input.readBytes()
     }
 
@@ -36,25 +36,35 @@ object UDSFlasher {
             //Read box code from ECU
             mTask = FLASH_ECU_CAL_SUBTASK.GET_ECU_BOX_CODE
 
-            return buildBLEFrame(byteArrayOf(0x22.toByte()) + ECUInfo.ASW_VERSION.address)
+            DebugLog.d(TAG, "Initiating Flash subroutine: " + mTask.toString())
+            mLastString = "Initiating flash routines"
+            return buildBLEFrame(byteArrayOf(0x22.toByte()) + ECUInfo.PART_NUMBER.address)
         }
     }
 
     fun processPacket(ticks: Int, buff: ByteArray?): UDSReturn {
         buff?.let {
-            DebugLog.i(TAG, "Flash subroutine: " + mTask.toString())
+
+            DebugLog.d(TAG, "Flash subroutine: " + mTask)
+
             when(mTask){
                 FLASH_ECU_CAL_SUBTASK.GET_ECU_BOX_CODE ->{
-
+                    DebugLog.d(TAG, "Processing ASW response from ECU: " + buff.toHex())
                     //response should be the ASW version... parse it out
                     if (buff[0] != 0x62.toByte()) {
+                        DebugLog.d(TAG, "Error with ECU Response: " + buff.toHex())
+                        mLastString = "Error with ECU Response: " + String(buff)
                         return UDSReturn.ERROR_UNKNOWN
                     }
 
-                    mLastString = mTask.toString()
+                    ecuAswVersion = buff.copyOfRange(3, buff.size)
+                    DebugLog.d(TAG, "Received ASW version ${ecuAswVersion.toHex()} from ecu")
+
                     mTask = mTask.next()
-                    ecuAswVersion = buff.copyOfRange(1, buff.size - 1)
-                    return UDSReturn.OK
+
+                    mLastString = "Read box code from ECU: " + String(ecuAswVersion)
+                    mCommand = sendTesterPresent()
+                    return UDSReturn.COMMAND_QUEUED
                 }
 
 
@@ -63,32 +73,56 @@ object UDSFlasher {
                     val binAswVersion = bin.copyOfRange(0x60, 0x6B)
 
                     //Compare the two strings:
-                    if (String(ecuAswVersion) != String(binAswVersion)) {
+                    if (String(ecuAswVersion).trim() != String(binAswVersion).trim()) {
+                        DebugLog.d(TAG,"ECU software version: ${ecuAswVersion.toHex()}, and file" +
+                                " software version: ${binAswVersion.toHex()}")
                         return UDSReturn.ERROR_RESPONSE
                     }
 
-                    mLastString = mTask.toString()
+                    mLastString = mTask.toString() + "\nBox code on selected BIN file: " + String(binAswVersion)
                     mTask = mTask.next()
-                    return UDSReturn.OK
+                    mCommand = sendTesterPresent()
+                    return UDSReturn.COMMAND_QUEUED
+
 
                 }
 
                 FLASH_ECU_CAL_SUBTASK.CHECKSUM_BIN ->{
-                    bin = FlashUtilities.checksumSimos18(bin)
-                    bin = FlashUtilities.checksumECM3(bin)
+                    mLastString = mTask.toString() + "\n"
 
-                    mLastString = mTask.toString()
+                    var checksummed = FlashUtilities.checksumSimos18(bin)
+                    mLastString += "Original checksum: " + checksummed.fileChecksum + "\n"
+                    mLastString += "Calculatated checksum: " + checksummed.calculatedChecksum + "\n"
+                    if(checksummed.updated) mLastString += "    Checksum corrected\n"
+                    else mLastString += "    Checksum not updated\n"
+
+                    checksummed = FlashUtilities.checksumECM3(checksummed.bin)
+                    mLastString += "Original ECM3: " + checksummed.fileChecksum + "\n"
+                    mLastString += "    Calculated ECM3: " + checksummed.calculatedChecksum + "\n"
+                    if(checksummed.updated) mLastString += "Checksum corrected\n"
+                    else mLastString += "    Checksum not updated\n"
+
+
                     mTask = mTask.next()
-                    return UDSReturn.OK
+                    mCommand = sendTesterPresent()
+                    return UDSReturn.COMMAND_QUEUED
 
                 }
 
                 FLASH_ECU_CAL_SUBTASK.COMPRESS_BIN ->{
+                    mLastString = mTask.toString() + "\n"
+
+                    var uncompressedSize = bin.size
                     bin = FlashUtilities.encodeLZSS(bin)
 
-                    mLastString = mTask.toString()
+                    var compressedSize = bin.size
+
+                    mLastString += "Uncompressed bin size: " + uncompressedSize + "\n"
+                    mLastString += "Compressed bin size: " + compressedSize
+
                     mTask = mTask.next()
-                    return UDSReturn.OK
+                    mCommand = sendTesterPresent()
+                    return UDSReturn.COMMAND_QUEUED
 
                 }
 
@@ -97,7 +131,8 @@ object UDSFlasher {
 
                     mLastString = mTask.toString()
                     mTask = mTask.next()
-                    return UDSReturn.OK
+                    mCommand = sendTesterPresent()
+                    return UDSReturn.COMMAND_QUEUED
                 }
 
                 FLASH_ECU_CAL_SUBTASK.CLEAR_DTC -> {
@@ -179,11 +214,13 @@ object UDSFlasher {
                         UDSReturn.ERROR_UNKNOWN
                     }
                 }
-                FLASH_ECU_CAL_SUBTASK.RESET_ECU -> {
-                    //Reset ECU
-                    return UDSReturn.OK
-                }
+                //FLASH_ECU_CAL_SUBTASK.RESET_ECU -> {
+                //    //Reset ECU
+                //    return UDSReturn.OK
+                //}
             }
+
+            DebugLog.d(TAG, "No valid flash subroutine triggered")
             return UDSReturn.ERROR_UNKNOWN
         }
 

@@ -1,10 +1,14 @@
 package com.app.simoslogger
 
+data class checksummedBin(var bin: ByteArray, var fileChecksum: String, var calculatedChecksum: String, var updated: Boolean)
+
+
+
 object FlashUtilities {
 
 
 
-    fun checksumSimos18(bin: ByteArray): ByteArray{
+    fun checksumSimos18(bin: ByteArray): checksummedBin{
         var currentChecksum = bin.copyOfRange(0x300, 0x308)
         var offset = (0xA0800000).toUInt()
         var startAddress1 = byteArrayToInt(bin.copyOfRange(0x30c, 0x30c + 4).reversedArray()).toUInt() - offset
@@ -46,10 +50,10 @@ object FlashUtilities {
             println("  Checksum doesn't match!")
         }
 
-        return(bin)
+        return(checksummedBin(bin,currentChecksum.toHex(), checksumCalculated.toHex(), true))
     }
 
-    fun checksumECM3(bin: ByteArray): ByteArray{
+    fun checksumECM3(bin: ByteArray): checksummedBin{
         var startAddress = 55724
         var endAddress = 66096
 
@@ -75,7 +79,7 @@ object FlashUtilities {
             println("  ECM3 checksum doesn't match!")
         }
 
-        return(bin)
+        return(checksummedBin(bin,checksumCurrent.toHex(), checksumCalculated.toHex(), true))
     }
 
     fun encodeLZSS(input: ByteArray, maxSlidingWindowSize: Int = 1023, debug: Boolean = false): ByteArray {

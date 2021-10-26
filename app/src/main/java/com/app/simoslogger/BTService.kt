@@ -86,7 +86,8 @@ class BTService: Service() {
             BTServiceTask.START_SERVICE.toString()  -> doStartService()
             BTServiceTask.DO_CONNECT.toString()     -> doConnect()
             BTServiceTask.DO_DISCONNECT.toString()  -> doDisconnect()
-            BTServiceTask.DO_START_LOG.toString()   -> mConnectionThread?.setTaskState(UDSTask.LOGGING)
+            BTServiceTask.DO_START_LOG.toString()   -> {//mConnectionThread?.setTaskState(UDSTask.LOGGING)
+                }
             BTServiceTask.DO_START_FLASH.toString() -> mConnectionThread?.setTaskState(UDSTask.FLASHING)
             BTServiceTask.DO_GET_INFO.toString()    -> mConnectionThread?.setTaskState(UDSTask.INFO)
             BTServiceTask.DO_CLEAR_DTC.toString()   -> mConnectionThread?.setTaskState(UDSTask.DTC)
@@ -815,23 +816,27 @@ class BTService: Service() {
         }
 
         private fun processPacketFlashing(buff: ByteArray) {
-            var flashStatus = UDSFlasher.processFlashCAL(mTaskTick, buff)
+
+            var response = buff.copyOfRange(8, buff.size)
+
+            var flashStatus = UDSFlasher.processFlashCAL(mTaskTick, response)
+
+            if(UDSFlasher.getInfo() != "") {
+                DebugLog.d(TAG,"Received status message from UDSFlash: ${UDSFlasher.getInfo()}")
+                val intentMessage = Intent(GUIMessage.FLASH_INFO.toString())
+                intentMessage.putExtra(GUIMessage.FLASH_INFO.toString(), UDSFlasher.getInfo())
+                sendBroadcast(intentMessage)
+            }
 
             when(flashStatus){
                 UDSReturn.OK ->{
-                    if(UDSFlasher.getInfo() != "") {
-                        val intentMessage = Intent(GUIMessage.FLASH_INFO.toString())
-                        intentMessage.putExtra(GUIMessage.FLASH_INFO.toString(), UDSInfo.getInfo())
-                        sendBroadcast(intentMessage)
-                    }
 
-                    if(!UDSFlasher.finished())
-                        mWriteQueue.add(UDSFlasher.buildFlashCAL(mTaskTick+1))
                 }
                 UDSReturn.COMMAND_QUEUED ->{
                     mWriteQueue.add(UDSFlasher.getCommand())
                 }
                 else -> {
+                    DebugLog.d(TAG, "Received ${flashStatus} from UDSFlash")
                     setTaskState(UDSTask.NONE)
                 }
             }
