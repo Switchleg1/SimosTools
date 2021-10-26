@@ -1,11 +1,12 @@
 package com.app.simoslogger
 
 import android.net.Uri
+import java.io.InputStream
 
 object UDSFlasher {
     private val TAG = "UDSflash"
     private var mTask = FLASH_ECU_CAL_SUBTASK.NONE
-    private var mUri:Uri? = null
+    private var mFileStream: InputStream? = null
     private var mLastString: String = ""
 
     fun getInfo(): String {
@@ -16,8 +17,11 @@ object UDSFlasher {
         return mTask == FLASH_ECU_CAL_SUBTASK.NONE
     }
 
-    fun setUri(uri: Uri) {
-        mUri = uri
+    fun setStream(stream: InputStream?) {
+        //If state == idle...
+        stream?.let {
+            mFileStream = stream
+        }
     }
 
     fun buildFlashCAL(ticks: Int): ByteArray {

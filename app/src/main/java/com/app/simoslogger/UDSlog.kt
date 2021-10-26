@@ -18,6 +18,10 @@ object UDSLogger {
     private var mTireCircumference = -1f
     private var mFoundMS2PIDS = false
     private var mFoundTQPIDS = false
+    private var mEnabledArray22 = byteArrayOf()
+    private var mEnabledArray3E = byteArrayOf()
+    private var mAddressArray3E = byteArrayOf()
+
 
     fun isCalcHP(): Boolean {
         if(Settings.calculateHP && (mFoundTQPIDS || mFoundMS2PIDS)) {
@@ -128,7 +132,7 @@ object UDSLogger {
     }
 
     private fun findHPPIDS22() {
-        PIDs.getList()?.let { list ->
+        PIDs.list22?.let { list ->
             for (x in 0 until list.count()) {
                 //Look for torque PID
                 if (list[x]?.address == 0x437C.toLong()) {
@@ -147,7 +151,7 @@ object UDSLogger {
     }
 
     private fun findHPPIDS3E() {
-        PIDs.getList()?.let { list ->
+        PIDs.list3E?.let { list ->
             for (x in 0 until list.count()) {
                 //Look for torque PID
                 if (list[x]?.address == 0xd0015344) {
@@ -183,38 +187,38 @@ object UDSLogger {
     }
 
     private fun frameCount22(): Int {
-        return buildAddress22().count()
+        return (mEnabledArray22.count()-1) / 8 + 1
     }
 
     private fun frameCount3E(): Int {
-        return (buildAddress3E().count() / 0x8F) + 2
+        return (mAddressArray3E.count() / 0x8F) + 2
     }
 
-    private fun buildAddress22(): IntArray {
-        PIDs.getList()?.let { list ->
+    private fun buildEnabledArray(mode: UDSLoggingMode = getMode()): ByteArray {
+        PIDs.getList(mode)?.let { list ->
             //build list of addresses that are enabled
-            var addressArray: IntArray = intArrayOf()
+            var enabledArray: ByteArray = byteArrayOf()
             for (i in 0 until list.count()) {
                 val pid: PIDStruct? = list[i]
                 pid?.let {
                     if (it.enabled) {
-                        addressArray += it.address.toInt()
+                        enabledArray += i.toByte()
                     }
                 }
             }
 
-            return addressArray
+            return enabledArray
         }
 
-        return intArrayOf()
+        return byteArrayOf()
     }
 
     private fun buildAddress3E(): ByteArray {
-        PIDs.getList()?.let { list ->
+        PIDs.list3E?.let { list ->
             //build list of addresses that are enabled
             var addressArray: ByteArray = byteArrayOf()
-            for (i in 0 until list.count()) {
-                val pid: PIDStruct? = list[i]
+            for (i in 0 until mEnabledArray3E.count()) {
+                val pid: PIDStruct? = list[mEnabledArray3E[i].toInt()]
                 pid?.let {
                     if (it.enabled) {
                         addressArray += (it.length and 0xFF).toByte()
@@ -231,42 +235,48 @@ object UDSLogger {
     }
 
     private fun buildFrame22(index: Int): ByteArray {
-        val frameCount = frameCount22()
-        if (index in 0 until frameCount) {
-            //Build list of enabled PIDS
-            val addressArray = buildAddress22()
+        if(index == 0)
+            mEnabledArray22 = buildEnabledArray()
 
-            //Build header
-            val bleHeader = BLEHeader()
-            bleHeader.cmdSize = 1
-            bleHeader.cmdFlags = when (index) {
-                0 -> BLECommandFlags.PER_ADD.value or BLECommandFlags.PER_CLEAR.value
-                frameCount - 1 -> BLECommandFlags.PER_ADD.value or BLECommandFlags.PER_ENABLE.value
-                else -> BLECommandFlags.PER_ADD.value
-            }
+        PIDs.list22?.let { list ->
+            val frameCount = frameCount22()
+            if (index in 0 until frameCount) {
+                //Build header
+                val bleHeader = BLEHeader()
+                bleHeader.cmdSize = 1
+                bleHeader.cmdFlags = when (index) {
+                    0 -> BLECommandFlags.PER_ADD.value or BLECommandFlags.PER_CLEAR.value
+                    frameCount - 1 -> BLECommandFlags.PER_ADD.value or BLECommandFlags.PER_ENABLE.value
+                    else -> BLECommandFlags.PER_ADD.value
+                }
 
-            //add pids to buffer
-            var pidBuff = byteArrayOf(0x22.toByte())
-            val startIndex = if (index * 8 > addressArray.count()) addressArray.count()-1
-                                else index * 8
-            val endIndex = if (startIndex + 8 > addressArray.count()) addressArray.count()-1
-                                else startIndex + 8
-            for (i in startIndex until endIndex) {
+                //add pids to buffer
+                var pidBuff = byteArrayOf(0x22.toByte())
+                val startIndex =
+                    if (index * 8 > mEnabledArray22.count()) mEnabledArray22.count()
+                    else index * 8
+                val endIndex =
+                    if (startIndex + 8 > mEnabledArray22.count()) mEnabledArray22.count()
+                    else startIndex + 8
+                for (i in startIndex until endIndex) {
                     bleHeader.cmdSize += 2
-                    pidBuff += addressArray[i].toArray2()
+                    pidBuff += list[mEnabledArray22[i].toInt()]!!.address.toArray2()
+                }
+                return bleHeader.toByteArray() + pidBuff
             }
-            return bleHeader.toByteArray() + pidBuff
         }
 
         return byteArrayOf()
     }
 
     private fun buildFrame3E(index: Int): ByteArray {
-        //Build list of enabled PIDS
-        val addressArray = buildAddress3E()
+        if(index == 0) {
+            mEnabledArray3E = buildEnabledArray()
+            mAddressArray3E = buildAddress3E()
+        }
 
         //Do we even have any PIDs in the range?  If not send persist message
-        if (index * 0x8F >= addressArray.count()) {
+        if (index * 0x8F >= mAddressArray3E.count()) {
             if(index == frameCount3E() - 1) {
                 val bleHeader = BLEHeader()
                 bleHeader.cmdSize = 6
@@ -291,12 +301,12 @@ object UDSLogger {
         }
 
         //constrain copy range or we will receive an exception
-        val endOfArray = if ((1 + index) * 0x8F > addressArray.count()) {
-            addressArray.count()
+        val endOfArray = if ((1 + index) * 0x8F > mAddressArray3E.count()) {
+            mAddressArray3E.count()
         } else {
             (1 + index) * 0x8F
         }
-        val selectArray: ByteArray = addressArray.copyOfRange(index * 0x8F, endOfArray)
+        val selectArray: ByteArray = mAddressArray3E.copyOfRange(index * 0x8F, endOfArray)
         val bleHeader = BLEHeader()
         bleHeader.cmdSize = 8 + selectArray.count()
         bleHeader.cmdFlags = BLECommandFlags.PER_CLEAR.value
@@ -312,139 +322,72 @@ object UDSLogger {
     }
 
     private fun processFrame22(tick: Int, buff: ByteArray?, context: Context): UDSReturn {
-        PIDs.getList()?.let { list ->
-            // if the buffer is null abort
-            if (buff == null) {
-                return UDSReturn.ERROR_NULL
-            }
+        // if the buffer is null abort
+        if (buff == null) {
+            return UDSReturn.ERROR_NULL
+        }
 
-            // check to make sure ble header byte matches
-            val bleHeader = BLEHeader()
-            bleHeader.fromByteArray(buff)
-            val bData = buff.copyOfRange(8, buff.size)
-            if (!bleHeader.isValid()) {
-                return UDSReturn.ERROR_HEADER
-            }
+        // check to make sure ble header byte matches
+        val bleHeader = BLEHeader()
+        bleHeader.fromByteArray(buff)
+        val bData = buff.copyOfRange(8, buff.size)
+        if (!bleHeader.isValid()) {
+            return UDSReturn.ERROR_HEADER
+        }
 
-            // does the size of the data match the header?
-            if (bData.count() != bleHeader.cmdSize) {
-                return UDSReturn.ERROR_CMDSIZE
-            }
+        // does the size of the data match the header?
+        if (bData.count() != bleHeader.cmdSize) {
+            return UDSReturn.ERROR_CMDSIZE
+        }
 
-            // make sure we received an 'OK' from the ECU
-            if (bData[0] != 0x62.toByte()) {
-                return UDSReturn.ERROR_RESPONSE
-            }
+        // make sure we received an 'OK' from the ECU
+        if (bData[0] != 0x62.toByte()) {
+            return UDSReturn.ERROR_RESPONSE
+        }
 
-            //In init state
-            if (tick < frameCount22()) {
-                return UDSReturn.OK
-            }
-
-            // process the data in the buffer
-            var i = 1
-            while (i < bleHeader.cmdSize - 3) {
-                val pid: PIDStruct =
-                    PIDs.getPID(((bData[i++] and 0xFF) shl 8) + (bData[i++] and 0xFF).toLong())
-                        ?: return UDSReturn.ERROR_UNKNOWN
-                if (pid.length == 1) {
-                    if (pid.signed) {
-                        PIDs.setValue(pid, (bData[i++] and 0xFF).toByte().toFloat())
-                    } else {
-                        PIDs.setValue(pid, (bData[i++] and 0xFF).toFloat())
-                    }
-                } else {
-                    if (pid.signed) {
-                        PIDs.setValue(
-                            pid,
-                            (((bData[i++] and 0xFF) shl 8) + (bData[i++] and 0xFF)).toShort()
-                                .toFloat()
-                        )
-                    } else {
-                        PIDs.setValue(
-                            pid,
-                            (((bData[i++] and 0xFF) shl 8) + (bData[i++] and 0xFF)).toFloat()
-                        )
-                    }
-                }
-            }
-
-            //Update PID data
-            PIDs.updateData()
-
-            //Update Log every 2nd tick
-            if (tick % frameCount22() == 0) {
-                val dEnable = list[list.count() - 1]
-                if ((!Settings.invertCruise && dEnable?.value != 0.0f) ||
-                    (Settings.invertCruise && dEnable?.value == 0.0f)) {
-                    //If we were not enabled before we must open a log to start writing
-                    if (!mLastEnabled) {
-                        val currentDateTime = LocalDateTime.now()
-                        LogFile.create(
-                            "simoslogger-${
-                                currentDateTime.format(
-                                    DateTimeFormatter.ofPattern(
-                                        "yyyy_MM_dd-HH_mm_ss"
-                                    )
-                                )
-                            }.csv", context
-                        )
-                        //Start with time, its required
-                        var strItems: String? = "Time"
-
-                        //Add all enabled PIDS
-                        for (x in 0 until list.count()) {
-                            list[x]?.let {
-                                if (it.enabled)
-                                    strItems += ",${it.name}"
-                            }
-                        }
-
-                        //reset torque / rpm pids
-                        resetHPPIDS()
-
-                        //Are we supposed to calculate HP? find PIDS
-                        if (Settings.calculateHP) {
-                            //Look for PIDS related to calculating HP
-                            findHPPIDS()
-
-                            //If we found PIDs add column
-                            if (isCalcHP())
-                                strItems += ",HP"
-                        }
-
-                        LogFile.addLine(strItems)
-                    }
-                    mLastEnabled = true
-
-                    //Write new values to log
-                    var strItems: String? = (bleHeader.tickCount.toFloat() / 1000.0f).toString()
-                    for (x in 0 until list.count()) {
-                        list[x]?.let {
-                            if (it.enabled)
-                                strItems += ",${it.value}"
-                        }
-                    }
-
-                    //Calculate HP and found PIDS?
-                    if (isCalcHP()) {
-                        val calcHP = getHP(getTorque())
-                        strItems += ",${calcHP}"
-                    }
-
-                    LogFile.addLine(strItems)
-                } else {
-                    if (mLastEnabled) {
-                        LogFile.close()
-                    }
-                    mLastEnabled = false
-                }
-            }
-
+        //In init state
+        if (tick < frameCount22()) {
             return UDSReturn.OK
         }
 
-        return UDSReturn.ERROR_UNKNOWN
+        // process the data in the buffer
+        var i = 1
+        while (i <= bleHeader.cmdSize - 3) {
+            val pid: PIDStruct =
+                PIDs.getPID(((bData[i++] and 0xFF) shl 8) + (bData[i++] and 0xFF).toLong())
+                    ?: return UDSReturn.ERROR_UNKNOWN
+            if (pid.length == 1) {
+                if (pid.signed) {
+                    PIDs.setValue(pid, (bData[i++] and 0xFF).toByte().toFloat())
+                } else {
+                    PIDs.setValue(pid, (bData[i++] and 0xFF).toFloat())
+                }
+            } else {
+                if (pid.signed) {
+                    PIDs.setValue(
+                        pid,
+                        (((bData[i++] and 0xFF) shl 8) + (bData[i++] and 0xFF)).toShort()
+                            .toFloat()
+                    )
+                } else {
+                    PIDs.setValue(
+                        pid,
+                        (((bData[i++] and 0xFF) shl 8) + (bData[i++] and 0xFF)).toFloat()
+                    )
+                }
+            }
+        }
+
+        //Update Log once all pids have been updated
+        if (tick % frameCount22() == 0) {
+            //Update PID data
+            PIDs.updateData()
+
+            //Check if we need to write to log
+            return writeToLog(bleHeader.tickCount, context)
+        }
+
+        return UDSReturn.OK
     }
 
     private fun processFrame3E(tick: Int, buff: ByteArray?, context: Context): UDSReturn {
@@ -479,9 +422,8 @@ object UDSLogger {
 
             //Update PID Values
             var dPos = 1
-            for (i in 0 until list.count()) {
-                val pid: PIDStruct? = list[i]
-
+            for (i in 0 until mEnabledArray3E.count()) {
+                val pid: PIDStruct? = list[mEnabledArray3E[i].toInt()]
                 try {
                     //make sure we are in range
                     if (dPos + pid!!.length > bData.count())
@@ -517,14 +459,29 @@ object UDSLogger {
             //Update PID data
             PIDs.updateData()
 
+            //Check if we need to write to log
+            return writeToLog(bleHeader.tickCount, context)
+        }
+
+        return UDSReturn.ERROR_UNKNOWN
+    }
+
+    private fun writeToLog(tick: Int, context: Context): UDSReturn {
+        PIDs.getList()?.let { list ->
             val dEnable = list[list.count() - 1]
             if ((!Settings.invertCruise && dEnable?.value != 0.0f) ||
-                (Settings.invertCruise && dEnable?.value == 0.0f)) {
+                (Settings.invertCruise && dEnable?.value == 0.0f)
+            ) {
                 //If we were not enabled before we must open a log to start writing
                 if (!mLastEnabled) {
                     val currentDateTime = LocalDateTime.now()
-                    LogFile.create("simoslogger-${currentDateTime.format(
-                        DateTimeFormatter.ofPattern("yyyy_MM_dd-HH_mm_ss"))}.csv", context)
+                    LogFile.create(
+                        "simoslogger-${
+                            currentDateTime.format(
+                                DateTimeFormatter.ofPattern("yyyy_MM_dd-HH_mm_ss")
+                            )
+                        }.csv", context
+                    )
 
                     //Add time its required
                     var strItems: String? = "Time"
@@ -542,7 +499,7 @@ object UDSLogger {
                         //Look for PIDS related to calculating HP
                         findHPPIDS()
 
-                        //If we found PIDs add column
+                        //If we found HP PIDs add columns
                         if (isCalcHP())
                             strItems += ",TQ,HP"
                     }
@@ -552,7 +509,7 @@ object UDSLogger {
                 mLastEnabled = true
 
                 //Write new values to log
-                var strItems: String? = (bleHeader.tickCount.toFloat() / 1000.0f).toString()
+                var strItems: String? = (tick.toFloat() / 1000.0f).toString()
                 for (x in 0 until list.count()) {
                     strItems += ",${list[x]?.value}"
                 }
@@ -561,7 +518,7 @@ object UDSLogger {
                 if (isCalcHP()) {
                     val calcTQ = getTorque()
                     val calcHP = getHP(calcTQ)
-                    strItems += ",${calcTQ},${calcHP}"
+                    strItems += ",$calcTQ,$calcHP"
                 }
 
                 LogFile.addLine(strItems)

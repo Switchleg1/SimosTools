@@ -154,10 +154,9 @@ object ConfigFile {
                     val b = value.toBoolean()
                     Settings.alwaysPortrait = b
                 }
-                "LogFile" -> {
+                "DebugLogFlags" -> {
                     val i = value.toInt()
-                    if(i in 1 .. 0xF)
-                        Settings.logFlags = i
+                    DebugLog.setFlags(i)
                 }
                 DisplayType.values()[0].key -> {
                     val type = DisplayType.values().find {it.cfgName == value}
@@ -186,6 +185,7 @@ object ConfigFile {
         mProperties["TireDiameter"] = DEFAULT_TIRE_DIAMETER.toString()
         mProperties["CurbWeight"] = DEFAULT_CURB_WEIGHT.toString()
         mProperties["DragCoefficient"] = "1.0"
+        mProperties["DebugLogFlags"] = DebugLog.getFlags().toString()
         mProperties[DisplayType.values()[0].key] = DisplayType.BAR.cfgName
         GearRatios.values().forEach {
             mProperties["${it.key}.${it.gear}"] = it.ratio.toString()

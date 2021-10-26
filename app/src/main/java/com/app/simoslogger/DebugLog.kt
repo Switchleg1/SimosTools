@@ -11,6 +11,18 @@ import java.time.format.DateTimeFormatter
 object DebugLog {
     private val TAG = "DebugLog"
     private var mBufferedWriter: BufferedWriter? = null
+    private var mFlags: Int = DEFAULT_DEBUG_LOG_FLAGS
+
+    fun setFlags(flags: Int) {
+        if(flags in 0 .. 32) {
+            mFlags = flags
+            d(TAG,"Set debug flags to: $flags")
+        }
+    }
+
+    fun getFlags(): Int {
+        return mFlags
+    }
 
     fun create(fileName: String?, context: Context?) {
         context?.let {
@@ -41,7 +53,7 @@ object DebugLog {
     fun i(tag: String, text: String) {
         Log.i(tag, text)
 
-        if((Settings.logFlags and LOG_INFO) == 0)
+        if((mFlags and DEBUG_LOG_INFO) == 0)
             return
 
         add("${timeStamp()} [I] $tag: $text")
@@ -51,7 +63,7 @@ object DebugLog {
     fun w(tag: String, text: String) {
         Log.w(tag, text)
 
-        if((Settings.logFlags and LOG_WARNING) == 0)
+        if((mFlags and DEBUG_LOG_WARNING) == 0)
             return
 
         add("${timeStamp()} [W] $tag: $text")
@@ -61,7 +73,7 @@ object DebugLog {
     fun d(tag: String, text: String) {
         Log.d(tag, text)
 
-        if((Settings.logFlags and LOG_DEBUG) == 0)
+        if((mFlags and DEBUG_LOG_DEBUG) == 0)
             return
 
         add("${timeStamp()} [D] $tag: $text")
@@ -71,7 +83,7 @@ object DebugLog {
     fun e(tag: String, text: String, e: Exception) {
         Log.e(tag, text, e)
 
-        if((Settings.logFlags and LOG_EXCEPTION) == 0)
+        if((mFlags and DEBUG_LOG_EXCEPTION) == 0)
             return
 
         add("${timeStamp()} [E] $tag: $text")
@@ -80,7 +92,7 @@ object DebugLog {
 
     fun c(tag: String, buff: ByteArray?, from: Boolean) {
         buff?.let {
-            if ((Settings.logFlags and LOG_COMMUNICATIONS) == 0)
+            if ((mFlags and DEBUG_LOG_COMMUNICATIONS) == 0)
                 return
 
             val dirString = if (from) "${it.count()} ->"
@@ -103,7 +115,7 @@ object DebugLog {
     }
 
     private fun add(text: String) {
-        if(Settings.logFlags == LOG_NONE)
+        if(mFlags == DEBUG_LOG_NONE)
             return
 
         try {

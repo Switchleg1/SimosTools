@@ -34,7 +34,9 @@ class FlashingFragment : Fragment() {
         if (result.resultCode == Activity.RESULT_OK) {
             val uri: Uri? = result.data?.data
             uri?.let {
-                UDSFlasher.setUri(uri)
+                //Set UDSFlasher filestream
+                val fileStream = activity?.contentResolver?.openInputStream(uri);
+                UDSFlasher.setStream(fileStream)
 
                 // Tell the service to start flashing
                 val serviceIntent = Intent(context, BTService::class.java)

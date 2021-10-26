@@ -13,7 +13,6 @@ object Settings {
     var curbWeight              = DEFAULT_CURB_WEIGHT
     var dragCoefficient: Double = DEFAULT_DRAG_COEFFICIENT
     var alwaysPortrait          = DEFAULT_ALWAYS_PORTRAIT
-    var logFlags                = DEFAULT_LOG_FLAGS
     var displayType             = DisplayType.ROUND
 
     var msgList: Array<String>? = null

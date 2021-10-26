@@ -117,7 +117,7 @@ enum class UDSLoggingMode(val cfgName: String, val addressMin: Long, val address
     MODE_22("22", 0x1000.toLong(), 0xFFFF.toLong()),
     MODE_3E("3E", 0x10000000.toLong(), 0xFFFFFFFF);
 
-    val key = "Mode"
+    val key = "UDSLoggingMode"
 }
 
 // UDS return codes
@@ -257,12 +257,12 @@ val BLE_HEADER_TX               = 0x7E0
 val MAX_PIDS                    = 100
 
 //Log files
-val LOG_NONE                    = 0
-val LOG_INFO                    = 1
-val LOG_WARNING                 = 2
-val LOG_DEBUG                   = 4
-val LOG_EXCEPTION               = 8
-val LOG_COMMUNICATIONS          = 16
+val DEBUG_LOG_NONE              = 0
+val DEBUG_LOG_INFO              = 1
+val DEBUG_LOG_WARNING           = 2
+val DEBUG_LOG_DEBUG             = 4
+val DEBUG_LOG_EXCEPTION         = 8
+val DEBUG_LOG_COMMUNICATIONS    = 16
 
 //Default settings
 val DEFAULT_KEEP_SCREEN_ON      = true
@@ -277,7 +277,7 @@ val DEFAULT_CURB_WEIGHT         = 1500f
 val DEFAULT_DRAG_COEFFICIENT    = 0.000005
 val DEFAULT_ALWAYS_PORTRAIT     = false
 val DEFAULT_DISPLAY_SIZE        = 1f
-val DEFAULT_LOG_FLAGS           = LOG_INFO or LOG_WARNING or LOG_EXCEPTION
+val DEFAULT_DEBUG_LOG_FLAGS     = DEBUG_LOG_INFO or DEBUG_LOG_INFO or DEBUG_LOG_INFO
 
 //TQ/HP Calculations
 val KG_TO_N                     = 9.80665f

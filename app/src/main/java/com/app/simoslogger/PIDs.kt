@@ -34,8 +34,8 @@ object PIDs {
         PIDStruct(0x39c0, 2, false,0f,  300f,   0f,   300f,   0.0f, 0f,"x / 10",                "%05.1f","MAP Actual",          "kpa",    true, ""),
         PIDStruct(0x39c1, 2, false,0f,  300f,   0f,   300f,   0.0f, 0f,"x / 10",                "%05.1f","MAP Setpoint",        "kpa",    true, ""),
         PIDStruct(0x39c2, 2, false,0f,  300f,   0f,   300f,   0.0f, 0f,"x / 10",                "%05.1f","PUT Actual",          "kpa",    true, ""),
-        PIDStruct(0x10c0, 2, false,0f,  2f,     0.7f, 4f,     0.0f, 0f,"x / 1024",              "%04.3f","Lambda Actual",       "l",      true, ""),
-        PIDStruct(0x2950, 2, false,0f,  2f,     0.7f, 4f,     0.0f, 0f,"x / 1024",              "%04.3f","Lambda Setpoint",     "l",      true, ""),
+        PIDStruct(0x10c0, 2, false,0f,  2f,     0.7f, 5f,     0.0f, 0f,"x / 1024",              "%04.3f","Lambda Actual",       "l",      true, ""),
+        PIDStruct(0x2950, 2, false,0f,  2f,     0.0f, 5f,     0.0f, 0f,"x / 1024",              "%04.3f","Lambda Setpoint",     "l",      true, ""),
         PIDStruct(0x39a2, 2, false,0f,  100f,   -1f,  100f,   0.0f, 0f,"100 - x / 100",         "%04.1f","Wastegate Actual",    "%",      true, ""),
         PIDStruct(0x39a3, 2, false,0f,  100f,   -1f,  100f,   0.0f, 0f,"100 - x / 100",         "%04.1f","Wastegate Setpoint",  "%",      true, ""),
         PIDStruct(0x2032, 2, false,0f,  1500f,  -1f,  1500f,  0.0f, 0f,"x / 2.4",               "%04.2f","Airmass Actual",      "g/s",    true, ""),
@@ -73,9 +73,9 @@ object PIDs {
         PIDStruct(0x201a, 2, true, -10f,10f,    -50f, 50f,    0.0f, 0f,"x / 10",                "%03.1f","Exhaust Cam Position","°",      true, ""),
         PIDStruct(0x201e, 2, true, -10f,10f,    -50f, 50f,    0.0f, 0f,"x / 10",                "%03.1f","Intake Cam Position", "°",      true, ""),
         PIDStruct(0x210f, 2, false,0f,  6f,     -1f,  10f,    0.0f, 0f,"x",                     "%01.0f","Gear",                "",       true, ""),
-        PIDStruct(0x11cd, 1, false,0f,  6f,     -1f,  10f,    0.0f, 0f,"x - 40",                "%02.0f","Coolant Temp",        "°C",     true, ""),
+        PIDStruct(0x11cd, 1, false,-50f,120f,   -100f,120f,   0.0f, 0f,"x - 40",                "%02.0f","Coolant Temp",        "°C",     true, ""),
         PIDStruct(0x14a6, 1, false,0f,  2f,     8f,   16f,    0.8f, 0f,"x * 0.1015625",         "%01.0f","Battery Voltage",     "V",      true, ""),
-        PIDStruct(0x203c, 2, false,0f,  2f,     -1f,  100f,   0.0f, 0f,"x",                     "%01.0f","Cruise Control",      "",       true, ""),
+        PIDStruct(0x203c, 2, false,0f,  1f,     -1f,  100f,   0.0f, 0f,"x",                     "%01.0f","Cruise Control",      "",       true, ""),
     )
 
     var list3E: Array<PIDStruct?>? = arrayOf(
@@ -129,7 +129,7 @@ object PIDs {
         PIDStruct(0xd001de8e, 1, false,0f,   3f,     -1000f,1000f,  0.0f, 0f,"x / 128",           "%05.3f","openflex_fac_cor",    "",      true, ""),
         PIDStruct(0xd0012028, 2, false,0f,   100f,   -1000f,1000f,  0.0f, 0f,"x / 10.24",         "%04.1f","Pedal Position",      "%",     true, ""),
         PIDStruct(0xd0000aa1, 1, false,0f,   1f,     -1000f,1000f,  0.0f, 0f,"x",                 "%01.0f","Port Flap Position",  "",      true, ""),
-        PIDStruct(0xd00098fc, 4, false,0f,   300f,   -1f,   300f,   0.0f, 0f,"x / 1000",          "%05.1f","PUT Actual",          "kpa",   true, ""),
+        PIDStruct(0xd00098fc, 4, false,0f,   300f,   -1000f,300f,   0.0f, 0f,"x / 1000",          "%05.1f","PUT Actual",          "kpa",   true, ""),
         PIDStruct(0xd0011eee, 2, false,0f,   300f,   -1000f,1000f,  0.0f, 0f,"x / 120.6017666543","%05.1f","PUT Setpoint",        "kpa",   true, ""),
         PIDStruct(0xd0013a44, 2, false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"x / 2.666666666667","%01.0f","SOI Actual",          "°",     true, ""),
         PIDStruct(0xd0013a42, 2, false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"x / 2.666666666667","%01.0f","SOI Limit",           "°",     true, ""),
@@ -144,7 +144,7 @@ object PIDs {
         PIDStruct(0xd0011e10, 2, false,0f,   100f,   -1000f,1000f,  0.0f, 0f,"x / 655.35999997",  "%05.3f","Wastegate Actual",    "%",     true, ""),
         PIDStruct(0xd0015c2c, 2, false,0f,   100f,   -1000f,1000f,  0.0f, 0f,"x / 655.35999997",  "%05.3f","Wastegate Setpoint",  "%",     true, ""),
         PIDStruct(0xd0015c5e, 2, false,0f,   2f,     -1000f,1000f,  0.0f, 0f,"x / 32",            "%03.1f","Wastegate Flow Req",  "kg/h",  true, ""),
-        PIDStruct(0xd001b6cd, 1, false,-100f,100f,   -1000f,1000f,  0.0f, 0f,"x",                 "%01.0f","Cruise Control",      "",      true, ""),
+        PIDStruct(0xd001b6cd, 1, false,0f,   1f,     -1000f,1000f,  0.0f, 0f,"x",                 "%01.0f","Cruise Control",      "",      true, ""),
     )
 
     var data22: Array<DATAStruct?>? = arrayOf(
