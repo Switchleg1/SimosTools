@@ -122,6 +122,7 @@ object UDSFlasher {
                     return UDSReturn.COMMAND_QUEUED
 
                 }
+                
                 FLASH_ECU_CAL_SUBTASK.CHECK_PROGRAMMING_PRECONDITION -> {
                     //Check programming precondition, routine 0x0203
                     mCommand = buildBLEFrame(byteArrayOf(0x01.toByte(), 0x02.toByte(), 0x03.toByte()))
