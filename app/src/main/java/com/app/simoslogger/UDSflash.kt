@@ -30,7 +30,7 @@ object UDSFlasher {
     }
 
     fun buildFlashCAL(ticks: Int): ByteArray {
-        if(bin.size == 0){
+        if(bin.isEmpty()){
             mLastString = "Selected file is empty!"
             return byteArrayOf()
         }
@@ -45,6 +45,7 @@ object UDSFlasher {
     }
 
     fun processFlashCAL(ticks: Int, buff: ByteArray?): UDSReturn {
+
         buff?.let {
 
             DebugLog.d(TAG, "Flash subroutine: " + mTask)
@@ -89,8 +90,6 @@ object UDSFlasher {
                     mTask = mTask.next()
                     mCommand = sendTesterPresent()
                     return UDSReturn.COMMAND_QUEUED
-
-
                 }
 
                 FLASH_ECU_CAL_SUBTASK.CHECKSUM_BIN ->{
@@ -108,11 +107,11 @@ object UDSFlasher {
                     if(checksummed.updated) mLastString += "Checksum corrected\n"
                     else mLastString += "    Checksum not updated\n"
 
+                    bin = checksummed.bin
 
                     mTask = mTask.next()
                     mCommand = sendTesterPresent()
                     return UDSReturn.COMMAND_QUEUED
-
                 }
 
                 FLASH_ECU_CAL_SUBTASK.COMPRESS_BIN ->{
@@ -123,8 +122,8 @@ object UDSFlasher {
 
                     var compressedSize = bin.size
 
-                    mLastString += "Uncompressed bin size: " + uncompressedSize + "\n"
-                    mLastString += "Compressed bin size: " + compressedSize
+                    mLastString += "Uncompressed bin size: $uncompressedSize\n"
+                    mLastString += "Compressed bin size: $compressedSize"
 
                     mTask = mTask.next()
                     mCommand = sendTesterPresent()
@@ -140,8 +139,8 @@ object UDSFlasher {
 
                     var encryptedSize = bin.size
 
-                    mLastString += "Unencrypted bin size: " + unencryptedSize + "\n"
-                    mLastString += "Encrypted bin size: " + encryptedSize
+                    mLastString += "Unencrypted bin size: $unencryptedSize \n"
+                    mLastString += "Encrypted bin size: $encryptedSize"
 
 
                     mTask = mTask.next()
@@ -297,27 +296,34 @@ object UDSFlasher {
                         mTask = mTask.next()
                         return UDSReturn.COMMAND_QUEUED
                     }
-
-                }
-                FLASH_ECU_CAL_SUBTASK.CHECKSUM_BLOCK -> {
-                    if(buff[0] == 0x7e.toByte()){
-                        mCommand = buildBLEFrame(byteArrayOf(0x31.toByte(),0x01.toByte(),0x02.toByte(),0x02.toByte(),0x01.toByte(),0x05.toByte(), 0x00.toByte(), 0x04.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte()))
-                        mLastString = "Checksumming flashed block"
-                        return UDSReturn.COMMAND_QUEUED
-                    }
-                    else if(buff[0] == 0x71.toByte()){
-                        mLastString = "Block Checksummed OK"
-                        mCommand = sendTesterPresent()
-                        mTask = mTask.next()
-                        return UDSReturn.COMMAND_QUEUED
-                    }
                     else{
                         return UDSReturn.ERROR_UNKNOWN
                     }
 
                 }
+                FLASH_ECU_CAL_SUBTASK.CHECKSUM_BLOCK -> {
+                    when(buff[0]){
+
+                        0x7e.toByte() -> {
+                            mCommand = buildBLEFrame(byteArrayOf(0x31.toByte(),0x01.toByte(),0x02.toByte(),0x02.toByte(),0x01.toByte(),0x05.toByte(), 0x00.toByte(), 0x04.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte()))
+                            mLastString = "Checksumming flashed block"
+                            return UDSReturn.COMMAND_QUEUED
+                        }
+                        0x71.toByte() -> {
+                            mLastString = "Block Checksummed OK"
+                            mCommand = sendTesterPresent()
+                            mTask = mTask.next()
+                            return UDSReturn.COMMAND_QUEUED
+                        }
+                        else -> {
+                            return UDSReturn.ERROR_UNKNOWN
+                        }
+                    }
+
+                }
                 FLASH_ECU_CAL_SUBTASK.VERIFY_PROGRAMMING_DEPENDENCIES -> {
                     //Verify programming dependencies, routine 0xFF01
+
                     if(buff[0] == 0x7e.toByte()){
                         mCommand = buildBLEFrame(byteArrayOf(0x31.toByte(), 0x01.toByte(), 0xFF.toByte(), 0x01.toByte()))
 
@@ -348,10 +354,10 @@ object UDSFlasher {
                         return UDSReturn.ERROR_UNKNOWN
                     }
                 }
+                else -> {
+                    return UDSReturn.ERROR_UNKNOWN
+                }
             }
-
-            DebugLog.d(TAG, "No valid flash subroutine triggered")
-            return UDSReturn.ERROR_UNKNOWN
         }
 
         return UDSReturn.ERROR_NULL
