@@ -1,6 +1,11 @@
 package com.app.simoslogger
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.res.Configuration
+import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -19,6 +24,44 @@ open class BaseLoggingFragment: Fragment() {
     open var mLayoutName: Int = R.id.loggingLayoutScroll
     open var mPIDList = byteArrayOf()
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        //check orientation and type
+        checkOrientation()
+
+        //Build our list of PIDS that are to be shown on this tab
+        buildPIDList()
+
+        //Build the layout
+        buildLayout()
+
+        //Do we keep the screen on?
+        view.keepScreenOn = Settings.keepScreenOn
+
+        //update PID text
+        updatePIDText()
+
+        //Set background color
+        view.setBackgroundColor(ColorList.BG_NORMAL.value)
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        setColor()
+
+        val filter = IntentFilter()
+        filter.addAction(GUIMessage.READ_LOG.toString())
+        this.activity?.registerReceiver(mBroadcastReceiver, filter)
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        this.activity?.unregisterReceiver(mBroadcastReceiver)
+    }
+
     open fun checkOrientation() {
         //check orientation and type
         var currentOrientation = resources.configuration.orientation
@@ -36,10 +79,6 @@ open class BaseLoggingFragment: Fragment() {
                 mPIDsPerLayout = 2
             }
         }
-    }
-
-    open fun onGaugeClick(view: View?): Boolean {
-        return true
     }
 
     open fun buildLayout() {
@@ -259,6 +298,42 @@ open class BaseLoggingFragment: Fragment() {
             }
         } catch(e: Exception) {
             DebugLog.e(TAG, "Unable to update PID colors.", e)
+        }
+    }
+
+    open fun doUpdate(readCount: Int, readTime: Long) {
+    }
+
+    open fun buildPIDList() {
+    }
+
+    open fun onGaugeClick(view: View?): Boolean {
+        return true
+    }
+
+    private val mBroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent) {
+            when (intent.action) {
+                GUIMessage.READ_LOG.toString() -> {
+                    val readCount = intent.getIntExtra("readCount", 0)
+                    val readTime = intent.getLongExtra("readTime", 0)
+                    val readResult = intent.getSerializableExtra("readResult") as UDSReturn
+
+                    //Make sure we received an ok
+                    if(readResult != UDSReturn.OK) {
+                        return
+                    }
+
+                    //Update PID Text
+                    updatePIDText()
+
+                    //Update progress
+                    updateProgress()
+
+                    //Update callback
+                    doUpdate(readCount, readTime)
+                }
+            }
         }
     }
 }

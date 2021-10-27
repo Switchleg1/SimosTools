@@ -1,5 +1,8 @@
 package com.app.simoslogger
 
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+
 object Settings {
     var updateRate              = DEFAULT_UPDATE_RATE
     var outputDirectory         = DirectoryList.APP

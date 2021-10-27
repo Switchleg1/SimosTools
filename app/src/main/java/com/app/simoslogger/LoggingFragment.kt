@@ -1,9 +1,6 @@
 package com.app.simoslogger
 
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -58,12 +55,13 @@ class LoggingFragment : BaseLoggingFragment() {
             updatePIDText()
         }
 
-        //check orientation and type
-        checkOrientation()
-
         //Set packet textview
         mPackCount = view.findViewById(R.id.textViewPackCount)
         mPackCount?.setTextColor(ColorList.GAUGE_NORMAL.value)
+    }
+
+    override fun buildPIDList() {
+        super.buildPIDList()
 
         //Build our list of PIDS in this layout
         PIDs.getList()?.let { list ->
@@ -74,34 +72,6 @@ class LoggingFragment : BaseLoggingFragment() {
             }
             mPIDList = logList
         }
-
-        //Build the layout
-        buildLayout()
-
-        //Do we keep the screen on?
-        view.keepScreenOn = Settings.keepScreenOn
-
-        //update PID text
-        updatePIDText()
-
-        //Set background color
-        view.setBackgroundColor(ColorList.BG_NORMAL.value)
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        setColor()
-
-        val filter = IntentFilter()
-        filter.addAction(GUIMessage.READ_LOG.toString())
-        this.activity?.registerReceiver(mBroadcastReceiver, filter)
-    }
-
-    override fun onPause() {
-        super.onPause()
-
-        this.activity?.unregisterReceiver(mBroadcastReceiver)
     }
 
     override fun onGaugeClick(view: View?): Boolean {
@@ -120,48 +90,26 @@ class LoggingFragment : BaseLoggingFragment() {
         return super.onGaugeClick(view)
     }
 
-    private val mBroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent) {
-            when (intent.action) {
-                GUIMessage.READ_LOG.toString() -> {
-                    val readCount = intent.getIntExtra("readCount", 0)
-                    val readTime = intent.getLongExtra("readTime", 0)
-                    val readResult = intent.getSerializableExtra("readResult") as UDSReturn
+    override fun doUpdate(readCount: Int, readTime: Long) {
+        //Clear stats are startup
+        if(readCount < 50) {
+            PIDs.resetData()
+        }
 
-                    //Make sure we received an ok
-                    if(readResult != UDSReturn.OK) {
-                        mPackCount?.text = readResult.toString()
-                        return
-                    }
-
-                    //Clear stats are startup
-                    if(readCount < 50) {
-                        PIDs.resetData()
-                    }
-
-                    //Update PID Text
-                    updatePIDText()
-
-                    //Update progress
-                    updateProgress()
-
-                    //Update fps
-                    val fps = readCount.toFloat() / (readTime.toFloat() / 1000.0f)
-                    mPackCount?.text = getString(R.string.textview_fps, "%03.1f".format(fps))
-                    if (UDSLogger.isEnabled()) {
-                        //Highlight packet count in red since we are logging
-                        if(!mLastEnabled) {
-                            mPackCount?.setTextColor(ColorList.GAUGE_WARN.value)
-                        }
-                    } else {
-                        //Not logging set packet count to black
-                        if(mLastEnabled) {
-                            mPackCount?.setTextColor(ColorList.GAUGE_NORMAL.value)
-                        }
-                    }
-                    mLastEnabled = UDSLogger.isEnabled()
-                }
+        //Update fps
+        val fps = readCount.toFloat() / (readTime.toFloat() / 1000.0f)
+        mPackCount?.text = getString(R.string.textview_fps, "%03.1f".format(fps))
+        if (UDSLogger.isEnabled()) {
+            //Highlight packet count in red since we are logging
+            if(!mLastEnabled) {
+                mPackCount?.setTextColor(ColorList.GAUGE_WARN.value)
+            }
+        } else {
+            //Not logging set packet count to black
+            if(mLastEnabled) {
+                mPackCount?.setTextColor(ColorList.GAUGE_NORMAL.value)
             }
         }
+        mLastEnabled = UDSLogger.isEnabled()
     }
 }

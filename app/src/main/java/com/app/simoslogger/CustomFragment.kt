@@ -1,21 +1,9 @@
 package com.app.simoslogger
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
-import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
-import android.widget.TextView
-import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import java.lang.Exception
 
 class CustomFragment1 : CustomFragment() {
     override var TAG = "CustomFragment1"
@@ -76,12 +64,14 @@ class CustomFragment4 : CustomFragment() {
 open class CustomFragment : BaseLoggingFragment() {
     open var mCustomName: String = "Custom1"
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onGaugeClick(view: View?): Boolean {
+        PIDs.resetData()
+        updatePIDText()
 
-        //check orientation and type
-        checkOrientation()
+        return true
+    }
 
+    override fun buildPIDList() {
         //Build our list of PIDS in this layout
         PIDs.getList()?.let { list ->
             //get list of custom PIDS
@@ -93,68 +83,6 @@ open class CustomFragment : BaseLoggingFragment() {
                 }
             }
             mPIDList = customList
-        }
-
-        //Build the layout
-        buildLayout()
-
-        //Do we keep the screen on?
-        view.keepScreenOn = Settings.keepScreenOn
-
-        //update PID text
-        updatePIDText()
-
-        //Set background color
-        view.setBackgroundColor(ColorList.BG_NORMAL.value)
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        setColor()
-
-        val filter = IntentFilter()
-        filter.addAction(GUIMessage.READ_LOG.toString())
-        this.activity?.registerReceiver(mBroadcastReceiver, filter)
-    }
-
-    override fun onPause() {
-        super.onPause()
-
-        this.activity?.unregisterReceiver(mBroadcastReceiver)
-    }
-
-    override fun onGaugeClick(view: View?): Boolean {
-        PIDs.resetData()
-        updatePIDText()
-
-        return true
-    }
-
-    private val mBroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent) {
-            when (intent.action) {
-                GUIMessage.READ_LOG.toString() -> {
-                    val readCount = intent.getIntExtra("readCount", 0)
-                    val readResult = intent.getSerializableExtra("readResult") as UDSReturn
-
-                    //Make sure we received an ok
-                    if(readResult != UDSReturn.OK) {
-                        return
-                    }
-
-                    //Clear stats are startup
-                    if(readCount < 50) {
-                        PIDs.resetData()
-                    }
-
-                    //Update PID Text
-                    updatePIDText()
-
-                    //Update progress
-                    updateProgress()
-                }
-            }
         }
     }
 }
