@@ -211,6 +211,7 @@ class SettingsFragment : Fragment() {
             currentView.findViewById<RadioButton>(R.id.radioButtonROUND).setTextColor(color)
             currentView.findViewById<RadioButton>(R.id.radioButton3E).setTextColor(color)
             currentView.findViewById<RadioButton>(R.id.radioButton22).setTextColor(color)
+            currentView.findViewById<CheckBox>(R.id.checkBoxDrawMinMax).setTextColor(color)
             currentView.findViewById<CheckBox>(R.id.checkBoxInvertCruise).setTextColor(color)
             currentView.findViewById<CheckBox>(R.id.checkBoxScreenOn).setTextColor(color)
             currentView.findViewById<CheckBox>(R.id.checkBoxAlwaysPortrait).setTextColor(color)
@@ -293,6 +294,9 @@ class SettingsFragment : Fragment() {
                 DirectoryList.APP -> currentView.findViewById<RadioButton>(R.id.radioButtonApplication).isChecked = true
             }
 
+            //Get draw minmax
+            currentView.findViewById<CheckBox>(R.id.checkBoxDrawMinMax).isChecked = Settings.drawMinMax
+
             //Get cruise invert
             currentView.findViewById<CheckBox>(R.id.checkBoxInvertCruise).isChecked = Settings.invertCruise
 
@@ -343,6 +347,9 @@ class SettingsFragment : Fragment() {
                 currentView.findViewById<RadioButton>(R.id.radioButtonDocuments).isChecked -> ConfigFile.set(DirectoryList.DOCUMENTS.key, DirectoryList.DOCUMENTS.cfgName)
                 currentView.findViewById<RadioButton>(R.id.radioButtonApplication).isChecked -> ConfigFile.set(DirectoryList.APP.key, DirectoryList.APP.cfgName)
             }
+
+            //Set draw min/max
+            ConfigFile.set("DrawMinMax", currentView.findViewById<CheckBox>(R.id.checkBoxDrawMinMax).isChecked.toString())
 
             //Set invert cruise
             ConfigFile.set("InvertCruise", currentView.findViewById<CheckBox>(R.id.checkBoxInvertCruise).isChecked.toString())

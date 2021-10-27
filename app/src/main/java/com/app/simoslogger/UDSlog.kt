@@ -21,7 +21,7 @@ object UDSLogger {
     private var mEnabledArray22 = byteArrayOf()
     private var mEnabledArray3E = byteArrayOf()
     private var mAddressArray3E = byteArrayOf()
-
+    private var mTimeoutCounter = TIME_OUT_LOGGING
 
     fun isCalcHP(): Boolean {
         if(Settings.calculateHP && (mFoundTQPIDS || mFoundMS2PIDS)) {
@@ -99,18 +99,40 @@ object UDSLogger {
         }
     }
 
-    fun buildFrame(index: Int): ByteArray {
+    fun startTask(index: Int): ByteArray {
         return when(mMode) {
             UDSLoggingMode.MODE_22 -> buildFrame22(index)
             UDSLoggingMode.MODE_3E -> buildFrame3E(index)
         }
     }
 
-    fun processFrame(tick: Int, buff: ByteArray?, context: Context): UDSReturn {
-        return when(mMode) {
-            UDSLoggingMode.MODE_22 -> processFrame22(tick, buff, context)
-            UDSLoggingMode.MODE_3E -> processFrame3E(tick, buff, context)
+    fun processPacket(tick: Int, buff: ByteArray?, context: Context): UDSReturn {
+        buff?.let {
+            if(buff.count() == 0) {
+                return addTimeout()
+            } else {
+                resetTimeout()
+            }
+
+            return when (mMode) {
+                UDSLoggingMode.MODE_22 -> processFrame22(tick, buff, context)
+                UDSLoggingMode.MODE_3E -> processFrame3E(tick, buff, context)
+            }
         }
+
+        return UDSReturn.ERROR_NULL
+    }
+
+    private fun addTimeout(): UDSReturn {
+        if(--mTimeoutCounter <= 0) {
+            return UDSReturn.ERROR_TIME_OUT
+        }
+
+        return UDSReturn.OK
+    }
+
+    private fun resetTimeout() {
+        mTimeoutCounter = TIME_OUT_LOGGING
     }
 
     private fun resetHPPIDS() {

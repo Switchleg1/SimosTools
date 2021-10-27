@@ -158,6 +158,10 @@ object ConfigFile {
                     val i = value.toInt()
                     DebugLog.setFlags(i)
                 }
+                "DrawMinMax" -> {
+                    val b = value.toBoolean()
+                    Settings.drawMinMax = b
+                }
                 DisplayType.values()[0].key -> {
                     val type = DisplayType.values().find {it.cfgName == value}
                     type?.let {
@@ -186,6 +190,7 @@ object ConfigFile {
         mProperties["CurbWeight"] = DEFAULT_CURB_WEIGHT.toString()
         mProperties["DragCoefficient"] = "1.0"
         mProperties["DebugLogFlags"] = DebugLog.getFlags().toString()
+        mProperties["DrawMinMax"] = DEFAULT_DRAW_MIN_MAX.toString()
         mProperties[DisplayType.values()[0].key] = DisplayType.BAR.cfgName
         GearRatios.values().forEach {
             mProperties["${it.key}.${it.gear}"] = it.ratio.toString()

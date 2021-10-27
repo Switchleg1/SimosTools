@@ -104,12 +104,21 @@ open class BaseLoggingFragment: Fragment() {
                         //Setup the progress bar
                         val gauge = mGauges!![i]!!
                         gauge.setProgressColor(ColorList.GAUGE_NORMAL.value, false)
+                        gauge.setMinMax(Settings.drawMinMax)
                         val prog = when (data.inverted) {
                             true -> (0 - (pid.value - pid.progMin)) * data.multiplier
                             false -> (pid.value - pid.progMin) * data.multiplier
                         }
-                        gauge.setProgress(prog, false)
-                        gauge.setRounded(true, false)
+                        val progMin = when (data.inverted) {
+                            true -> (0 - (data.min - pid.progMin)) * data.multiplier
+                            false -> (data.min - pid.progMin) * data.multiplier
+                        }
+                        val progMax = when (data.inverted) {
+                            true -> (0 - (data.max - pid.progMin)) * data.multiplier
+                            false -> (data.max - pid.progMin) * data.multiplier
+                        }
+                        gauge.setProgress(prog, progMin, progMax, false)
+                        gauge.setRounded(false, false)
                         gauge.setProgressBackgroundColor(ColorList.GAUGE_BG.value, false)
                         gauge.setStyle(Settings.displayType, false)
                         when (Settings.displayType) {
@@ -164,19 +173,27 @@ open class BaseLoggingFragment: Fragment() {
                 val data = PIDs.getData()!![mPIDList[i].toInt()]!!
                 val gauge = mGauges!![i]!!
 
-                //Update progress is the value is different
-                var newProgress = when(data.inverted) {
+                var prog = when (data.inverted) {
                     true -> (0 - (pid.value - pid.progMin)) * data.multiplier
                     false -> (pid.value - pid.progMin) * data.multiplier
                 }
+                val progMin = when (data.inverted) {
+                    true -> (0 - (data.min - pid.progMin)) * data.multiplier
+                    false -> (data.min - pid.progMin) * data.multiplier
+                }
+                val progMax = when (data.inverted) {
+                    true -> (0 - (data.max - pid.progMin)) * data.multiplier
+                    false -> (data.max - pid.progMin) * data.multiplier
+                }
+                gauge.setProgress(prog, progMin, progMax, false)
 
                 //constrain value
-                if(newProgress > 100f) newProgress = 100f
-                else if(newProgress < 0f) newProgress = 0f
+                if(prog > 100f) prog = 100f
+                else if(prog < 0f) prog = 0f
 
                 //check if previous value is different
-                if (newProgress != gauge.getProgress()) {
-                    gauge.setProgress(newProgress, false)
+                if (prog != gauge.getProgress()) {
+                    gauge.setProgress(prog, progMin, progMax,false)
                 }
 
                 //Check to see if we should be warning user
@@ -221,6 +238,7 @@ open class BaseLoggingFragment: Fragment() {
                                 gauge[i]?.setProgressColor(ColorList.GAUGE_NORMAL.value, false)
                             }
 
+                            gauge[i]?.setMinMax(Settings.drawMinMax)
                             gauge[i]?.setProgressBackgroundColor(ColorList.GAUGE_BG.value, false)
                             gauge[i]?.setStyle(Settings.displayType, false)
 

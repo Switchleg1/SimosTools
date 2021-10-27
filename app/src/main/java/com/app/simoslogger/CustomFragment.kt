@@ -136,7 +136,6 @@ open class CustomFragment : BaseLoggingFragment() {
             when (intent.action) {
                 GUIMessage.READ_LOG.toString() -> {
                     val readCount = intent.getIntExtra("readCount", 0)
-                    val readTime = intent.getLongExtra("readTime", 0)
                     val readResult = intent.getSerializableExtra("readResult") as UDSReturn
 
                     //Make sure we received an ok

@@ -8,12 +8,12 @@ object UDSdtc {
         return mLastString
     }
 
-    fun getCount(): Int {
+    fun getStartCount(): Int {
         return 1
     }
 
-    fun buildClearDTC(ticks: Int): ByteArray {
-        if(ticks < getCount()) {
+    fun startTask(ticks: Int): ByteArray {
+        if(ticks < getStartCount()) {
             //Send clear request
             val bleHeader = BLEHeader()
             bleHeader.rxID = 0x7E8
@@ -27,9 +27,9 @@ object UDSdtc {
         return byteArrayOf()
     }
 
-    fun processClearDTC(ticks: Int, buff: ByteArray?): UDSReturn {
+    fun processPacket(ticks: Int, buff: ByteArray?): UDSReturn {
         buff?.let {
-            if(ticks < getCount()) {
+            if(ticks < getStartCount()) {
                 if (buff.count() == 9 && buff[8] == 0x44.toByte()) {
                     mLastString = "DTC: cleared."
                 } else {

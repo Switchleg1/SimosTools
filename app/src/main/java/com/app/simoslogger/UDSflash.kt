@@ -1,6 +1,5 @@
 package com.app.simoslogger
 
-import android.net.Uri
 import java.io.InputStream
 
 object UDSFlasher {
@@ -24,11 +23,11 @@ object UDSFlasher {
         }
     }
 
-    fun buildFlashCAL(ticks: Int): ByteArray {
+    fun startTask(ticks: Int): ByteArray {
         return byteArrayOf()
     }
 
-    fun processFlashCAL(ticks: Int, buff: ByteArray?): UDSReturn {
+    fun processPacket(ticks: Int, buff: ByteArray?): UDSReturn {
         buff?.let {
 
             return UDSReturn.ERROR_UNKNOWN

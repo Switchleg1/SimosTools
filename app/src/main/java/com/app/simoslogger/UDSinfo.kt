@@ -8,11 +8,11 @@ object UDSInfo {
         return mLastString
     }
 
-    fun getCount(): Int {
+    fun getStartCount(): Int {
         return ECUInfo.values().count()
     }
 
-    fun buildECUInfo(index: Int): ByteArray {
+    fun startTask(index: Int): ByteArray {
         val bleHeader = BLEHeader()
         bleHeader.cmdSize = 1 + ECUInfo.values()[index].address.count()
         bleHeader.cmdFlags = BLECommandFlags.PER_CLEAR.value
@@ -20,7 +20,7 @@ object UDSInfo {
         return bleHeader.toByteArray() + byteArrayOf(0x22.toByte()) + ECUInfo.values()[index].address
     }
 
-    fun processECUInfo(ticks: Int, buff: ByteArray?): UDSReturn {
+    fun processPacket(ticks: Int, buff: ByteArray?): UDSReturn {
         buff?.let {
             if (buff.count() >= 11 && buff[8] == 0x62.toByte()) {
                 mLastString = "${ECUInfo.values()[ticks].str}: ${String(buff.copyOfRange(11, buff.count()))}"

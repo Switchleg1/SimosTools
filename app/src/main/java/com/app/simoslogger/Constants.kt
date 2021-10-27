@@ -127,6 +127,7 @@ enum class UDSReturn {
     ERROR_NULL,
     ERROR_HEADER,
     ERROR_CMDSIZE,
+    ERROR_TIME_OUT,
     ERROR_UNKNOWN,
 }
 
@@ -226,8 +227,10 @@ enum class CSVItems(val csvName: String) {
     }
 }
 
+val TASK_BUMP_DELAY             = 250
 val TASK_END_DELAY              = 500
 val TASK_END_TIMEOUT            = 3000
+val TIME_OUT_LOGGING            = 10
 
 //Service info
 val CHANNEL_ID                  = "BTService"
@@ -277,6 +280,7 @@ val DEFAULT_CURB_WEIGHT         = 1500f
 val DEFAULT_DRAG_COEFFICIENT    = 0.000005
 val DEFAULT_ALWAYS_PORTRAIT     = false
 val DEFAULT_DISPLAY_SIZE        = 1f
+val DEFAULT_DRAW_MIN_MAX        = true
 val DEFAULT_DEBUG_LOG_FLAGS     = DEBUG_LOG_INFO or DEBUG_LOG_INFO or DEBUG_LOG_INFO
 
 //TQ/HP Calculations

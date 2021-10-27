@@ -14,6 +14,7 @@ object Settings {
     var dragCoefficient: Double = DEFAULT_DRAG_COEFFICIENT
     var alwaysPortrait          = DEFAULT_ALWAYS_PORTRAIT
     var displayType             = DisplayType.ROUND
+    var drawMinMax              = DEFAULT_DRAW_MIN_MAX
 
     var msgList: Array<String>? = null
 }

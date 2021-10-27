@@ -437,14 +437,14 @@ class BTService: Service() {
         val manager = getSystemService(NotificationManager::class.java)
         manager.createNotificationChannel(serviceChannel)
 
-        val notificationIntent = Intent(this, MainActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0)
+        //val notificationIntent = Intent(this, MainActivity::class.java)
+        //val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0)
 
         val notification: Notification = Notification.Builder(this, CHANNEL_ID)
             .setContentTitle(getText(R.string.app_name))
             .setContentText(getText(R.string.app_name))
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentIntent(pendingIntent)
+            .setSmallIcon(R.drawable.simoslogger)
+            //.setContentIntent(pendingIntent)
             .build()
 
         // Notification ID cannot be 0.
@@ -562,6 +562,7 @@ class BTService: Service() {
         private var mTaskTime: Long     = 0
         private var mTaskTimeNext: Long = 0
         private var mTaskTimeOut: Long  = 0
+        private var mTaskNextCall: Long = 0
 
         init {
             setTaskState(UDSTask.NONE)
@@ -606,24 +607,8 @@ class BTService: Service() {
                         buff?.let {
                             DebugLog.c(TAG, buff, false)
 
-                            when (mTask) {
-                                UDSTask.NONE     -> processPacketNone(buff)
-                                UDSTask.LOGGING  -> processPacketLogging(buff)
-                                UDSTask.FLASHING -> processPacketFlashing(buff)
-                                UDSTask.INFO     -> processPacketGetInfo(buff)
-                                UDSTask.DTC      -> processPacketClearDTC(buff)
-                            }
-
-                            //increment task packet count
-                            mTaskTick++
-
-                            //check if we are ready to switch to a new task
-                            if (mTaskNext != UDSTask.NONE) {
-                                mTaskTimeNext = System.currentTimeMillis() + TASK_END_DELAY
-
-                                //Write debug log
-                                DebugLog.d(TAG, "Packet extended task start delay.")
-                            }
+                            //Process packet
+                            processPacket(buff)
                         }
                     } catch (e: Exception) {
                         DebugLog.e(TAG, "Exception during read", e)
@@ -641,6 +626,13 @@ class BTService: Service() {
                         //Write debug log
                         DebugLog.w(TAG, "Task failed to finish.")
                         startNextTask()
+                    }
+                } else {
+                    //Have we sat idle waiting without receiving a packet?
+                    if(mTaskTimeNext < System.currentTimeMillis()) {
+                        DebugLog.d(TAG, "Task timeout.")
+                        //Process packet
+                        processPacket(byteArrayOf())
                     }
                 }
             }
@@ -684,10 +676,11 @@ class BTService: Service() {
 
         private fun startNextTask() {
             //Broadcast a new message
-            mTask       = mTaskNext
-            mTaskNext   = UDSTask.NONE
-            mTaskTick   = 0
-            mTaskTime   = System.currentTimeMillis()
+            mTask           = mTaskNext
+            mTaskNext       = UDSTask.NONE
+            mTaskTick       = 0
+            mTaskTime       = System.currentTimeMillis()
+            mTaskTimeNext   = System.currentTimeMillis() + TASK_BUMP_DELAY
 
             //Write debug log
             DebugLog.i(TAG, "Task started: $mTask")
@@ -720,19 +713,42 @@ class BTService: Service() {
             setBridgePersistQDelay(Settings.persistQDelay)
 
             //Write first frame
-            mWriteQueue.add(UDSLogger.buildFrame(0))
+            mWriteQueue.add(UDSLogger.startTask(0))
         }
 
         private fun startTaskFlashing(){
-            mWriteQueue.add(UDSFlasher.buildFlashCAL(0))
+            mWriteQueue.add(UDSFlasher.startTask(0))
         }
 
         private fun startTaskGetInfo(){
-            mWriteQueue.add(UDSInfo.buildECUInfo(0))
+            mWriteQueue.add(UDSInfo.startTask(0))
         }
 
         private fun startTaskClearDTC() {
-            mWriteQueue.add(UDSdtc.buildClearDTC(0))
+            mWriteQueue.add(UDSdtc.startTask(0))
+        }
+
+        private fun processPacket(buff: ByteArray) {
+            when (mTask) {
+                UDSTask.NONE     -> processPacketNone(buff)
+                UDSTask.LOGGING  -> processPacketLogging(buff)
+                UDSTask.FLASHING -> processPacketFlashing(buff)
+                UDSTask.INFO     -> processPacketGetInfo(buff)
+                UDSTask.DTC      -> processPacketClearDTC(buff)
+            }
+
+            //increment task packet count
+            mTaskTick++
+
+            //check if we are ready to switch to a new task
+            if (mTaskNext != UDSTask.NONE) {
+                mTaskTimeNext = System.currentTimeMillis() + TASK_END_DELAY
+
+                //Write debug log
+                DebugLog.d(TAG, "Packet extended task start delay.")
+            } else {
+                mTaskTimeNext = System.currentTimeMillis() + TASK_BUMP_DELAY
+            }
         }
 
         private fun processPacketNone(buff: ByteArray) {
@@ -744,7 +760,7 @@ class BTService: Service() {
 
         private fun processPacketLogging(buff: ByteArray) {
             //Process frame
-            val result = UDSLogger.processFrame(mTaskTick, buff, applicationContext)
+            val result = UDSLogger.processPacket(mTaskTick, buff, applicationContext)
 
             //Are we still sending initial frames?
             if (mTaskTick < UDSLogger.frameCount()) {
@@ -753,7 +769,7 @@ class BTService: Service() {
                     DebugLog.w(TAG, "Unable to initialize logging, UDS Error: $result")
                     setTaskState(UDSTask.NONE)
                 } else { //else continue init
-                    mWriteQueue.add(UDSLogger.buildFrame(mTaskTick))
+                    mWriteQueue.add(UDSLogger.startTask(mTaskTick))
                 }
             } else { //We are receiving data
                 //Broadcast new PID data
@@ -785,7 +801,7 @@ class BTService: Service() {
         }
 
         private fun processPacketFlashing(buff: ByteArray) {
-            if(UDSFlasher.processFlashCAL(mTaskTick, buff) == UDSReturn.OK) {
+            if(UDSFlasher.processPacket(mTaskTick, buff) == UDSReturn.OK) {
                 if(UDSFlasher.getInfo() != "") {
                     val intentMessage = Intent(GUIMessage.FLASH_INFO.toString())
                     intentMessage.putExtra(GUIMessage.FLASH_INFO.toString(), UDSInfo.getInfo())
@@ -793,33 +809,33 @@ class BTService: Service() {
                 }
 
                 if(!UDSFlasher.finished())
-                    mWriteQueue.add(UDSFlasher.buildFlashCAL(mTaskTick+1))
+                    mWriteQueue.add(UDSFlasher.startTask(mTaskTick+1))
             } else {
                 setTaskState(UDSTask.NONE)
             }
         }
 
         private fun processPacketGetInfo(buff: ByteArray) {
-            if(UDSInfo.processECUInfo(mTaskTick, buff) == UDSReturn.OK) {
+            if(UDSInfo.processPacket(mTaskTick, buff) == UDSReturn.OK) {
                 val intentMessage = Intent(GUIMessage.ECU_INFO.toString())
                 intentMessage.putExtra(GUIMessage.ECU_INFO.toString(), UDSInfo.getInfo())
                 sendBroadcast(intentMessage)
 
-                if(mTaskTick < UDSInfo.getCount()-1)
-                    mWriteQueue.add(UDSInfo.buildECUInfo(mTaskTick+1))
+                if(mTaskTick < UDSInfo.getStartCount()-1)
+                    mWriteQueue.add(UDSInfo.startTask(mTaskTick+1))
             } else {
                 setTaskState(UDSTask.NONE)
             }
         }
 
         private fun processPacketClearDTC(buff: ByteArray) {
-            if(UDSdtc.processClearDTC(mTaskTick, buff) == UDSReturn.OK) {
+            if(UDSdtc.processPacket(mTaskTick, buff) == UDSReturn.OK) {
                 val intentMessage = Intent(GUIMessage.CLEAR_DTC.toString())
                 intentMessage.putExtra(GUIMessage.CLEAR_DTC.toString(), UDSdtc.getInfo())
                 sendBroadcast(intentMessage)
 
-                if(mTaskTick < UDSdtc.getCount())
-                    mWriteQueue.add(UDSdtc.buildClearDTC(mTaskTick+1))
+                if(mTaskTick < UDSdtc.getStartCount())
+                    mWriteQueue.add(UDSdtc.startTask(mTaskTick+1))
             } else {
                 setTaskState(UDSTask.NONE)
             }
