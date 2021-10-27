@@ -318,6 +318,8 @@ val VW_SEEDKEY_TAPE = byteArrayOf(
     0x4c.toByte()
 )
 
+val CAL_BLOCK_TRANSFER_SIZE = 0x190
+
 //Additional properties
 infix fun Byte.shl(that: Int): Int = this.toInt().shl(that)
 infix fun Short.shl(that: Int): Int = this.toInt().shl(that)

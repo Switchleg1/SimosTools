@@ -807,23 +807,29 @@ class BTService: Service() {
 
                     if(queuedCommand.size > BLE_GATT_MTU_SIZE){
                         DebugLog.d(TAG, "Larger than MTU frame encountered, breaking it up")
+                        DebugLog.d(TAG,"Old Header:" + queuedCommand.copyOfRange(0,10).toHex())
                         //We need to break the command into multiple commands, and add EACH one
                         // to the mWriteQueue
                         //  We'll first replace the first 2 bytes with multiframe control bytes
                         queuedCommand = byteArrayOf(0xF1.toByte(), 0x08.toByte()) +
                                 queuedCommand.copyOfRange(2, queuedCommand.size)
 
+                        DebugLog.d(TAG,"New Header:" + queuedCommand.copyOfRange(0,10).toHex())
                         //Then we'll initialize the sequence counter:
                         var sequence = 0
                         var endByte: Int = 0
 
+
                         //Then, we'll start a while loop to queue up all the bytes:
                         while(queuedCommand.size != 0){
+                            DebugLog.d(TAG, "queuedCommand size: " + queuedCommand.size)
                             if(queuedCommand.size > BLE_GATT_MTU_SIZE) {
                                 endByte = BLE_GATT_MTU_SIZE
                             }
                             else {
-                                endByte = queuedCommand.size
+                                mWriteQueue.add(byteArrayOf(0xF2.toByte(), sequence.toByte()) + queuedCommand)
+                                break
+
                             }
 
                             if(sequence == 0){
@@ -833,8 +839,8 @@ class BTService: Service() {
                             }
 
                             else{
-                                mWriteQueue.add(byteArrayOf(0xF2.toByte(), sequence.toByte()) + queuedCommand.copyOfRange(0, endByte - 2))
-                                queuedCommand = queuedCommand.copyOfRange(endByte - 2, queuedCommand.size)
+                                mWriteQueue.add(byteArrayOf(0xF2.toByte(), sequence.toByte()) + queuedCommand.copyOfRange(0, endByte))
+                                queuedCommand = queuedCommand.copyOfRange(endByte, queuedCommand.size)
 
                             }
 
