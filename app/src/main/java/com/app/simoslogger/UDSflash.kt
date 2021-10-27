@@ -42,7 +42,7 @@ object UDSFlasher {
             return buildBLEFrame(byteArrayOf(0x22.toByte()) + ECUInfo.PART_NUMBER.address)
         }
     }
-
+    @Synchronized
     fun processFlashCAL(ticks: Int, buff: ByteArray?): UDSReturn {
 
         buff?.let {
@@ -148,12 +148,14 @@ object UDSFlasher {
                 }
 
                 FLASH_ECU_CAL_SUBTASK.CLEAR_DTC -> {
+                    DebugLog.d(TAG,"Received " + buff.toHex())
                     mCommand = clearDTC()
                     mLastString = mTask.toString()
                     mTask = mTask.next()
                     return UDSReturn.COMMAND_QUEUED
                 }
                 FLASH_ECU_CAL_SUBTASK.CHECK_PROGRAMMING_PRECONDITION -> {
+
                     if(buff[0] == 0x71.toByte()){
                         //Open extended diagnostic session
                         mCommand = buildBLEFrame(byteArrayOf(0x10.toByte(), 0x03.toByte()))
@@ -259,17 +261,17 @@ object UDSFlasher {
                         //Send bytes, 0x36 [frame number]
                         //Break the whole bin into frames of FFD size, and
                         // we'll use that array.
-                        mCommand = buildBLEFrame(byteArrayOf(0x36.toByte(), transferSequence.toByte()) + bin.copyOfRange(0, 0xFFD))
+                        mCommand = buildBLEFrame(byteArrayOf(0x36.toByte(), transferSequence.toByte()) + bin.copyOfRange(0, CAL_BLOCK_TRANSFER_SIZE))
                         mLastString = "Transferring sequence $transferSequence"
 
                         return UDSReturn.COMMAND_QUEUED
                     }
                     else if(buff[0] == 0x76.toByte()){
-                        val totalFrames: Int = bin.size / 0xFFD
+                        val totalFrames: Int = bin.size / CAL_BLOCK_TRANSFER_SIZE
 
                         if(buff[1] == transferSequence.toByte()){
                             transferSequence++
-
+                            mLastString = "Transferring sequence $transferSequence"
                             //if the current transfer sequence number is larger than the max
                             // number that we need for the payload, send a 'transfer exit'
                             if(transferSequence > totalFrames){
@@ -282,8 +284,8 @@ object UDSFlasher {
                         //otherwise, we get here
                         // start is frame size + transfer sequence
                         // end is start + frame size *OR* the end of the bin
-                        var start = 0xFFD * transferSequence
-                        var end = start + 0xFFD
+                        var start = CAL_BLOCK_TRANSFER_SIZE * transferSequence
+                        var end = start + CAL_BLOCK_TRANSFER_SIZE
                         if(end > bin.size){
                             end = bin.size
                         }
@@ -374,7 +376,7 @@ object UDSFlasher {
         //Send clear request
         val bleHeader = BLEHeader()
         bleHeader.rxID = 0x7E8
-        bleHeader.txID = 0x700
+        bleHeader.txID = 0x7E0
         bleHeader.cmdSize = 1
         bleHeader.cmdFlags = BLECommandFlags.PER_CLEAR.value
         val dataBytes = byteArrayOf(0x04.toByte())
