@@ -42,15 +42,6 @@ class LoggingFragment : BaseLoggingFragment() {
         }
 
         view.findViewById<Button>(R.id.buttonReset).setOnClickListener {
-            //Restart logging
-            var serviceIntent = Intent(requireActivity(), BTService::class.java)
-            serviceIntent.action = BTServiceTask.DO_STOP_TASK.toString()
-            ContextCompat.startForegroundService(requireActivity(), serviceIntent)
-
-            serviceIntent = Intent(requireActivity(), BTService::class.java)
-            serviceIntent.action = BTServiceTask.DO_START_LOG.toString()
-            ContextCompat.startForegroundService(requireActivity(), serviceIntent)
-
             PIDs.resetData()
             updatePIDText()
         }
@@ -83,6 +74,15 @@ class LoggingFragment : BaseLoggingFragment() {
                 it[index]?.enabled = isEnabled
                 gauge.setEnable(isEnabled)
             }
+
+            //Restart logging
+            var serviceIntent = Intent(requireActivity(), BTService::class.java)
+            serviceIntent.action = BTServiceTask.DO_STOP_TASK.toString()
+            ContextCompat.startForegroundService(requireActivity(), serviceIntent)
+
+            serviceIntent = Intent(requireActivity(), BTService::class.java)
+            serviceIntent.action = BTServiceTask.DO_START_LOG.toString()
+            ContextCompat.startForegroundService(requireActivity(), serviceIntent)
         } catch (e: Exception) {
             DebugLog.e(TAG, "Unable to change PID status", e)
         }

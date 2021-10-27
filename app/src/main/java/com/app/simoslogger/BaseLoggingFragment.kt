@@ -125,7 +125,7 @@ open class BaseLoggingFragment: Fragment() {
                         mTextViews!![i]?.isVisible = true
 
                         //get current pid and data
-                        val data = PIDs.getData()!![i]!!
+                        val data = PIDs.getData()!![mPIDList[i].toInt()]!!
                         val pid = list[mPIDList[i].toInt()]!!
 
                         //find text view and set text

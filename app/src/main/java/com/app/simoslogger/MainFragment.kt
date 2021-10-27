@@ -32,10 +32,10 @@ class MainFragment : Fragment() {
             mViewPager?.let { pager ->
                 val adapter = ViewPagerAdapter(requireActivity())
                 adapter.addFragment(LoggingFragment(), "Logging")
-                adapter.addFragment(CustomFragment1(), "Custom1")
-                adapter.addFragment(CustomFragment2(), "Custom2")
-                adapter.addFragment(CustomFragment3(), "Custom3")
-                adapter.addFragment(CustomFragment4(), "Custom4")
+                adapter.addFragment(CustomFragment1(), "Layout1")
+                adapter.addFragment(CustomFragment2(), "Layout2")
+                adapter.addFragment(CustomFragment3(), "Layout3")
+                adapter.addFragment(CustomFragment4(), "Layout4")
                 adapter.addFragment(FlashingFragment(), "Flashing")
                 adapter.addFragment(SettingsFragment(), "Settings")
                 pager.adapter = adapter

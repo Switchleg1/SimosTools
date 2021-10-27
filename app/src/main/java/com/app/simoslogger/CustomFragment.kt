@@ -6,8 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 
 class CustomFragment1 : CustomFragment() {
-    override var TAG = "CustomFragment1"
-    override var mCustomName: String = "Custom1"
+    override var TAG = "LayoutFragment1"
+    override var mCustomName: String = "Layout1"
     override var mLayoutName: Int = R.id.CustomLayoutScroll1
 
     override fun onCreateView(
@@ -20,8 +20,8 @@ class CustomFragment1 : CustomFragment() {
 }
 
 class CustomFragment2 : CustomFragment() {
-    override var TAG = "CustomFragment2"
-    override var mCustomName: String = "Custom2"
+    override var TAG = "LayoutFragment2"
+    override var mCustomName: String = "Layout2"
     override var mLayoutName: Int = R.id.CustomLayoutScroll2
 
     override fun onCreateView(
@@ -34,8 +34,8 @@ class CustomFragment2 : CustomFragment() {
 }
 
 class CustomFragment3 : CustomFragment() {
-    override var TAG = "CustomFragment3"
-    override var mCustomName: String = "Custom3"
+    override var TAG = "LayoutFragment3"
+    override var mCustomName: String = "Layout3"
     override var mLayoutName: Int = R.id.CustomLayoutScroll3
 
     override fun onCreateView(
@@ -48,8 +48,8 @@ class CustomFragment3 : CustomFragment() {
 }
 
 class CustomFragment4 : CustomFragment() {
-    override var TAG = "CustomFragment4"
-    override var mCustomName: String = "Custom4"
+    override var TAG = "LayoutFragment4"
+    override var mCustomName: String = "Layout4"
     override var mLayoutName: Int = R.id.CustomLayoutScroll4
 
     override fun onCreateView(
@@ -62,7 +62,7 @@ class CustomFragment4 : CustomFragment() {
 }
 
 open class CustomFragment : BaseLoggingFragment() {
-    open var mCustomName: String = "Custom1"
+    open var mCustomName: String = "Layout1"
 
     override fun onGaugeClick(view: View?): Boolean {
         PIDs.resetData()
