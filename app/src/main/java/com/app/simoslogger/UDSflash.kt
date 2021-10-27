@@ -1,8 +1,5 @@
 package com.app.simoslogger
 
-import android.net.Uri
-import android.app.Activity
-import com.app.simoslogger.FlashUtilities
 import java.io.InputStream
 
 
@@ -13,6 +10,7 @@ object UDSFlasher {
     private var mLastString: String = ""
     private var bin: ByteArray = byteArrayOf()
     private var ecuAswVersion: ByteArray = byteArrayOf()
+    private var transferSequence = -1
 
     fun getInfo(): String {
         return mLastString
@@ -50,6 +48,10 @@ object UDSFlasher {
         buff?.let {
 
             DebugLog.d(TAG, "Flash subroutine: " + mTask)
+            if(buff[0] == 0x7f.toByte()){
+                DebugLog.w(TAG,"Negative response received from ECU!")
+                return UDSReturn.ERROR_UNKNOWN
+            }
 
             when(mTask){
                 FLASH_ECU_CAL_SUBTASK.GET_ECU_BOX_CODE ->{
@@ -154,29 +156,36 @@ object UDSFlasher {
                     return UDSReturn.COMMAND_QUEUED
                 }
                 FLASH_ECU_CAL_SUBTASK.CHECK_PROGRAMMING_PRECONDITION -> {
-                    //Check programming precondition, routine 0x0203
-                    mCommand = buildBLEFrame(byteArrayOf(0x31.toByte(), 0x01.toByte(), 0x02.toByte(), 0x03.toByte()))
-
-                    mLastString = mTask.toString()
-                    mTask = mTask.next()
-
-                    return UDSReturn.COMMAND_QUEUED
-
-                }
-                FLASH_ECU_CAL_SUBTASK.OPEN_EXTENDED_DIAGNOSTIC -> {
-                    //First entry should be a postivie response from 0x31
                     if(buff[0] == 0x71.toByte()){
                         //Open extended diagnostic session
                         mCommand = buildBLEFrame(byteArrayOf(0x10.toByte(), 0x03.toByte()))
                         mLastString = "Entering extended diagnostics"
+                        mTask = mTask.next()
                         return UDSReturn.COMMAND_QUEUED
                     }
-                    //Response should be 0x50 0x03
+                    else {
+                        //Check programming precondition, routine 0x0203
+                        mCommand = buildBLEFrame(
+                            byteArrayOf(
+                                0x31.toByte(),
+                                0x01.toByte(),
+                                0x02.toByte(),
+                                0x03.toByte()
+                            )
+                        )
+
+                        mLastString = mTask.toString()
+                        return UDSReturn.COMMAND_QUEUED
+                    }
+                }
+                FLASH_ECU_CAL_SUBTASK.OPEN_EXTENDED_DIAGNOSTIC -> {
+
+                    //First response should be 0x50 0x03
                     //
-                    else if(buff[0] == 0x50.toByte() && buff[1] == 0x03.toByte()){
+                    if(buff[0] == 0x50.toByte() && buff[1] == 0x03.toByte()){
 
                         mCommand = buildBLEFrame(byteArrayOf(0x27.toByte(), 0x11.toByte()))
-                        mLastString = "Entering extended diagnostics"
+                        mLastString = "Asking for seedkey exhange"
                         mTask = mTask.next()
                         return UDSReturn.COMMAND_QUEUED
                     }
@@ -233,47 +242,111 @@ object UDSFlasher {
                     }
                 }
                 FLASH_ECU_CAL_SUBTASK.FLASH_BLOCK -> {
+                    //We should enter here from a tester present.
                     if(buff[0] == 0x7e.toByte()){
                         //erase block: 31 01 FF 00 01 05
+                        mCommand = buildBLEFrame(byteArrayOf(0x31.toByte(),0x01.toByte(),0xFF.toByte(),0x00.toByte(),0x01.toByte(),0x05.toByte()))
+                        mLastString = "Erasing CAL block to prepare for flashing"
+                        return UDSReturn.COMMAND_QUEUED
                     }
+                    //We should have a 71 in response to the erase command we just sent....
                     else if(buff[0] == 0x71.toByte()){
                         //Request download 34 AA 41 05 00 07 FC 00
+                        mCommand = buildBLEFrame(byteArrayOf(0x34.toByte(),0xAA.toByte(),0x41.toByte(),0x05.toByte(),0x00.toByte(),0x07.toByte(), 0xFC.toByte(), 0x00.toByte()))
+                        mLastString = "Requesting block download"
+                        return UDSReturn.COMMAND_QUEUED
                     }
                     else if(buff[0] == 0x74.toByte()){
+                        transferSequence = 1
                         //Send bytes, 0x36 [frame number]
                         //Break the whole bin into frames of FFD size, and
                         // we'll use that array.
+                        mCommand = buildBLEFrame(byteArrayOf(0x36.toByte(), transferSequence.toByte()) + bin.copyOfRange(0, 0xFFD))
+                        mLastString = "Transferring sequence $transferSequence"
+
+                        return UDSReturn.COMMAND_QUEUED
                     }
                     else if(buff[0] == 0x76.toByte()){
-                        //buff[1] == frame number that was received
-                        //if buff[1] == bin array size, send 0x37
+                        val totalFrames: Int = bin.size / 0xFFD
+
+                        if(buff[1] == transferSequence.toByte()){
+                            transferSequence++
+
+                            //if the current transfer sequence number is larger than the max
+                            // number that we need for the payload, send a 'transfer exit'
+                            if(transferSequence > totalFrames){
+                                mCommand = buildBLEFrame((byteArrayOf(0x37.toByte())))
+
+                                return UDSReturn.COMMAND_QUEUED
+                            }
+                        }
+
+                        //otherwise, we get here
+                        // start is frame size + transfer sequence
+                        // end is start + frame size *OR* the end of the bin
+                        var start = 0xFFD * transferSequence
+                        var end = start + 0xFFD
+                        if(end > bin.size){
+                            end = bin.size
+                        }
+                        mCommand = buildBLEFrame(byteArrayOf(0x36.toByte(), transferSequence.toByte()) + bin.copyOfRange(start, end))
+                        return UDSReturn.COMMAND_QUEUED
                     }
-                    //FLASH BLOCK
-                    //  erase block 0x01 0x05
-                    //  request download
-                    //  transfer data in blocks
-                    //  request transfer exit
-                    //  tester present
-                    if (true) {
+                    else if(buff[0] == 0x77.toByte()) {
+                        mCommand = sendTesterPresent()
                         mTask = mTask.next()
-                        return UDSReturn.OK
-                    } else {
-                        UDSReturn.ERROR_UNKNOWN
+                        return UDSReturn.COMMAND_QUEUED
                     }
+
                 }
                 FLASH_ECU_CAL_SUBTASK.CHECKSUM_BLOCK -> {
-                    //  run checksum start_routine(0x0202, data=bytes(checksum_data))
-
+                    if(buff[0] == 0x7e.toByte()){
+                        mCommand = buildBLEFrame(byteArrayOf(0x31.toByte(),0x01.toByte(),0x02.toByte(),0x02.toByte(),0x01.toByte(),0x05.toByte(), 0x00.toByte(), 0x04.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte()))
+                        mLastString = "Checksumming flashed block"
+                        return UDSReturn.COMMAND_QUEUED
+                    }
+                    else if(buff[0] == 0x71.toByte()){
+                        mLastString = "Block Checksummed OK"
+                        mCommand = sendTesterPresent()
+                        mTask = mTask.next()
+                        return UDSReturn.COMMAND_QUEUED
+                    }
+                    else{
+                        return UDSReturn.ERROR_UNKNOWN
+                    }
 
                 }
                 FLASH_ECU_CAL_SUBTASK.VERIFY_PROGRAMMING_DEPENDENCIES -> {
                     //Verify programming dependencies, routine 0xFF01
+                    if(buff[0] == 0x7e.toByte()){
+                        mCommand = buildBLEFrame(byteArrayOf(0x31.toByte(), 0x01.toByte(), 0xFF.toByte(), 0x01.toByte()))
 
-
+                        mLastString = "Verifying Programming Dependencies"
+                        return UDSReturn.COMMAND_QUEUED
+                    }
+                    else if(buff[0] == 0x71.toByte()){
+                        mCommand = sendTesterPresent()
+                        mTask = mTask.next()
+                        return UDSReturn.COMMAND_QUEUED
+                    }
+                    else{
+                        return UDSReturn.ERROR_UNKNOWN
+                    }
                 }
                 FLASH_ECU_CAL_SUBTASK.RESET_ECU -> {
-                    //Reset ECU
-                    return UDSReturn.OK
+                    if(buff[0] == 0x7e.toByte()){
+                        mCommand = buildBLEFrame(byteArrayOf(0x11.toByte(), 0x01.toByte()))
+
+                        mLastString = "Resetting ECU!!!!"
+                        return UDSReturn.COMMAND_QUEUED
+                    }
+                    else if(buff[0] == 0x51.toByte()){
+                        mLastString = "Resetting ECU Complete, Please cycle Key"
+                        return UDSReturn.OK
+                    }
+                    else{
+                        return UDSReturn.ERROR_UNKNOWN
+                    }
                 }
             }
 
