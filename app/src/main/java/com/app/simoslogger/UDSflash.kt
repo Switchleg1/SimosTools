@@ -131,9 +131,17 @@ object UDSFlasher {
                 }
 
                 FLASH_ECU_CAL_SUBTASK.ENCRYPT_BIN -> {
+                    mLastString = mTask.toString() + "\n"
+                    var unencryptedSize = bin.size
+
                     bin = FlashUtilities.encrypt(bin)
 
-                    mLastString = mTask.toString()
+                    var encryptedSize = bin.size
+
+                    mLastString += "Unencrypted bin size: " + unencryptedSize + "\n"
+                    mLastString += "Encrypted bin size: " + encryptedSize
+
+
                     mTask = mTask.next()
                     mCommand = sendTesterPresent()
                     return UDSReturn.COMMAND_QUEUED
@@ -175,7 +183,7 @@ object UDSFlasher {
                 }
                 FLASH_ECU_CAL_SUBTASK.WRITE_WORKSHOP_LOG -> {
                     //Write workshop tool log
-                    //  0xF15A = 0x20, 0x7, 0x17, 0x42,0x04,0x20,0x42,0xB1,0x3D,
+                    //  0x 2E 0xF15A = 0x20, 0x7, 0x17, 0x42,0x04,0x20,0x42,0xB1,0x3D,
 
                     if (true) {
                         mTask = mTask.next()
