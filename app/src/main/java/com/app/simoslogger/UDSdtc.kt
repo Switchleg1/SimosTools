@@ -2,6 +2,7 @@ package com.app.simoslogger
 
 object UDSdtc {
     private val TAG = "UDSdtc"
+    private var mTimeoutCounter:Int = TIME_OUT_DTC
     private var mLastString: String = ""
 
     fun getInfo(): String {
@@ -43,5 +44,17 @@ object UDSdtc {
         }
 
         return UDSReturn.ERROR_NULL
+    }
+
+    private fun addTimeout(): UDSReturn {
+        if(--mTimeoutCounter == 0) {
+            return UDSReturn.ERROR_TIME_OUT
+        }
+
+        return UDSReturn.OK
+    }
+
+    private fun resetTimeout() {
+        mTimeoutCounter = TIME_OUT_DTC
     }
 }

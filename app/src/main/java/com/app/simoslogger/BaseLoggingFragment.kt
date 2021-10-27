@@ -143,7 +143,8 @@ open class BaseLoggingFragment: Fragment() {
                         //Setup the progress bar
                         val gauge = mGauges!![i]!!
                         gauge.setProgressColor(ColorList.GAUGE_NORMAL.value, false)
-                        gauge.setMinMax(Settings.drawMinMax)
+                        gauge.setMinMaxColor(ColorList.GAUGE_WARN.value, false)
+                        gauge.setMinMax(Settings.drawMinMax, false)
                         val prog = when (data.inverted) {
                             true -> (0 - (pid.value - pid.progMin)) * data.multiplier
                             false -> (pid.value - pid.progMin) * data.multiplier
@@ -237,27 +238,29 @@ open class BaseLoggingFragment: Fragment() {
 
                 //Check to see if we should be warning user
                 if(!data.warn)  {
-                    gauge.setProgressColor(ColorList.GAUGE_NORMAL.value)
+                    gauge.setProgressColor(ColorList.GAUGE_NORMAL.value, false)
+                    gauge.setMinMaxColor(ColorList.GAUGE_WARN.value)
                 } else {
-                    gauge.setProgressColor(ColorList.GAUGE_WARN.value)
+                    gauge.setProgressColor(ColorList.GAUGE_WARN.value, false)
+                    gauge.setMinMaxColor(ColorList.GAUGE_NORMAL.value)
                     warnAny = true
                 }
             }
+
+            //If any visible PIDS are in warning state set background color to warn
+            if(warnAny) {
+                if(!mLastWarning) {
+                    view?.setBackgroundColor(ColorList.BG_WARN.value)
+                }
+            } else {
+                if(mLastWarning) {
+                    view?.setBackgroundColor(ColorList.BG_NORMAL.value)
+                }
+            }
+            mLastWarning = warnAny
         } catch (e: Exception) {
             DebugLog.e(TAG, "Unable to update display", e)
         }
-
-        //If any visible PIDS are in warning state set background color to warn
-        if(warnAny) {
-            if(!mLastWarning) {
-                view?.setBackgroundColor(ColorList.BG_WARN.value)
-            }
-        } else {
-            if(mLastWarning) {
-                view?.setBackgroundColor(ColorList.BG_NORMAL.value)
-            }
-        }
-        mLastWarning = warnAny
     }
 
     open fun setColor() {
@@ -272,12 +275,14 @@ open class BaseLoggingFragment: Fragment() {
                             val data = dataList[mPIDList[i].toInt()]!!
                             if (data.warn) {
                                 gauge[i]?.setProgressColor(ColorList.GAUGE_WARN.value, false)
+                                gauge[i]?.setMinMaxColor(ColorList.GAUGE_NORMAL.value, false)
                                 warnAny = true
                             } else {
                                 gauge[i]?.setProgressColor(ColorList.GAUGE_NORMAL.value, false)
+                                gauge[i]?.setMinMaxColor(ColorList.GAUGE_WARN.value, false)
                             }
 
-                            gauge[i]?.setMinMax(Settings.drawMinMax)
+                            gauge[i]?.setMinMax(Settings.drawMinMax, false)
                             gauge[i]?.setProgressBackgroundColor(ColorList.GAUGE_BG.value, false)
                             gauge[i]?.setStyle(Settings.displayType, false)
 

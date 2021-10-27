@@ -108,11 +108,7 @@ object UDSLogger {
 
     fun processPacket(tick: Int, buff: ByteArray?, context: Context): UDSReturn {
         buff?.let {
-            if(buff.count() == 0) {
-                return addTimeout()
-            } else {
-                resetTimeout()
-            }
+            resetTimeout()
 
             return when (mMode) {
                 UDSLoggingMode.MODE_22 -> processFrame22(tick, buff, context)
@@ -120,11 +116,11 @@ object UDSLogger {
             }
         }
 
-        return UDSReturn.ERROR_NULL
+        return addTimeout()
     }
 
     private fun addTimeout(): UDSReturn {
-        if(--mTimeoutCounter <= 0) {
+        if(--mTimeoutCounter == 0) {
             return UDSReturn.ERROR_TIME_OUT
         }
 

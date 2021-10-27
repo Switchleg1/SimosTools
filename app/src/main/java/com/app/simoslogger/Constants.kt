@@ -231,6 +231,8 @@ val TASK_BUMP_DELAY             = 250
 val TASK_END_DELAY              = 500
 val TASK_END_TIMEOUT            = 3000
 val TIME_OUT_LOGGING            = 10
+val TIME_OUT_GET_INFO           = 10
+val TIME_OUT_DTC                = 10
 
 //Service info
 val CHANNEL_ID                  = "BTService"

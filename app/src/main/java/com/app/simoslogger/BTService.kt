@@ -556,7 +556,7 @@ class BTService: Service() {
 
     private inner class ConnectionThread: Thread() {
         //variables
-        private var mTask: UDSTask  = UDSTask.NONE
+        private var mTask: UDSTask      = UDSTask.NONE
         private var mTaskNext: UDSTask  = UDSTask.NONE
         private var mTaskTick: Int      = 0
         private var mTaskTime: Long     = 0
@@ -632,7 +632,7 @@ class BTService: Service() {
                     if(mTaskTimeNext < System.currentTimeMillis()) {
                         DebugLog.d(TAG, "Task timeout.")
                         //Process packet
-                        processPacket(byteArrayOf())
+                        processPacket(null)
                     }
                 }
             }
@@ -675,12 +675,11 @@ class BTService: Service() {
         }
 
         private fun startNextTask() {
-            //Broadcast a new message
+           mTaskTimeNext   = System.currentTimeMillis() + TASK_BUMP_DELAY
             mTask           = mTaskNext
             mTaskNext       = UDSTask.NONE
             mTaskTick       = 0
             mTaskTime       = System.currentTimeMillis()
-            mTaskTimeNext   = System.currentTimeMillis() + TASK_BUMP_DELAY
 
             //Write debug log
             DebugLog.i(TAG, "Task started: $mTask")
@@ -728,7 +727,7 @@ class BTService: Service() {
             mWriteQueue.add(UDSdtc.startTask(0))
         }
 
-        private fun processPacket(buff: ByteArray) {
+        private fun processPacket(buff: ByteArray?) {
             when (mTask) {
                 UDSTask.NONE     -> processPacketNone(buff)
                 UDSTask.LOGGING  -> processPacketLogging(buff)
@@ -751,14 +750,21 @@ class BTService: Service() {
             }
         }
 
-        private fun processPacketNone(buff: ByteArray) {
-            //Broadcast a new message
-            val intentMessage = Intent(GUIMessage.READ.toString())
-            intentMessage.putExtra(GUIMessage.READ.toString(), buff.copyOfRange(8, buff.size))
-            sendBroadcast(intentMessage)
+        private fun processPacketNone(buff: ByteArray?) {
+            buff?.let {
+                if(buff.count() > 8) {
+                    //Broadcast a new message
+                    val intentMessage = Intent(GUIMessage.READ.toString())
+                    intentMessage.putExtra(
+                        GUIMessage.READ.toString(),
+                        buff.copyOfRange(8, buff.size)
+                    )
+                    sendBroadcast(intentMessage)
+                }
+            }
         }
 
-        private fun processPacketLogging(buff: ByteArray) {
+        private fun processPacketLogging(buff: ByteArray?) {
             //Process frame
             val result = UDSLogger.processPacket(mTaskTick, buff, applicationContext)
 
@@ -769,38 +775,46 @@ class BTService: Service() {
                     DebugLog.w(TAG, "Unable to initialize logging, UDS Error: $result")
                     setTaskState(UDSTask.NONE)
                 } else { //else continue init
-                    mWriteQueue.add(UDSLogger.startTask(mTaskTick))
+                    mWriteQueue.add(UDSLogger.startTask(mTaskTick+1))
                 }
             } else { //We are receiving data
-                //Broadcast new PID data
-                if (mTaskTick % Settings.updateRate == 0) {
-                    val intentMessage = Intent(GUIMessage.READ_LOG.toString())
-                    intentMessage.putExtra("readCount", mTaskTick)
-                    intentMessage.putExtra("readTime", System.currentTimeMillis() - mTaskTime)
-                    intentMessage.putExtra("readResult", result)
-                    sendBroadcast(intentMessage)
-                }
-
-                //If we changed logging write states broadcast a new message and set LED color
-                if (UDSLogger.isEnabled() != mLogWriteState) {
-                    //Broadcast new message
-                    val intentMessage = Intent(GUIMessage.WRITE_LOG.toString())
-                    intentMessage.putExtra(GUIMessage.WRITE_LOG.toString(), UDSLogger.isEnabled())
-                    sendBroadcast(intentMessage)
-
-                    if (UDSLogger.isEnabled()) {
-                        setBridgeLED(0,0, 0x80)
-                    } else {
-                        setBridgeLED(0,0x80, 0)
+                if (result != UDSReturn.OK) {
+                    DebugLog.w(TAG, "Logging data error , UDS Error: $result")
+                    setTaskState(UDSTask.NONE)
+                } else {
+                    //Broadcast new PID data
+                    if (mTaskTick % Settings.updateRate == 0) {
+                        val intentMessage = Intent(GUIMessage.READ_LOG.toString())
+                        intentMessage.putExtra("readCount", mTaskTick)
+                        intentMessage.putExtra("readTime", System.currentTimeMillis() - mTaskTime)
+                        intentMessage.putExtra("readResult", result)
+                        sendBroadcast(intentMessage)
                     }
 
-                    //Update current write state
-                    mLogWriteState = UDSLogger.isEnabled()
+                    //If we changed logging write states broadcast a new message and set LED color
+                    if (UDSLogger.isEnabled() != mLogWriteState) {
+                        //Broadcast new message
+                        val intentMessage = Intent(GUIMessage.WRITE_LOG.toString())
+                        intentMessage.putExtra(
+                            GUIMessage.WRITE_LOG.toString(),
+                            UDSLogger.isEnabled()
+                        )
+                        sendBroadcast(intentMessage)
+
+                        if (UDSLogger.isEnabled()) {
+                            setBridgeLED(0, 0, 0x80)
+                        } else {
+                            setBridgeLED(0, 0x80, 0)
+                        }
+
+                        //Update current write state
+                        mLogWriteState = UDSLogger.isEnabled()
+                    }
                 }
             }
         }
 
-        private fun processPacketFlashing(buff: ByteArray) {
+        private fun processPacketFlashing(buff: ByteArray?) {
             if(UDSFlasher.processPacket(mTaskTick, buff) == UDSReturn.OK) {
                 if(UDSFlasher.getInfo() != "") {
                     val intentMessage = Intent(GUIMessage.FLASH_INFO.toString())
@@ -815,7 +829,7 @@ class BTService: Service() {
             }
         }
 
-        private fun processPacketGetInfo(buff: ByteArray) {
+        private fun processPacketGetInfo(buff: ByteArray?) {
             if(UDSInfo.processPacket(mTaskTick, buff) == UDSReturn.OK) {
                 val intentMessage = Intent(GUIMessage.ECU_INFO.toString())
                 intentMessage.putExtra(GUIMessage.ECU_INFO.toString(), UDSInfo.getInfo())
@@ -828,7 +842,7 @@ class BTService: Service() {
             }
         }
 
-        private fun processPacketClearDTC(buff: ByteArray) {
+        private fun processPacketClearDTC(buff: ByteArray?) {
             if(UDSdtc.processPacket(mTaskTick, buff) == UDSReturn.OK) {
                 val intentMessage = Intent(GUIMessage.CLEAR_DTC.toString())
                 intentMessage.putExtra(GUIMessage.CLEAR_DTC.toString(), UDSdtc.getInfo())

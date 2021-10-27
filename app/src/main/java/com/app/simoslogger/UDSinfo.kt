@@ -1,7 +1,8 @@
 package com.app.simoslogger
 
 object UDSInfo {
-    private var TAG = "UDSInfo"
+    private var TAG                 = "UDSInfo"
+    private var mTimeoutCounter:Int = TIME_OUT_GET_INFO
     private var mLastString: String = ""
 
     fun getInfo(): String {
@@ -22,6 +23,7 @@ object UDSInfo {
 
     fun processPacket(ticks: Int, buff: ByteArray?): UDSReturn {
         buff?.let {
+            resetTimeout()
             if (buff.count() >= 11 && buff[8] == 0x62.toByte()) {
                 mLastString = "${ECUInfo.values()[ticks].str}: ${String(buff.copyOfRange(11, buff.count()))}"
 
@@ -30,6 +32,18 @@ object UDSInfo {
             return UDSReturn.ERROR_UNKNOWN
         }
 
-        return UDSReturn.ERROR_NULL
+        return addTimeout()
+    }
+
+    private fun addTimeout(): UDSReturn {
+        if(--mTimeoutCounter == 0) {
+            return UDSReturn.ERROR_TIME_OUT
+        }
+
+        return UDSReturn.OK
+    }
+
+    private fun resetTimeout() {
+        mTimeoutCounter = TIME_OUT_GET_INFO
     }
 }
