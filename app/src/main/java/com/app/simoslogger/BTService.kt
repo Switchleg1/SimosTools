@@ -833,7 +833,49 @@ class BTService: Service() {
 
                 }
                 UDSReturn.COMMAND_QUEUED ->{
-                    mWriteQueue.add(UDSFlasher.getCommand())
+                    var queuedCommand = UDSFlasher.getCommand()
+
+                    if(queuedCommand.size > BLE_GATT_MTU_SIZE){
+                        DebugLog.d(TAG, "Larger than MTU frame encountered, breaking it up")
+                        //We need to break the command into multiple commands, and add EACH one
+                        // to the mWriteQueue
+                        //  We'll first replace the first 2 bytes with multiframe control bytes
+                        queuedCommand = byteArrayOf(0xF1.toByte(), 0x08.toByte()) +
+                                queuedCommand.copyOfRange(2, queuedCommand.size)
+
+                        //Then we'll initialize the sequence counter:
+                        var sequence = 0
+                        var endByte: Int = 0
+
+                        //Then, we'll start a while loop to queue up all the bytes:
+                        while(queuedCommand.size != 0){
+                            if(queuedCommand.size > BLE_GATT_MTU_SIZE) {
+                                endByte = BLE_GATT_MTU_SIZE
+                            }
+                            else {
+                                endByte = queuedCommand.size
+                            }
+
+                            if(sequence == 0){
+                                mWriteQueue.add(queuedCommand.copyOfRange(0, endByte))
+                                queuedCommand = queuedCommand.copyOfRange(endByte, queuedCommand.size)
+
+                            }
+
+                            else{
+                                mWriteQueue.add(byteArrayOf(0xF2.toByte(), sequence.toByte()) + queuedCommand.copyOfRange(0, endByte - 2))
+                                queuedCommand = queuedCommand.copyOfRange(endByte - 2, queuedCommand.size)
+
+                            }
+
+                            sequence++
+                        }
+
+                        DebugLog.d(TAG, "$sequence frames sent to BLE")
+                    }
+                    else {
+                        mWriteQueue.add(queuedCommand)
+                    }
                 }
                 else -> {
                     DebugLog.d(TAG, "Received ${flashStatus} from UDSFlash")
