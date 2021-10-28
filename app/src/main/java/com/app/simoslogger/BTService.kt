@@ -832,6 +832,30 @@ class BTService: Service() {
                     sendBroadcast(intentMessage)
                 }
 
+                var progress = UDSFlasher.getProgress()
+
+                if(progress > 0){
+                    DebugLog.d(TAG, "Total Progress: $progress")
+
+                    val intentMessage = Intent(GUIMessage.FLASH_PROGRESS_SHOW.toString())
+                    intentMessage.putExtra(GUIMessage.FLASH_PROGRESS_SHOW.toString(), true)
+                    sendBroadcast(intentMessage)
+
+                    val intentMessage2 = Intent(GUIMessage.FLASH_PROGRESS.toString())
+                    intentMessage2.putExtra(GUIMessage.FLASH_PROGRESS.toString(), progress)
+                    sendBroadcast(intentMessage2)
+                }
+                else{
+                    val intentMessage = Intent(GUIMessage.FLASH_PROGRESS_SHOW.toString())
+                    intentMessage.putExtra(GUIMessage.FLASH_PROGRESS_SHOW.toString(), false)
+                    sendBroadcast(intentMessage)
+                }
+                if(progress >= 100){
+                    val intentMessage = Intent(GUIMessage.FLASH_INFO_CLEAR.toString())
+                    sendBroadcast(intentMessage)
+                }
+
+
                 when (flashStatus) {
                     UDSReturn.OK -> {
 

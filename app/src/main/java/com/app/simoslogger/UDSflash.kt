@@ -1,6 +1,7 @@
 package com.app.simoslogger
 
 import java.io.InputStream
+import java.lang.Math.round
 
 object UDSFlasher {
     private val TAG = "UDSflash"
@@ -10,6 +11,7 @@ object UDSFlasher {
     private var bin: ByteArray = byteArrayOf()
     private var ecuAswVersion: ByteArray = byteArrayOf()
     private var transferSequence = -1
+    private var progress = 0
 
     fun getInfo(): String {
         return mLastString
@@ -21,6 +23,10 @@ object UDSFlasher {
 
     fun started(): Boolean {
         return !(mTask == FLASH_ECU_CAL_SUBTASK.NONE)
+    }
+
+    fun getProgress(): Int{
+        return progress
     }
 
     fun setBinFile(input: InputStream) {
@@ -262,12 +268,13 @@ object UDSFlasher {
                     }
                     else if(buff[0] == 0x74.toByte()){
                         transferSequence = 1
+                        progress = round(transferSequence.toFloat() / (bin.size / CAL_BLOCK_TRANSFER_SIZE) * 100)
 
                         //Send bytes, 0x36 [frame number]
                         //Break the whole bin into frames of FFD size, and
                         // we'll use that array.
                         mCommand = buildBLEFrame(byteArrayOf(0x36.toByte(), transferSequence.toByte()) + bin.copyOfRange(0, CAL_BLOCK_TRANSFER_SIZE))
-                        mLastString = "Transferring sequence $transferSequence"
+                        mLastString = "Transfer Started"
 
                         return UDSReturn.COMMAND_QUEUED
                     }
@@ -276,7 +283,9 @@ object UDSFlasher {
 
                         if(buff[1] == transferSequence.toByte()){
                             transferSequence++
-                            mLastString = "Transferring sequence $transferSequence"
+                            progress = round(transferSequence.toFloat() / (bin.size / CAL_BLOCK_TRANSFER_SIZE) * 100)
+
+                            mLastString = ""
                             //if the current transfer sequence number is larger than the max
                             // number that we need for the payload, send a 'transfer exit'
                             if(transferSequence > totalFrames){
@@ -298,6 +307,7 @@ object UDSFlasher {
                         return UDSReturn.COMMAND_QUEUED
                     }
                     else if(buff[0] == 0x77.toByte()) {
+                        progress = 0
                         mCommand = sendTesterPresent()
                         mTask = mTask.next()
                         return UDSReturn.COMMAND_QUEUED

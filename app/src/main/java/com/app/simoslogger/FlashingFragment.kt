@@ -90,6 +90,7 @@ class FlashingFragment : Fragment() {
             progress.isVisible = false
             progress.max = 100
             progress.min = 0
+            progress.setScaleY(3F)
         }
 
         setColor()
@@ -103,6 +104,8 @@ class FlashingFragment : Fragment() {
         val filter = IntentFilter()
         filter.addAction(GUIMessage.FLASH_INFO.toString())
         filter.addAction(GUIMessage.FLASH_PROGRESS.toString())
+        filter.addAction(GUIMessage.FLASH_PROGRESS_SHOW.toString())
+        filter.addAction(GUIMessage.FLASH_INFO_CLEAR.toString())
         this.activity?.registerReceiver(mBroadcastReceiver, filter)
     }
 
@@ -114,11 +117,13 @@ class FlashingFragment : Fragment() {
 
     private val mBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
+            DebugLog.d(TAG, "Flashing Fragment received action: " + intent.action.toString())
             when (intent.action) {
                 GUIMessage.FLASH_INFO.toString()          -> doWriteMessage(intent.getStringExtra(GUIMessage.FLASH_INFO.toString())?: "")
                 GUIMessage.FLASH_PROGRESS.toString()      -> setProgressBar(intent.getIntExtra(GUIMessage.FLASH_PROGRESS.toString(), 0))
                 GUIMessage.FLASH_PROGRESS_MAX.toString()  -> setProgressBarMax(intent.getIntExtra(GUIMessage.FLASH_PROGRESS_MAX.toString(), 0))
                 GUIMessage.FLASH_PROGRESS_SHOW.toString() -> setProgressBarShow(intent.getBooleanExtra(GUIMessage.FLASH_PROGRESS_SHOW.toString(), false))
+                GUIMessage.FLASH_INFO_CLEAR.toString()    -> doClearMessages()
             }
         }
     }
@@ -130,7 +135,13 @@ class FlashingFragment : Fragment() {
         mArrayAdapter?.add(message)
 
         val btMessage = view?.findViewById<ListView>(R.id.bt_message)!!
-        btMessage.setSelection(btMessage.adapter.count - 1)
+        //btMessage.setSelection(btMessage.adapter.count - 1)
+        btMessage.smoothScrollToPosition(btMessage.count)
+
+    }
+
+    private fun doClearMessages(){
+        //todo
     }
 
     private fun setColor() {
