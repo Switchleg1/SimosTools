@@ -80,7 +80,7 @@ class MainActivity : AppCompatActivity() {
                         timerCallback()
                     }
                 }
-                mViewModel.guiTimer?.scheduleAtFixedRate(task, 5000, 5000)
+                mViewModel.guiTimer?.scheduleAtFixedRate(task, 1000, 1000)
             }
 
             //Save started
@@ -97,8 +97,8 @@ class MainActivity : AppCompatActivity() {
         setStatus()
 
         val filter = IntentFilter()
-        filter.addAction(GUIMessage.STATE_CHANGE.toString())
-        filter.addAction(GUIMessage.TASK_CHANGE.toString())
+        filter.addAction(GUIMessage.STATE_CONNECTION.toString())
+        filter.addAction(GUIMessage.STATE_TASK.toString())
         filter.addAction(GUIMessage.WRITE_LOG.toString())
         filter.addAction(GUIMessage.TOAST.toString())
         registerReceiver(mBroadcastReceiver, filter)
@@ -136,15 +136,14 @@ class MainActivity : AppCompatActivity() {
     private val mBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             when (intent.action) {
-                GUIMessage.TASK_CHANGE.toString() -> {
-                    mViewModel.currentTask = intent.getSerializableExtra(GUIMessage.TASK_CHANGE.toString()) as UDSTask
+                GUIMessage.STATE_TASK.toString() -> {
+                    mViewModel.currentTask = intent.getSerializableExtra(GUIMessage.STATE_TASK.toString()) as UDSTask
                     setStatus()
                 }
-                GUIMessage.STATE_CHANGE.toString() -> {
-                    val connectionState = intent.getSerializableExtra(GUIMessage.STATE_CHANGE.toString()) as BLEConnectionState
+                GUIMessage.STATE_CONNECTION.toString() -> {
+                    val connectionState = intent.getSerializableExtra(GUIMessage.STATE_CONNECTION.toString()) as BLEConnectionState
                     mViewModel.connectionState = connectionState
                     mViewModel.currentTask = UDSTask.NONE
-                    invalidateOptionsMenu()
                     setStatus()
                 }
                 GUIMessage.WRITE_LOG.toString() -> {
@@ -178,18 +177,22 @@ class MainActivity : AppCompatActivity() {
 
     private fun timerCallback() {
         when(mViewModel.connectionState) {
-            BLEConnectionState.ERROR     -> doConnect()
-            BLEConnectionState.NONE      -> doConnect()
-            BLEConnectionState.CONNECTED -> {
-                if(mViewModel.currentTask == UDSTask.NONE) {
-                    //Lets start logging
-                    val serviceIntent = Intent(this, BTService::class.java)
-                    serviceIntent.action = BTServiceTask.DO_START_LOG.toString()
-                    ContextCompat.startForegroundService(this, serviceIntent)
+            BLEConnectionState.ERROR      -> doConnect()
+            BLEConnectionState.NONE       -> doConnect()
+            BLEConnectionState.CONNECTING -> { }
+            BLEConnectionState.CONNECTED  -> {
+                if(ConfigSettings.AUTO_LOG.toBoolean() && mViewModel.currentTask == UDSTask.NONE) {
+                    sendServiceMessage(BTServiceTask.DO_START_LOG.toString())
                 }
             }
-            else -> {}
         }
+        sendServiceMessage(BTServiceTask.REQ_STATUS.toString())
+    }
+
+    private fun sendServiceMessage(type: String) {
+        val serviceIntent = Intent(this, BTService::class.java)
+        serviceIntent.action = type
+        ContextCompat.startForegroundService(this, serviceIntent)
     }
 
     private fun doConnect() {

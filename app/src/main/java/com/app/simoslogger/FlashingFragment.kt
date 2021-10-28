@@ -17,12 +17,19 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat.startForegroundService
 import android.widget.ArrayAdapter
 import androidx.core.view.isVisible
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 
 var gMsgList: Array<String>? = null
+
+class FlashViewModel : ViewModel() {
+    var connectionState: BLEConnectionState = BLEConnectionState.NONE
+}
 
 class FlashingFragment : Fragment() {
     private val TAG = "FlashingFragment"
     private var mArrayAdapter: ArrayAdapter<String>? = null
+    private lateinit var mViewModel: FlashViewModel
 
     var resultPickLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -32,9 +39,7 @@ class FlashingFragment : Fragment() {
 
 
                 // Tell the service to start flashing
-                val serviceIntent = Intent(context, BTService::class.java)
-                serviceIntent.action = BTServiceTask.DO_START_FLASH.toString()
-                startForegroundService(this.requireContext(), serviceIntent)
+                sendServiceMessage(BTServiceTask.DO_START_FLASH.toString())
 
                 Toast.makeText(activity, "Success", Toast.LENGTH_SHORT).show()
             }?: Toast.makeText(activity, "Failed", Toast.LENGTH_SHORT).show()
@@ -53,6 +58,7 @@ class FlashingFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        mViewModel = ViewModelProvider(this).get(FlashViewModel::class.java)
 
         mArrayAdapter = ArrayAdapter(requireContext(), R.layout.message)
         mArrayAdapter?.let { adapter ->
@@ -65,24 +71,30 @@ class FlashingFragment : Fragment() {
             messageBox.setBackgroundColor(Color.WHITE)
         }
         view.findViewById<Button>(R.id.buttonFlashCAL).setOnClickListener {
-            var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
-            chooseFile.type = "*/*"
-            chooseFile = Intent.createChooser(chooseFile, "Choose a CAL file")
-            resultPickLauncher.launch(chooseFile)
+            if(mViewModel.connectionState == BLEConnectionState.CONNECTED) {
+                var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
+                chooseFile.type = "*/*"
+                chooseFile = Intent.createChooser(chooseFile, "Choose a CAL file")
+                resultPickLauncher.launch(chooseFile)
+            } else {
+                doWriteMessage("Not connected")
+            }
         }
 
         view.findViewById<Button>(R.id.buttonECUInfo).setOnClickListener {
-            // Get the message bytes and tell the BluetoothChatService to write
-            val serviceIntent = Intent(context, BTService::class.java)
-            serviceIntent.action = BTServiceTask.DO_GET_INFO.toString()
-            startForegroundService(this.requireContext(), serviceIntent)
+            if(mViewModel.connectionState == BLEConnectionState.CONNECTED) {
+                sendServiceMessage(BTServiceTask.DO_GET_INFO.toString())
+            } else {
+                doWriteMessage("Not connected")
+            }
         }
 
         view.findViewById<Button>(R.id.buttonClearDTC).setOnClickListener {
-            // Get the message bytes and tell the BluetoothChatService to write
-            val serviceIntent = Intent(context, BTService::class.java)
-            serviceIntent.action = BTServiceTask.DO_CLEAR_DTC.toString()
-            startForegroundService(this.requireContext(), serviceIntent)
+            if(mViewModel.connectionState == BLEConnectionState.CONNECTED) {
+                sendServiceMessage(BTServiceTask.DO_CLEAR_DTC.toString())
+            } else {
+                doWriteMessage("Not connected")
+            }
         }
 
         view.findViewById<ProgressBar>(R.id.progressBarFlash)?.let { progress ->
@@ -101,6 +113,8 @@ class FlashingFragment : Fragment() {
         setColor()
 
         val filter = IntentFilter()
+        filter.addAction(GUIMessage.STATE_CONNECTION.toString())
+        filter.addAction(GUIMessage.STATE_TASK.toString())
         filter.addAction(GUIMessage.FLASH_INFO.toString())
         filter.addAction(GUIMessage.FLASH_PROGRESS.toString())
         this.activity?.registerReceiver(mBroadcastReceiver, filter)
@@ -115,6 +129,8 @@ class FlashingFragment : Fragment() {
     private val mBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             when (intent.action) {
+                GUIMessage.STATE_CONNECTION.toString()    -> mViewModel.connectionState = intent.getSerializableExtra(GUIMessage.STATE_CONNECTION.toString()) as BLEConnectionState
+                GUIMessage.STATE_TASK.toString()          -> mViewModel.connectionState = BLEConnectionState.CONNECTED
                 GUIMessage.FLASH_INFO.toString()          -> doWriteMessage(intent.getStringExtra(GUIMessage.FLASH_INFO.toString())?: "")
                 GUIMessage.FLASH_PROGRESS.toString()      -> setProgressBar(intent.getIntExtra(GUIMessage.FLASH_PROGRESS.toString(), 0))
                 GUIMessage.FLASH_PROGRESS_MAX.toString()  -> setProgressBarMax(intent.getIntExtra(GUIMessage.FLASH_PROGRESS_MAX.toString(), 0))
@@ -152,5 +168,11 @@ class FlashingFragment : Fragment() {
     private fun setProgressBarShow(allow: Boolean) {
         val pBar = view?.findViewById<ProgressBar>(R.id.progressBarFlash)
         pBar?.isVisible = allow
+    }
+
+    private fun sendServiceMessage(type: String) {
+        val serviceIntent = Intent(context, BTService::class.java)
+        serviceIntent.action = type
+        startForegroundService(this.requireContext(), serviceIntent)
     }
 }
