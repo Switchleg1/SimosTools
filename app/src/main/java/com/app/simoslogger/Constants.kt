@@ -27,11 +27,12 @@ enum class GUIMessage {
     TASK_CHANGE,
     TOAST,
     READ,
-    ECU_INFO,
-    CLEAR_DTC,
     READ_LOG,
     WRITE_LOG,
     FLASH_INFO,
+    FLASH_PROGRESS,
+    FLASH_PROGRESS_MAX,
+    FLASH_PROGRESS_SHOW,
 }
 
 // Constants that indicate the current connection state
@@ -142,6 +143,7 @@ enum class FLASH_ECU_CAL_SUBTASK {
     fun next(): FLASH_ECU_CAL_SUBTASK {
         val vals = values()
         return vals[(this.ordinal+1) % vals.size]
+
     }
 }
 

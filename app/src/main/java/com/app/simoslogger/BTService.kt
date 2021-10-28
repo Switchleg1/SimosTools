@@ -831,8 +831,8 @@ class BTService: Service() {
 
         private fun processPacketGetInfo(buff: ByteArray?) {
             if(UDSInfo.processPacket(mTaskTick, buff) == UDSReturn.OK) {
-                val intentMessage = Intent(GUIMessage.ECU_INFO.toString())
-                intentMessage.putExtra(GUIMessage.ECU_INFO.toString(), UDSInfo.getInfo())
+                val intentMessage = Intent(GUIMessage.FLASH_INFO.toString())
+                intentMessage.putExtra(GUIMessage.FLASH_INFO.toString(), UDSInfo.getInfo())
                 sendBroadcast(intentMessage)
 
                 if(mTaskTick < UDSInfo.getStartCount()-1)
@@ -844,8 +844,8 @@ class BTService: Service() {
 
         private fun processPacketClearDTC(buff: ByteArray?) {
             if(UDSdtc.processPacket(mTaskTick, buff) == UDSReturn.OK) {
-                val intentMessage = Intent(GUIMessage.CLEAR_DTC.toString())
-                intentMessage.putExtra(GUIMessage.CLEAR_DTC.toString(), UDSdtc.getInfo())
+                val intentMessage = Intent(GUIMessage.FLASH_INFO.toString())
+                intentMessage.putExtra(GUIMessage.FLASH_INFO.toString(), UDSdtc.getInfo())
                 sendBroadcast(intentMessage)
 
                 if(mTaskTick < UDSdtc.getStartCount())

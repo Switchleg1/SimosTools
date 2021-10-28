@@ -16,6 +16,7 @@ import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat.startForegroundService
 import android.widget.ArrayAdapter
+import androidx.core.view.isVisible
 
 var gMsgList: Array<String>? = null
 
@@ -60,9 +61,10 @@ class FlashingFragment : Fragment() {
                 adapter.add(it)
             }
         }
-        view.findViewById<ListView>(R.id.bt_message).adapter = mArrayAdapter
-        view.findViewById<ListView>(R.id.bt_message).setBackgroundColor(Color.WHITE)
-
+        view.findViewById<ListView>(R.id.bt_message)?.let { messageBox ->
+            messageBox.adapter = mArrayAdapter
+            messageBox.setBackgroundColor(Color.WHITE)
+        }
         view.findViewById<Button>(R.id.buttonFlashCAL).setOnClickListener {
             var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
             chooseFile.type = "*/*"
@@ -84,6 +86,13 @@ class FlashingFragment : Fragment() {
             startForegroundService(this.requireContext(), serviceIntent)
         }
 
+        view.findViewById<ProgressBar>(R.id.progressBarFlash)?.let { progress ->
+            progress.progress = 0
+            progress.isVisible = false
+            progress.max = 100
+            progress.min = 0
+        }
+
         setColor()
     }
 
@@ -93,9 +102,8 @@ class FlashingFragment : Fragment() {
         setColor()
 
         val filter = IntentFilter()
-        filter.addAction(GUIMessage.ECU_INFO.toString())
-        filter.addAction(GUIMessage.CLEAR_DTC.toString())
         filter.addAction(GUIMessage.FLASH_INFO.toString())
+        filter.addAction(GUIMessage.FLASH_PROGRESS.toString())
         this.activity?.registerReceiver(mBroadcastReceiver, filter)
     }
 
@@ -108,9 +116,10 @@ class FlashingFragment : Fragment() {
     private val mBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             when (intent.action) {
-                GUIMessage.ECU_INFO.toString()   -> doWriteMessage(intent.getStringExtra(GUIMessage.ECU_INFO.toString())?: "")
-                GUIMessage.CLEAR_DTC.toString()  -> doWriteMessage(intent.getStringExtra(GUIMessage.CLEAR_DTC.toString())?: "")
-                GUIMessage.FLASH_INFO.toString() -> doWriteMessage(intent.getStringExtra(GUIMessage.FLASH_INFO.toString())?: "")
+                GUIMessage.FLASH_INFO.toString()          -> doWriteMessage(intent.getStringExtra(GUIMessage.FLASH_INFO.toString())?: "")
+                GUIMessage.FLASH_PROGRESS.toString()      -> setProgressBar(intent.getIntExtra(GUIMessage.FLASH_PROGRESS.toString(), 0))
+                GUIMessage.FLASH_PROGRESS_MAX.toString()  -> setProgressBarMax(intent.getIntExtra(GUIMessage.FLASH_PROGRESS_MAX.toString(), 0))
+                GUIMessage.FLASH_PROGRESS_SHOW.toString() -> setProgressBarShow(intent.getBooleanExtra(GUIMessage.FLASH_PROGRESS_SHOW.toString(), false))
             }
         }
     }
@@ -128,5 +137,21 @@ class FlashingFragment : Fragment() {
     private fun setColor() {
         //Set background color
         view?.setBackgroundColor(ColorList.BG_NORMAL.value)
+    }
+
+    private fun setProgressBar(amount: Int) {
+        val pBar = view?.findViewById<ProgressBar>(R.id.progressBarFlash)
+        pBar?.progress = amount
+
+    }
+
+    private fun setProgressBarMax(amount: Int) {
+        val pBar = view?.findViewById<ProgressBar>(R.id.progressBarFlash)
+        pBar?.max = amount
+    }
+
+    private fun setProgressBarShow(allow: Boolean) {
+        val pBar = view?.findViewById<ProgressBar>(R.id.progressBarFlash)
+        pBar?.isVisible = allow
     }
 }
