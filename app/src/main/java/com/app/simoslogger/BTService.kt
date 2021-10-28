@@ -907,7 +907,6 @@ class BTService: Service() {
                     }
                 }
             }
-
         }
 
         private fun processPacketGetInfo(buff: ByteArray?) {
