@@ -47,6 +47,7 @@ object UDSFlasher {
 
         buff?.let {
 
+
             DebugLog.d(TAG, "Flash subroutine: " + mTask)
             if(buff[0] == 0x7f.toByte()){
                 DebugLog.w(TAG,"Negative response received from ECU!")
@@ -261,6 +262,7 @@ object UDSFlasher {
                     }
                     else if(buff[0] == 0x74.toByte()){
                         transferSequence = 1
+
                         //Send bytes, 0x36 [frame number]
                         //Break the whole bin into frames of FFD size, and
                         // we'll use that array.
