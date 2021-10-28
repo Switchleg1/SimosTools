@@ -716,6 +716,7 @@ class BTService: Service() {
         }
 
         private fun startTaskFlashing(){
+            setBridgeSTMIN(350)
             mWriteQueue.add(UDSFlasher.startTask(0))
         }
 
