@@ -104,6 +104,7 @@ enum class UDSReturn {
     ERROR_CMDSIZE,
     ERROR_TIME_OUT,
     ERROR_UNKNOWN,
+    COMMAND_QUEUED
 }
 
 enum class ECUInfo(val str: String, val address: ByteArray) {
@@ -125,14 +126,13 @@ enum class ECUInfo(val str: String, val address: ByteArray) {
 enum class FLASH_ECU_CAL_SUBTASK {
     NONE,
     GET_ECU_BOX_CODE,
-    READ_FILE_FROM_STORAGE,
     CHECK_FILE_COMPAT,
     CHECKSUM_BIN,
     COMPRESS_BIN,
     ENCRYPT_BIN,
     CLEAR_DTC,
-    OPEN_EXTENDED_DIAGNOSTIC,
     CHECK_PROGRAMMING_PRECONDITION, //routine 0x0203
+    OPEN_EXTENDED_DIAGNOSTIC,
     SA2SEEDKEY,
     WRITE_WORKSHOP_LOG,
     FLASH_BLOCK,
@@ -361,6 +361,81 @@ val TQ_CONSTANT                 = 16.3f
 
 //Max allowed PID count
 val MAX_PIDS                    = 100
+
+//SA2SeedKeyTape
+val VW_SEEDKEY_TAPE = byteArrayOf(
+    0x68.toByte(),
+    0x02.toByte(),
+    0x81.toByte(),
+    0x49.toByte(),
+    0x93.toByte(),
+    0xa5.toByte(),
+    0x5a.toByte(),
+    0x55.toByte(),
+    0xaa.toByte(),
+    0x4a.toByte(),
+    0x05.toByte(),
+    0x87.toByte(),
+    0x81.toByte(),
+    0x05.toByte(),
+    0x95.toByte(),
+    0x26.toByte(),
+    0x68.toByte(),
+    0x05.toByte(),
+    0x82.toByte(),
+    0x49.toByte(),
+    0x84.toByte(),
+    0x5a.toByte(),
+    0xa5.toByte(),
+    0xaa.toByte(),
+    0x55.toByte(),
+    0x87.toByte(),
+    0x03.toByte(),
+    0xf7.toByte(),
+    0x80.toByte(),
+    0x6a.toByte(),
+    0x4c.toByte()
+)
+
+val SIMOS18_AES_KEY = byteArrayOf(
+0x98.toByte(),
+0xD3.toByte(),
+0x12.toByte(),
+0x02.toByte(),
+0xE4.toByte(),
+0x8E.toByte(),
+0x38.toByte(),
+0x54.toByte(),
+0xF2.toByte(),
+0xCA.toByte(),
+0x56.toByte(),
+0x15.toByte(),
+0x45.toByte(),
+0xBA.toByte(),
+0x6F.toByte(),
+0x2F.toByte()
+)
+
+val SIMOS18_AES_IV = byteArrayOf(
+0xE7.toByte(),
+0x86.toByte(),
+0x12.toByte(),
+0x78.toByte(),
+0xC5.toByte(),
+0x08.toByte(),
+0x53.toByte(),
+0x27.toByte(),
+0x98.toByte(),
+0xBC.toByte(),
+0xA4.toByte(),
+0xFE.toByte(),
+0x45.toByte(),
+0x1D.toByte(),
+0x20.toByte(),
+0xD1.toByte()
+)
+
+val CAL_BLOCK_TRANSFER_SIZE = 0x190
 
 //Additional properties
 infix fun Byte.shl(that: Int): Int = this.toInt().shl(that)

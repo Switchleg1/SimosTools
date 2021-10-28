@@ -86,7 +86,8 @@ class BTService: Service() {
             BTServiceTask.START_SERVICE.toString()  -> doStartService()
             BTServiceTask.DO_CONNECT.toString()     -> doConnect()
             BTServiceTask.DO_DISCONNECT.toString()  -> doDisconnect()
-            BTServiceTask.DO_START_LOG.toString()   -> mConnectionThread?.setTaskState(UDSTask.LOGGING)
+            BTServiceTask.DO_START_LOG.toString()   -> {//mConnectionThread?.setTaskState(UDSTask.LOGGING)
+                }
             BTServiceTask.DO_START_FLASH.toString() -> mConnectionThread?.setTaskState(UDSTask.FLASHING)
             BTServiceTask.DO_GET_INFO.toString()    -> mConnectionThread?.setTaskState(UDSTask.INFO)
             BTServiceTask.DO_CLEAR_DTC.toString()   -> mConnectionThread?.setTaskState(UDSTask.DTC)
@@ -815,17 +816,96 @@ class BTService: Service() {
         }
 
         private fun processPacketFlashing(buff: ByteArray?) {
-            if(UDSFlasher.processPacket(mTaskTick, buff) == UDSReturn.OK) {
-                if(UDSFlasher.getInfo() != "") {
+
+            if(buff != null) {
+                var response = buff!!.copyOfRange(8, buff.size)
+
+                var flashStatus = UDSFlasher.processFlashCAL(mTaskTick, response)
+
+                if (UDSFlasher.getInfo() != "") {
+                    DebugLog.d(
+                        TAG,
+                        "Received status message from UDSFlash: ${UDSFlasher.getInfo()}"
+                    )
                     val intentMessage = Intent(GUIMessage.FLASH_INFO.toString())
-                    intentMessage.putExtra(GUIMessage.FLASH_INFO.toString(), UDSInfo.getInfo())
+                    intentMessage.putExtra(GUIMessage.FLASH_INFO.toString(), UDSFlasher.getInfo())
                     sendBroadcast(intentMessage)
                 }
 
-                if(!UDSFlasher.finished())
-                    mWriteQueue.add(UDSFlasher.startTask(mTaskTick+1))
-            } else {
-                setTaskState(UDSTask.NONE)
+                when (flashStatus) {
+                    UDSReturn.OK -> {
+
+                    }
+                    UDSReturn.COMMAND_QUEUED -> {
+                        var queuedCommand = UDSFlasher.getCommand()
+
+                        if (queuedCommand.size > BLE_GATT_MTU_SIZE) {
+                            DebugLog.d(TAG, "Larger than MTU frame encountered, breaking it up")
+                            DebugLog.d(
+                                TAG,
+                                "Old Header:" + queuedCommand.copyOfRange(0, 10).toHex()
+                            )
+                            //We need to break the command into multiple commands, and add EACH one
+                            // to the mWriteQueue
+                            //  We'll first replace the first 2 bytes with multiframe control bytes
+                            queuedCommand = byteArrayOf(0xF1.toByte(), 0x08.toByte()) +
+                                    queuedCommand.copyOfRange(2, queuedCommand.size)
+
+                            DebugLog.d(
+                                TAG,
+                                "New Header:" + queuedCommand.copyOfRange(0, 10).toHex()
+                            )
+                            //Then we'll initialize the sequence counter:
+                            var sequence = 0
+                            var endByte: Int = 0
+
+
+                            //Then, we'll start a while loop to queue up all the bytes:
+                            while (queuedCommand.size != 0) {
+                                DebugLog.d(TAG, "queuedCommand size: " + queuedCommand.size)
+                                if (queuedCommand.size > BLE_GATT_MTU_SIZE) {
+                                    endByte = BLE_GATT_MTU_SIZE
+                                } else {
+                                    mWriteQueue.add(
+                                        byteArrayOf(
+                                            0xF2.toByte(),
+                                            sequence.toByte()
+                                        ) + queuedCommand
+                                    )
+                                    break
+
+                                }
+
+                                if (sequence == 0) {
+                                    mWriteQueue.add(queuedCommand.copyOfRange(0, endByte))
+                                    queuedCommand =
+                                        queuedCommand.copyOfRange(endByte, queuedCommand.size)
+
+                                } else {
+                                    mWriteQueue.add(
+                                        byteArrayOf(
+                                            0xF2.toByte(),
+                                            sequence.toByte()
+                                        ) + queuedCommand.copyOfRange(0, endByte)
+                                    )
+                                    queuedCommand =
+                                        queuedCommand.copyOfRange(endByte, queuedCommand.size)
+
+                                }
+
+                                sequence++
+                            }
+
+                            DebugLog.d(TAG, "$sequence frames sent to BLE")
+                        } else {
+                            mWriteQueue.add(queuedCommand)
+                        }
+                    }
+                    else -> {
+                        DebugLog.d(TAG, "Received ${flashStatus} from UDSFlash")
+                        setTaskState(UDSTask.NONE)
+                    }
+                }
             }
         }
 
