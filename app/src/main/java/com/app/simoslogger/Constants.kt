@@ -324,6 +324,44 @@ val VW_SEEDKEY_TAPE = byteArrayOf(
     0x4c.toByte()
 )
 
+val SIMOS18_AES_KEY = byteArrayOf(
+0x98.toByte(),
+0xD3.toByte(),
+0x12.toByte(),
+0x02.toByte(),
+0xE4.toByte(),
+0x8E.toByte(),
+0x38.toByte(),
+0x54.toByte(),
+0xF2.toByte(),
+0xCA.toByte(),
+0x56.toByte(),
+0x15.toByte(),
+0x45.toByte(),
+0xBA.toByte(),
+0x6F.toByte(),
+0x2F.toByte()
+)
+
+val SIMOS18_AES_IV = byteArrayOf(
+0xE7.toByte(),
+0x86.toByte(),
+0x12.toByte(),
+0x78.toByte(),
+0xC5.toByte(),
+0x08.toByte(),
+0x53.toByte(),
+0x27.toByte(),
+0x98.toByte(),
+0xBC.toByte(),
+0xA4.toByte(),
+0xFE.toByte(),
+0x45.toByte(),
+0x1D.toByte(),
+0x20.toByte(),
+0xD1.toByte()
+)
+
 val CAL_BLOCK_TRANSFER_SIZE = 0x190
 
 //Additional properties

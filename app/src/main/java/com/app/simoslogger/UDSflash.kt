@@ -134,14 +134,17 @@ object UDSFlasher {
                     mLastString = mTask.toString() + "\n"
                     var unencryptedSize = bin.size
 
-                    bin = FlashUtilities.encrypt(bin)
+                    bin = FlashUtilities.encrypt(bin, SIMOS18_AES_KEY, SIMOS18_AES_IV)
 
                     var encryptedSize = bin.size
 
                     mLastString += "Unencrypted bin size: $unencryptedSize \n"
                     mLastString += "Encrypted bin size: $encryptedSize"
 
-
+                    if(bin.isEmpty()){
+                        mLastString = "Error encrypting BIN"
+                        return UDSReturn.ERROR_UNKNOWN
+                    }
                     mTask = mTask.next()
                     mCommand = sendTesterPresent()
                     return UDSReturn.COMMAND_QUEUED

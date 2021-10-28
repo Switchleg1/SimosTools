@@ -1,5 +1,9 @@
 package com.app.simoslogger
 
+import javax.crypto.Cipher
+import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.SecretKeySpec
+
 data class checksummedBin(var bin: ByteArray, var fileChecksum: String, var calculatedChecksum: String, var updated: Boolean)
 
 
@@ -194,14 +198,79 @@ object FlashUtilities {
         return(output)
     }
 
-    fun decodeLZSS(input: ByteArray): ByteArray{
-        return input
+    fun decodeLZSS(input: ByteArray, expectedSize: Int): ByteArray{
+
+        var output: ByteArray = byteArrayOf()
+        var dataIterator = input.iterator()
+
+        fun bits(flagByte: UByte): IntArray{
+            return intArrayOf(
+                (flagByte.toInt() shr 7) and 1,
+                (flagByte.toInt() shr 6) and 1,
+                (flagByte.toInt() shr 5) and 1,
+                (flagByte.toInt() shr 4) and 1,
+                (flagByte.toInt() shr 3) and 1,
+                (flagByte.toInt() shr 2) and 1,
+                (flagByte.toInt() shr 1) and 1,
+                (flagByte.toInt() and 1)
+            )
+        }
+
+        fun readByte(): Byte{
+
+            return dataIterator.nextByte()
+        }
+
+        fun readShort(): UInt{
+
+            var a = dataIterator.nextByte().toUByte()
+
+            var b = dataIterator.nextByte().toUByte()
+            return ((a.toUInt() shl 8) or b.toUInt())
+        }
+
+        fun copyByte(){
+
+            output += dataIterator.nextByte()
+        }
+
+        while(output.size < expectedSize){
+
+            var flagByte = readByte().toUByte()
+            var flags = bits(flagByte)
+
+            for(flag in flags){
+
+                if(flag == 0){
+                    copyByte()
+                }
+                else if(flag == 1){
+                    var sh = readShort()
+
+                    var count = sh shr 10
+                    var disp = sh and 0x3FF.toUInt()
+
+
+                    for(i in 1..count.toInt()){
+                        output += output[output.size - disp.toInt()]
+                    }
+
+                }
+                else{
+                    println("holy shit issues")
+                    return output
+                }
+
+                if(expectedSize <= output.size)
+                    return output
+
+            }
+        }
+
+        return output
+
     }
     
-    fun encrypt(input: ByteArray): ByteArray{
-        return input
-    }
-
     public class Sa2SeedKey(inputTape: ByteArray, seed: ByteArray) {
         var instructionPointer = 0
         var instructionTape = inputTape
@@ -355,6 +424,23 @@ object FlashUtilities {
         }
 
         return -1
+    }
+
+    fun encrypt(bin: ByteArray, key: ByteArray, initVector: ByteArray ): ByteArray {
+        try {
+            val cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING")
+            val iv = IvParameterSpec(initVector)
+
+            val skeySpec = SecretKeySpec(key, "AES")
+            cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv)
+
+            return cipher.doFinal()
+
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+
+        return byteArrayOf()
     }
 
     private fun byteArrayToInt(data: ByteArray): Int {
