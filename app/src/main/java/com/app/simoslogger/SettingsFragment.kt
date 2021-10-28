@@ -256,7 +256,7 @@ class SettingsFragment : Fragment() {
             currentView.findViewById<SeekBar>(R.id.seekBarUpdateRate)?.let { updateRate ->
                 updateRate.min = 1
                 updateRate.max = 10
-                updateRate.progress = 11 - Settings.updateRate
+                updateRate.progress = 11 - ConfigSettings.UPDATE_RATE.toInt()
                 updateRate.callOnClick()
             }
 
@@ -264,7 +264,7 @@ class SettingsFragment : Fragment() {
             currentView.findViewById<SeekBar>(R.id.seekBarPersistDelay)?.let { persistDelay ->
                 persistDelay.min = 1
                 persistDelay.max = 50
-                persistDelay.progress = Settings.persistDelay
+                persistDelay.progress = ConfigSettings.PERSIST_DELAY.toInt()
                 persistDelay.callOnClick()
             }
 
@@ -272,14 +272,14 @@ class SettingsFragment : Fragment() {
             currentView.findViewById<SeekBar>(R.id.seekBarPersistQDelay)?.let { persistQDelay ->
                 persistQDelay.min = 1
                 persistQDelay.max = 25
-                persistQDelay.progress = Settings.persistQDelay
+                persistQDelay.progress = ConfigSettings.PERSIST_Q_DELAY.toInt()
                 persistQDelay.callOnClick()
             }
 
             //Get gauge mode
-            when(Settings.displayType) {
-                DisplayType.BAR -> currentView.findViewById<RadioButton>(R.id.radioButtonBAR).isChecked = true
-                DisplayType.ROUND -> currentView.findViewById<RadioButton>(R.id.radioButtonROUND).isChecked = true
+            when(ConfigSettings.GAUGE_TYPE.toGaugeType()) {
+                GaugeType.BAR -> currentView.findViewById<RadioButton>(R.id.radioButtonBAR).isChecked = true
+                GaugeType.ROUND -> currentView.findViewById<RadioButton>(R.id.radioButtonROUND).isChecked = true
             }
 
             //Get logging mode
@@ -289,29 +289,29 @@ class SettingsFragment : Fragment() {
             }
 
             //Get output directory
-            when (Settings.outputDirectory) {
+            when (ConfigSettings.OUT_DIRECTORY.toDirectory()) {
                 DirectoryList.DOWNLOADS -> currentView.findViewById<RadioButton>(R.id.radioButtonDownloads).isChecked = true
                 DirectoryList.DOCUMENTS -> currentView.findViewById<RadioButton>(R.id.radioButtonDocuments).isChecked = true
                 DirectoryList.APP -> currentView.findViewById<RadioButton>(R.id.radioButtonApplication).isChecked = true
             }
 
             //Get draw minmax
-            currentView.findViewById<CheckBox>(R.id.checkBoxDrawMinMax).isChecked = Settings.drawMinMax
+            currentView.findViewById<CheckBox>(R.id.checkBoxDrawMinMax).isChecked = ConfigSettings.DRAW_MIN_MAX.toBoolean()
 
             //Get cruise invert
-            currentView.findViewById<CheckBox>(R.id.checkBoxInvertCruise).isChecked = Settings.invertCruise
+            currentView.findViewById<CheckBox>(R.id.checkBoxInvertCruise).isChecked = ConfigSettings.INVERT_CRUISE.toBoolean()
 
             //Get keep screen on
-            currentView.findViewById<CheckBox>(R.id.checkBoxScreenOn).isChecked = Settings.keepScreenOn
+            currentView.findViewById<CheckBox>(R.id.checkBoxScreenOn).isChecked = ConfigSettings.KEEP_SCREEN_ON.toBoolean()
 
             //Get calculate HP
-            currentView.findViewById<CheckBox>(R.id.checkBoxCalcHP).isChecked = Settings.calculateHP
+            currentView.findViewById<CheckBox>(R.id.checkBoxCalcHP).isChecked = ConfigSettings.CALCULATE_HP.toBoolean()
 
             //Get use MS2
-            currentView.findViewById<CheckBox>(R.id.checkBoxUseAccel).isChecked = Settings.useMS2Torque
+            currentView.findViewById<CheckBox>(R.id.checkBoxUseAccel).isChecked = ConfigSettings.USE_MS2.toBoolean()
 
             //Get always use portrait
-            currentView.findViewById<CheckBox>(R.id.checkBoxAlwaysPortrait).isChecked = Settings.alwaysPortrait
+            currentView.findViewById<CheckBox>(R.id.checkBoxAlwaysPortrait).isChecked = ConfigSettings.ALWAYS_PORTRAIT.toBoolean()
 
             //Set colors
             ColorSettings.resetColors()
@@ -322,27 +322,18 @@ class SettingsFragment : Fragment() {
     private fun doSave() {
         view?.let { currentView ->
             // Set update rate
-            ConfigFile.set(
-                "UpdateRate",
-                currentView.findViewById<SeekBar>(R.id.seekBarUpdateRate).progress.toString()
-            )
+            ConfigFile.set(ConfigSettings.UPDATE_RATE.cfgName, (11-currentView.findViewById<SeekBar>(R.id.seekBarUpdateRate).progress).toString())
 
             // Set persist delay
-            ConfigFile.set(
-                "PersistDelay",
-                currentView.findViewById<SeekBar>(R.id.seekBarPersistDelay).progress.toString()
-            )
+            ConfigFile.set(ConfigSettings.PERSIST_DELAY.cfgName, currentView.findViewById<SeekBar>(R.id.seekBarPersistDelay).progress.toString())
 
             // Set persist delay
-            ConfigFile.set(
-                "PersistQDelay",
-                currentView.findViewById<SeekBar>(R.id.seekBarPersistQDelay).progress.toString()
-            )
+            ConfigFile.set(ConfigSettings.PERSIST_Q_DELAY.cfgName, currentView.findViewById<SeekBar>(R.id.seekBarPersistQDelay).progress.toString())
 
             // Set gauge mode
             when (currentView.findViewById<RadioButton>(R.id.radioButtonBAR).isChecked) {
-                true -> ConfigFile.set(DisplayType.BAR.key, DisplayType.BAR.cfgName)
-                false -> ConfigFile.set(DisplayType.ROUND.key, DisplayType.ROUND.cfgName)
+                true -> ConfigFile.set(ConfigSettings.GAUGE_TYPE.cfgName, GaugeType.BAR.cfgName)
+                false -> ConfigFile.set(ConfigSettings.GAUGE_TYPE.cfgName, GaugeType.ROUND.cfgName)
             }
 
             // Set logging mode
@@ -354,54 +345,36 @@ class SettingsFragment : Fragment() {
             // Set default output folder
             when {
                 currentView.findViewById<RadioButton>(R.id.radioButtonDownloads).isChecked -> ConfigFile.set(
-                    DirectoryList.DOWNLOADS.key,
+                    ConfigSettings.OUT_DIRECTORY.cfgName,
                     DirectoryList.DOWNLOADS.cfgName
                 )
                 currentView.findViewById<RadioButton>(R.id.radioButtonDocuments).isChecked -> ConfigFile.set(
-                    DirectoryList.DOCUMENTS.key,
+                    ConfigSettings.OUT_DIRECTORY.cfgName,
                     DirectoryList.DOCUMENTS.cfgName
                 )
                 currentView.findViewById<RadioButton>(R.id.radioButtonApplication).isChecked -> ConfigFile.set(
-                    DirectoryList.APP.key,
+                    ConfigSettings.OUT_DIRECTORY.cfgName,
                     DirectoryList.APP.cfgName
                 )
             }
 
             //Set draw min/max
-            ConfigFile.set(
-                "DrawMinMax",
-                currentView.findViewById<CheckBox>(R.id.checkBoxDrawMinMax).isChecked.toString()
-            )
+            ConfigFile.set(ConfigSettings.DRAW_MIN_MAX.cfgName, currentView.findViewById<CheckBox>(R.id.checkBoxDrawMinMax).isChecked.toString())
 
             //Set invert cruise
-            ConfigFile.set(
-                "InvertCruise",
-                currentView.findViewById<CheckBox>(R.id.checkBoxInvertCruise).isChecked.toString()
-            )
+            ConfigFile.set(ConfigSettings.INVERT_CRUISE.cfgName, currentView.findViewById<CheckBox>(R.id.checkBoxInvertCruise).isChecked.toString())
 
             //Set screen on
-            ConfigFile.set(
-                "KeepScreenOn",
-                currentView.findViewById<CheckBox>(R.id.checkBoxScreenOn).isChecked.toString()
-            )
+            ConfigFile.set(ConfigSettings.KEEP_SCREEN_ON.cfgName, currentView.findViewById<CheckBox>(R.id.checkBoxScreenOn).isChecked.toString())
 
             //Calculate HP
-            ConfigFile.set(
-                "CalculateHP",
-                currentView.findViewById<CheckBox>(R.id.checkBoxCalcHP).isChecked.toString()
-            )
+            ConfigFile.set(ConfigSettings.CALCULATE_HP.cfgName, currentView.findViewById<CheckBox>(R.id.checkBoxCalcHP).isChecked.toString())
 
             //Calculate HP
-            ConfigFile.set(
-                "UseMS2Torque",
-                currentView.findViewById<CheckBox>(R.id.checkBoxUseAccel).isChecked.toString()
-            )
+            ConfigFile.set(ConfigSettings.USE_MS2.cfgName, currentView.findViewById<CheckBox>(R.id.checkBoxUseAccel).isChecked.toString())
 
             //Always use portrait view
-            ConfigFile.set(
-                "AlwaysPortrait",
-                currentView.findViewById<CheckBox>(R.id.checkBoxAlwaysPortrait).isChecked.toString()
-            )
+            ConfigFile.set(ConfigSettings.ALWAYS_PORTRAIT.cfgName, currentView.findViewById<CheckBox>(R.id.checkBoxAlwaysPortrait).isChecked.toString())
 
             //Set Colors
             ColorList.values().forEachIndexed { i, color ->

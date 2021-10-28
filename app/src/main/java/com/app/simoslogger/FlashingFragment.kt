@@ -12,19 +12,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat.startForegroundService
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import java.net.URI
-import androidx.lifecycle.MutableLiveData
-
-import androidx.lifecycle.LiveData
 import android.widget.ArrayAdapter
 
-import android.R.attr.name
+var gMsgList: Array<String>? = null
 
 class FlashingFragment : Fragment() {
     private val TAG = "FlashingFragment"
@@ -63,7 +56,7 @@ class FlashingFragment : Fragment() {
 
         mArrayAdapter = ArrayAdapter(requireContext(), R.layout.message)
         mArrayAdapter?.let { adapter ->
-            Settings.msgList?.forEach {
+            gMsgList?.forEach {
                 adapter.add(it)
             }
         }
@@ -124,8 +117,8 @@ class FlashingFragment : Fragment() {
 
     private fun doWriteMessage(message: String) {
         // construct a string from the valid bytes in the buffer
-        val value = Settings.msgList?: arrayOf()
-        Settings.msgList = value + message
+        val value = gMsgList?: arrayOf()
+        gMsgList = value + message
         mArrayAdapter?.add(message)
 
         val btMessage = view?.findViewById<ListView>(R.id.bt_message)!!

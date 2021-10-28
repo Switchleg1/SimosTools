@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter
 object DebugLog {
     private val TAG = "DebugLog"
     private var mBufferedWriter: BufferedWriter? = null
-    private var mFlags: Int = DEFAULT_DEBUG_LOG_FLAGS
+    private var mFlags: Int = ConfigSettings.DEBUG_LOG.toInt()
 
     fun setFlags(flags: Int) {
         if(flags in 0 .. 32) {

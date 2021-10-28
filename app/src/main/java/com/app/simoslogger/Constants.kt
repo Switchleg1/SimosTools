@@ -94,32 +94,6 @@ enum class BLESettings(val value: Int) {
     BLE_MULTI_DELAY(6)
 }
 
-//Color List
-enum class ColorList(var value: Int, val cfgName: String) {
-    BG_NORMAL(Color.rgb(255, 255, 255), "BGNormal"),
-    BG_WARN(Color.rgb(127, 127, 255),"BGWarn"),
-    TEXT(Color.rgb(110,   140,   255), "Text"),
-    GAUGE_NORMAL(Color.rgb(0,   255, 0), "GaugeNormal"),
-    GAUGE_WARN(Color.rgb(255, 0,   0), "GaugeWarn"),
-    GAUGE_BG(Color.rgb(0, 0,   0), "GaugeBG"),
-    ST_ERROR(Color.rgb(255, 0,   0), "StateError"),
-    ST_NONE(Color.rgb(100, 0,   255), "StateNone"),
-    ST_CONNECTING(Color.rgb(100, 100, 255), "StateConnecting"),
-    ST_CONNECTED(Color.rgb(0,   0,   255), "StateConncted"),
-    ST_LOGGING(Color.rgb(255, 255, 0), "StateLogging"),
-    ST_WRITING(Color.rgb(0,   255, 0), "StateWriting");
-
-    val key = "Color"
-}
-
-//Logging modes
-enum class UDSLoggingMode(val cfgName: String, val addressMin: Long, val addressMax: Long) {
-    MODE_22("22", 0x1000.toLong(), 0xFFFF.toLong()),
-    MODE_3E("3E", 0x10000000.toLong(), 0xFFFFFFFF);
-
-    val key = "UDSLoggingMode"
-}
-
 // UDS return codes
 enum class UDSReturn {
     OK,
@@ -129,27 +103,6 @@ enum class UDSReturn {
     ERROR_CMDSIZE,
     ERROR_TIME_OUT,
     ERROR_UNKNOWN,
-}
-
-enum class GearRatios(val gear: String, var ratio: Float) {
-    GEAR1("1", 2.92f),
-    GEAR2("2",1.79f),
-    GEAR3("3",1.14f),
-    GEAR4("4",0.78f),
-    GEAR5("5",0.58f),
-    GEAR6("6",0.46f),
-    GEAR7("7",0.0f),
-    FINAL("Final",4.77f);
-
-    val key = "GearRatio"
-}
-
-enum class DirectoryList(val cfgName: String, val location: String) {
-    APP("App",""),
-    DOWNLOADS("Downloads", Environment.DIRECTORY_DOWNLOADS),
-    DOCUMENTS("Documents", Environment.DIRECTORY_DOCUMENTS);
-
-    val key = "OutputDirectory"
 }
 
 enum class ECUInfo(val str: String, val address: ByteArray) {
@@ -188,15 +141,58 @@ enum class FLASH_ECU_CAL_SUBTASK {
 
     fun next(): FLASH_ECU_CAL_SUBTASK {
         val vals = values()
-        return vals[(this.ordinal+1) % vals.size];
+        return vals[(this.ordinal+1) % vals.size]
     }
 }
 
-enum class DisplayType(val cfgName: String) {
-    BAR("BarGraph"),
-    ROUND("Round");
+//Color List
+enum class ColorList(var value: Int, val cfgName: String) {
+    BG_NORMAL(Color.rgb(255, 255, 255), "BGNormal"),
+    BG_WARN(Color.rgb(127, 127, 255),"BGWarn"),
+    TEXT(Color.rgb(110,   140,   255), "Text"),
+    GAUGE_NORMAL(Color.rgb(0,   255, 0), "GaugeNormal"),
+    GAUGE_WARN(Color.rgb(255, 0,   0), "GaugeWarn"),
+    GAUGE_BG(Color.rgb(0, 0,   0), "GaugeBG"),
+    ST_ERROR(Color.rgb(255, 0,   0), "StateError"),
+    ST_NONE(Color.rgb(100, 0,   255), "StateNone"),
+    ST_CONNECTING(Color.rgb(100, 100, 255), "StateConnecting"),
+    ST_CONNECTED(Color.rgb(0,   0,   255), "StateConncted"),
+    ST_LOGGING(Color.rgb(255, 255, 0), "StateLogging"),
+    ST_WRITING(Color.rgb(0,   255, 0), "StateWriting");
 
-    val key = "GaugeType"
+    val key = "Color"
+}
+
+//Logging modes
+enum class UDSLoggingMode(val cfgName: String, val addressMin: Long, val addressMax: Long) {
+    MODE_22("22", 0x1000.toLong(), 0xFFFFL),
+    MODE_3E("3E", 0x10000000.toLong(), 0xFFFFFFFF);
+
+    val key = "UDSLoggingMode"
+}
+
+enum class GearRatios(val gear: String, var ratio: Float) {
+    GEAR1("1", 2.92f),
+    GEAR2("2",1.79f),
+    GEAR3("3",1.14f),
+    GEAR4("4",0.78f),
+    GEAR5("5",0.58f),
+    GEAR6("6",0.46f),
+    GEAR7("7",0.0f),
+    FINAL("Final",4.77f);
+
+    val key = "GearRatio"
+}
+
+enum class DirectoryList(val cfgName: String, val location: String) {
+    APP("App",""),
+    DOWNLOADS("Downloads", Environment.DIRECTORY_DOWNLOADS),
+    DOCUMENTS("Documents", Environment.DIRECTORY_DOCUMENTS);
+}
+
+enum class GaugeType(val cfgName: String) {
+    BAR("Bar"),
+    ROUND("Round")
 }
 
 enum class CSVItems(val csvName: String) {
@@ -213,7 +209,8 @@ enum class CSVItems(val csvName: String) {
     WARN_MAX("WarnMax"),
     SMOOTHING("Smoothing"),
     ENABLED("Enabled"),
-    TABS("Tabs");
+    TABS("Tabs"),
+    ASSIGN_TO("Assign To");
 
     fun getHeader(): String {
         var header = ""
@@ -227,6 +224,95 @@ enum class CSVItems(val csvName: String) {
     }
 }
 
+enum class ConfigSettings(val cfgName: String, var value: Any) {
+    KEEP_SCREEN_ON("KeepScreenOn", true),
+    INVERT_CRUISE("InvertCruise", false),
+    UPDATE_RATE("UpdateRate", 4),
+    PERSIST_DELAY("PersistDelay", 20),
+    PERSIST_Q_DELAY("PersistQDelay", 10),
+    CALCULATE_HP("CalculateHP", true),
+    USE_MS2("UseMS2Torque", true),
+    TIRE_DIAMETER("TireDiameter", 0.632f),
+    CURB_WEIGHT("CurbWeight", 1500f),
+    DRAG_COEFFICIENT("DragCoefficient", 1500f),
+    ALWAYS_PORTRAIT("AlwaysPortrait", false),
+    DRAW_MIN_MAX("DrawMinMax", true),
+    OUT_DIRECTORY("OutputDirectory", DirectoryList.APP),
+    GAUGE_TYPE("GaugeType", GaugeType.ROUND),
+    DEBUG_LOG("DebugMode", DEBUG_LOG_INFO or DEBUG_LOG_WARNING or DEBUG_LOG_EXCEPTION);
+
+    fun set(newValue: String) {
+        try {
+            if (value is String)
+                value = newValue
+
+            if (value is Int)
+                value = newValue.toInt()
+
+            if (value is Boolean)
+                value = newValue.toBoolean()
+
+            if (value is Float)
+                value = newValue.toFloat()
+
+            if (value is Double)
+                value = newValue.toDouble()
+
+            if (value is GaugeType)
+                value = GaugeType.values().find {it.cfgName == newValue} ?: value
+
+            if (value is DirectoryList)
+                value = DirectoryList.values().find {it.cfgName == newValue} ?: value
+
+        } catch(e: Exception) {
+            DebugLog.e("Settings", "Unable to set $name.", e)
+        }
+    }
+    fun toInt(): Int {
+        return if(value is Int) (value as Int) else 0
+    }
+    fun toFloat(): Float {
+        return if(value is Float) (value as Float) else 0f
+    }
+    fun toDouble(): Double {
+        return if(value is Double) (value as Double) else 0.0
+    }
+    fun toBoolean(): Boolean {
+        return if(value is Boolean) (value as Boolean) else false
+    }
+    fun toGaugeType(): GaugeType {
+        return if(value is GaugeType) (value as GaugeType) else GaugeType.ROUND
+    }
+    fun toDirectory(): DirectoryList {
+        return if(value is DirectoryList) (value as DirectoryList) else DirectoryList.APP
+    }
+    override fun toString(): String {
+        if(value is String)
+            return value as String
+
+        if(value is Int)
+            return (value as Int).toString()
+
+        if(value is Boolean)
+            return (value as Boolean).toString()
+
+        if(value is Float)
+            return (value as Float).toString()
+
+        if(value is Double)
+            return (value as Double).toString()
+
+        if(value is GaugeType)
+            return (value as GaugeType).toString()
+
+        if(value is DirectoryList)
+            return (value as DirectoryList).toString()
+
+        return name
+    }
+}
+
+//Delays and timeouts
 val TASK_BUMP_DELAY             = 250
 val TASK_END_DELAY              = 500
 val TASK_END_TIMEOUT            = 3000
@@ -259,8 +345,6 @@ val BLE_HEADER_PT               = 0xF2
 val BLE_HEADER_RX               = 0x7E8
 val BLE_HEADER_TX               = 0x7E0
 
-val MAX_PIDS                    = 100
-
 //Log files
 val DEBUG_LOG_NONE              = 0
 val DEBUG_LOG_INFO              = 1
@@ -269,25 +353,12 @@ val DEBUG_LOG_DEBUG             = 4
 val DEBUG_LOG_EXCEPTION         = 8
 val DEBUG_LOG_COMMUNICATIONS    = 16
 
-//Default settings
-val DEFAULT_KEEP_SCREEN_ON      = true
-val DEFAULT_INVERT_CRUISE       = false
-val DEFAULT_UPDATE_RATE         = 4
-val DEFAULT_PERSIST_DELAY       = 20
-val DEFAULT_PERSIST_Q_DELAY     = 10
-val DEFAULT_CALCULATE_HP        = true
-val DEFAULT_USE_MS2             = true
-val DEFAULT_TIRE_DIAMETER       = 0.632f
-val DEFAULT_CURB_WEIGHT         = 1500f
-val DEFAULT_DRAG_COEFFICIENT    = 0.000005
-val DEFAULT_ALWAYS_PORTRAIT     = false
-val DEFAULT_DISPLAY_SIZE        = 1f
-val DEFAULT_DRAW_MIN_MAX        = true
-val DEFAULT_DEBUG_LOG_FLAGS     = DEBUG_LOG_INFO or DEBUG_LOG_INFO or DEBUG_LOG_INFO
-
 //TQ/HP Calculations
 val KG_TO_N                     = 9.80665f
 val TQ_CONSTANT                 = 16.3f
+
+//Max allowed PID count
+val MAX_PIDS                    = 100
 
 //Additional properties
 infix fun Byte.shl(that: Int): Int = this.toInt().shl(that)
@@ -311,3 +382,4 @@ fun Long.toHex(): String = "%16x".format(this)
 fun Long.toArray2(): ByteArray = byteArrayOf((this and 0xFF00 shr 8).toByte(), (this and 0xFF).toByte())
 fun Long.toArray4(): ByteArray = byteArrayOf((this and 0xFF000000 shr 24).toByte(), (this and 0xFF0000 shr 16).toByte(), (this and 0xFF00 shr 8).toByte(), (this and 0xFF).toByte())
 fun ByteArray.toHex(): String = joinToString(separator = " ") { eachByte -> "%02x".format(eachByte) }
+

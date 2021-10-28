@@ -708,8 +708,8 @@ class BTService: Service() {
 
         private fun startTaskLogging(){
             //set connection settings
-            setBridgePersistDelay(Settings.persistDelay)
-            setBridgePersistQDelay(Settings.persistQDelay)
+            setBridgePersistDelay(ConfigSettings.PERSIST_DELAY.toInt())
+            setBridgePersistQDelay(ConfigSettings.PERSIST_Q_DELAY.toInt())
 
             //Write first frame
             mWriteQueue.add(UDSLogger.startTask(0))
@@ -783,7 +783,7 @@ class BTService: Service() {
                     setTaskState(UDSTask.NONE)
                 } else {
                     //Broadcast new PID data
-                    if (mTaskTick % Settings.updateRate == 0) {
+                    if (mTaskTick % ConfigSettings.UPDATE_RATE.toInt() == 0) {
                         val intentMessage = Intent(GUIMessage.READ_LOG.toString())
                         intentMessage.putExtra("readCount", mTaskTick)
                         intentMessage.putExtra("readTime", System.currentTimeMillis() - mTaskTime)
@@ -890,6 +890,15 @@ class BTService: Service() {
             bleHeader.cmdFlags = BLECommandFlags.SETTINGS.value or BLESettings.LED_COLOR.value
             val dataBytes = byteArrayOf((b and 0xFF).toByte(), (r and 0xFF).toByte(), (g and 0xFF).toByte(), 0x00.toByte())
             val buff = bleHeader.toByteArray() + dataBytes
+            mWriteQueue.add(buff)
+        }
+
+        private fun setBridgeSTMIN(amount: Int) {
+            //set STMIN
+            val bleHeader = BLEHeader()
+            bleHeader.cmdSize = 2
+            bleHeader.cmdFlags = BLECommandFlags.SETTINGS.value or BLESettings.ISOTP_STMIN.value
+            val buff = bleHeader.toByteArray() + amount.toArray2()
             mWriteQueue.add(buff)
         }
     }

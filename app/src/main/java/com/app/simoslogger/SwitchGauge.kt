@@ -39,7 +39,7 @@ class SwitchGauge : View {
     private var currentWidth    = 0f
     private var currentHeight   = 0f
     private var currentProgress = 0f
-    private var currentStyle    = DisplayType.BAR
+    private var currentStyle    = GaugeType.BAR
     private var currentIndex    = 0
     private var currentEnable   = true
     private var currentMin      = 0f
@@ -52,7 +52,7 @@ class SwitchGauge : View {
     override fun onDraw(canvas: Canvas) {
         if(currentEnable) {
             when (currentStyle) {
-                DisplayType.BAR -> {
+                GaugeType.BAR -> {
                     drawRect(100.0f, backgroundPaint.strokeWidth, canvas, backgroundPaint)
                     drawRect(currentProgress, progressPaint.strokeWidth, canvas, progressPaint)
                     if(showMinMax) {
@@ -60,7 +60,7 @@ class SwitchGauge : View {
                         drawLine(currentMax, progressPaint.strokeWidth, canvas, minmaxPaint)
                     }
                 }
-                DisplayType.ROUND -> {
+                GaugeType.ROUND -> {
                     drawCircle(maxAngle, canvas, backgroundPaint)
                     drawCircle(angleProgress, canvas, progressPaint)
 
@@ -104,15 +104,15 @@ class SwitchGauge : View {
 
     private fun calculateAngle(progress: Float) = maxAngle / maxProgress * progress
 
-    fun setStyle(style: DisplayType, redraw: Boolean = true) {
+    fun setStyle(style: GaugeType, redraw: Boolean = true) {
         currentStyle = style
 
         when(currentStyle) {
-            DisplayType.BAR -> {
+            GaugeType.BAR -> {
                 progressPaint.style = Paint.Style.FILL
                 backgroundPaint.style = Paint.Style.FILL
             }
-            DisplayType.ROUND -> {
+            GaugeType.ROUND -> {
                 progressPaint.style = Paint.Style.STROKE
                 backgroundPaint.style = Paint.Style.STROKE
             }
@@ -122,7 +122,7 @@ class SwitchGauge : View {
             invalidate()
     }
 
-    fun getStyle() : DisplayType {
+    fun getStyle() : GaugeType {
         return currentStyle
     }
 

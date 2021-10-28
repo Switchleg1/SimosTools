@@ -37,7 +37,7 @@ open class BaseLoggingFragment: Fragment() {
         buildLayout()
 
         //Do we keep the screen on?
-        view.keepScreenOn = Settings.keepScreenOn
+        view.keepScreenOn = ConfigSettings.KEEP_SCREEN_ON.toBoolean()
 
         //update PID text
         updatePIDText()
@@ -66,7 +66,7 @@ open class BaseLoggingFragment: Fragment() {
         //check orientation and type
         var currentOrientation = resources.configuration.orientation
 
-        if (Settings.alwaysPortrait)
+        if (ConfigSettings.ALWAYS_PORTRAIT.toBoolean())
             currentOrientation = Configuration.ORIENTATION_PORTRAIT
 
         when(currentOrientation) {
@@ -144,7 +144,7 @@ open class BaseLoggingFragment: Fragment() {
                         val gauge = mGauges!![i]!!
                         gauge.setProgressColor(ColorList.GAUGE_NORMAL.value, false)
                         gauge.setMinMaxColor(ColorList.GAUGE_WARN.value, false)
-                        gauge.setMinMax(Settings.drawMinMax, false)
+                        gauge.setMinMax(ConfigSettings.DRAW_MIN_MAX.toBoolean(), false)
                         val prog = when (data.inverted) {
                             true -> (0 - (pid.value - pid.progMin)) * data.multiplier
                             false -> (pid.value - pid.progMin) * data.multiplier
@@ -160,10 +160,10 @@ open class BaseLoggingFragment: Fragment() {
                         gauge.setProgress(prog, progMin, progMax, false)
                         gauge.setRounded(false, false)
                         gauge.setProgressBackgroundColor(ColorList.GAUGE_BG.value, false)
-                        gauge.setStyle(Settings.displayType, false)
-                        when (Settings.displayType) {
-                            DisplayType.BAR -> gauge.setProgressWidth(250f, false)
-                            DisplayType.ROUND -> gauge.setProgressWidth(50f, false)
+                        gauge.setStyle(ConfigSettings.GAUGE_TYPE.toGaugeType(), false)
+                        when (ConfigSettings.GAUGE_TYPE.toGaugeType()) {
+                            GaugeType.BAR -> gauge.setProgressWidth(250f, false)
+                            GaugeType.ROUND -> gauge.setProgressWidth(50f, false)
                         }
                         gauge.setIndex(i)
                         gauge.setOnLongClickListener {
@@ -272,26 +272,30 @@ open class BaseLoggingFragment: Fragment() {
                     PIDs.getData()?.let { dataList ->
                         for (i in 0 until mPIDList.count()) {
                             //get the current pid
-                            val data = dataList[mPIDList[i].toInt()]!!
-                            if (data.warn) {
-                                gauge[i]?.setProgressColor(ColorList.GAUGE_WARN.value, false)
-                                gauge[i]?.setMinMaxColor(ColorList.GAUGE_NORMAL.value, false)
-                                warnAny = true
-                            } else {
-                                gauge[i]?.setProgressColor(ColorList.GAUGE_NORMAL.value, false)
-                                gauge[i]?.setMinMaxColor(ColorList.GAUGE_WARN.value, false)
+                            dataList[mPIDList[i].toInt()]?.let { data ->
+                                if (data.warn) {
+                                    gauge[i]?.setProgressColor(ColorList.GAUGE_WARN.value, false)
+                                    gauge[i]?.setMinMaxColor(ColorList.GAUGE_NORMAL.value, false)
+                                    warnAny = true
+                                } else {
+                                    gauge[i]?.setProgressColor(ColorList.GAUGE_NORMAL.value, false)
+                                    gauge[i]?.setMinMaxColor(ColorList.GAUGE_WARN.value, false)
+                                }
+
+                                gauge[i]?.setMinMax(ConfigSettings.DRAW_MIN_MAX.toBoolean(), false)
+                                gauge[i]?.setProgressBackgroundColor(
+                                    ColorList.GAUGE_BG.value,
+                                    false
+                                )
+                                gauge[i]?.setStyle(ConfigSettings.GAUGE_TYPE.toGaugeType(), false)
+
+                                when (ConfigSettings.GAUGE_TYPE.toGaugeType()) {
+                                    GaugeType.BAR -> gauge[i]?.setProgressWidth(250f)
+                                    GaugeType.ROUND -> gauge[i]?.setProgressWidth(50f)
+                                }
+
+                                text[i]?.setTextColor(ColorList.TEXT.value)
                             }
-
-                            gauge[i]?.setMinMax(Settings.drawMinMax, false)
-                            gauge[i]?.setProgressBackgroundColor(ColorList.GAUGE_BG.value, false)
-                            gauge[i]?.setStyle(Settings.displayType, false)
-
-                            when(Settings.displayType) {
-                                DisplayType.BAR   -> gauge[i]?.setProgressWidth(250f)
-                                DisplayType.ROUND -> gauge[i]?.setProgressWidth(50f)
-                            }
-
-                            text[i]?.setTextColor(ColorList.TEXT.value)
                         }
                     }
                     //Set background color
