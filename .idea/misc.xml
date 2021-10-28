@@ -4,7 +4,16 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/Jkfis/Nextcloud/tuning/coding/android/Simos-Logger/app/src/main/res/layout/fragment_flashing.xml" value="0.20520833333333333" />
+        <entry key="..\:/Users/Joe/StudioProjects/Simos-Logger/app/src/main/res/layout/activity_main.xml" value="0.17239583333333333" />
+        <entry key="..\:/Users/Joe/StudioProjects/Simos-Logger/app/src/main/res/layout/fragment_color.xml" value="0.17239583333333333" />
+        <entry key="..\:/Users/Joe/StudioProjects/Simos-Logger/app/src/main/res/layout/fragment_custom1.xml" value="0.17239583333333333" />
+        <entry key="..\:/Users/Joe/StudioProjects/Simos-Logger/app/src/main/res/layout/fragment_custom2.xml" value="0.17239583333333333" />
+        <entry key="..\:/Users/Joe/StudioProjects/Simos-Logger/app/src/main/res/layout/fragment_custom3.xml" value="0.17239583333333333" />
         <entry key="..\:/Users/Joe/StudioProjects/Simos-Logger/app/src/main/res/layout/fragment_flashing.xml" value="0.17239583333333333" />
+        <entry key="..\:/Users/Joe/StudioProjects/Simos-Logger/app/src/main/res/layout/fragment_main.xml" value="0.17239583333333333" />
+        <entry key="..\:/Users/Joe/StudioProjects/Simos-Logger/app/src/main/res/layout/message.xml" value="0.17239583333333333" />
+        <entry key="..\:/Users/Joe/StudioProjects/Simos-Logger/app/src/main/res/layout/pid_land.xml" value="0.17239583333333333" />
+        <entry key="..\:/Users/Joe/StudioProjects/Simos-Logger/app/src/main/res/layout/pid_portrait.xml" value="0.17239583333333333" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosLogger/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.3026041666666667" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosLogger/app/src/main/res/drawable/circle_shape.xml" value="0.4036458333333333" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosLogger/app/src/main/res/drawable/circular_progress_bar.xml" value="0.4036458333333333" />

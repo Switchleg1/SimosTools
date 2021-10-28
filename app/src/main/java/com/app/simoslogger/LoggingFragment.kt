@@ -36,14 +36,19 @@ class LoggingFragment : BaseLoggingFragment() {
             //Stop our BT Service
             val serviceIntent = Intent(requireActivity(), BTService::class.java)
             serviceIntent.action = BTServiceTask.STOP_SERVICE.toString()
-            ContextCompat.startForegroundService(requireActivity(), serviceIntent)
 
+
+            ContextCompat.startForegroundService(requireActivity(), serviceIntent)
             requireActivity().finish()
         }
 
         view.findViewById<Button>(R.id.buttonReset).setOnClickListener {
             PIDs.resetData()
             updatePIDText()
+            val serviceIntent = Intent(requireActivity(), BTService::class.java)
+            serviceIntent.action = BTServiceTask.DO_START_LOG.toString()
+            ContextCompat.startForegroundService(requireActivity(), serviceIntent)
+
         }
 
         //Set packet textview

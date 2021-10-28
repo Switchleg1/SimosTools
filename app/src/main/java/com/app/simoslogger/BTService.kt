@@ -86,8 +86,7 @@ class BTService: Service() {
             BTServiceTask.START_SERVICE.toString()  -> doStartService()
             BTServiceTask.DO_CONNECT.toString()     -> doConnect()
             BTServiceTask.DO_DISCONNECT.toString()  -> doDisconnect()
-            BTServiceTask.DO_START_LOG.toString()   -> {//mConnectionThread?.setTaskState(UDSTask.LOGGING)
-                }
+            BTServiceTask.DO_START_LOG.toString()   -> mConnectionThread?.setTaskState(UDSTask.LOGGING)
             BTServiceTask.DO_START_FLASH.toString() -> mConnectionThread?.setTaskState(UDSTask.FLASHING)
             BTServiceTask.DO_GET_INFO.toString()    -> mConnectionThread?.setTaskState(UDSTask.INFO)
             BTServiceTask.DO_CLEAR_DTC.toString()   -> mConnectionThread?.setTaskState(UDSTask.DTC)

@@ -181,12 +181,12 @@ class MainActivity : AppCompatActivity() {
             BLEConnectionState.ERROR     -> doConnect()
             BLEConnectionState.NONE      -> doConnect()
             BLEConnectionState.CONNECTED -> {
-                if(mViewModel.currentTask == UDSTask.NONE) {
-                    //Lets start logging
-                    val serviceIntent = Intent(this, BTService::class.java)
-                    serviceIntent.action = BTServiceTask.DO_START_LOG.toString()
-                    ContextCompat.startForegroundService(this, serviceIntent)
-                }
+                //if(mViewModel.currentTask == UDSTask.NONE) {
+                //    //Lets start logging
+                //    val serviceIntent = Intent(this, BTService::class.java)
+                //    serviceIntent.action = BTServiceTask.DO_START_LOG.toString()
+                //    ContextCompat.startForegroundService(this, serviceIntent)
+                //}
             }
             else -> {}
         }
