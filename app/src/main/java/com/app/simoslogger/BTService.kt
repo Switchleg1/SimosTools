@@ -815,9 +815,9 @@ class BTService: Service() {
             }
         }
 
-        private fun processPacketFlashing(buff: ByteArray) {
+        private fun processPacketFlashing(buff: ByteArray?) {
 
-            var response = buff.copyOfRange(8, buff.size)
+            var response = buff!!.copyOfRange(8, buff.size)
 
             var flashStatus = UDSFlasher.processFlashCAL(mTaskTick, response)
 

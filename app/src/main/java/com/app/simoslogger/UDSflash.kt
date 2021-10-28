@@ -28,7 +28,7 @@ object UDSFlasher {
         bin =  input.readBytes()
     }
 
-    fun buildFlashCAL(ticks: Int): ByteArray {
+    fun startTask(ticks: Int): ByteArray {
         if(bin.isEmpty()){
             mLastString = "Selected file is empty!"
             return byteArrayOf()

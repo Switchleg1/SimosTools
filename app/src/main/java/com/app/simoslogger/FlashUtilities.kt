@@ -50,6 +50,11 @@ object FlashUtilities {
             println("  Checksum doesn't match!")
         }
 
+        for(i in 0..checksumCalculated.size - 1){
+            bin[0x300 + i] = checksumCalculated[i]
+        }
+
+
         return(checksummedBin(bin,currentChecksum.toHex(), checksumCalculated.toHex(), true))
     }
 
@@ -77,6 +82,10 @@ object FlashUtilities {
         }
         else{
             println("  ECM3 checksum doesn't match!")
+        }
+
+        for(i in 0..checksumCalculated.size - 1){
+            bin[0x400 + i] = checksumCalculated[i]
         }
 
         return(checksummedBin(bin,checksumCurrent.toHex(), checksumCalculated.toHex(), true))
@@ -185,6 +194,10 @@ object FlashUtilities {
         return(output)
     }
 
+    fun decodeLZSS(input: ByteArray): ByteArray{
+        return input
+    }
+    
     fun encrypt(input: ByteArray): ByteArray{
         return input
     }
