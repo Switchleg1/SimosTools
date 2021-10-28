@@ -84,6 +84,7 @@ class BTService: Service() {
         when (intent.action) {
             BTServiceTask.STOP_SERVICE.toString()   -> doStopService()
             BTServiceTask.START_SERVICE.toString()  -> doStartService()
+            BTServiceTask.REQ_STATUS.toString()     -> sendStatus()
             BTServiceTask.DO_CONNECT.toString()     -> doConnect()
             BTServiceTask.DO_DISCONNECT.toString()  -> doDisconnect()
             BTServiceTask.DO_START_LOG.toString()   -> {//mConnectionThread?.setTaskState(UDSTask.LOGGING)
@@ -546,24 +547,34 @@ class BTService: Service() {
             BLEConnectionState.CONNECTING -> {}
             BLEConnectionState.CONNECTED -> createConnectionThread()
         }
+
         //Broadcast a new message
         mConnectionState = newState
         mConnectionState.errorMessage = newState.errorMessage
         mConnectionState.deviceName = mBluetoothGatt?.device?.name ?: ""
-        val intentMessage = Intent(GUIMessage.STATE_CHANGE.toString())
-        intentMessage.putExtra(GUIMessage.STATE_CHANGE.toString(), mConnectionState)
+        val intentMessage = Intent(GUIMessage.STATE_CONNECTION.toString())
+        intentMessage.putExtra(GUIMessage.STATE_CONNECTION.toString(), mConnectionState)
         sendBroadcast(intentMessage)
     }
 
+    @Synchronized
+    private fun sendStatus() {
+        if(mConnectionThread != null) {
+            mConnectionThread?.sendTaskState()
+        } else {
+            val intentMessage = Intent(GUIMessage.STATE_CONNECTION.toString())
+            intentMessage.putExtra(GUIMessage.STATE_CONNECTION.toString(), mConnectionState)
+            sendBroadcast(intentMessage)
+        }
+    }
+
     private inner class ConnectionThread: Thread() {
-        //variables
         private var mTask: UDSTask      = UDSTask.NONE
         private var mTaskNext: UDSTask  = UDSTask.NONE
         private var mTaskTick: Int      = 0
         private var mTaskTime: Long     = 0
         private var mTaskTimeNext: Long = 0
         private var mTaskTimeOut: Long  = 0
-        private var mTaskNextCall: Long = 0
 
         init {
             setTaskState(UDSTask.NONE)
@@ -665,14 +676,17 @@ class BTService: Service() {
 
                 //set task to none
                 mTask = UDSTask.NONE
-
-                //Broadcast TASK_NONE
-                val intentMessage = Intent(GUIMessage.TASK_CHANGE.toString())
-                intentMessage.putExtra(GUIMessage.TASK_CHANGE.toString(), mTask)
-                sendBroadcast(intentMessage)
+                sendTaskState()
 
                 stopTask()
             }
+        }
+
+        @Synchronized
+        fun sendTaskState() {
+            val intentMessage = Intent(GUIMessage.STATE_TASK.toString())
+            intentMessage.putExtra(GUIMessage.STATE_TASK.toString(), mTask)
+            sendBroadcast(intentMessage)
         }
 
         private fun startNextTask() {
@@ -685,10 +699,7 @@ class BTService: Service() {
             //Write debug log
             DebugLog.i(TAG, "Task started: $mTask")
 
-            //send new task
-            val intentMessage = Intent(GUIMessage.TASK_CHANGE.toString())
-            intentMessage.putExtra(GUIMessage.TASK_CHANGE.toString(), mTask)
-            sendBroadcast(intentMessage)
+            sendTaskState()
 
             when (mTask) {
                 UDSTask.LOGGING     -> startTaskLogging()
