@@ -57,8 +57,9 @@ object UDSFlasher {
 
             DebugLog.d(TAG, "Flash subroutine: " + mTask)
             if(checkResponse(buff) == UDS_RESPONSE.NEGATIVE_RESPONSE){
-                DebugLog.w(TAG,"Negative response received from ECU!")
-                return UDSReturn.ERROR_UNKNOWN
+                //DebugLog.w(TAG,"Negative response received from ECU!")
+                //mCommand = sendTesterPresent()
+                //return UDSReturn.COMMAND_QUEUED
             }
 
             when(mTask){
@@ -159,18 +160,38 @@ object UDSFlasher {
                 }
 
                 FLASH_ECU_CAL_SUBTASK.CLEAR_DTC -> {
-                    DebugLog.d(TAG,"Received " + buff.toHex())
-                    mCommand = clearDTC()
-                    mLastString = mTask.toString()
-                    mTask = mTask.next()
-                    return UDSReturn.COMMAND_QUEUED
+                    when(checkResponse(buff)){
+                        UDS_RESPONSE.EXTENDED_DIAG_ACCEPTED -> {
+                            mCommand = sendTesterPresent()
+                            mLastString = "Extended diagnostic 03 accepted"
+                            mTask = mTask.next()
+                            return UDSReturn.COMMAND_QUEUED
+                        }
+                        UDS_RESPONSE.CLEAR_DTC_SUCCESSFUL -> {
+                            mCommand = buildBLEFrame((UDS_COMMAND.EXTENDED_DIAGNOSTIC.bytes) + byteArrayOf(0x03.toByte()))
+                            mLastString = "Entering extended diagnostic 03"
+                            return UDSReturn.COMMAND_QUEUED
+                        }
+                        UDS_RESPONSE.NEGATIVE_RESPONSE ->{
+                            mCommand = sendTesterPresent()
+                            mLastString = "Waiting for CLEAR DTC successful"
+                            return UDSReturn.COMMAND_QUEUED
+                        }
+                        else -> {
+                            DebugLog.d(TAG,"Received " + buff.toHex())
+                            mCommand = clearDTC()
+                            mLastString = mTask.toString()
+                            return UDSReturn.COMMAND_QUEUED
+                        }
+                    }
+
                 }
                 FLASH_ECU_CAL_SUBTASK.CHECK_PROGRAMMING_PRECONDITION -> {
 
                     if(checkResponse(buff) == UDS_RESPONSE.ROUTINE_ACCEPTED){
                         //Open extended diagnostic session
-                        mCommand = buildBLEFrame(byteArrayOf(0x10.toByte(), 0x03.toByte()))
-                        mLastString = "Entering extended diagnostics"
+                        mCommand = buildBLEFrame(byteArrayOf(0x10.toByte(), 0x02.toByte()))
+                        mLastString = "Entering extended diagnostics 02"
                         mTask = mTask.next()
                         return UDSReturn.COMMAND_QUEUED
                     }
@@ -186,10 +207,14 @@ object UDSFlasher {
                     }
                 }
                 FLASH_ECU_CAL_SUBTASK.OPEN_EXTENDED_DIAGNOSTIC -> {
-
-                    //First response should be 0x50 0x03
+                    if(checkResponse(buff) ==  UDS_RESPONSE.NEGATIVE_RESPONSE){
+                        mCommand = sendTesterPresent()
+                        mLastString = "Waiting for Seed"
+                        return UDSReturn.COMMAND_QUEUED
+                    }
+                    //First response should be 0x50 0x02
                     //
-                    if(buff[0] == 0x50.toByte() && buff[1] == 0x03.toByte()){
+                    if(buff[0] == 0x50.toByte() && buff[1] == 0x02.toByte()){
 
                         mCommand = buildBLEFrame(byteArrayOf(0x27.toByte(), 0x11.toByte()))
                         mLastString = "Asking for seedkey exhange"
@@ -198,6 +223,8 @@ object UDSFlasher {
                     }
 
                     else{
+
+
                         return UDSReturn.ERROR_UNKNOWN
                     }
 
@@ -226,7 +253,9 @@ object UDSFlasher {
                             }
                         }
                         else ->{
-                            return UDSReturn.ERROR_UNKNOWN
+                            //mCommand = sendTesterPresent()
+                            //DebugLog.d(TAG,"Response: " + buff.toHex())
+                            return UDSReturn.OK
                         }
                     }
 
@@ -320,6 +349,13 @@ object UDSFlasher {
                             return UDSReturn.COMMAND_QUEUED
                         }
 
+                        UDS_RESPONSE.NEGATIVE_RESPONSE -> {
+                            if(buff[2] == 0x78.toByte()){
+                                //just a wait message, return OK
+                                return UDSReturn.OK
+                            }
+                        }
+
                         else -> {
                             return UDSReturn.ERROR_UNKNOWN
                         }
@@ -390,6 +426,7 @@ object UDSFlasher {
             }
         }
 
+        DebugLog.d(TAG, "Flash subroutine: " + mTask)
         return UDSReturn.ERROR_NULL
     }
 
@@ -405,7 +442,7 @@ object UDSFlasher {
         //Send clear request
         val bleHeader = BLEHeader()
         bleHeader.rxID = 0x7E8
-        bleHeader.txID = 0x7E0
+        bleHeader.txID = 0x700
         bleHeader.cmdSize = 1
         bleHeader.cmdFlags = BLECommandFlags.PER_CLEAR.value
         val dataBytes = byteArrayOf(0x04.toByte())
@@ -413,7 +450,7 @@ object UDSFlasher {
         return buf
     }
 
-    private fun sendTesterPresent(): ByteArray{
+    fun sendTesterPresent(): ByteArray{
         return buildBLEFrame(UDS_COMMAND.TESTER_PRESENT.bytes)
     }
 

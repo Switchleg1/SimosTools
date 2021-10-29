@@ -270,45 +270,48 @@ object FlashUtilities {
         return output
 
     }
-    
+
     public class Sa2SeedKey(inputTape: ByteArray, seed: ByteArray) {
         var instructionPointer = 0
         var instructionTape = inputTape
-        var register = byteArrayToInt(seed)
-        var carry_flag: Int = 0
+        var register = seed.getUIntAt(0)
+        var carry_flag: UInt = 0.toUInt()
         var for_pointers: ArrayDeque<Int> = ArrayDeque()
         var for_iterations: ArrayDeque<Int> = ArrayDeque()
 
         fun rsl(){
-            carry_flag = register and 0x80000000.toInt()
+            println("rsl")
+            carry_flag = register and 0x80000000.toUInt()
             register = register shl 1
-            if(carry_flag != 0)
-                register = register or 0x1.toInt()
+            if(carry_flag != 0.toUInt())
+                register = register or 0x1.toUInt()
 
-            register = register and 0xFFFFFFFF.toInt()
+            register = register and 0xFFFFFFFF.toUInt()
             instructionPointer += 1
         }
 
         fun rsr(){
-            carry_flag = register and 0x1.toInt()
-            register = register ushr 1
+            println("rsr")
+            carry_flag = register and 0x1.toUInt()
+            register = register shr 1
 
-            if(carry_flag != 0)
-                register = register or 0x80000000.toInt()
+            if(carry_flag != 0.toUInt())
+                register = register or 0x80000000.toUInt()
 
             instructionPointer += 1
 
         }
 
         fun add(){
-            carry_flag = 0
+            println("add")
+            carry_flag = 0.toUInt()
             var operands = instructionTape.copyOfRange(instructionPointer + 1, instructionPointer + 5)
 
-            var output_register = register + byteArrayToInt(operands)
+            var output_register = register + operands.getUIntAt(0)
 
-            if (output_register > 0xffffffff.toInt()){
-                carry_flag = 1
-                output_register = output_register and 0xffffffff.toInt()
+            if (output_register > 0xffffffff.toUInt()){
+                carry_flag = 1.toUInt()
+                output_register = output_register and 0xffffffff.toUInt()
             }
 
             register = output_register
@@ -318,13 +321,14 @@ object FlashUtilities {
         }
 
         fun sub(){
-            carry_flag = 0
+            println("sub")
+            carry_flag = 0.toUInt()
             var operands = instructionTape.copyOfRange(instructionPointer + 1, instructionPointer + 5)
-            var output_register = register - byteArrayToInt(operands)
+            var output_register = register - operands.getUIntAt(0)
 
-            if (output_register < 0){
-                carry_flag = 1
-                output_register = output_register and 0xffffffff.toInt()
+            if (output_register < 0.toUInt()){
+                carry_flag = 1.toUInt()
+                output_register = output_register and 0xffffffff.toUInt()
             }
 
             register = output_register
@@ -333,11 +337,12 @@ object FlashUtilities {
 
         fun eor(){
             var operands = instructionTape.copyOfRange(instructionPointer + 1,instructionPointer + 5)
-            register = register xor byteArrayToInt(operands)
+            register = register xor operands.getUIntAt(0)
             instructionPointer += 5
         }
 
         fun for_loop(){
+
             var operands = instructionTape.copyOfRange(instructionPointer + 1,instructionPointer + 2)
             for_iterations.addFirst(operands[0] - 1)
             instructionPointer += 2
@@ -345,22 +350,24 @@ object FlashUtilities {
         }
 
         fun next_loop(){
+
             if(for_iterations[0] > 0){
                 for_iterations[0] -= 1
                 instructionPointer = for_pointers[0]
             }
             else{
-                for_iterations.first()
-                for_pointers.first()
+                for_iterations.removeFirst()
+                for_pointers.removeFirst()
                 instructionPointer += 1
             }
 
         }
 
         fun bcc(){
+
             var operands = instructionTape.copyOfRange(instructionPointer + 1,instructionPointer + 2)
             var skip_count = operands[0].toUByte().toInt() + 2
-            if(carry_flag == 0){
+            if(carry_flag == 0.toUInt()){
                 instructionPointer += skip_count
             }
             else{
@@ -394,14 +401,18 @@ object FlashUtilities {
                 0x4C.toByte() to ::finish,
             )
 
+
             while(instructionPointer < instructionTape.size){
+
                 instructionSet[instructionTape[instructionPointer]]?.invoke()
             }
 
-            return intToByteArray(register)
+            return UIntToByteArray(register)
 
         }
     }
+
+
 
     fun ByteArray.findFirst(inner: ByteArray): Int{
         if(inner.isEmpty()) throw IllegalArgumentException("non-empty byte sequence is required")
@@ -458,6 +469,17 @@ object FlashUtilities {
             (data shr 0).toByte()
         )
     }
+
+    fun UIntToByteArray(data: UInt): ByteArray {
+        return byteArrayOf(
+            (data shr 24).toByte(),
+            (data shr 16).toByte(),
+            (data shr 8).toByte(),
+            (data shr 0).toByte()
+        )
+    }
+
+
 }
 
 enum class UDS_RESPONSE(val str: String, val udsByte: Byte?) {
@@ -471,12 +493,15 @@ enum class UDS_RESPONSE(val str: String, val udsByte: Byte?) {
     SECURITY_ACCESS_GRANTED("Security access granted", 0x67.toByte()),
     ECU_RESET_ACCEPTED("Ecu Reset Accepted", 0x51.toByte()),
     WRITE_IDENTIFIER_ACCEPTED("Write Identifier Accepted", 0x6e.toByte()),
+    EXTENDED_DIAG_ACCEPTED("Extended diagnostics accepted", 0x50.toByte()),
+    CLEAR_DTC_SUCCESSFUL("Clear DTC Successful", 0x44.toByte()),
 }
 
 enum class UDS_COMMAND(val bytes: ByteArray){
-    TESTER_PRESENT(byteArrayOf(0x3e.toByte(), 0x02.toByte())),
+    TESTER_PRESENT(byteArrayOf(0x3e.toByte(), 0x00.toByte())),
     RESET_ECU(byteArrayOf(0x11.toByte(), 0x01.toByte())),
     START_ROUTINE(byteArrayOf(0x31.toByte(), 0x01.toByte())),
+    EXTENDED_DIAGNOSTIC(byteArrayOf(0x10.toByte())),
 
 }
 
@@ -484,3 +509,9 @@ enum class UDS_ROUTINE(val bytes: ByteArray){
     CHECK_PROGRAMMING_PRECONDITION(byteArrayOf(0x02.toByte(),0x03.toByte())),
 
 }
+
+fun ByteArray.getUIntAt(idx: Int) =
+    ((this[idx].toUInt() and 0xFFu) shl 24) or
+            ((this[idx + 1].toUInt() and 0xFFu) shl 16) or
+            ((this[idx + 2].toUInt() and 0xFFu) shl 8) or
+            (this[idx + 3].toUInt() and 0xFFu)

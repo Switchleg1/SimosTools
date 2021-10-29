@@ -642,6 +642,7 @@ class BTService: Service() {
                     //Have we sat idle waiting without receiving a packet?
                     if(mTaskTimeNext < System.currentTimeMillis()) {
                         DebugLog.d(TAG, "Task timeout.")
+
                         //Process packet
                         processPacket(null)
                     }
@@ -941,6 +942,9 @@ class BTService: Service() {
                         setTaskState(UDSTask.NONE)
                     }
                 }
+            }
+            else{
+                mWriteQueue.add(UDSFlasher.sendTesterPresent())
             }
         }
 
