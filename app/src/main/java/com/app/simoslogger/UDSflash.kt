@@ -31,10 +31,12 @@ object UDSFlasher {
 
     fun setBinFile(input: InputStream) {
         DebugLog.d(TAG, "Received BIN stream from GUI")
+        mTask = FLASH_ECU_CAL_SUBTASK.NONE
         bin =  input.readBytes()
     }
 
     fun startTask(ticks: Int): ByteArray {
+
         if(bin.isEmpty()){
             mLastString = "Selected file is empty!"
             return byteArrayOf()
@@ -85,7 +87,9 @@ object UDSFlasher {
 
                 FLASH_ECU_CAL_SUBTASK.CHECK_FILE_COMPAT -> {
 
-                    val binAswVersion = bin.copyOfRange(0x60, 0x6B)
+                    //val binAswVersion = bin.copyOfRange(0x60, 0x6B)
+                    //Hard code an ASW version that won't work so it won't flash!
+                    val binAswVersion = byteArrayOf(0xFF.toByte(),0xFF.toByte(),0xFF.toByte(),0xFF.toByte())
 
                     //Compare the two strings:
                     if (String(ecuAswVersion).trim() != String(binAswVersion).trim()) {

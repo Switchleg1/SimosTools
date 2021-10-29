@@ -944,6 +944,7 @@ class BTService: Service() {
                 }
             }
             else{
+                DebugLog.d(TAG,"Sending tester present.... Flasher is idle")
                 mWriteQueue.add(UDSFlasher.sendTesterPresent())
             }
         }
