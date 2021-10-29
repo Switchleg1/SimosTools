@@ -216,6 +216,7 @@ class SettingsFragment : Fragment() {
             currentView.findViewById<CheckBox>(R.id.checkBoxInvertCruise).setTextColor(color)
             currentView.findViewById<CheckBox>(R.id.checkBoxScreenOn).setTextColor(color)
             currentView.findViewById<CheckBox>(R.id.checkBoxAlwaysPortrait).setTextColor(color)
+            currentView.findViewById<CheckBox>(R.id.checkBoxAutoLog).setTextColor(color)
             currentView.findViewById<CheckBox>(R.id.checkBoxCalcHP).setTextColor(color)
             currentView.findViewById<CheckBox>(R.id.checkBoxUseAccel).setTextColor(color)
 
@@ -313,6 +314,9 @@ class SettingsFragment : Fragment() {
             //Get always use portrait
             currentView.findViewById<CheckBox>(R.id.checkBoxAlwaysPortrait).isChecked = ConfigSettings.ALWAYS_PORTRAIT.toBoolean()
 
+            //Get auto log
+            currentView.findViewById<CheckBox>(R.id.checkBoxAutoLog).isChecked = ConfigSettings.AUTO_LOG.toBoolean()
+
             //Set colors
             ColorSettings.resetColors()
             doSetColor()
@@ -375,6 +379,9 @@ class SettingsFragment : Fragment() {
 
             //Always use portrait view
             ConfigFile.set(ConfigSettings.ALWAYS_PORTRAIT.cfgName, currentView.findViewById<CheckBox>(R.id.checkBoxAlwaysPortrait).isChecked.toString())
+
+            //Auto log when idle
+            ConfigFile.set(ConfigSettings.AUTO_LOG.cfgName, currentView.findViewById<CheckBox>(R.id.checkBoxAutoLog).isChecked.toString())
 
             //Set Colors
             ColorList.values().forEachIndexed { i, color ->

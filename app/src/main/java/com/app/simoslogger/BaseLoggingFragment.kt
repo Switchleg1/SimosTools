@@ -53,6 +53,7 @@ open class BaseLoggingFragment: Fragment() {
 
         val filter = IntentFilter()
         filter.addAction(GUIMessage.READ_LOG.toString())
+        onSetFilter(filter)
         this.activity?.registerReceiver(mBroadcastReceiver, filter)
     }
 
@@ -320,6 +321,12 @@ open class BaseLoggingFragment: Fragment() {
         return true
     }
 
+    open fun onNewMessage(intent: Intent) {
+    }
+
+    open fun onSetFilter(filter: IntentFilter) {
+    }
+
     private val mBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             when (intent.action) {
@@ -342,6 +349,7 @@ open class BaseLoggingFragment: Fragment() {
                     //Update callback
                     doUpdate(readCount, readTime)
                 }
+                else -> onNewMessage(intent)
             }
         }
     }

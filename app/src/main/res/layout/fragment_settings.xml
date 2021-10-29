@@ -314,6 +314,13 @@
                 android:minHeight="48dp"
                 android:text="@string/check_settings_always_portrait" />
 
+            <CheckBox
+                android:id="@+id/checkBoxAutoLog"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="@string/check_settings_auto_log" />
+
             <View
                 android:id="@+id/divider19"
                 android:layout_width="match_parent"

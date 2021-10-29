@@ -40,6 +40,7 @@
     <string name="check_settings_calculate_hp">Calculate HP?</string>
     <string name="check_settings_use_accelerometers">Use Accelerometers? (3E)</string>
     <string name="check_settings_always_portrait">Always use portrait view?</string>
+    <string name="check_settings_auto_log">Start logging when idle?</string>
     <!-- Strings used for radio buttons -->
     <string name="radio_settings_display_bar">Bar</string>
     <string name="radio_settings_display_round">Round</string>
