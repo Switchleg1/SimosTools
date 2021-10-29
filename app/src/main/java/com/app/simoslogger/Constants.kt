@@ -23,8 +23,8 @@ import java.util.*
 
 // Message types sent from the BluetoothChatService Handler
 enum class GUIMessage {
-    STATE_CHANGE,
-    TASK_CHANGE,
+    STATE_CONNECTION,
+    STATE_TASK,
     TOAST,
     READ,
     READ_LOG,
@@ -60,6 +60,7 @@ enum class UDSTask {
 enum class BTServiceTask {
     STOP_SERVICE,
     START_SERVICE,
+    REQ_STATUS,
     DO_CONNECT,
     DO_DISCONNECT,
     DO_START_LOG,
@@ -242,7 +243,8 @@ enum class ConfigSettings(val cfgName: String, var value: Any) {
     DRAW_MIN_MAX("DrawMinMax", true),
     OUT_DIRECTORY("OutputDirectory", DirectoryList.APP),
     GAUGE_TYPE("GaugeType", GaugeType.ROUND),
-    DEBUG_LOG("DebugMode", DEBUG_LOG_INFO or DEBUG_LOG_WARNING or DEBUG_LOG_EXCEPTION);
+    DEBUG_LOG("DebugMode", DEBUG_LOG_INFO or DEBUG_LOG_WARNING or DEBUG_LOG_EXCEPTION),
+    AUTO_LOG("AutoLog", false);
 
     fun set(newValue: String) {
         try {
@@ -320,7 +322,6 @@ val TASK_BUMP_DELAY             = 250
 val TASK_END_DELAY              = 500
 val TASK_END_TIMEOUT            = 3000
 val TIME_OUT_LOGGING            = 10
-val TIME_OUT_GET_INFO           = 10
 val TIME_OUT_DTC                = 10
 
 //Service info

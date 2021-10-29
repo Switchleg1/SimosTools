@@ -1,6 +1,7 @@
 package com.app.simoslogger
 
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,12 +9,19 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import java.lang.Exception
+
+class LoggingViewModel : ViewModel() {
+    var currentTask: UDSTask = UDSTask.NONE
+}
 
 class LoggingFragment : BaseLoggingFragment() {
     override var TAG = "LoggingFragment"
     private var mLastEnabled = false
     private var mPackCount: TextView? = null
+    private lateinit var mViewModel: LoggingViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -25,6 +33,7 @@ class LoggingFragment : BaseLoggingFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        mViewModel = ViewModelProvider(this).get(LoggingViewModel::class.java)
 
         view.findViewById<Button>(R.id.buttonExit).setOnClickListener {
             //Write pid default files
@@ -43,6 +52,13 @@ class LoggingFragment : BaseLoggingFragment() {
         }
 
         view.findViewById<Button>(R.id.buttonReset).setOnClickListener {
+            if(mViewModel.currentTask == UDSTask.NONE) {
+                sendServiceMessage(BTServiceTask.DO_START_LOG.toString())
+            } else {
+                sendServiceMessage(BTServiceTask.DO_STOP_TASK.toString())
+            }
+
+            //update GUI
             PIDs.resetData()
             updatePIDText()
             val serviceIntent = Intent(requireActivity(), BTService::class.java)
@@ -54,6 +70,30 @@ class LoggingFragment : BaseLoggingFragment() {
         //Set packet textview
         mPackCount = view.findViewById(R.id.textViewPackCount)
         mPackCount?.setTextColor(ColorList.GAUGE_NORMAL.value)
+
+        setLoggingButton()
+    }
+
+    private fun setLoggingButton() {
+        view?.findViewById<Button>(R.id.buttonReset)?.let {
+            it.text = when(mViewModel.currentTask) {
+                UDSTask.LOGGING -> "Stop"
+                else            -> "Start"
+            }
+        }
+    }
+
+    override fun onSetFilter(filter: IntentFilter) {
+        filter.addAction(GUIMessage.STATE_CONNECTION.toString())
+        filter.addAction(GUIMessage.STATE_TASK.toString())
+    }
+
+    override fun onNewMessage(intent: Intent) {
+        when(intent.action) {
+            GUIMessage.STATE_TASK.toString()       -> mViewModel.currentTask = intent.getSerializableExtra(GUIMessage.STATE_TASK.toString()) as UDSTask
+            GUIMessage.STATE_CONNECTION.toString() -> mViewModel.currentTask = UDSTask.NONE
+        }
+        setLoggingButton()
     }
 
     override fun buildPIDList() {
@@ -79,15 +119,9 @@ class LoggingFragment : BaseLoggingFragment() {
                 it[index]?.enabled = isEnabled
                 gauge.setEnable(isEnabled)
             }
+            if(mViewModel.currentTask == UDSTask.LOGGING)
+                sendServiceMessage(BTServiceTask.DO_START_LOG.toString())
 
-            //Restart logging
-            var serviceIntent = Intent(requireActivity(), BTService::class.java)
-            serviceIntent.action = BTServiceTask.DO_STOP_TASK.toString()
-            ContextCompat.startForegroundService(requireActivity(), serviceIntent)
-
-            serviceIntent = Intent(requireActivity(), BTService::class.java)
-            serviceIntent.action = BTServiceTask.DO_START_LOG.toString()
-            ContextCompat.startForegroundService(requireActivity(), serviceIntent)
         } catch (e: Exception) {
             DebugLog.e(TAG, "Unable to change PID status", e)
         }
@@ -116,5 +150,11 @@ class LoggingFragment : BaseLoggingFragment() {
             }
         }
         mLastEnabled = UDSLogger.isEnabled()
+    }
+
+    private fun sendServiceMessage(type: String) {
+        val serviceIntent = Intent(requireActivity(), BTService::class.java)
+        serviceIntent.action = type
+        ContextCompat.startForegroundService(requireActivity(), serviceIntent)
     }
 }

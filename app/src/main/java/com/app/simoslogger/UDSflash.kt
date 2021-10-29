@@ -48,6 +48,7 @@ object UDSFlasher {
             return buildBLEFrame(byteArrayOf(0x22.toByte()) + ECUInfo.PART_NUMBER.address)
         }
     }
+    
     @Synchronized
     fun processFlashCAL(ticks: Int, buff: ByteArray?): UDSReturn {
 
