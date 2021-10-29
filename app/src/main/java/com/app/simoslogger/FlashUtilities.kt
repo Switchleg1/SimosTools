@@ -459,3 +459,28 @@ object FlashUtilities {
         )
     }
 }
+
+enum class UDS_RESPONSE(val str: String, val udsByte: Byte?) {
+    POSITIVE_RESPONSE("Tester Present", 0x7E.toByte()),
+    NEGATIVE_RESPONSE("Negative Response", 0x7f.toByte()),
+    NO_RESPONSE("Positive Response", null),
+    ROUTINE_ACCEPTED("Remote activation of routine, accepted", 0x71.toByte()),
+    DOWNLOAD_ACCEPTED("Request download accepted", 0x74.toByte()),
+    TRANSFER_DATA_ACCEPTED("Transfer data accepted", 0x76.toByte()),
+    TRANSFER_EXIT_ACCEPTED("Transfer exit accepted", 0x77.toByte()),
+    SECURITY_ACCESS_GRANTED("Security access granted", 0x67.toByte()),
+    ECU_RESET_ACCEPTED("Ecu Reset Accepted", 0x51.toByte()),
+    WRITE_IDENTIFIER_ACCEPTED("Write Identifier Accepted", 0x6e.toByte()),
+}
+
+enum class UDS_COMMAND(val bytes: ByteArray){
+    TESTER_PRESENT(byteArrayOf(0x3e.toByte(), 0x02.toByte())),
+    RESET_ECU(byteArrayOf(0x11.toByte(), 0x01.toByte())),
+    START_ROUTINE(byteArrayOf(0x31.toByte(), 0x01.toByte())),
+
+}
+
+enum class UDS_ROUTINE(val bytes: ByteArray){
+    CHECK_PROGRAMMING_PRECONDITION(byteArrayOf(0x02.toByte(),0x03.toByte())),
+
+}

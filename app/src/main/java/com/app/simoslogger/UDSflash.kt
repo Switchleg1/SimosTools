@@ -177,12 +177,8 @@ object UDSFlasher {
                     else {
                         //Check programming precondition, routine 0x0203
                         mCommand = buildBLEFrame(
-                            byteArrayOf(
-                                0x31.toByte(),
-                                0x01.toByte(),
-                                0x02.toByte(),
-                                0x03.toByte()
-                            )
+                            UDS_COMMAND.START_ROUTINE.bytes + UDS_ROUTINE.CHECK_PROGRAMMING_PRECONDITION.bytes
+
                         )
 
                         mLastString = mTask.toString()
@@ -265,7 +261,7 @@ object UDSFlasher {
                         //We should enter here from a tester present.
                         UDS_RESPONSE.POSITIVE_RESPONSE -> {
                             //erase block: 31 01 FF 00 01 05
-                            mCommand = buildBLEFrame(byteArrayOf(0x31.toByte(),0x01.toByte(),0xFF.toByte(),0x00.toByte(),0x01.toByte(),0x05.toByte()))
+                            mCommand = buildBLEFrame(UDS_COMMAND.START_ROUTINE.bytes + byteArrayOf(0xFF.toByte(),0x00.toByte(),0x01.toByte(),0x05.toByte()))
                             mLastString = "Erasing CAL block to prepare for flashing"
                             return UDSReturn.COMMAND_QUEUED
                         }
@@ -333,7 +329,7 @@ object UDSFlasher {
                     when(checkResponse(buff)){
 
                         UDS_RESPONSE.POSITIVE_RESPONSE -> {
-                            mCommand = buildBLEFrame(byteArrayOf(0x31.toByte(),0x01.toByte(),0x02.toByte(),0x02.toByte(),0x01.toByte(),0x05.toByte(), 0x00.toByte(), 0x04.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte()))
+                            mCommand = buildBLEFrame(UDS_COMMAND.START_ROUTINE.bytes + byteArrayOf(0x02.toByte(),0x02.toByte(),0x01.toByte(),0x05.toByte(), 0x00.toByte(), 0x04.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte()))
                             mLastString = "Checksumming flashed block"
                             return UDSReturn.COMMAND_QUEUED
                         }
@@ -353,7 +349,7 @@ object UDSFlasher {
                     //Verify programming dependencies, routine 0xFF01
                     when(checkResponse(buff)){
                         UDS_RESPONSE.POSITIVE_RESPONSE -> {
-                            mCommand = buildBLEFrame(byteArrayOf(0x31.toByte(), 0x01.toByte(), 0xFF.toByte(), 0x01.toByte()))
+                            mCommand = buildBLEFrame(UDS_COMMAND.START_ROUTINE.bytes + byteArrayOf(0xFF.toByte(), 0x01.toByte()))
                             mLastString = "Verifying Programming Dependencies"
                             return UDSReturn.COMMAND_QUEUED
                         }
@@ -374,7 +370,7 @@ object UDSFlasher {
                 FLASH_ECU_CAL_SUBTASK.RESET_ECU -> {
                     when(checkResponse(buff)){
                         UDS_RESPONSE.POSITIVE_RESPONSE -> {
-                            mCommand = buildBLEFrame(byteArrayOf(0x11.toByte(), 0x01.toByte()))
+                            mCommand = buildBLEFrame(UDS_COMMAND.RESET_ECU.bytes)
                             mLastString = "Resetting ECU!!!!"
                             return UDSReturn.COMMAND_QUEUED
                         }
@@ -418,7 +414,7 @@ object UDSFlasher {
     }
 
     private fun sendTesterPresent(): ByteArray{
-        return buildBLEFrame(byteArrayOf(0x3e.toByte(), 0x02.toByte()))
+        return buildBLEFrame(UDS_COMMAND.TESTER_PRESENT.bytes)
     }
 
     private fun checkResponse(input: ByteArray): UDS_RESPONSE{
