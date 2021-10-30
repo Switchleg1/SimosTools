@@ -1,4 +1,4 @@
-# Simos Logger
+# Simos Tools
 
 Makes use of the Macchina-A0 BLEISOTP bridge firmware originally developed by bri3d to log Simo ECUs:
 https://github.com/Switchleg1/esp32-isotp-ble-bridge/tree/BridgeLEG

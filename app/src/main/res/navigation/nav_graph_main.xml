@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/MainFragment"
-        android:name="com.app.simoslogger.MainFragment"
+        android:name="com.app.simostools.MainFragment"
         android:label="@string/nav_main"
         tools:layout="@layout/fragment_main">
 
@@ -19,7 +19,7 @@
 
     <fragment
         android:id="@+id/ColorFragment"
-        android:name="com.app.simoslogger.ColorFragment"
+        android:name="com.app.simostools.ColorFragment"
         android:label="@string/nav_color"
         tools:layout="@layout/fragment_color">
     </fragment>
