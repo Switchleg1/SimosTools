@@ -78,9 +78,17 @@ object UDSFlasher {
                             ecuAswVersion = buff.copyOfRange(3, buff.size)
                             DebugLog.d(TAG, "Received ASW version ${ecuAswVersion.toHex()} from ecu")
 
-                            mTask = mTask.next()
+                            if(bin.size > 180000 && bin.size < 200000 ){
+                                mLastString = "LOADING PRE-COMPRESSED AND ENCRYPTED BIN\n" +
+                                        "NO INTEGRITY CHECK POSSIBLE!!!"
+                                mTask = FLASH_ECU_CAL_SUBTASK.CLEAR_DTC
+                            }
+                            else{
+                                mLastString = "Read box code from ECU: " + String(ecuAswVersion)
+                                mTask = mTask.next()
+                            }
 
-                            mLastString = "Read box code from ECU: " + String(ecuAswVersion)
+
                             mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
                             return UDSReturn.COMMAND_QUEUED
                         }
