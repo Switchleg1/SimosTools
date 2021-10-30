@@ -728,7 +728,8 @@ class BTService: Service() {
         }
 
         private fun startTaskFlashing(){
-            setBridgeSTMIN(350)
+            DebugLog.d(TAG,"Setting stmin to 550")
+            setBridgeSTMIN(550)
             mWriteQueue.add(UDSFlasher.startTask(0))
         }
 
@@ -872,8 +873,22 @@ class BTService: Service() {
                     UDSReturn.OK -> {
 
                     }
+                    UDSReturn.CLEAR_DTC_REQUEST -> {
+
+                            //Send clear request
+                            val bleHeader = BLEHeader()
+                            bleHeader.rxID = 0x7E8
+                            bleHeader.txID = 0x700
+                            bleHeader.cmdSize = 1
+                            bleHeader.cmdFlags = BLECommandFlags.PER_CLEAR.value
+                            val dataBytes = byteArrayOf(0x04.toByte())
+                            val buf = bleHeader.toByteArray() + dataBytes
+                            mWriteQueue.add(buf)
+
+                    }
                     UDSReturn.COMMAND_QUEUED -> {
                         var queuedCommand = buildBLEFrame(UDSFlasher.getCommand())
+                        //DebugLog.d(TAG,"UDSFlash, built BLE frame: " + queuedCommand.toHex())
 
                         if (queuedCommand.size > BLE_GATT_MTU_SIZE) {
                             DebugLog.d(TAG, "Larger than MTU frame encountered, breaking it up")
@@ -945,7 +960,7 @@ class BTService: Service() {
             }
             else{
                 DebugLog.d(TAG,"Sending tester present.... Flasher is idle")
-                mWriteQueue.add(UDSFlasher.sendTesterPresent())
+                mWriteQueue.add(buildBLEFrame(UDS_COMMAND.TESTER_PRESENT.bytes))
             }
         }
 

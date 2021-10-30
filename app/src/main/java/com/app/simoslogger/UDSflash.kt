@@ -15,13 +15,13 @@ object UDSFlasher {
 
     fun getInfo(): String {
         val response = mLastString
-        mLastString = ""
+        //mLastString = ""
         return response
     }
 
     fun getCommand(): ByteArray {
         val response = mCommand
-        mCommand = byteArrayOf()
+        //mCommand = byteArrayOf()
         return response
     }
 
@@ -85,6 +85,11 @@ object UDSFlasher {
                             return UDSReturn.COMMAND_QUEUED
                         }
 
+                        UDS_RESPONSE.POSITIVE_RESPONSE -> {
+                            mCommand = UDS_COMMAND.READ_IDENTIFIER.bytes + ECUInfo.PART_NUMBER.address
+                            mLastString = "Initiating flash routines"
+                            return UDSReturn.COMMAND_QUEUED
+                        }
                         else -> {
                             DebugLog.d(TAG, "Error with ECU Response: " + buff.toHex())
                             mLastString = "Error with ECU Response: " + String(buff)
@@ -168,6 +173,9 @@ object UDSFlasher {
                         mLastString = "Error encrypting BIN"
                         return UDSReturn.ERROR_UNKNOWN
                     }
+
+                    DebugLog.d(TAG, bin.copyOfRange(0, CAL_BLOCK_TRANSFER_SIZE * 2).toHex())
+
                     mTask = mTask.next()
                     mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
                     return UDSReturn.COMMAND_QUEUED
@@ -188,15 +196,15 @@ object UDSFlasher {
                             return UDSReturn.COMMAND_QUEUED
                         }
                         UDS_RESPONSE.NEGATIVE_RESPONSE ->{
-                            mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
+                            mCommand = byteArrayOf()
                             mLastString = "Waiting for CLEAR DTC successful"
-                            return UDSReturn.COMMAND_QUEUED
+                            return UDSReturn.OK
                         }
                         UDS_RESPONSE.POSITIVE_RESPONSE ->{
                             DebugLog.d(TAG,"Received " + buff.toHex())
-                            mCommand = clearDTC()
+
                             mLastString = mTask.toString()
-                            return UDSReturn.COMMAND_QUEUED
+                            return UDSReturn.CLEAR_DTC_REQUEST
                         }
                         else -> {
                             mCommand = byteArrayOf()
@@ -341,6 +349,7 @@ object UDSFlasher {
                         UDS_RESPONSE.TRANSFER_DATA_ACCEPTED -> {
                             val totalFrames: Int = bin.size / CAL_BLOCK_TRANSFER_SIZE
 
+
                             //If the last frame we sent was acked, increment the transfer counter
                             // set the progress bar.  Check to see if we're at the total number
                             // of frames that we should be (and if we are, request an exit from
@@ -461,17 +470,7 @@ object UDSFlasher {
 
 
 
-    private fun clearDTC(): ByteArray{
-        //Send clear request
-        val bleHeader = BLEHeader()
-        bleHeader.rxID = 0x7E8
-        bleHeader.txID = 0x700
-        bleHeader.cmdSize = 1
-        bleHeader.cmdFlags = BLECommandFlags.PER_CLEAR.value
-        val dataBytes = byteArrayOf(0x04.toByte())
-        val buf = bleHeader.toByteArray() + dataBytes
-        return buf
-    }
+
 
     private fun checkResponse(input: ByteArray): UDS_RESPONSE{
         return UDS_RESPONSE.values().find {it.udsByte == input[0]} ?: UDS_RESPONSE.NO_RESPONSE

@@ -106,7 +106,8 @@ enum class UDSReturn {
     ERROR_CMDSIZE,
     ERROR_TIME_OUT,
     ERROR_UNKNOWN,
-    COMMAND_QUEUED
+    COMMAND_QUEUED,
+    CLEAR_DTC_REQUEST,
 }
 
 enum class ECUInfo(val str: String, val address: ByteArray) {
