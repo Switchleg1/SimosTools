@@ -7,13 +7,13 @@
     android:id="@+id/SettingsLayout">
 
     <Button
-        android:id="@+id/buttonSettingsReset"
+        android:id="@+id/buttonSettingsBack"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="2dp"
         android:layout_marginEnd="8dp"
         android:layout_weight="1"
-        android:text="@string/button_reset"
+        android:text="@string/button_back"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/buttonSettingsSave" />
@@ -28,7 +28,7 @@
         android:text="@string/button_save"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/buttonSettingsReset"/>
+        app:layout_constraintEnd_toStartOf="@+id/buttonSettingsBack"/>
 
     <ScrollView
         android:id="@+id/SettingsScrollview"

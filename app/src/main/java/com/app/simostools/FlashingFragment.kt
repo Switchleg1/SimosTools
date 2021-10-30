@@ -19,6 +19,7 @@ import android.widget.ArrayAdapter
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 
 var gMsgList: Array<String>? = null
 
@@ -61,16 +62,18 @@ class FlashingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         mViewModel = ViewModelProvider(this).get(FlashViewModel::class.java)
 
-        mArrayAdapter = ArrayAdapter(requireContext(), R.layout.message)
+        mArrayAdapter = ArrayAdapter(requireContext(), R.layout.flashing_message)
         mArrayAdapter?.let { adapter ->
             gMsgList?.forEach {
                 adapter.add(it)
             }
         }
-        view.findViewById<ListView>(R.id.bt_message)?.let { messageBox ->
+
+        view.findViewById<ListView>(R.id.listViewMessage)?.let { messageBox ->
             messageBox.adapter = mArrayAdapter
             messageBox.setBackgroundColor(Color.WHITE)
         }
+
         view.findViewById<Button>(R.id.buttonFlashCAL).setOnClickListener {
             if(mViewModel.connectionState == BLEConnectionState.CONNECTED) {
                 var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
@@ -82,7 +85,7 @@ class FlashingFragment : Fragment() {
             }
         }
 
-        view.findViewById<Button>(R.id.buttonECUInfo).setOnClickListener {
+        view.findViewById<Button>(R.id.buttonFlashECUInfo).setOnClickListener {
             if(mViewModel.connectionState == BLEConnectionState.CONNECTED) {
                 sendServiceMessage(BTServiceTask.DO_GET_INFO.toString())
             } else {
@@ -90,12 +93,16 @@ class FlashingFragment : Fragment() {
             }
         }
 
-        view.findViewById<Button>(R.id.buttonClearDTC).setOnClickListener {
+        view.findViewById<Button>(R.id.buttonFlashClearDTC).setOnClickListener {
             if(mViewModel.connectionState == BLEConnectionState.CONNECTED) {
                 sendServiceMessage(BTServiceTask.DO_CLEAR_DTC.toString())
             } else {
                 doWriteMessage("Not connected")
             }
+        }
+
+        view.findViewById<Button>(R.id.buttonFlashBack).setOnClickListener {
+            findNavController().navigateUp()
         }
 
         view.findViewById<ProgressBar>(R.id.progressBarFlash)?.let { progress ->
@@ -144,10 +151,12 @@ class FlashingFragment : Fragment() {
         // construct a string from the valid bytes in the buffer
         val value = gMsgList?: arrayOf()
         gMsgList = value + message
-        mArrayAdapter?.add(message)
+        mArrayAdapter?.let {
+            it.add(message)
 
-        val btMessage = view?.findViewById<ListView>(R.id.bt_message)!!
-        btMessage.setSelection(btMessage.adapter.count - 1)
+            val btMessage = view?.findViewById<ListView>(R.id.listViewMessage)
+            btMessage?.setSelection(it.count - 1)
+        }
     }
 
     private fun setColor() {

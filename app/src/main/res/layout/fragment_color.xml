@@ -16,7 +16,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/buttonCancelColor"
+        android:id="@+id/buttonColorCancel"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="2dp"
@@ -25,10 +25,10 @@
         android:text="@string/button_cancel"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/buttonSaveColor" />
+        app:layout_constraintStart_toEndOf="@+id/buttonColorSave" />
 
     <Button
-        android:id="@+id/buttonSaveColor"
+        android:id="@+id/buttonColorSave"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -36,7 +36,7 @@
         android:layout_weight="1"
         android:text="@string/button_save"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/buttonCancelColor"
+        app:layout_constraintEnd_toStartOf="@+id/buttonColorCancel"
         app:layout_constraintStart_toStartOf="parent" />
 
     <SeekBar

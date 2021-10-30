@@ -7,7 +7,7 @@
     tools:context=".FlashingFragment">
 
     <ListView
-        android:id="@+id/bt_message"
+        android:id="@+id/listViewMessage"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/progressBarFlash"
@@ -24,36 +24,47 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:text="@string/button_flash_cal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/buttonECUInfo"
+        app:layout_constraintBottom_toTopOf="@+id/buttonFlashECUInfo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/buttonECUInfo"
+        android:id="@+id/buttonFlashECUInfo"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:text="@string/button_check_vin"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/buttonClearDTC"
-        app:layout_constraintStart_toEndOf="@+id/buttonFlashCAL" />
+        app:layout_constraintBottom_toTopOf="@+id/buttonFlashClearDTC"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/buttonClearDTC"
+        android:id="@+id/buttonFlashClearDTC"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:text="@string/button_clear_dtc"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/buttonFlashBack"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/buttonECUInfo" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ProgressBar
         android:id="@+id/progressBarFlash"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="0dp"
         android:layout_height="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/buttonECUInfo"
+        app:layout_constraintBottom_toTopOf="@+id/buttonFlashCAL"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/buttonFlashBack"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/button_back"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 

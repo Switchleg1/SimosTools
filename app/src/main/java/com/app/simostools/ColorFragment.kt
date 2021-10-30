@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
 import androidx.navigation.fragment.findNavController
 
 object ColorSettings {
@@ -55,11 +54,11 @@ class ColorFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        view.findViewById<Button>(R.id.buttonCancelColor).setOnClickListener {
+        view.findViewById<Button>(R.id.buttonColorCancel).setOnClickListener {
             findNavController().navigateUp()
         }
 
-        view.findViewById<Button>(R.id.buttonSaveColor).setOnClickListener {
+        view.findViewById<Button>(R.id.buttonColorSave).setOnClickListener {
             doSave()
             findNavController().navigateUp()
         }

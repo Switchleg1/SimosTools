@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -14,11 +13,8 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.view.forEach
-import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.viewpager2.widget.ViewPager2
 
 class SettingsViewModel : ViewModel() {
     var logMode = UDSLoggingMode.MODE_22
@@ -63,8 +59,8 @@ class SettingsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         mViewModel = ViewModelProvider(this).get(SettingsViewModel::class.java)
 
-        view.findViewById<Button>(R.id.buttonSettingsReset).setOnClickListener {
-            doReset()
+        view.findViewById<Button>(R.id.buttonSettingsBack).setOnClickListener {
+            findNavController().navigateUp()
         }
 
         view.findViewById<Button>(R.id.buttonSettingsSave).setOnClickListener {
@@ -89,65 +85,63 @@ class SettingsFragment : Fragment() {
 
         view.findViewById<Button>(R.id.buttonSetBGNormalColor).setOnClickListener {
             ColorSettings.getColor(ColorList.BG_NORMAL)
-            findNavController().navigate(R.id.action_MainFragment_to_ColorFragment)
+            findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetBGWarningColor).setOnClickListener {
             ColorSettings.getColor(ColorList.BG_WARN)
-            findNavController().navigate(R.id.action_MainFragment_to_ColorFragment)
+            findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetTextColor).setOnClickListener {
             ColorSettings.getColor(ColorList.TEXT)
-            findNavController().navigate(R.id.action_MainFragment_to_ColorFragment)
+            findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetGaugeNormalColor).setOnClickListener {
             ColorSettings.getColor(ColorList.GAUGE_NORMAL)
-            findNavController().navigate(R.id.action_MainFragment_to_ColorFragment)
+            findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetGaugeWarnColor).setOnClickListener {
             ColorSettings.getColor(ColorList.GAUGE_WARN)
-            findNavController().navigate(R.id.action_MainFragment_to_ColorFragment)
+            findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetGaugeBGColor).setOnClickListener {
             ColorSettings.getColor(ColorList.GAUGE_BG)
-            findNavController().navigate(R.id.action_MainFragment_to_ColorFragment)
+            findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetErrorColor).setOnClickListener {
             ColorSettings.getColor(ColorList.ST_ERROR)
-            findNavController().navigate(R.id.action_MainFragment_to_ColorFragment)
+            findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetNoneColor).setOnClickListener {
             ColorSettings.getColor(ColorList.ST_NONE)
-            findNavController().navigate(R.id.action_MainFragment_to_ColorFragment)
+            findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetConnectingColor).setOnClickListener {
             ColorSettings.getColor(ColorList.ST_CONNECTING)
-            findNavController().navigate(R.id.action_MainFragment_to_ColorFragment)
+            findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetConnectedColor).setOnClickListener {
             ColorSettings.getColor(ColorList.ST_CONNECTED)
-            findNavController().navigate(R.id.action_MainFragment_to_ColorFragment)
+            findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetLoggingColor).setOnClickListener {
             ColorSettings.getColor(ColorList.ST_LOGGING)
-            findNavController().navigate(R.id.action_MainFragment_to_ColorFragment)
+            findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
         view.findViewById<Button>(R.id.buttonSetWritingColor).setOnClickListener {
             ColorSettings.getColor(ColorList.ST_WRITING)
-            findNavController().navigate(R.id.action_MainFragment_to_ColorFragment)
+            findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
-
-
 
         view.findViewById<SeekBar>(R.id.seekBarUpdateRate).setOnSeekBarChangeListener(object :
             OnSeekBarChangeListener {
@@ -318,7 +312,6 @@ class SettingsFragment : Fragment() {
             currentView.findViewById<CheckBox>(R.id.checkBoxAutoLog).isChecked = ConfigSettings.AUTO_LOG.toBoolean()
 
             //Set colors
-            ColorSettings.resetColors()
             doSetColor()
         }
     }

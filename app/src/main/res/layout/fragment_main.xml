@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -6,26 +7,50 @@
     tools:context=".MainFragment"
     android:id="@+id/MainLayout">
 
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabLayout"
-        android:layout_height="32dp"
-        android:layout_width="match_parent"
-        android:background="@color/colorPrimary"
-        app:tabTextColor="#fff"
+    <ImageView
+        android:id="@+id/imageMainLogo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/simostools"
+        app:layout_constraintBottom_toTopOf="@+id/buttonMainLogging"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tabMode="scrollable" >
-    </com.google.android.material.tabs.TabLayout>
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/viewPager"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
+    <Button
+        android:id="@+id/buttonMainExit"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/button_exit"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tabLayout" >
-    </androidx.viewpager2.widget.ViewPager2>
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/buttonMainSettings"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/button_settings"
+        app:layout_constraintBottom_toTopOf="@+id/buttonMainExit"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/buttonMainFlashing"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/button_flashing"
+        app:layout_constraintBottom_toTopOf="@+id/buttonMainSettings"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/buttonMainLogging"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/button_logging"
+        app:layout_constraintBottom_toTopOf="@+id/buttonMainFlashing"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,6 +2,9 @@
     <string name="app_name">Simos Tools</string>
     <!-- Strings used for nav -->
     <string name="nav_main">Main</string>
+    <string name="nav_flashing">Flashing</string>
+    <string name="nav_logging">Logging</string>
+    <string name="nav_settings">Settings</string>
     <string name="nav_color">Color</string>
     <!-- Strings used for tabs -->
     <string name="tab_tools">Tools</string>
@@ -9,7 +12,7 @@
     <string name="tab_logging">Logging</string>
     <!-- Strings used for buttons -->
     <string name="button_exit">Exit</string>
-    <string name="button_flashing">Tools</string>
+    <string name="button_flashing">Flashing</string>
     <string name="button_logging">Logging</string>
     <string name="button_flash_cal">Flash CAL</string>
     <string name="button_check_vin">ECU Info</string>
