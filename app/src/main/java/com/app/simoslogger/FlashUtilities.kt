@@ -95,7 +95,7 @@ object FlashUtilities {
         return(checksummedBin(bin,checksumCurrent.toHex(), checksumCalculated.toHex(), true))
     }
 
-    fun encodeLZSS(input: ByteArray, maxSlidingWindowSize: Int = 1023, debug: Boolean = false): ByteArray {
+    fun encodeLZSS_orig(input: ByteArray, maxSlidingWindowSize: Int = 1023, debug: Boolean = false): ByteArray {
         var flags = 0
         var flagPos = 0x80
 
@@ -197,6 +197,114 @@ object FlashUtilities {
 
         return(output)
     }
+
+    fun encodeLZSS(input: ByteArray, maxSlidingWindowSize: Int = 1023, debug: Boolean = false): ByteArray {
+        var flags = 0
+        var flagPos = 0x80
+
+        var searchBuffer: ByteArray = byteArrayOf()
+        var checkCharacters: ByteArray = byteArrayOf()
+        var outputBuffer: ByteArray = byteArrayOf()
+        var output: ByteArray = byteArrayOf()
+        var searchStart: Int = 0
+        var index: Int = -1
+
+        var i = 0
+
+        fun copyCheckCharacters(){
+            for(j in 0..checkCharacters.size - 1){
+                if(debug) println("    -> Adding " + "%02x".format(checkCharacters[j]) + " to outputBuffer")
+                outputBuffer += byteArrayOf(checkCharacters[j])
+                flagPos = flagPos shr 1
+
+                if(flagPos == 0x00){
+
+                    output += byteArrayOf(flags.toByte()) + outputBuffer
+
+                    flags = 0
+                    flagPos = 0x80
+                    outputBuffer = byteArrayOf()
+
+                    //println("  output: " + output.toHex())
+                }
+            }
+        }
+
+        while(i <= input.size - 1){
+            if(i > maxSlidingWindowSize) searchStart = i - maxSlidingWindowSize + 1
+            else searchStart = 0
+
+            if(i > 0) searchBuffer = input.copyOfRange(searchStart, i)
+            else searchBuffer = byteArrayOf()
+
+            //Add the current byte to the check buffer
+            checkCharacters += input[i]
+
+            //find out whether the searchBuffer contains our character bytes
+            if(searchBuffer.size > 2)
+                index = searchBuffer.copyOfRange(0, searchBuffer.size - 2).findFirst(checkCharacters) //The index where the bytes appear in the search buffer
+
+            else
+                index = -1
+
+
+            //if the searchBuffer does not contain this byteArray OR we're at the end of the file...
+            if(index == -1 || i == input.size - 1 || checkCharacters.size > 63){
+
+                //If our checkCharacters array is larger than our desired minimum size...
+                if(checkCharacters.size > 3 && i < input.size - 1){
+                    //index = searchBuffer.copyOfRange(0, searchBuffer.size - 2).findFirst(checkCharacters.copyOfRange(0, checkCharacters.size - 1))
+                    index = searchBuffer.findFirst(checkCharacters.copyOfRange(0, checkCharacters.size - 1))
+                    var length = checkCharacters.size - 1//Set the length of the token
+
+                    //var offset = searchBuffer.findLast(checkCharacters.copyOfRange(0, checkCharacters.size - 1)) - length
+                    var offset = ((searchBuffer.size - length - index))//Calculate the relative offset
+
+                    if(offset == 0){
+                        copyCheckCharacters()
+                        i++
+                        checkCharacters = byteArrayOf()
+                    }
+
+                    else{
+
+                        outputBuffer += byteArrayOf( ((offset shr 8) or (length shl 2)).toByte(), (offset and 0xFF.toInt()).toByte() )
+
+                        flags = flags or flagPos
+                        flagPos = flagPos shr 1
+
+                        if(flagPos == 0x00 ){
+                            output += byteArrayOf(flags.toByte()) + outputBuffer
+
+                            flags = 0
+                            flagPos = 0x80
+                            outputBuffer = byteArrayOf()
+                        }
+
+                        checkCharacters = byteArrayOf(checkCharacters[checkCharacters.size - 1])
+                        i++
+                    }
+
+                }
+
+                else{
+                    copyCheckCharacters()
+                    i++
+                    checkCharacters = byteArrayOf()
+                }
+            }
+            else i++
+        }
+
+        if(outputBuffer.size != 0) output += byteArrayOf(flags.toByte()) + outputBuffer
+
+        while(output.size % 0x10 != 0){
+            output += byteArrayOf(0x0.toByte())
+        }
+
+        return(output)
+    }
+
 
     fun decodeLZSS(input: ByteArray, expectedSize: Int): ByteArray{
 
