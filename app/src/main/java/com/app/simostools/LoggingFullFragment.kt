@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
@@ -36,20 +35,32 @@ class LoggingFullFragment : LoggingBaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         mViewModel = ViewModelProvider(this).get(LoggingViewModel::class.java)
 
-        view.findViewById<Button>(R.id.buttonLoggingBack).setOnClickListener {
-            findNavController().navigateUp()
+        val backButton = view.findViewById<SwitchButton>(R.id.buttonLoggingBack)
+        backButton.apply {
+            paintBG.color = ColorList.BT_BG.value
+            paintRim.color = ColorList.BT_RIM.value
+            setTextColor(ColorList.BT_TEXT.value)
+            setOnClickListener {
+                findNavController().navigateUp()
+            }
         }
 
-        view.findViewById<Button>(R.id.buttonLoggingReset).setOnClickListener {
-            if(mViewModel.currentTask == UDSTask.NONE) {
-                sendServiceMessage(BTServiceTask.DO_START_LOG.toString())
-            } else {
-                sendServiceMessage(BTServiceTask.DO_STOP_TASK.toString())
-            }
+        val resetButton = view.findViewById<SwitchButton>(R.id.buttonLoggingReset)
+        resetButton.apply {
+            paintBG.color = ColorList.BT_BG.value
+            paintRim.color = ColorList.BT_RIM.value
+            setTextColor(ColorList.BT_TEXT.value)
+            setOnClickListener {
+                if (mViewModel.currentTask == UDSTask.NONE) {
+                    sendServiceMessage(BTServiceTask.DO_START_LOG.toString())
+                } else {
+                    sendServiceMessage(BTServiceTask.DO_STOP_TASK.toString())
+                }
 
-            //update GUI
-            PIDs.resetData()
-            updatePIDText()
+                //update GUI
+                PIDs.resetData()
+                updatePIDText()
+            }
         }
 
         //Set packet textview
@@ -60,7 +71,7 @@ class LoggingFullFragment : LoggingBaseFragment() {
     }
 
     private fun setLoggingButton() {
-        view?.findViewById<Button>(R.id.buttonLoggingReset)?.let {
+        view?.findViewById<SwitchButton>(R.id.buttonLoggingReset)?.let {
             it.text = when(mViewModel.currentTask) {
                 UDSTask.LOGGING -> "Stop"
                 else            -> "Start"

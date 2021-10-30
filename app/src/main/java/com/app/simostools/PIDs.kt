@@ -1,6 +1,5 @@
 package com.app.simostools
 
-import android.content.Context
 import java.lang.Exception
 
 data class PIDStruct(var address: Long,

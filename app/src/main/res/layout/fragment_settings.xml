@@ -6,26 +6,22 @@
     tools:context=".SettingsFragment"
     android:id="@+id/SettingsLayout">
 
-    <Button
+    <com.app.simostools.SwitchButton
         android:id="@+id/buttonSettingsBack"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="2dp"
-        android:layout_marginEnd="8dp"
-        android:layout_weight="1"
+        android:layout_height="48dp"
         android:text="@string/button_back"
+        android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/buttonSettingsSave" />
 
-    <Button
+    <com.app.simostools.SwitchButton
         android:id="@+id/buttonSettingsSave"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="2dp"
-        android:layout_weight="1"
+        android:layout_height="48dp"
         android:text="@string/button_save"
+        android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/buttonSettingsBack"/>
@@ -241,12 +237,6 @@
                 android:layout_height="1dp"
                 android:background="?android:attr/listDivider" />
 
-            <View
-                android:id="@+id/divider20"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?android:attr/listDivider" />
-
             <TextView
                 android:id="@+id/textViewPIDCSV"
                 android:layout_width="match_parent"
@@ -261,21 +251,21 @@
                 android:layout_width="match_parent"
                 android:orientation="horizontal" >
 
-                <Button
+                <com.app.simostools.SwitchButton
                     android:id="@+id/button22CSV"
-                    style="@style/Widget.AppCompat.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/textview_settings_import_22_csv" />
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:text="@string/textview_settings_import_22_csv"
+                    android:textSize="24sp"/>
 
-                <Button
+                <com.app.simostools.SwitchButton
                     android:id="@+id/button3ECSV"
-                    style="@style/Widget.AppCompat.Button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/textview_settings_import_3E_csv" />
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:text="@string/textview_settings_import_3E_csv"
+                    android:textSize="24sp"/>
 
             </LinearLayout>
 
@@ -532,6 +522,48 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/button_set_st_writing"
+                android:textColor="#5E35B1" />
+
+            <View
+                android:id="@+id/divider24"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
+            <Button
+                android:id="@+id/buttonSetBTRimColor"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_set_bt_rim"
+                android:textColor="#5E35B1" />
+
+            <View
+                android:id="@+id/divider25"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
+            <Button
+                android:id="@+id/buttonSetBTBGColor"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_set_bt_bg"
+                android:textColor="#5E35B1" />
+
+            <View
+                android:id="@+id/divider26"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="?android:attr/listDivider" />
+
+            <Button
+                android:id="@+id/buttonSetBTTextColor"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_set_bt_text"
                 android:textColor="#5E35B1" />
 
         </LinearLayout>

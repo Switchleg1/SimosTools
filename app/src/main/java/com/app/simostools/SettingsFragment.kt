@@ -59,28 +59,52 @@ class SettingsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         mViewModel = ViewModelProvider(this).get(SettingsViewModel::class.java)
 
-        view.findViewById<Button>(R.id.buttonSettingsBack).setOnClickListener {
-            findNavController().navigateUp()
+        val backButton = view.findViewById<SwitchButton>(R.id.buttonSettingsBack)
+        backButton.apply {
+            paintBG.color = ColorList.BT_BG.value
+            paintRim.color = ColorList.BT_RIM.value
+            setTextColor(ColorList.BT_TEXT.value)
+            setOnClickListener {
+                findNavController().navigateUp()
+            }
         }
 
-        view.findViewById<Button>(R.id.buttonSettingsSave).setOnClickListener {
-            doSave()
+        val saveButton = view.findViewById<SwitchButton>(R.id.buttonSettingsSave)
+        saveButton.apply {
+            paintBG.color = ColorList.BT_BG.value
+            paintRim.color = ColorList.BT_RIM.value
+            setTextColor(ColorList.BT_TEXT.value)
+            setOnClickListener {
+                doSave()
+            }
         }
 
-        view.findViewById<Button>(R.id.button22CSV).setOnClickListener {
-            var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
-            chooseFile.type = "text/*"
-            chooseFile = Intent.createChooser(chooseFile, "Choose a 22 A CSV")
-            mViewModel.logMode = UDSLoggingMode.MODE_22
-            resultPickLauncher.launch(chooseFile)
+        val csv22Button = view.findViewById<SwitchButton>(R.id.button22CSV)
+        csv22Button.apply {
+            paintBG.color = ColorList.BT_BG.value
+            paintRim.color = ColorList.BT_RIM.value
+            setTextColor(ColorList.BT_TEXT.value)
+            setOnClickListener {
+                var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
+                chooseFile.type = "text/*"
+                chooseFile = Intent.createChooser(chooseFile, "Choose a 22 A CSV")
+                mViewModel.logMode = UDSLoggingMode.MODE_22
+                resultPickLauncher.launch(chooseFile)
+            }
         }
 
-        view.findViewById<Button>(R.id.button3ECSV).setOnClickListener {
-            var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
-            chooseFile.type = "text/*"
-            chooseFile = Intent.createChooser(chooseFile, "Choose a 3E A CSV")
-            mViewModel.logMode = UDSLoggingMode.MODE_3E
-            resultPickLauncher.launch(chooseFile)
+        val csv3EButton = view.findViewById<SwitchButton>(R.id.button3ECSV)
+        csv3EButton.apply {
+            paintBG.color = ColorList.BT_BG.value
+            paintRim.color = ColorList.BT_RIM.value
+            setTextColor(ColorList.BT_TEXT.value)
+            setOnClickListener {
+                var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
+                chooseFile.type = "text/*"
+                chooseFile = Intent.createChooser(chooseFile, "Choose a 3E A CSV")
+                mViewModel.logMode = UDSLoggingMode.MODE_3E
+                resultPickLauncher.launch(chooseFile)
+            }
         }
 
         view.findViewById<Button>(R.id.buttonSetBGNormalColor).setOnClickListener {
@@ -143,6 +167,21 @@ class SettingsFragment : Fragment() {
             findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
+        view.findViewById<Button>(R.id.buttonSetBTTextColor).setOnClickListener {
+            ColorSettings.getColor(ColorList.BT_TEXT)
+            findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
+        }
+
+        view.findViewById<Button>(R.id.buttonSetBTBGColor).setOnClickListener {
+            ColorSettings.getColor(ColorList.BT_BG)
+            findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
+        }
+
+        view.findViewById<Button>(R.id.buttonSetBTRimColor).setOnClickListener {
+            ColorSettings.getColor(ColorList.BT_RIM)
+            findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
+        }
+
         view.findViewById<SeekBar>(R.id.seekBarUpdateRate).setOnSeekBarChangeListener(object :
             OnSeekBarChangeListener {
             override fun onStopTrackingTouch(seekBar: SeekBar) {
@@ -187,6 +226,35 @@ class SettingsFragment : Fragment() {
 
     private fun doSetColor() {
         view?.let { currentView ->
+            //Set button color
+            val backButton = currentView.findViewById<SwitchButton>(R.id.buttonSettingsBack)
+            backButton.apply {
+                paintBG.color = ColorList.BT_BG.value
+                paintRim.color = ColorList.BT_RIM.value
+                setTextColor(ColorList.BT_TEXT.value)
+            }
+
+            val saveButton = currentView.findViewById<SwitchButton>(R.id.buttonSettingsSave)
+            saveButton.apply {
+                paintBG.color = ColorList.BT_BG.value
+                paintRim.color = ColorList.BT_RIM.value
+                setTextColor(ColorList.BT_TEXT.value)
+            }
+
+            val csv22Button = currentView.findViewById<SwitchButton>(R.id.button22CSV)
+            csv22Button.apply {
+                paintBG.color = ColorList.BT_BG.value
+                paintRim.color = ColorList.BT_RIM.value
+                setTextColor(ColorList.BT_TEXT.value)
+            }
+
+            val csv3EButton = currentView.findViewById<SwitchButton>(R.id.button3ECSV)
+            csv3EButton.apply {
+                paintBG.color = ColorList.BT_BG.value
+                paintRim.color = ColorList.BT_RIM.value
+                setTextColor(ColorList.BT_TEXT.value)
+            }
+
             //Set font color
             val color = ColorList.TEXT.value
             currentView.findViewById<TextView>(R.id.textViewUpdateRate).setTextColor(color)
@@ -239,6 +307,12 @@ class SettingsFragment : Fragment() {
             currentView.findViewById<Button>(R.id.buttonSetLoggingColor).setBackgroundColor(ColorSettings.mColorList[ColorList.ST_LOGGING.ordinal])
             currentView.findViewById<Button>(R.id.buttonSetWritingColor).setTextColor(ColorSettings.mColorList[ColorList.ST_WRITING.ordinal].toColorInverse())
             currentView.findViewById<Button>(R.id.buttonSetWritingColor).setBackgroundColor(ColorSettings.mColorList[ColorList.ST_WRITING.ordinal])
+            currentView.findViewById<Button>(R.id.buttonSetBTTextColor).setTextColor(ColorSettings.mColorList[ColorList.BT_TEXT.ordinal].toColorInverse())
+            currentView.findViewById<Button>(R.id.buttonSetBTTextColor).setBackgroundColor(ColorSettings.mColorList[ColorList.BT_TEXT.ordinal])
+            currentView.findViewById<Button>(R.id.buttonSetBTRimColor).setTextColor(ColorSettings.mColorList[ColorList.BT_RIM.ordinal].toColorInverse())
+            currentView.findViewById<Button>(R.id.buttonSetBTRimColor).setBackgroundColor(ColorSettings.mColorList[ColorList.BT_RIM.ordinal])
+            currentView.findViewById<Button>(R.id.buttonSetBTBGColor).setTextColor(ColorSettings.mColorList[ColorList.BT_BG.ordinal].toColorInverse())
+            currentView.findViewById<Button>(R.id.buttonSetBTBGColor).setBackgroundColor(ColorSettings.mColorList[ColorList.BT_BG.ordinal])
 
             //Set background color
             currentView.setBackgroundColor(ColorList.BG_NORMAL.value)

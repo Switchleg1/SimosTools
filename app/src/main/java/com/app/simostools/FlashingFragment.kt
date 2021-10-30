@@ -74,35 +74,59 @@ class FlashingFragment : Fragment() {
             messageBox.setBackgroundColor(Color.WHITE)
         }
 
-        view.findViewById<Button>(R.id.buttonFlashCAL).setOnClickListener {
-            if(mViewModel.connectionState == BLEConnectionState.CONNECTED) {
-                var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
-                chooseFile.type = "*/*"
-                chooseFile = Intent.createChooser(chooseFile, "Choose a CAL file")
-                resultPickLauncher.launch(chooseFile)
-            } else {
-                doWriteMessage("Not connected")
+        val flashButton = view.findViewById<SwitchButton>(R.id.buttonFlashCAL)
+        flashButton.apply {
+            paintBG.color = ColorList.BT_BG.value
+            paintRim.color = ColorList.BT_RIM.value
+            setTextColor(ColorList.BT_TEXT.value)
+            setOnClickListener {
+                if (mViewModel.connectionState == BLEConnectionState.CONNECTED) {
+                    var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
+                    chooseFile.type = "*/*"
+                    chooseFile = Intent.createChooser(chooseFile, "Choose a CAL file")
+                    resultPickLauncher.launch(chooseFile)
+                } else {
+                    doWriteMessage("Not connected")
+                }
             }
         }
 
-        view.findViewById<Button>(R.id.buttonFlashECUInfo).setOnClickListener {
-            if(mViewModel.connectionState == BLEConnectionState.CONNECTED) {
-                sendServiceMessage(BTServiceTask.DO_GET_INFO.toString())
-            } else {
-                doWriteMessage("Not connected")
+        val ecuInfoButton = view.findViewById<SwitchButton>(R.id.buttonFlashECUInfo)
+        ecuInfoButton.apply {
+            paintBG.color = ColorList.BT_BG.value
+            paintRim.color = ColorList.BT_RIM.value
+            setTextColor(ColorList.BT_TEXT.value)
+            setOnClickListener {
+                if (mViewModel.connectionState == BLEConnectionState.CONNECTED) {
+                    sendServiceMessage(BTServiceTask.DO_GET_INFO.toString())
+                } else {
+                    doWriteMessage("Not connected")
+                }
             }
         }
 
-        view.findViewById<Button>(R.id.buttonFlashClearDTC).setOnClickListener {
-            if(mViewModel.connectionState == BLEConnectionState.CONNECTED) {
-                sendServiceMessage(BTServiceTask.DO_CLEAR_DTC.toString())
-            } else {
-                doWriteMessage("Not connected")
+        val clearDTCButton = view.findViewById<SwitchButton>(R.id.buttonFlashClearDTC)
+        clearDTCButton.apply {
+            paintBG.color = ColorList.BT_BG.value
+            paintRim.color = ColorList.BT_RIM.value
+            setTextColor(ColorList.BT_TEXT.value)
+            setOnClickListener {
+                if (mViewModel.connectionState == BLEConnectionState.CONNECTED) {
+                    sendServiceMessage(BTServiceTask.DO_CLEAR_DTC.toString())
+                } else {
+                    doWriteMessage("Not connected")
+                }
             }
         }
 
-        view.findViewById<Button>(R.id.buttonFlashBack).setOnClickListener {
-            findNavController().navigateUp()
+        val backButton = view.findViewById<SwitchButton>(R.id.buttonFlashBack)
+        backButton.apply {
+            paintBG.color = ColorList.BT_BG.value
+            paintRim.color = ColorList.BT_RIM.value
+            setTextColor(ColorList.BT_TEXT.value)
+            setOnClickListener {
+                findNavController().navigateUp()
+            }
         }
 
         view.findViewById<ProgressBar>(R.id.progressBarFlash)?.let { progress ->

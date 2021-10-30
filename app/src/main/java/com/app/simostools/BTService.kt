@@ -52,6 +52,14 @@ class BLEHeader {
         cmdSize = ((bArray[7] and 0xFF) shl 8) + (bArray[6] and 0xFF)
         tickCount = ((rxID  and 0xFFFF) shl 16) + (txID  and 0xFFFF)
     }
+
+    fun size(): Int {
+        return 8
+    }
+
+    fun size_partial(): Int {
+        return 2
+    }
 }
 
 class BTService: Service() {
@@ -69,6 +77,7 @@ class BTService: Service() {
     private var mConnectionThread: ConnectionThread?            = null
     private var mLogWriteState: Boolean                         = false
     private var mScanningTimer: Timer?                          = null
+    private var mMTUSize: Int                                   = 23
 
     //Gatt additional properties
     private fun BluetoothGattCharacteristic.isReadable(): Boolean = containsProperty(BluetoothGattCharacteristic.PROPERTY_READ)
@@ -240,7 +249,6 @@ class BTService: Service() {
             //get device name
             val deviceName = gatt.device.name
             if(status == BluetoothGatt.GATT_SUCCESS) {
-
                 //Make sure we are on the right connection
                 if(gatt != mBluetoothGatt) {
                     DebugLog.i(TAG, "Gatt does not match mBluetoothGatt, closing connection to $deviceName")
@@ -248,6 +256,9 @@ class BTService: Service() {
                     gatt.safeClose()
                     return
                 }
+
+                //Store MTU Size
+                mMTUSize = mtu
 
                 //Set new connection state
                 setConnectionState(BLEConnectionState.CONNECTED)
@@ -444,7 +455,7 @@ class BTService: Service() {
         val notification: Notification = Notification.Builder(this, CHANNEL_ID)
             .setContentTitle(getText(R.string.app_name))
             .setContentText(getText(R.string.app_name))
-            .setSmallIcon(R.drawable.simoslogger)
+            .setSmallIcon(R.drawable.simostools)
             //.setContentIntent(pendingIntent)
             .build()
 
@@ -694,6 +705,48 @@ class BTService: Service() {
             }
         }
 
+        private fun writePacket(buff: ByteArray?) {
+            buff?.let {
+                try {
+                    //Make sure we have a header
+                    if (it.count() < 8) {
+                        DebugLog.w(TAG, "Unable to write empty packet.")
+                        return
+                    }
+
+                    //Do we need to split the packet?
+                    if(it.count() > mMTUSize - 3) {
+                        //Set split packet flag
+                        val bleHeader = BLEHeader()
+                        bleHeader.fromByteArray(it.copyOfRange(0, bleHeader.size()))
+                        bleHeader.cmdFlags = bleHeader.cmdFlags or BLECommandFlags.SPLIT_PK.value
+
+                        //Add the first split packet
+                        var packetSize = mMTUSize - 3
+                        var buffer = bleHeader.toByteArray() + it.copyOfRange(bleHeader.size(), it.count())
+                        mWriteQueue.add(buffer.copyOfRange(0, packetSize))
+                        buffer = buffer.copyOfRange(packetSize, buffer.count())
+                        packetSize -= BLEHeader().size_partial()
+
+                        //Remaining packets
+                        var packetCount = 1
+                        while (buffer.count() > 0) {
+                            val dataSize = if(buffer.count() > packetSize) packetSize
+                                            else buffer.count()
+                            mWriteQueue.add(byteArrayOf(BLE_HEADER_PT.toByte(), (packetCount++ and 0xFF).toByte()) + buffer.copyOfRange(0, dataSize))
+                            buffer = buffer.copyOfRange(dataSize, buffer.count())
+                        }
+                    } else {
+                        //Packet fits MTU
+                        mWriteQueue.add(it)
+                    }
+                } catch(e: Exception) {
+                    DebugLog.e(TAG, "Exception will writing packet.", e)
+                }
+            }
+            DebugLog.w(TAG, "Unable to write null packet.")
+        }
+
         private fun startNextTask() {
             mTaskTimeNext   = System.currentTimeMillis() + TASK_BUMP_DELAY
             mTask           = mTaskNext
@@ -729,19 +782,19 @@ class BTService: Service() {
             setBridgePersistQDelay(ConfigSettings.PERSIST_Q_DELAY.toInt())
 
             //Write first frame
-            mWriteQueue.add(UDSLogger.startTask(0))
+            writePacket(UDSLogger.startTask(0))
         }
 
         private fun startTaskFlashing(){
-            mWriteQueue.add(UDSFlasher.startTask(0))
+            writePacket(UDSFlasher.startTask(0))
         }
 
         private fun startTaskGetInfo(){
-            mWriteQueue.add(UDSInfo.startTask(0))
+            writePacket(UDSInfo.startTask(0))
         }
 
         private fun startTaskClearDTC() {
-            mWriteQueue.add(UDSdtc.startTask(0))
+            writePacket(UDSdtc.startTask(0))
         }
 
         private fun processPacket(buff: ByteArray?) {
@@ -792,7 +845,7 @@ class BTService: Service() {
                     DebugLog.w(TAG, "Unable to initialize logging, UDS Error: $result")
                     setTaskState(UDSTask.NONE)
                 } else { //else continue init
-                    mWriteQueue.add(UDSLogger.startTask(mTaskTick+1))
+                    writePacket(UDSLogger.startTask(mTaskTick+1))
                 }
             } else { //We are receiving data
                 if (result != UDSReturn.OK) {
@@ -840,7 +893,7 @@ class BTService: Service() {
                 }
 
                 if(!UDSFlasher.finished())
-                    mWriteQueue.add(UDSFlasher.startTask(mTaskTick+1))
+                    writePacket(UDSFlasher.startTask(mTaskTick+1))
             } else {
                 setTaskState(UDSTask.NONE)
             }
@@ -853,7 +906,7 @@ class BTService: Service() {
                 sendBroadcast(intentMessage)
 
                 if(mTaskTick < UDSInfo.getStartCount()-1) {
-                    mWriteQueue.add(UDSInfo.startTask(mTaskTick + 1))
+                    writePacket(UDSInfo.startTask(mTaskTick + 1))
                 } else {
                     setTaskState(UDSTask.NONE)
                 }
@@ -869,7 +922,7 @@ class BTService: Service() {
                 sendBroadcast(intentMessage)
 
                 if(mTaskTick < UDSdtc.getStartCount()) {
-                    mWriteQueue.add(UDSdtc.startTask(mTaskTick + 1))
+                    writePacket(UDSdtc.startTask(mTaskTick + 1))
                 } else {
                     setTaskState(UDSTask.NONE)
                 }
@@ -883,7 +936,7 @@ class BTService: Service() {
             val bleHeader = BLEHeader()
             bleHeader.cmdSize = 0
             bleHeader.cmdFlags = BLECommandFlags.PER_CLEAR.value
-            mWriteQueue.add(bleHeader.toByteArray())
+            writePacket(bleHeader.toByteArray())
         }
 
         private fun setBridgePersistDelay(delay: Int) {
@@ -893,7 +946,7 @@ class BTService: Service() {
             bleHeader.cmdFlags = BLECommandFlags.SETTINGS.value or BLESettings.PERSIST_DELAY.value
             val dataBytes = byteArrayOf((delay and 0xFF).toByte(), ((delay and 0xFF00) shr 8).toByte())
             val buff = bleHeader.toByteArray() + dataBytes
-            mWriteQueue.add(buff)
+            writePacket(buff)
         }
 
         private fun setBridgePersistQDelay(delay: Int) {
@@ -903,7 +956,7 @@ class BTService: Service() {
             bleHeader.cmdFlags = BLECommandFlags.SETTINGS.value or BLESettings.PERSIST_Q_DELAY.value
             val dataBytes = byteArrayOf((delay and 0xFF).toByte(), ((delay and 0xFF00) shr 8).toByte())
             val buff = bleHeader.toByteArray() + dataBytes
-            mWriteQueue.add(buff)
+            writePacket(buff)
         }
 
         private fun setBridgeLED(r: Int, g: Int, b: Int) {
@@ -913,7 +966,7 @@ class BTService: Service() {
             bleHeader.cmdFlags = BLECommandFlags.SETTINGS.value or BLESettings.LED_COLOR.value
             val dataBytes = byteArrayOf((b and 0xFF).toByte(), (r and 0xFF).toByte(), (g and 0xFF).toByte(), 0x00.toByte())
             val buff = bleHeader.toByteArray() + dataBytes
-            mWriteQueue.add(buff)
+            writePacket(buff)
         }
 
         private fun setBridgeSTMIN(amount: Int) {
@@ -922,7 +975,7 @@ class BTService: Service() {
             bleHeader.cmdSize = 2
             bleHeader.cmdFlags = BLECommandFlags.SETTINGS.value or BLESettings.ISOTP_STMIN.value
             val buff = bleHeader.toByteArray() + amount.toArray2()
-            mWriteQueue.add(buff)
+            writePacket(buff)
         }
     }
 }

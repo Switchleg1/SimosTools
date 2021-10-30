@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2020 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.app.simostools
 
 import android.bluetooth.BluetoothGatt
@@ -160,9 +144,12 @@ enum class ColorList(var value: Int, val cfgName: String) {
     ST_ERROR(Color.rgb(255, 0,   0), "StateError"),
     ST_NONE(Color.rgb(100, 0,   255), "StateNone"),
     ST_CONNECTING(Color.rgb(100, 100, 255), "StateConnecting"),
-    ST_CONNECTED(Color.rgb(0,   0,   255), "StateConncted"),
+    ST_CONNECTED(Color.rgb(0,   0,   255), "StateConnected"),
     ST_LOGGING(Color.rgb(255, 255, 0), "StateLogging"),
-    ST_WRITING(Color.rgb(0,   255, 0), "StateWriting");
+    ST_WRITING(Color.rgb(0,   255, 0), "StateWriting"),
+    BT_RIM(Color.rgb(110, 140, 255), "ButtonRIm"),
+    BT_TEXT(Color.rgb(255, 255, 255), "ButtonText"),
+    BT_BG(Color.rgb(64,   64, 64), "ButtonBG");
 
     val key = "Color"
 }

@@ -54,13 +54,25 @@ class ColorFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        view.findViewById<Button>(R.id.buttonColorCancel).setOnClickListener {
-            findNavController().navigateUp()
+        val backButton = view.findViewById<SwitchButton>(R.id.buttonColorBack)
+        backButton.apply {
+            paintBG.color = ColorList.BT_BG.value
+            paintRim.color = ColorList.BT_RIM.value
+            setTextColor(ColorList.BT_TEXT.value)
+            setOnClickListener {
+                findNavController().navigateUp()
+            }
         }
 
-        view.findViewById<Button>(R.id.buttonColorSave).setOnClickListener {
-            doSave()
-            findNavController().navigateUp()
+        val saveButton = view.findViewById<SwitchButton>(R.id.buttonColorSave)
+        saveButton.apply {
+            paintBG.color = ColorList.BT_BG.value
+            paintRim.color = ColorList.BT_RIM.value
+            setTextColor(ColorList.BT_TEXT.value)
+            setOnClickListener {
+                doSave()
+                findNavController().navigateUp()
+            }
         }
 
         //setup seek bars

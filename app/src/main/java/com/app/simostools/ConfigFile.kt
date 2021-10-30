@@ -1,7 +1,6 @@
 package com.app.simostools
 
 import android.content.Context
-import android.os.Environment
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
