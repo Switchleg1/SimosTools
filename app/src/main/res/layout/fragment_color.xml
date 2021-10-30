@@ -18,7 +18,7 @@
     <com.app.simostools.SwitchButton
         android:id="@+id/buttonColorBack"
         android:layout_width="0dp"
-        android:layout_height="48dp"
+        android:layout_height="64dp"
         android:text="@string/button_back"
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -28,7 +28,7 @@
     <com.app.simostools.SwitchButton
         android:id="@+id/buttonColorSave"
         android:layout_width="0dp"
-        android:layout_height="48dp"
+        android:layout_height="64dp"
         android:text="@string/button_save"
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"

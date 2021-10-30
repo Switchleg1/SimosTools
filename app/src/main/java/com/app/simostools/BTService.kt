@@ -708,27 +708,27 @@ class BTService: Service() {
         private fun writePacket(buff: ByteArray?) {
             buff?.let {
                 try {
+                    //Store buff to local variable
+                    var buffer = it
+
                     //Make sure we have a header
-                    if (it.count() < 8) {
+                    if (buffer.count() < 8) {
                         DebugLog.w(TAG, "Unable to write empty packet.")
                         return
                     }
 
                     //Do we need to split the packet?
-                    if(it.count() > mMTUSize - 3) {
+                    var packetSize = mMTUSize - 3
+                    if(buffer.count() > packetSize) {
                         //Set split packet flag
-                        val bleHeader = BLEHeader()
-                        bleHeader.fromByteArray(it.copyOfRange(0, bleHeader.size()))
-                        bleHeader.cmdFlags = bleHeader.cmdFlags or BLECommandFlags.SPLIT_PK.value
+                        it[1] = ((it[1].toInt() or BLECommandFlags.SPLIT_PK.value) and 0xFF).toByte()
 
                         //Add the first split packet
-                        var packetSize = mMTUSize - 3
-                        var buffer = bleHeader.toByteArray() + it.copyOfRange(bleHeader.size(), it.count())
                         mWriteQueue.add(buffer.copyOfRange(0, packetSize))
                         buffer = buffer.copyOfRange(packetSize, buffer.count())
-                        packetSize -= BLEHeader().size_partial()
 
                         //Remaining packets
+                        packetSize -= BLEHeader().size_partial()
                         var packetCount = 1
                         while (buffer.count() > 0) {
                             val dataSize = if(buffer.count() > packetSize) packetSize
@@ -738,10 +738,10 @@ class BTService: Service() {
                         }
                     } else {
                         //Packet fits MTU
-                        mWriteQueue.add(it)
+                        mWriteQueue.add(buffer)
                     }
                 } catch(e: Exception) {
-                    DebugLog.e(TAG, "Exception will writing packet.", e)
+                    DebugLog.e(TAG, "Exception while writing packet.", e)
                 }
             }
             DebugLog.w(TAG, "Unable to write null packet.")
