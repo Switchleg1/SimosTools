@@ -14,11 +14,15 @@ object UDSFlasher {
     private var progress = 0
 
     fun getInfo(): String {
-        return mLastString
+        val response = mLastString
+        mLastString = ""
+        return response
     }
 
     fun getCommand(): ByteArray {
-        return mCommand
+        val response = mCommand
+        mCommand = byteArrayOf()
+        return response
     }
 
     fun started(): Boolean {
@@ -337,6 +341,10 @@ object UDSFlasher {
                         UDS_RESPONSE.TRANSFER_DATA_ACCEPTED -> {
                             val totalFrames: Int = bin.size / CAL_BLOCK_TRANSFER_SIZE
 
+                            //If the last frame we sent was acked, increment the transfer counter
+                            // set the progress bar.  Check to see if we're at the total number
+                            // of frames that we should be (and if we are, request an exit from
+                            // the transfer
                             if(buff[1] == transferSequence.toByte()){
                                 transferSequence++
                                 progress = round(transferSequence.toFloat() / (bin.size / CAL_BLOCK_TRANSFER_SIZE) * 100)
@@ -356,9 +364,8 @@ object UDSFlasher {
                             // end is start + frame size *OR* the end of the bin
                             var start = CAL_BLOCK_TRANSFER_SIZE * (transferSequence - 1)
                             var end = start + CAL_BLOCK_TRANSFER_SIZE
-                            if(end > bin.size){
-                                end = bin.size
-                            }
+                            if(end > bin.size) end = bin.size
+
                             mCommand = UDS_COMMAND.TRANSFER_DATA.bytes + byteArrayOf(transferSequence.toByte()) + bin.copyOfRange(start, end)
                             return UDSReturn.COMMAND_QUEUED
                         }
@@ -378,6 +385,7 @@ object UDSFlasher {
                         }
 
                         else -> {
+                            mLastString = buff.toHex()
                             return UDSReturn.ERROR_UNKNOWN
                         }
                     }
