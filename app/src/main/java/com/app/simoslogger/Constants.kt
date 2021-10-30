@@ -449,7 +449,6 @@ val SIMOS18_AES_IV = byteArrayOf(
 val CAL_BLOCK_TRANSFER_SIZE = 0x190
 
 
-
 //Additional properties
 infix fun Byte.shl(that: Int): Int = this.toInt().shl(that)
 infix fun Short.shl(that: Int): Int = this.toInt().shl(that)

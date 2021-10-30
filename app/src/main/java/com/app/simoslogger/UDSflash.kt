@@ -47,7 +47,7 @@ object UDSFlasher {
 
             DebugLog.d(TAG, "Initiating Flash subroutine: " + mTask.toString())
             mLastString = "Initiating flash routines"
-            return buildBLEFrame(byteArrayOf(0x22.toByte()) + ECUInfo.PART_NUMBER.address)
+            return UDS_COMMAND.READ_IDENTIFIER.bytes + ECUInfo.PART_NUMBER.address
         }
     }
     
@@ -66,30 +66,36 @@ object UDSFlasher {
 
             when(mTask){
                 FLASH_ECU_CAL_SUBTASK.GET_ECU_BOX_CODE ->{
-                    DebugLog.d(TAG, "Processing ASW response from ECU: " + buff.toHex())
-                    //response should be the ASW version... parse it out
-                    if (buff[0] != 0x62.toByte()) {
-                        DebugLog.d(TAG, "Error with ECU Response: " + buff.toHex())
-                        mLastString = "Error with ECU Response: " + String(buff)
-                        return UDSReturn.ERROR_UNKNOWN
+
+                    //If we're in here with a response to our PID request
+                    when(checkResponse(buff)){
+
+                        UDS_RESPONSE.READ_IDENTIFIER ->{
+                            ecuAswVersion = buff.copyOfRange(3, buff.size)
+                            DebugLog.d(TAG, "Received ASW version ${ecuAswVersion.toHex()} from ecu")
+
+                            mTask = mTask.next()
+
+                            mLastString = "Read box code from ECU: " + String(ecuAswVersion)
+                            mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
+                            return UDSReturn.COMMAND_QUEUED
+                        }
+
+                        else -> {
+                            DebugLog.d(TAG, "Error with ECU Response: " + buff.toHex())
+                            mLastString = "Error with ECU Response: " + String(buff)
+                            return UDSReturn.ERROR_UNKNOWN
+                        }
+
                     }
 
-                    ecuAswVersion = buff.copyOfRange(3, buff.size)
-                    DebugLog.d(TAG, "Received ASW version ${ecuAswVersion.toHex()} from ecu")
-
-                    mTask = mTask.next()
-
-                    mLastString = "Read box code from ECU: " + String(ecuAswVersion)
-                    mCommand = sendTesterPresent()
-                    return UDSReturn.COMMAND_QUEUED
                 }
-
 
                 FLASH_ECU_CAL_SUBTASK.CHECK_FILE_COMPAT -> {
 
-                    //val binAswVersion = bin.copyOfRange(0x60, 0x6B)
+                    val binAswVersion = bin.copyOfRange(0x60, 0x6B)
                     //Hard code an ASW version that won't work so it won't flash!
-                    val binAswVersion = byteArrayOf(0xFF.toByte(),0xFF.toByte(),0xFF.toByte(),0xFF.toByte())
+                    //val binAswVersion = byteArrayOf(0xFF.toByte(),0xFF.toByte(),0xFF.toByte(),0xFF.toByte())
 
                     //Compare the two strings:
                     if (String(ecuAswVersion).trim() != String(binAswVersion).trim()) {
@@ -100,7 +106,7 @@ object UDSFlasher {
 
                     mLastString = mTask.toString() + "\nBox code on selected BIN file: " + String(binAswVersion)
                     mTask = mTask.next()
-                    mCommand = sendTesterPresent()
+                    mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
                     return UDSReturn.COMMAND_QUEUED
                 }
 
@@ -122,7 +128,7 @@ object UDSFlasher {
                     bin = checksummed.bin
 
                     mTask = mTask.next()
-                    mCommand = sendTesterPresent()
+                    mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
                     return UDSReturn.COMMAND_QUEUED
                 }
 
@@ -138,7 +144,7 @@ object UDSFlasher {
                     mLastString += "Compressed bin size: $compressedSize"
 
                     mTask = mTask.next()
-                    mCommand = sendTesterPresent()
+                    mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
                     return UDSReturn.COMMAND_QUEUED
 
                 }
@@ -159,78 +165,89 @@ object UDSFlasher {
                         return UDSReturn.ERROR_UNKNOWN
                     }
                     mTask = mTask.next()
-                    mCommand = sendTesterPresent()
+                    mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
                     return UDSReturn.COMMAND_QUEUED
                 }
 
                 FLASH_ECU_CAL_SUBTASK.CLEAR_DTC -> {
+                    //We should enter this function after a 3e response
                     when(checkResponse(buff)){
                         UDS_RESPONSE.EXTENDED_DIAG_ACCEPTED -> {
-                            mCommand = sendTesterPresent()
+                            mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
                             mLastString = "Extended diagnostic 03 accepted"
                             mTask = mTask.next()
                             return UDSReturn.COMMAND_QUEUED
                         }
                         UDS_RESPONSE.CLEAR_DTC_SUCCESSFUL -> {
-                            mCommand = buildBLEFrame((UDS_COMMAND.EXTENDED_DIAGNOSTIC.bytes) + byteArrayOf(0x03.toByte()))
+                            mCommand = (UDS_COMMAND.EXTENDED_DIAGNOSTIC.bytes) + byteArrayOf(0x03.toByte())
                             mLastString = "Entering extended diagnostic 03"
                             return UDSReturn.COMMAND_QUEUED
                         }
                         UDS_RESPONSE.NEGATIVE_RESPONSE ->{
-                            mCommand = sendTesterPresent()
+                            mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
                             mLastString = "Waiting for CLEAR DTC successful"
                             return UDSReturn.COMMAND_QUEUED
                         }
-                        else -> {
+                        UDS_RESPONSE.POSITIVE_RESPONSE ->{
                             DebugLog.d(TAG,"Received " + buff.toHex())
                             mCommand = clearDTC()
+                            mLastString = mTask.toString()
+                            return UDSReturn.COMMAND_QUEUED
+                        }
+                        else -> {
+                            mCommand = byteArrayOf()
+                            return UDSReturn.OK
+                        }
+                    }
+
+                }
+
+                FLASH_ECU_CAL_SUBTASK.CHECK_PROGRAMMING_PRECONDITION -> {
+
+                    when(checkResponse(buff)) {
+                        UDS_RESPONSE.ROUTINE_ACCEPTED -> {
+                            //Open extended diagnostic session
+                            mCommand = UDS_COMMAND.EXTENDED_DIAGNOSTIC.bytes + byteArrayOf(0x02.toByte())
+                            mLastString = "Entering extended diagnostics 02"
+                            mTask = mTask.next()
+                            return UDSReturn.COMMAND_QUEUED
+                        }
+
+                        else -> {
+                            //Check programming precondition, routine 0x0203
+                            mCommand = UDS_COMMAND.START_ROUTINE.bytes + UDS_ROUTINE.CHECK_PROGRAMMING_PRECONDITION.bytes
                             mLastString = mTask.toString()
                             return UDSReturn.COMMAND_QUEUED
                         }
                     }
 
                 }
-                FLASH_ECU_CAL_SUBTASK.CHECK_PROGRAMMING_PRECONDITION -> {
 
-                    if(checkResponse(buff) == UDS_RESPONSE.ROUTINE_ACCEPTED){
-                        //Open extended diagnostic session
-                        mCommand = buildBLEFrame(byteArrayOf(0x10.toByte(), 0x02.toByte()))
-                        mLastString = "Entering extended diagnostics 02"
-                        mTask = mTask.next()
-                        return UDSReturn.COMMAND_QUEUED
-                    }
-                    else {
-                        //Check programming precondition, routine 0x0203
-                        mCommand = buildBLEFrame(
-                            UDS_COMMAND.START_ROUTINE.bytes + UDS_ROUTINE.CHECK_PROGRAMMING_PRECONDITION.bytes
-
-                        )
-
-                        mLastString = mTask.toString()
-                        return UDSReturn.COMMAND_QUEUED
-                    }
-                }
                 FLASH_ECU_CAL_SUBTASK.OPEN_EXTENDED_DIAGNOSTIC -> {
-                    if(checkResponse(buff) ==  UDS_RESPONSE.NEGATIVE_RESPONSE){
-                        mCommand = sendTesterPresent()
-                        mLastString = "Waiting for Seed"
-                        return UDSReturn.COMMAND_QUEUED
+                    when(checkResponse(buff)) {
+
+                        UDS_RESPONSE.NEGATIVE_RESPONSE -> {
+                            //mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
+                            mLastString = "Waiting for Seed"
+                            //return UDSReturn.COMMAND_QUEUED
+                            return UDSReturn.OK
+                        }
+
+                        UDS_RESPONSE.EXTENDED_DIAG_ACCEPTED -> {
+                            if(buff[1] == 0x02.toByte()){
+                                mCommand = UDS_COMMAND.SECURITY_ACCESS.bytes + byteArrayOf(0x11.toByte())
+                                mLastString = "Asking for seedkey exhange"
+                                mTask = mTask.next()
+                                return UDSReturn.COMMAND_QUEUED
+                            }
+                        }
+
+                        else -> {
+                            return UDSReturn.ERROR_UNKNOWN
+                        }
+
                     }
-                    //First response should be 0x50 0x02
-                    //
-                    if(buff[0] == 0x50.toByte() && buff[1] == 0x02.toByte()){
 
-                        mCommand = buildBLEFrame(byteArrayOf(0x27.toByte(), 0x11.toByte()))
-                        mLastString = "Asking for seedkey exhange"
-                        mTask = mTask.next()
-                        return UDSReturn.COMMAND_QUEUED
-                    }
-
-                    else{
-
-
-                        return UDSReturn.ERROR_UNKNOWN
-                    }
 
                 }
                 
@@ -245,13 +262,13 @@ object UDSFlasher {
                                 var vs = FlashUtilities.Sa2SeedKey(VW_SEEDKEY_TAPE, challenge)
                                 var response = vs.execute()
 
-                                mCommand = buildBLEFrame(byteArrayOf(0x27.toByte(), 0x12.toByte()) + response)
+                                mCommand = UDS_COMMAND.SECURITY_ACCESS.bytes + byteArrayOf(0x12.toByte()) + response
                                 mLastString = "Passing SeedKey challenege"
                                 return UDSReturn.COMMAND_QUEUED
                             }
                             else if(buff[1] == 0x12.toByte()){
                                 mLastString = "Passed SeedKey Challenege"
-                                mCommand = sendTesterPresent()
+                                mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
                                 mTask = mTask.next()
                                 return UDSReturn.COMMAND_QUEUED
                             }
@@ -269,16 +286,16 @@ object UDSFlasher {
                         UDS_RESPONSE.POSITIVE_RESPONSE -> {
                             //Write workshop tool log
                             //  0x 2E 0xF15A = 0x20, 0x7, 0x17, 0x42,0x04,0x20,0x42,0xB1,0x3D,
-                            mCommand = buildBLEFrame(byteArrayOf(0x2E.toByte(),
+                            mCommand = byteArrayOf(0x2E.toByte(),
                                 0xF1.toByte(), 0x5A.toByte(), 0x20.toByte(), 0x07.toByte(), 0x17.toByte(),
-                                0x42.toByte(),0x04.toByte(),0x20.toByte(),0x42.toByte(),0xB1.toByte(),0x3D.toByte()))
+                                0x42.toByte(),0x04.toByte(),0x20.toByte(),0x42.toByte(),0xB1.toByte(),0x3D.toByte())
                             mLastString = "Writing workshop code"
                             return UDSReturn.COMMAND_QUEUED
                         }
                         UDS_RESPONSE.WRITE_IDENTIFIER_ACCEPTED -> {
                             if(buff[1] == 0xF1.toByte() && buff[2] == 0x5A.toByte()) {
                                 mLastString = "Wrote workshop code"
-                                mCommand = sendTesterPresent()
+                                mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
                                 mTask = mTask.next()
                                 return UDSReturn.COMMAND_QUEUED
                             }
@@ -294,14 +311,14 @@ object UDSFlasher {
                         //We should enter here from a tester present.
                         UDS_RESPONSE.POSITIVE_RESPONSE -> {
                             //erase block: 31 01 FF 00 01 05
-                            mCommand = buildBLEFrame(UDS_COMMAND.START_ROUTINE.bytes + byteArrayOf(0xFF.toByte(),0x00.toByte(),0x01.toByte(),0x05.toByte()))
+                            mCommand = UDS_COMMAND.START_ROUTINE.bytes + byteArrayOf(0xFF.toByte(),0x00.toByte(),0x01.toByte(),0x05.toByte())
                             mLastString = "Erasing CAL block to prepare for flashing"
                             return UDSReturn.COMMAND_QUEUED
                         }
                         //We should have a 71 in response to the erase command we just sent....
                         UDS_RESPONSE.ROUTINE_ACCEPTED -> {
                             //Request download 34 AA 41 05 00 07 FC 00
-                            mCommand = buildBLEFrame(byteArrayOf(0x34.toByte(),0xAA.toByte(),0x41.toByte(),0x05.toByte(),0x00.toByte(),0x07.toByte(), 0xFC.toByte(), 0x00.toByte()))
+                            mCommand = byteArrayOf(0x34.toByte(),0xAA.toByte(),0x41.toByte(),0x05.toByte(),0x00.toByte(),0x07.toByte(), 0xFC.toByte(), 0x00.toByte())
                             mLastString = "Requesting block download"
                             return UDSReturn.COMMAND_QUEUED
                         }
@@ -312,7 +329,7 @@ object UDSFlasher {
                             //Send bytes, 0x36 [frame number]
                             //Break the whole bin into frames of FFD size, and
                             // we'll use that array.
-                            mCommand = buildBLEFrame(byteArrayOf(0x36.toByte(), transferSequence.toByte()) + bin.copyOfRange(0, CAL_BLOCK_TRANSFER_SIZE))
+                            mCommand = UDS_COMMAND.TRANSFER_DATA.bytes +  byteArrayOf(transferSequence.toByte()) + bin.copyOfRange(0, CAL_BLOCK_TRANSFER_SIZE)
                             mLastString = "Transfer Started"
 
                             return UDSReturn.COMMAND_QUEUED
@@ -328,7 +345,7 @@ object UDSFlasher {
                                 //if the current transfer sequence number is larger than the max
                                 // number that we need for the payload, send a 'transfer exit'
                                 if(transferSequence > totalFrames){
-                                    mCommand = buildBLEFrame((byteArrayOf(0x37.toByte())))
+                                    mCommand = UDS_COMMAND.TRANSFER_EXIT.bytes
 
                                     return UDSReturn.COMMAND_QUEUED
                                 }
@@ -337,18 +354,18 @@ object UDSFlasher {
                             //otherwise, we get here
                             // start is frame size + transfer sequence
                             // end is start + frame size *OR* the end of the bin
-                            var start = CAL_BLOCK_TRANSFER_SIZE * transferSequence
+                            var start = CAL_BLOCK_TRANSFER_SIZE * (transferSequence - 1)
                             var end = start + CAL_BLOCK_TRANSFER_SIZE
                             if(end > bin.size){
                                 end = bin.size
                             }
-                            mCommand = buildBLEFrame(byteArrayOf(0x36.toByte(), transferSequence.toByte()) + bin.copyOfRange(start, end))
+                            mCommand = UDS_COMMAND.TRANSFER_DATA.bytes + byteArrayOf(transferSequence.toByte()) + bin.copyOfRange(start, end)
                             return UDSReturn.COMMAND_QUEUED
                         }
 
                         UDS_RESPONSE.TRANSFER_EXIT_ACCEPTED -> {
                             progress = 0
-                            mCommand = sendTesterPresent()
+                            mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
                             mTask = mTask.next()
                             return UDSReturn.COMMAND_QUEUED
                         }
@@ -369,13 +386,13 @@ object UDSFlasher {
                     when(checkResponse(buff)){
 
                         UDS_RESPONSE.POSITIVE_RESPONSE -> {
-                            mCommand = buildBLEFrame(UDS_COMMAND.START_ROUTINE.bytes + byteArrayOf(0x02.toByte(),0x02.toByte(),0x01.toByte(),0x05.toByte(), 0x00.toByte(), 0x04.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte()))
+                            mCommand = UDS_COMMAND.START_ROUTINE.bytes + byteArrayOf(0x02.toByte(),0x02.toByte(),0x01.toByte(),0x05.toByte(), 0x00.toByte(), 0x04.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte())
                             mLastString = "Checksumming flashed block"
                             return UDSReturn.COMMAND_QUEUED
                         }
                         UDS_RESPONSE.ROUTINE_ACCEPTED -> {
                             mLastString = "Block Checksummed OK"
-                            mCommand = sendTesterPresent()
+                            mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
                             mTask = mTask.next()
                             return UDSReturn.COMMAND_QUEUED
                         }
@@ -389,13 +406,13 @@ object UDSFlasher {
                     //Verify programming dependencies, routine 0xFF01
                     when(checkResponse(buff)){
                         UDS_RESPONSE.POSITIVE_RESPONSE -> {
-                            mCommand = buildBLEFrame(UDS_COMMAND.START_ROUTINE.bytes + byteArrayOf(0xFF.toByte(), 0x01.toByte()))
+                            mCommand = UDS_COMMAND.START_ROUTINE.bytes + byteArrayOf(0xFF.toByte(), 0x01.toByte())
                             mLastString = "Verifying Programming Dependencies"
                             return UDSReturn.COMMAND_QUEUED
                         }
 
                         UDS_RESPONSE.ROUTINE_ACCEPTED -> {
-                            mCommand = sendTesterPresent()
+                            mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
                             mTask = mTask.next()
                             return UDSReturn.COMMAND_QUEUED
                         }
@@ -410,7 +427,7 @@ object UDSFlasher {
                 FLASH_ECU_CAL_SUBTASK.RESET_ECU -> {
                     when(checkResponse(buff)){
                         UDS_RESPONSE.POSITIVE_RESPONSE -> {
-                            mCommand = buildBLEFrame(UDS_COMMAND.RESET_ECU.bytes)
+                            mCommand = UDS_COMMAND.RESET_ECU.bytes
                             mLastString = "Resetting ECU!!!!"
                             return UDSReturn.COMMAND_QUEUED
                         }
@@ -434,13 +451,7 @@ object UDSFlasher {
         return UDSReturn.ERROR_NULL
     }
 
-    private fun buildBLEFrame(udsCommand: ByteArray): ByteArray{
-        val bleHeader = BLEHeader()
-        bleHeader.cmdSize = udsCommand.size
-        bleHeader.cmdFlags = BLECommandFlags.PER_CLEAR.value
 
-        return bleHeader.toByteArray() + udsCommand
-    }
 
     private fun clearDTC(): ByteArray{
         //Send clear request
@@ -452,10 +463,6 @@ object UDSFlasher {
         val dataBytes = byteArrayOf(0x04.toByte())
         val buf = bleHeader.toByteArray() + dataBytes
         return buf
-    }
-
-    fun sendTesterPresent(): ByteArray{
-        return buildBLEFrame(UDS_COMMAND.TESTER_PRESENT.bytes)
     }
 
     private fun checkResponse(input: ByteArray): UDS_RESPONSE{

@@ -873,7 +873,7 @@ class BTService: Service() {
 
                     }
                     UDSReturn.COMMAND_QUEUED -> {
-                        var queuedCommand = UDSFlasher.getCommand()
+                        var queuedCommand = buildBLEFrame(UDSFlasher.getCommand())
 
                         if (queuedCommand.size > BLE_GATT_MTU_SIZE) {
                             DebugLog.d(TAG, "Larger than MTU frame encountered, breaking it up")
@@ -1020,6 +1020,14 @@ class BTService: Service() {
             bleHeader.cmdFlags = BLECommandFlags.SETTINGS.value or BLESettings.ISOTP_STMIN.value
             val buff = bleHeader.toByteArray() + amount.toArray2()
             mWriteQueue.add(buff)
+        }
+
+        private fun buildBLEFrame(udsCommand: ByteArray): ByteArray{
+            val bleHeader = BLEHeader()
+            bleHeader.cmdSize = udsCommand.size
+            bleHeader.cmdFlags = BLECommandFlags.PER_CLEAR.value
+
+            return bleHeader.toByteArray() + udsCommand
         }
     }
 }

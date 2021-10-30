@@ -482,6 +482,7 @@ object FlashUtilities {
 
 }
 
+
 enum class UDS_RESPONSE(val str: String, val udsByte: Byte?) {
     POSITIVE_RESPONSE("Tester Present", 0x7E.toByte()),
     NEGATIVE_RESPONSE("Negative Response", 0x7f.toByte()),
@@ -495,6 +496,7 @@ enum class UDS_RESPONSE(val str: String, val udsByte: Byte?) {
     WRITE_IDENTIFIER_ACCEPTED("Write Identifier Accepted", 0x6e.toByte()),
     EXTENDED_DIAG_ACCEPTED("Extended diagnostics accepted", 0x50.toByte()),
     CLEAR_DTC_SUCCESSFUL("Clear DTC Successful", 0x44.toByte()),
+    READ_IDENTIFIER("Read Identifier Response", 0x62.toByte()),
 }
 
 enum class UDS_COMMAND(val bytes: ByteArray){
@@ -502,6 +504,12 @@ enum class UDS_COMMAND(val bytes: ByteArray){
     RESET_ECU(byteArrayOf(0x11.toByte(), 0x01.toByte())),
     START_ROUTINE(byteArrayOf(0x31.toByte(), 0x01.toByte())),
     EXTENDED_DIAGNOSTIC(byteArrayOf(0x10.toByte())),
+    READ_IDENTIFIER(byteArrayOf(0x22.toByte())),
+    SECURITY_ACCESS(byteArrayOf(0x27.toByte())),
+    REQUEST_DOWNLOAD(byteArrayOf(0x34.toByte())),
+    TRANSFER_DATA(byteArrayOf(0x36.toByte())),
+    TRANSFER_EXIT(byteArrayOf(0x37.toByte()))
+
 
 }
 
