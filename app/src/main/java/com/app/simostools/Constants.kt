@@ -1,9 +1,13 @@
 package com.app.simostools
 
+import android.Manifest
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.le.ScanSettings
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.os.Build
 import android.os.Environment
+import androidx.annotation.RequiresApi
 import java.util.*
 
 // Message types sent from the BluetoothChatService Handler
@@ -55,10 +59,14 @@ enum class BTServiceTask {
 }
 
 //Intent constants
-enum class RequiredPermissions {
-    LOCATION,
-    READ_STORAGE,
-    WRITE_STORAGE,
+enum class RequiredPermissions(val permission: String, val version: Int, val required: Boolean, var result: Int) {
+    BT(Manifest.permission.BLUETOOTH, 0, true, PackageManager.PERMISSION_DENIED),
+    @RequiresApi(Build.VERSION_CODES.S) BT_ADVERTISE(Manifest.permission.BLUETOOTH_ADVERTISE, Build.VERSION_CODES.S, true, PackageManager.PERMISSION_DENIED),
+    @RequiresApi(Build.VERSION_CODES.S) BT_SCAN(Manifest.permission.BLUETOOTH_SCAN, Build.VERSION_CODES.S, true, PackageManager.PERMISSION_DENIED),
+    @RequiresApi(Build.VERSION_CODES.S) BT_CONNECT(Manifest.permission.BLUETOOTH_CONNECT, Build.VERSION_CODES.S, true, PackageManager.PERMISSION_DENIED),
+    LOCATION(Manifest.permission.ACCESS_FINE_LOCATION, 0, true, PackageManager.PERMISSION_DENIED),
+    READ_STORAGE(Manifest.permission.READ_EXTERNAL_STORAGE, 0, false, PackageManager.PERMISSION_DENIED),
+    WRITE_STORAGE(Manifest.permission.WRITE_EXTERNAL_STORAGE, 0, false, PackageManager.PERMISSION_DENIED),
 }
 
 //ISOTP bridge command flags
@@ -231,7 +239,9 @@ enum class ConfigSettings(val cfgName: String, var value: Any) {
     OUT_DIRECTORY("OutputDirectory", DirectoryList.APP),
     GAUGE_TYPE("GaugeType", GaugeType.ROUND),
     DEBUG_LOG("DebugMode", DEBUG_LOG_INFO or DEBUG_LOG_WARNING or DEBUG_LOG_EXCEPTION),
-    AUTO_LOG("AutoLog", false);
+    AUTO_LOG("AutoLog", false),
+    BLE_SCAN_MODE("BLEScanMode", ScanSettings.SCAN_MODE_LOW_LATENCY),
+    BLE_PRIORITY("BLEPriority", BluetoothGatt.CONNECTION_PRIORITY_HIGH);
 
     fun set(newValue: String) {
         try {
@@ -318,8 +328,6 @@ val CHANNEL_NAME                = "BTService"
 val BLE_DEVICE_NAME             = "BLE_TO_ISOTP"
 val BLE_GATT_MTU_SIZE           = 512
 val BLE_SCAN_PERIOD             = 5000L
-val BLE_CONNECTION_PRIORITY     = BluetoothGatt.CONNECTION_PRIORITY_HIGH
-val BLE_SCAN_LATENCY            = ScanSettings.SCAN_MODE_LOW_LATENCY
 val BLE_THREAD_PRIORITY         = 5 //Priority (max is 10)
 
 //ISOTP bridge UUIDS

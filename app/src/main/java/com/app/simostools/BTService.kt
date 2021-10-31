@@ -244,7 +244,7 @@ class BTService: Service() {
         override fun onMtuChanged(gatt: BluetoothGatt, mtu: Int, status: Int) {
             super.onMtuChanged(gatt, mtu, status)
 
-            DebugLog.i(TAG, "ATT MTU changed to $mtu, success: ${status == BluetoothGatt.GATT_SUCCESS}")
+            DebugLog.d(TAG, "ATT MTU changed to $mtu, success: ${status == BluetoothGatt.GATT_SUCCESS}")
 
             //get device name
             val deviceName = gatt.device.name
@@ -263,10 +263,10 @@ class BTService: Service() {
                 //Set new connection state
                 setConnectionState(BLEConnectionState.CONNECTED)
                 try {
-                    gatt.requestConnectionPriority(BLE_CONNECTION_PRIORITY)
+                    gatt.requestConnectionPriority(ConfigSettings.BLE_PRIORITY.toInt())
                     enableNotifications(gatt.getService(BLE_SERVICE_UUID)!!.getCharacteristic(BLE_DATA_RX_UUID))
                 } catch (e: Exception) {
-                    DebugLog.e(TAG,"Exception setting mtu", e)
+                    DebugLog.e(TAG,"Exception enabling ble notifications.", e)
                     doDisconnect()
                 }
             } else {
@@ -473,7 +473,7 @@ class BTService: Service() {
             ScanFilter.Builder().setServiceUuid(ParcelUuid.fromString(BLE_SERVICE_UUID.toString()))
                 .build()
         )
-        val settings = ScanSettings.Builder().setScanMode(BLE_SCAN_LATENCY).build()
+        val settings = ScanSettings.Builder().setScanMode(ConfigSettings.BLE_SCAN_MODE.toInt()).build()
 
         //Disable current scan timer
         mScanningTimer?.cancel()

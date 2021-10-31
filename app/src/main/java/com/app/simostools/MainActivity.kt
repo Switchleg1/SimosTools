@@ -1,6 +1,5 @@
 package com.app.simostools
 
-import android.Manifest
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
@@ -29,6 +28,7 @@ class MainViewModel : ViewModel() {
 
 class MainActivity : AppCompatActivity() {
     private val TAG = "MainActivity"
+    private var mAskingPermission = false
     private lateinit var mViewModel: MainViewModel
 
     var resultBTLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -110,29 +110,6 @@ class MainActivity : AppCompatActivity() {
         unregisterReceiver(mBroadcastReceiver)
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            RequiredPermissions.LOCATION.ordinal -> {
-                if (grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) {
-                    doConnect()
-                }
-            }
-            RequiredPermissions.READ_STORAGE.ordinal -> {
-                if(checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, RequiredPermissions.WRITE_STORAGE.ordinal)) {
-                    if(checkPermission(Manifest.permission.ACCESS_FINE_LOCATION, RequiredPermissions.LOCATION.ordinal)) {
-                        doConnect()
-                    }
-                }
-            }
-            RequiredPermissions.WRITE_STORAGE.ordinal -> {
-                if(checkPermission(Manifest.permission.ACCESS_FINE_LOCATION, RequiredPermissions.LOCATION.ordinal)) {
-                    doConnect()
-                }
-            }
-        }
-    }
-
     private val mBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             when (intent.action) {
@@ -159,20 +136,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-
-    // Function to check and request permission.
-    private fun checkPermission(permission: String, requestCode: Int): Boolean {
-        if (ContextCompat.checkSelfPermission(this@MainActivity, permission) == PackageManager.PERMISSION_DENIED) {
-            // Requesting the permission
-            DebugLog.i(TAG, "Asking for permission $permission")
-            ActivityCompat.requestPermissions(this@MainActivity, arrayOf(permission), requestCode)
-            return false
-        }
-
-        DebugLog.d(TAG, "Already granted $permission")
-
-        return true
     }
 
     private fun timerCallback() {
@@ -207,15 +170,21 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        //If we don't have permission ask
-        if(!checkPermission(Manifest.permission.ACCESS_FINE_LOCATION, RequiredPermissions.LOCATION.ordinal)) {
-            return
+        //check permissions
+        var havePermissions = true
+        RequiredPermissions.values().forEach {
+            if(it.required && it.result == PackageManager.PERMISSION_DENIED)
+                havePermissions = false
         }
 
-        //Tell service to connect
-        val serviceIntent = Intent(baseContext, BTService::class.java)
-        serviceIntent.action = BTServiceTask.DO_CONNECT.toString()
-        startForegroundService(serviceIntent)
+        if(havePermissions) {
+            //Tell service to connect
+            val serviceIntent = Intent(baseContext, BTService::class.java)
+            serviceIntent.action = BTServiceTask.DO_CONNECT.toString()
+            startForegroundService(serviceIntent)
+        } else {
+            checkNextPermission(0, true)
+        }
     }
 
     private fun doDisconnect() {
@@ -261,6 +230,59 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.title = getString(R.string.app_name) + " - " + newString
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        mAskingPermission = false
+
+        if(requestCode < RequiredPermissions.values().count())
+        {
+            RequiredPermissions.values()[requestCode].result = grantResults.firstOrNull() ?: PackageManager.PERMISSION_DENIED
+            if(RequiredPermissions.values()[requestCode].required && RequiredPermissions.values()[requestCode].result == PackageManager.PERMISSION_DENIED) {
+                DebugLog.i(TAG, "Permission was denied and is required ${RequiredPermissions.values()[requestCode].permission}.")
+                checkNextPermission(requestCode)
+            } else {
+                if (requestCode == RequiredPermissions.values().count() - 1) {
+                    doConnect()
+                } else {
+                    checkNextPermission(requestCode + 1)
+                }
+            }
+        }
+    }
+
+    // Function to check and request permission.
+    private fun checkPermission(permission: String, requestCode: Int): Boolean {
+        if(mAskingPermission)
+            return false
+
+        if (Build.VERSION.SDK_INT >= RequiredPermissions.values()[requestCode].version &&
+            ContextCompat.checkSelfPermission(this@MainActivity, permission) == PackageManager.PERMISSION_DENIED) {
+            // Requesting the permission
+            DebugLog.i(TAG, "Asking for permission $permission")
+            mAskingPermission = true
+            ActivityCompat.requestPermissions(this@MainActivity, arrayOf(permission), requestCode)
+            return false
+        }
+
+        RequiredPermissions.values()[requestCode].result = PackageManager.PERMISSION_GRANTED
+        DebugLog.i(TAG, "Already granted $permission")
+
+        return true
+    }
+
+    private fun checkNextPermission(permission: Int, required: Boolean = false): Boolean {
+        for(i in permission until RequiredPermissions.values().count()) {
+            if(required && !RequiredPermissions.values()[i].required)
+                continue
+
+            if(!checkPermission(RequiredPermissions.values()[i].permission, i))
+                return false
+        }
+
+        return true
+    }
+
     private fun getPermissions() {
         // Use this check to determine whether BLE is supported on the device.  Then you can
         // selectively disable BLE-related features.
@@ -269,13 +291,9 @@ class MainActivity : AppCompatActivity() {
             finish()
         }
 
-        if(checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE, RequiredPermissions.READ_STORAGE.ordinal)) {
-            if(checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, RequiredPermissions.WRITE_STORAGE.ordinal)) {
-                if(checkPermission(Manifest.permission.ACCESS_FINE_LOCATION, RequiredPermissions.LOCATION.ordinal)) {
-                    doConnect()
-                }
-            }
-        }
+
+        if (checkNextPermission(0))
+            doConnect()
     }
 
     private fun setActionBarColor(color: Int) {

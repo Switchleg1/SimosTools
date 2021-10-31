@@ -19,7 +19,7 @@ object LogFile {
 
         close()
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q || ConfigSettings.OUT_DIRECTORY.toDirectory() == DirectoryList.APP || ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q || ConfigSettings.OUT_DIRECTORY.toDirectory() == DirectoryList.APP || RequiredPermissions.READ_STORAGE.result == PackageManager.PERMISSION_DENIED) {
             val path = context.getExternalFilesDir("")
             val logFile = File(path, "/$fileName")
             if (!logFile.exists()) {
