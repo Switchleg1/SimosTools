@@ -13,7 +13,7 @@
         android:layout_height="125dp">
 
         <com.app.simostools.SwitchGauge
-            android:id="@+id/pid_progress"
+            android:id="@+id/pid_gauge"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
@@ -34,7 +34,7 @@
         android:layout_height="125dp">
 
         <com.app.simostools.SwitchGauge
-            android:id="@+id/pid_progress1"
+            android:id="@+id/pid_gauge1"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="invisible"/>
@@ -57,7 +57,7 @@
         android:layout_height="125dp">
 
         <com.app.simostools.SwitchGauge
-            android:id="@+id/pid_progress2"
+            android:id="@+id/pid_gauge2"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="invisible"/>

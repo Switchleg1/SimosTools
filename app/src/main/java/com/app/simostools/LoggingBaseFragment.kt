@@ -12,6 +12,7 @@ import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import java.lang.Exception
+import java.lang.Math.abs
 
 open class LoggingBaseFragment: Fragment() {
     open var TAG = "LoggingBaseFragment"
@@ -104,15 +105,15 @@ open class LoggingBaseFragment: Fragment() {
                                 val lLayout = currentview.findViewById<LinearLayout>(mLayoutName)
                                 lLayout.addView(pidLayout)
                                 mLayouts!![i / mPIDsPerLayout] = pidLayout
-                                progID = R.id.pid_progress
+                                progID = R.id.pid_gauge
                                 txtID = R.id.pid_text
                             }
                             1 -> {
-                                progID = R.id.pid_progress1
+                                progID = R.id.pid_gauge1
                                 txtID = R.id.pid_text1
                             }
                             2 -> {
-                                progID = R.id.pid_progress2
+                                progID = R.id.pid_gauge2
                                 txtID = R.id.pid_text2
                             }
                         }
@@ -165,6 +166,9 @@ open class LoggingBaseFragment: Fragment() {
                             GaugeType.BAR -> gauge.setProgressWidth(250f, false)
                             GaugeType.ROUND -> gauge.setProgressWidth(50f, false)
                         }
+                        if(kotlin.math.abs(pid.progMin) == kotlin.math.abs(pid.progMax))
+                            gauge.setCentered(true, false)
+                        gauge.setGraduations(ConfigSettings.DRAW_GRADUATIONS.toBoolean(), false)
                         gauge.setIndex(i)
                         gauge.setOnLongClickListener {
                             onGaugeClick(it)
@@ -288,10 +292,17 @@ open class LoggingBaseFragment: Fragment() {
                                     false
                                 )
                                 gauge[i]?.setStyle(ConfigSettings.GAUGE_TYPE.toGaugeType(), false)
-
                                 when (ConfigSettings.GAUGE_TYPE.toGaugeType()) {
                                     GaugeType.BAR -> gauge[i]?.setProgressWidth(250f)
                                     GaugeType.ROUND -> gauge[i]?.setProgressWidth(50f)
+                                }
+                                gauge[i]?.setGraduations(ConfigSettings.DRAW_GRADUATIONS.toBoolean(), false)
+                                PIDs.getList()?.let { pidlist ->
+                                    pidlist[mPIDList[i].toInt()]?.let { pid ->
+                                        gauge[i]?.setCentered(kotlin.math.abs(pid.progMin) == kotlin.math.abs(
+                                            pid.progMax
+                                        ), true)
+                                    }
                                 }
 
                                 text[i]?.setTextColor(ColorList.TEXT.value)

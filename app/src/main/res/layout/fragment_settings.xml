@@ -185,12 +185,28 @@
 
             </RadioGroup>
 
-            <CheckBox
-                android:id="@+id/checkBoxDrawMinMax"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="48dp"
-                android:text="@string/check_settings_draw_minmax" />
+                android:layout_height="48dp"
+                android:orientation="horizontal">
+
+                <CheckBox
+                    android:id="@+id/checkBoxDrawMinMax"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:minHeight="48dp"
+                    android:text="@string/check_settings_draw_minmax" />
+
+                <CheckBox
+                    android:id="@+id/checkBoxDrawGrad"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:minHeight="48dp"
+                    android:text="@string/check_settings_draw_grad" />
+
+            </LinearLayout>
 
             <View
                 android:id="@+id/divider16"

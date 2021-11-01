@@ -41,6 +41,7 @@
     <string name="button_set_bt_bg">Set button back ground color</string>
     <!-- Strings used for checkboxes -->
     <string name="check_settings_draw_minmax">Draw min/max?</string>
+    <string name="check_settings_draw_grad">Draw graduations?</string>
     <string name="check_settings_invert_cruise">Invert cruise button?</string>
     <string name="check_settings_screen_on">Keep screen on?</string>
     <string name="check_settings_calculate_hp">Calculate HP?</string>

@@ -230,6 +230,11 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.title = getString(R.string.app_name) + " - " + newString
     }
 
+    private fun setActionBarColor(color: Int) {
+        val colorDrawable = ColorDrawable(color)
+        supportActionBar?.setBackgroundDrawable(colorDrawable)
+    }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
@@ -294,10 +299,5 @@ class MainActivity : AppCompatActivity() {
 
         if (checkNextPermission(0))
             doConnect()
-    }
-
-    private fun setActionBarColor(color: Int) {
-        val colorDrawable = ColorDrawable(color)
-        supportActionBar?.setBackgroundDrawable(colorDrawable)
     }
 }

@@ -275,6 +275,7 @@ class SettingsFragment : Fragment() {
             currentView.findViewById<RadioButton>(R.id.radioButton3E).setTextColor(color)
             currentView.findViewById<RadioButton>(R.id.radioButton22).setTextColor(color)
             currentView.findViewById<CheckBox>(R.id.checkBoxDrawMinMax).setTextColor(color)
+            currentView.findViewById<CheckBox>(R.id.checkBoxDrawGrad).setTextColor(color)
             currentView.findViewById<CheckBox>(R.id.checkBoxInvertCruise).setTextColor(color)
             currentView.findViewById<CheckBox>(R.id.checkBoxScreenOn).setTextColor(color)
             currentView.findViewById<CheckBox>(R.id.checkBoxAlwaysPortrait).setTextColor(color)
@@ -367,6 +368,9 @@ class SettingsFragment : Fragment() {
             //Get draw minmax
             currentView.findViewById<CheckBox>(R.id.checkBoxDrawMinMax).isChecked = ConfigSettings.DRAW_MIN_MAX.toBoolean()
 
+            //Get draw graduations
+            currentView.findViewById<CheckBox>(R.id.checkBoxDrawGrad).isChecked = ConfigSettings.DRAW_GRADUATIONS.toBoolean()
+
             //Get cruise invert
             currentView.findViewById<CheckBox>(R.id.checkBoxInvertCruise).isChecked = ConfigSettings.INVERT_CRUISE.toBoolean()
 
@@ -431,6 +435,9 @@ class SettingsFragment : Fragment() {
 
             //Set draw min/max
             ConfigFile.set(ConfigSettings.DRAW_MIN_MAX.cfgName, currentView.findViewById<CheckBox>(R.id.checkBoxDrawMinMax).isChecked.toString())
+
+            //Set draw min/max
+            ConfigFile.set(ConfigSettings.DRAW_GRADUATIONS.cfgName, currentView.findViewById<CheckBox>(R.id.checkBoxDrawGrad).isChecked.toString())
 
             //Set invert cruise
             ConfigFile.set(ConfigSettings.INVERT_CRUISE.cfgName, currentView.findViewById<CheckBox>(R.id.checkBoxInvertCruise).isChecked.toString())
