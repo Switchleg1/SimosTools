@@ -178,7 +178,7 @@ class FlashingFragment : Fragment() {
                 GUIMessage.FLASH_PROGRESS_SHOW.toString() -> setProgressBarShow(intent.getBooleanExtra(GUIMessage.FLASH_PROGRESS_SHOW.toString(), false))
                 GUIMessage.FLASH_CONFIRM.toString()       -> promptUserConfirmation()
                 GUIMessage.FLASH_BUTTON_RESET.toString()  -> resetFlashButton()
-                //GUIMessage.FLASH_INFO_CLEAR.toString()    -> doClearMessages()
+                GUIMessage.FLASH_INFO_CLEAR.toString()    -> doClearMessages()
             }
         }
     }
@@ -240,6 +240,14 @@ class FlashingFragment : Fragment() {
             setOnClickListener {
 
             }
+        }
+    }
+
+    private fun doClearMessages() {
+        gMsgList = arrayOf()
+        mArrayAdapter?.let {
+            val btMessage = view?.findViewById<ListView>(R.id.listViewMessage)
+            btMessage?.setSelection(0)
         }
     }
 

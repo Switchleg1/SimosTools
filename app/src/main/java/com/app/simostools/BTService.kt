@@ -791,6 +791,9 @@ class BTService: Service() {
             setBridgePersistDelay(ConfigSettings.PERSIST_DELAY.toInt())
             setBridgePersistQDelay(ConfigSettings.PERSIST_Q_DELAY.toInt())
 
+            val intentMessage = Intent(GUIMessage.FLASH_INFO_CLEAR.toString())
+            sendBroadcast(intentMessage)
+
             //Write first frame
             writePacket(UDSLogger.startTask(0))
         }
@@ -937,10 +940,6 @@ class BTService: Service() {
                 else{
                     val intentMessage = Intent(GUIMessage.FLASH_PROGRESS_SHOW.toString())
                     intentMessage.putExtra(GUIMessage.FLASH_PROGRESS_SHOW.toString(), false)
-                    sendBroadcast(intentMessage)
-                }
-                if(progress >= 100){
-                    val intentMessage = Intent(GUIMessage.FLASH_INFO_CLEAR.toString())
                     sendBroadcast(intentMessage)
                 }
 
