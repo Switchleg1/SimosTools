@@ -21,6 +21,7 @@ enum class GUIMessage {
     FLASH_PROGRESS,
     FLASH_PROGRESS_MAX,
     FLASH_PROGRESS_SHOW,
+    FLASH_CONFIRM
 }
 
 // Constants that indicate the current connection state
@@ -54,7 +55,9 @@ enum class BTServiceTask {
     DO_START_FLASH,
     DO_GET_INFO,
     DO_CLEAR_DTC,
-    DO_STOP_TASK
+    DO_STOP_TASK,
+    FLASH_CONFIRMED,
+    FLASH_CANCELED,
 }
 
 //Intent constants
@@ -100,6 +103,7 @@ enum class UDSReturn {
     ERROR_UNKNOWN,
     COMMAND_QUEUED,
     CLEAR_DTC_REQUEST,
+    FLASH_CONFIRM,
 }
 
 enum class ECUInfo(val str: String, val address: ByteArray) {
@@ -122,16 +126,17 @@ enum class FLASH_ECU_CAL_SUBTASK {
     NONE,
     GET_ECU_BOX_CODE,
     CHECK_FILE_COMPAT,
+    CONFIRM_PROCEED,
     CHECKSUM_BIN,
     COMPRESS_BIN,
     ENCRYPT_BIN,
     CLEAR_DTC,
-    CHECK_PROGRAMMING_PRECONDITION, //routine 0x0203
+    CHECK_PROGRAMMING_PRECONDITION,
     OPEN_EXTENDED_DIAGNOSTIC,
     SA2SEEDKEY,
     WRITE_WORKSHOP_LOG,
     FLASH_BLOCK,
-    CHECKSUM_BLOCK, //0x0202
+    CHECKSUM_BLOCK,
     VERIFY_PROGRAMMING_DEPENDENCIES,
     RESET_ECU;
 
@@ -157,8 +162,10 @@ enum class ColorList(var value: Int, val cfgName: String) {
     ST_LOGGING(Color.rgb(32, 255, 0), "StateLogging"),
     ST_WRITING(Color.rgb(0,   0, 255), "StateWriting"),
     BT_RIM(Color.rgb(110, 140, 255), "ButtonRIm"),
+    BT_RIM_ALERT(Color.rgb(255,204, 0), "ButtonRimAlert"),
     BT_TEXT(Color.rgb(255, 255, 255), "ButtonText"),
-    BT_BG(Color.rgb(64,   64, 64), "ButtonBG");
+    BT_BG(Color.rgb(64,   64, 64), "ButtonBG"),
+    BT_BG_ALERT(Color.rgb(255,165,0), "ButtonBGAlert");
 
     val key = "Color"
 }
@@ -442,6 +449,14 @@ val SIMOS18_AES_IV = byteArrayOf(
 )
 
 val CAL_BLOCK_TRANSFER_SIZE = 0xFF0
+
+
+enum class COMPATIBLE_SW_VERSIONS(val str: String, val locationOfIdentifier: ByteArray) {
+    _5G0906259L("5G0906259L", byteArrayOf(0x60.toByte(), 0x68.toByte()))
+
+}
+
+
 
 
 //Additional properties

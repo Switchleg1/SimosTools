@@ -8,6 +8,8 @@ object UDSFlasher {
     private var mTask = FLASH_ECU_CAL_SUBTASK.NONE
     private var mCommand: ByteArray = byteArrayOf()
     private var mLastString: String = ""
+    private var flashConfirmed: Boolean = false
+    private var cancelFlash: Boolean = false
     private var bin: ByteArray = byteArrayOf()
     private var ecuAswVersion: ByteArray = byteArrayOf()
     private var transferSequence = -1
@@ -15,6 +17,18 @@ object UDSFlasher {
 
     fun getSubtask(): FLASH_ECU_CAL_SUBTASK{
         return mTask
+    }
+
+    fun getFlashConfirmed(): Boolean{
+        return flashConfirmed
+    }
+
+    fun setFlashConfirmed(input: Boolean = false){
+        flashConfirmed = input
+    }
+
+    fun cancelFlash(){
+        cancelFlash = true
     }
 
     fun getInfo(): String {
@@ -45,17 +59,22 @@ object UDSFlasher {
 
     fun startTask(ticks: Int): ByteArray {
 
-        if(bin.isEmpty()){
-            mLastString = "Selected file is empty!"
+        if(bin.size < 500000){
+            mLastString = "Selected file too small..."
             return byteArrayOf()
         }
-        else{
+        else if(bin.size > 500000 && bin.size < 4000000){
             //Read box code from ECU
             mTask = FLASH_ECU_CAL_SUBTASK.GET_ECU_BOX_CODE
 
-            DebugLog.d(TAG, "Initiating Flash subroutine: " + mTask.toString())
-            mLastString = "Initiating flash routines"
+            DebugLog.d(TAG, "Initiating Calibration Flash subroutine: " + mTask.toString())
+            mLastString = "Initiating calibration flash routines"
             return UDS_COMMAND.READ_IDENTIFIER.bytes + ECUInfo.PART_NUMBER.address
+        }
+        else{
+            //It's a full bin flash....
+            mLastString = "Full flash isn't implemented yet"
+            return byteArrayOf()
         }
     }
     
@@ -75,6 +94,15 @@ object UDSFlasher {
             when(mTask){
                 FLASH_ECU_CAL_SUBTASK.GET_ECU_BOX_CODE ->{
 
+                    //If we can't get a good response from the ECU, we'll
+                    // Skip to the force option
+                    //if(....){
+                    //    mLastString = "NO VALID RESPONSE, FORCE FLASH???\n" +
+                    //            "NO INTEGRITY CHECK POSSIBLE!!!"
+                    //    mTask = FLASH_ECU_CAL_SUBTASK.CLEAR_DTC
+                    //}
+
+
                     //If we're in here with a response to our PID request
                     when(checkResponse(buff)){
 
@@ -82,16 +110,8 @@ object UDSFlasher {
                             ecuAswVersion = buff.copyOfRange(3, buff.size)
                             DebugLog.d(TAG, "Received ASW version ${ecuAswVersion.toHex()} from ecu")
 
-                            if(bin.size > 180000 && bin.size < 200000 ){
-                                mLastString = "LOADING PRE-COMPRESSED AND ENCRYPTED BIN\n" +
-                                        "NO INTEGRITY CHECK POSSIBLE!!!"
-                                mTask = FLASH_ECU_CAL_SUBTASK.CLEAR_DTC
-                            }
-                            else{
-                                mLastString = "Read box code from ECU: " + String(ecuAswVersion)
-                                mTask = mTask.next()
-                            }
-
+                            mLastString = "Read box code from ECU: " + String(ecuAswVersion)
+                            mTask = mTask.next()
 
                             mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
                             return UDSReturn.COMMAND_QUEUED
@@ -129,6 +149,26 @@ object UDSFlasher {
                     mTask = mTask.next()
                     mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
                     return UDSReturn.COMMAND_QUEUED
+                }
+
+                FLASH_ECU_CAL_SUBTASK.CONFIRM_PROCEED -> {
+                    if(cancelFlash){
+                        mLastString = "Flash has been canceled"
+                        bin = byteArrayOf()
+                        mTask = FLASH_ECU_CAL_SUBTASK.NONE
+                        return UDSReturn.ERROR_UNKNOWN
+                    }
+
+                    if(!flashConfirmed){
+                        mLastString = "Please confirm flash procedure"
+                        return UDSReturn.FLASH_CONFIRM
+                    }
+                    else{
+                        mLastString = "Flash confirmed! Proceeding"
+                        mTask = mTask.next()
+                        mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
+                        return UDSReturn.COMMAND_QUEUED
+                    }
                 }
 
                 FLASH_ECU_CAL_SUBTASK.CHECKSUM_BIN ->{

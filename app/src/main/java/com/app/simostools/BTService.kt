@@ -102,6 +102,8 @@ class BTService: Service() {
             BTServiceTask.DO_GET_INFO.toString()    -> mConnectionThread?.setTaskState(UDSTask.INFO)
             BTServiceTask.DO_CLEAR_DTC.toString()   -> mConnectionThread?.setTaskState(UDSTask.DTC)
             BTServiceTask.DO_STOP_TASK.toString()   -> mConnectionThread?.setTaskState(UDSTask.NONE)
+            BTServiceTask.FLASH_CONFIRMED.toString() -> confirmFlashProceed()
+            BTServiceTask.FLASH_CANCELED.toString() -> cancelFlash()
         }
 
         // If we get killed, after returning from here, restart
@@ -442,6 +444,16 @@ class BTService: Service() {
         doDisconnect()
         stopForeground(true)
         stopSelf()
+    }
+
+    @Synchronized
+    private fun confirmFlashProceed(){
+        UDSFlasher.setFlashConfirmed(true)
+    }
+
+    @Synchronized
+    private fun cancelFlash(){
+        UDSFlasher.cancelFlash()
     }
 
     @Synchronized
@@ -937,6 +949,10 @@ class BTService: Service() {
 
 
                 when (flashStatus) {
+                    UDSReturn.FLASH_CONFIRM -> {
+                        val intentMessage = Intent(GUIMessage.FLASH_CONFIRM.toString())
+                        sendBroadcast(intentMessage)
+                    }
                     UDSReturn.OK -> {
 
                     }

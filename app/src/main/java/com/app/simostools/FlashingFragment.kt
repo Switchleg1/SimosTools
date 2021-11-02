@@ -8,7 +8,9 @@ import android.content.IntentFilter
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.os.SystemClock
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
@@ -31,6 +33,8 @@ class FlashingFragment : Fragment() {
     private val TAG = "FlashingFragment"
     private var mArrayAdapter: ArrayAdapter<String>? = null
     private lateinit var mViewModel: FlashViewModel
+    private var flashConfirmationHoldTime: Long = 0L
+
 
     var resultPickLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -151,6 +155,7 @@ class FlashingFragment : Fragment() {
         filter.addAction(GUIMessage.FLASH_PROGRESS.toString())
         filter.addAction(GUIMessage.FLASH_PROGRESS_SHOW.toString())
         filter.addAction(GUIMessage.FLASH_INFO_CLEAR.toString())
+        filter.addAction(GUIMessage.FLASH_CONFIRM.toString())
         this.activity?.registerReceiver(mBroadcastReceiver, filter)
     }
 
@@ -170,8 +175,43 @@ class FlashingFragment : Fragment() {
                 GUIMessage.FLASH_PROGRESS.toString()      -> setProgressBar(intent.getIntExtra(GUIMessage.FLASH_PROGRESS.toString(), 0))
                 GUIMessage.FLASH_PROGRESS_MAX.toString()  -> setProgressBarMax(intent.getIntExtra(GUIMessage.FLASH_PROGRESS_MAX.toString(), 0))
                 GUIMessage.FLASH_PROGRESS_SHOW.toString() -> setProgressBarShow(intent.getBooleanExtra(GUIMessage.FLASH_PROGRESS_SHOW.toString(), false))
+                GUIMessage.FLASH_CONFIRM.toString()       -> promptUserConfirmation()
                 //GUIMessage.FLASH_INFO_CLEAR.toString()    -> doClearMessages()
             }
+        }
+    }
+
+    private fun promptUserConfirmation() {
+        val flashButton = requireView().findViewById<SwitchButton>(R.id.buttonFlashCAL)
+        flashButton.apply {
+            paintBG.color = ColorList.BT_BG_ALERT.value
+            paintRim.color = ColorList.BT_RIM_ALERT.value
+            setTextColor(ColorList.BT_TEXT.value)
+            text = "Press to cancel, Hold to confirm"
+            setOnTouchListener(object : View.OnTouchListener {
+                override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                    when (event?.action) {
+                        MotionEvent.ACTION_DOWN ->{
+                            flashConfirmationHoldTime = SystemClock.uptimeMillis()
+                            //time the button press
+                        }
+                        MotionEvent.ACTION_UP -> {
+                            var now = SystemClock.uptimeMillis()
+                            if(now - flashConfirmationHoldTime > 1000){
+                                //Button was held
+                                sendServiceMessage(BTServiceTask.FLASH_CONFIRMED.toString())
+                            }
+                            else{
+                                //Button was pressed
+                                sendServiceMessage(BTServiceTask.FLASH_CANCELED.toString())
+                            }
+
+                        }
+                    }
+
+                    return v?.onTouchEvent(event) ?: true
+                }
+            })
         }
     }
 
