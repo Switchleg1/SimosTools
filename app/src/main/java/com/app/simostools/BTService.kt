@@ -337,7 +337,7 @@ class BTService: Service() {
         override fun onCharacteristicChanged(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
             super.onCharacteristicChanged(gatt, characteristic)
             with(characteristic) {
-                DebugLog.d("BluetoothGattCallback", "Characteristic $uuid changed | length: ${value.count()}")
+                DebugLog.d("BluetoothGattCallback", "Read from characteristic $uuid | length: ${value.count()}")
 
                 //parse packet and check for multiple responses
                 val bleHeader = BLEHeader()
@@ -681,13 +681,6 @@ class BTService: Service() {
 
             //If we are doing something call for a stop
             if(mTask != UDSTask.NONE) {
-                //Write debug log
-                DebugLog.i(TAG, "Task stopped: $mTask")
-
-                //set task to none
-                mTask = UDSTask.NONE
-                sendTaskState()
-
                 stopTask()
             }
         }
@@ -743,8 +736,7 @@ class BTService: Service() {
                 } catch(e: Exception) {
                     DebugLog.e(TAG, "Exception while writing packet.", e)
                 }
-            }
-            DebugLog.w(TAG, "Unable to write null packet.")
+            } ?: DebugLog.w(TAG, "Unable to write null packet.")
         }
 
         private fun startNextTask() {
@@ -769,6 +761,14 @@ class BTService: Service() {
         }
 
         private fun stopTask() {
+            //Write debug log
+            DebugLog.i(TAG, "Task stopped: $mTask")
+
+            //set task to none
+            mTask = UDSTask.NONE
+
+            sendTaskState()
+
             //Set LED to green
             setBridgeLED(0,0x80, 0)
 
@@ -806,8 +806,11 @@ class BTService: Service() {
                 UDSTask.DTC      -> processPacketClearDTC(buff)
             }
 
-            //increment task packet count
-            mTaskTick++
+            //Only increment task packet count when buffer isn't empty
+            buff?.let {
+                if(it.count() >= BLEHeader().size())
+                    mTaskTick++
+            }
 
             //check if we are ready to switch to a new task
             if (mTaskNext != UDSTask.NONE) {
@@ -835,50 +838,55 @@ class BTService: Service() {
         }
 
         private fun processPacketLogging(buff: ByteArray?) {
-            //Process frame
-            val result = UDSLogger.processPacket(mTaskTick, buff, applicationContext)
+            buff?.let {
+                //Process frame
+                val result = UDSLogger.processPacket(mTaskTick, buff, applicationContext)
 
-            //Are we still sending initial frames?
-            if (mTaskTick < UDSLogger.frameCount()) {
-                //If we failed init abort
-                if (result != UDSReturn.OK) {
-                    DebugLog.w(TAG, "Unable to initialize logging, UDS Error: $result")
-                    setTaskState(UDSTask.NONE)
-                } else { //else continue init
-                    writePacket(UDSLogger.startTask(mTaskTick+1))
-                }
-            } else { //We are receiving data
-                if (result != UDSReturn.OK) {
-                    DebugLog.w(TAG, "Logging data error , UDS Error: $result")
-                    setTaskState(UDSTask.NONE)
-                } else {
-                    //Broadcast new PID data
-                    if (mTaskTick % ConfigSettings.UPDATE_RATE.toInt() == 0) {
-                        val intentMessage = Intent(GUIMessage.READ_LOG.toString())
-                        intentMessage.putExtra("readCount", mTaskTick)
-                        intentMessage.putExtra("readTime", System.currentTimeMillis() - mTaskTime)
-                        intentMessage.putExtra("readResult", result)
-                        sendBroadcast(intentMessage)
+                //Are we still sending initial frames?
+                if (mTaskTick < UDSLogger.frameCount()-1) {
+                    //If we failed init abort
+                    if (result != UDSReturn.OK) {
+                        DebugLog.w(TAG, "Unable to initialize logging, UDS Error: $result")
+                        setTaskState(UDSTask.NONE)
+                    } else { //else continue init
+                        writePacket(UDSLogger.startTask(mTaskTick+1))
                     }
-
-                    //If we changed logging write states broadcast a new message and set LED color
-                    if (UDSLogger.isEnabled() != mLogWriteState) {
-                        //Broadcast new message
-                        val intentMessage = Intent(GUIMessage.WRITE_LOG.toString())
-                        intentMessage.putExtra(
-                            GUIMessage.WRITE_LOG.toString(),
-                            UDSLogger.isEnabled()
-                        )
-                        sendBroadcast(intentMessage)
-
-                        if (UDSLogger.isEnabled()) {
-                            setBridgeLED(0, 0, 0x80)
-                        } else {
-                            setBridgeLED(0, 0x80, 0)
+                } else { //We are receiving data
+                    if (result != UDSReturn.OK) {
+                        DebugLog.w(TAG, "Logging data error , UDS Error: $result")
+                        setTaskState(UDSTask.NONE)
+                    } else {
+                        //Broadcast new PID data
+                        if (mTaskTick % ConfigSettings.UPDATE_RATE.toInt() == 0) {
+                            val intentMessage = Intent(GUIMessage.READ_LOG.toString())
+                            intentMessage.putExtra("readCount", mTaskTick)
+                            intentMessage.putExtra(
+                                "readTime",
+                                System.currentTimeMillis() - mTaskTime
+                            )
+                            intentMessage.putExtra("readResult", result)
+                            sendBroadcast(intentMessage)
                         }
 
-                        //Update current write state
-                        mLogWriteState = UDSLogger.isEnabled()
+                        //If we changed logging write states broadcast a new message and set LED color
+                        if (UDSLogger.isEnabled() != mLogWriteState) {
+                            //Broadcast new message
+                            val intentMessage = Intent(GUIMessage.WRITE_LOG.toString())
+                            intentMessage.putExtra(
+                                GUIMessage.WRITE_LOG.toString(),
+                                UDSLogger.isEnabled()
+                            )
+                            sendBroadcast(intentMessage)
+
+                            if (UDSLogger.isEnabled()) {
+                                setBridgeLED(0, 0, 0x80)
+                            } else {
+                                setBridgeLED(0, 0x80, 0)
+                            }
+
+                            //Update current write state
+                            mLogWriteState = UDSLogger.isEnabled()
+                        }
                     }
                 }
             }

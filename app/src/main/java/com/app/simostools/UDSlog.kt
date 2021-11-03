@@ -472,12 +472,18 @@ object UDSLogger {
             }
 
             // make sure we received an 'OK' from the ECU
-            if (bData[0] != 0x7e.toByte()) {
+            if (bData.count() < 3 || bData[0] != 0x7e.toByte()) {
                 return UDSReturn.ERROR_RESPONSE
             }
 
-            //still in the initial setup?
-            if (tick < frameCount3E()) {
+            // make sure we received an 'OK' from the ECU while initiating
+            if(tick < frameCount3E()) {
+                if(tick < frameCount3E()-2 && (bData[1] != 0x00.toByte() || bData[2] != 0x8f.toByte())) {
+                    return UDSReturn.ERROR_RESPONSE
+                } else if(tick == frameCount3E()-2 && (bData[1] != 0x00.toByte() || bData[2] != 0x37.toByte())) {
+                    return UDSReturn.ERROR_RESPONSE
+                }
+
                 return UDSReturn.OK
             }
 
@@ -490,9 +496,10 @@ object UDSLogger {
                     if (pid.address == UDSLoggingMode.MODE_3E.addressMax) {
                         PIDs.setValue(pid, 0f)
                     } else {
-                        //make sure we are in range
-                        if (dPos + pid.length > bData.count())
-                            break
+                        //make sure we are in range, if not report error
+                        if (dPos + pid.length > bData.count()) {
+                            return UDSReturn.ERROR_UNKNOWN
+                        }
 
                         //Build the value in little endian
                         var newValue: Int = bData[dPos + pid.length - 1] and 0xFF
@@ -533,7 +540,7 @@ object UDSLogger {
             return writeToLog(bleHeader.tickCount, context)
         }
 
-        return UDSReturn.ERROR_UNKNOWN
+        return UDSReturn.ERROR_NULL
     }
 
     private fun writeToLog(tick: Int, context: Context): UDSReturn {

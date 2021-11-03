@@ -64,7 +64,8 @@ enum class RequiredPermissions(val permission: String, val version: Int, val req
     @RequiresApi(Build.VERSION_CODES.S) BT_ADVERTISE(Manifest.permission.BLUETOOTH_ADVERTISE, Build.VERSION_CODES.S, true, PackageManager.PERMISSION_DENIED),
     @RequiresApi(Build.VERSION_CODES.S) BT_SCAN(Manifest.permission.BLUETOOTH_SCAN, Build.VERSION_CODES.S, true, PackageManager.PERMISSION_DENIED),
     @RequiresApi(Build.VERSION_CODES.S) BT_CONNECT(Manifest.permission.BLUETOOTH_CONNECT, Build.VERSION_CODES.S, true, PackageManager.PERMISSION_DENIED),
-    LOCATION(Manifest.permission.ACCESS_FINE_LOCATION, 0, true, PackageManager.PERMISSION_DENIED),
+    FINE_LOCATION(Manifest.permission.ACCESS_FINE_LOCATION, 0, true, PackageManager.PERMISSION_DENIED),
+    COARSE_LOCATION(Manifest.permission.ACCESS_COARSE_LOCATION, 0, true, PackageManager.PERMISSION_DENIED),
     READ_STORAGE(Manifest.permission.READ_EXTERNAL_STORAGE, 0, false, PackageManager.PERMISSION_DENIED),
     WRITE_STORAGE(Manifest.permission.WRITE_EXTERNAL_STORAGE, 0, false, PackageManager.PERMISSION_DENIED),
 }

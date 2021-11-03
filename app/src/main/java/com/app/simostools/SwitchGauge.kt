@@ -21,17 +21,14 @@ class SwitchGauge : View {
     private val tickPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         color = Color.BLACK
+        strokeWidth = 5.0f
     }
     private val minmaxPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         color = Color.RED
         strokeWidth = 5.0f
     }
-    private val minmaxBGPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        style = Paint.Style.STROKE
-        color = Color.BLACK
-        strokeWidth = 5.0f
-    }
+
     private val rect            = RectF()
     private val minAngle        = 120f
     private val maxAngle        = 300f
@@ -57,18 +54,22 @@ class SwitchGauge : View {
         if(currentEnable) {
             when (currentStyle) {
                 GaugeType.BAR -> {
+                    if(showGraduations) {
+                        for (i in 1 until 10) {
+                            drawLine(i.toFloat()*10f, progressPaint.strokeWidth+marginStart*4f, canvas, tickPaint)
+                        }
+                    }
+
+                    drawRect(0f, 100.0f, backgroundPaint.strokeWidth, canvas, backgroundPaint)
+
                     if(centerGauge) {
-                        drawRect(100.0f, backgroundPaint.strokeWidth, canvas, backgroundPaint)
                         if (currentProgress < 50.0f) {
-                            drawRect(50.0f, progressPaint.strokeWidth, canvas, progressPaint)
-                            drawRect(currentProgress, backgroundPaint.strokeWidth, canvas, backgroundPaint)
+                            drawRect(currentProgress, 50.0f, progressPaint.strokeWidth, canvas, progressPaint)
                         } else {
-                            drawRect(currentProgress, progressPaint.strokeWidth, canvas, progressPaint)
-                            drawRect(50.0f, backgroundPaint.strokeWidth, canvas, backgroundPaint)
+                            drawRect(50.0f, currentProgress, progressPaint.strokeWidth, canvas, progressPaint)
                         }
                     } else {
-                        drawRect(100.0f, backgroundPaint.strokeWidth, canvas, backgroundPaint)
-                        drawRect(currentProgress, progressPaint.strokeWidth, canvas, progressPaint)
+                        drawRect(0f, currentProgress, progressPaint.strokeWidth, canvas, progressPaint)
                     }
 
                     if(showMinMax) {
@@ -77,27 +78,25 @@ class SwitchGauge : View {
                     }
                 }
                 GaugeType.ROUND -> {
+                    drawCircle(minAngle, maxAngle, canvas, backgroundPaint)
                     if(centerGauge) {
-                        drawCircle(minAngle, maxAngle, canvas, backgroundPaint)
                         if (currentProgress < 50.0f) {
                             drawCircle(minAngle + angleProgress, maxAngle * 0.5f - angleProgress, canvas, progressPaint)
                         } else {
                             drawCircle(minAngle + maxAngle * 0.5f, angleProgress - maxAngle * 0.5f, canvas, progressPaint)
                         }
                     } else {
-                        drawCircle(minAngle, maxAngle, canvas, backgroundPaint)
                         drawCircle(minAngle, angleProgress, canvas, progressPaint)
                     }
 
                     if(showMinMax) {
-                        drawCircle(minAngle, maxAngle, canvas, minmaxBGPaint)
-                        drawCircle(minAngle + angleMin-1.0f, angleMax+1.0f-angleMin, canvas, minmaxPaint)
+                        drawCircle(minAngle + angleMin-0.5f, angleMax+1.0f-angleMin, canvas, minmaxPaint)
                     }
 
                     if(showGraduations) {
                         for (i in 1 until 10) {
                             val start = minAngle + 30.0f * i.toFloat()
-                            drawCircle(start - 0.3f, 0.6f, canvas, tickPaint)
+                            drawCircle(start - 0.25f, 0.5f, canvas, tickPaint)
                         }
                     }
                 }
@@ -134,11 +133,12 @@ class SwitchGauge : View {
         canvas.drawArc(rect, start, finish, false, paint)
     }
 
-    private fun drawRect(finish: Float, width: Float, canvas: Canvas, paint: Paint) {
+    private fun drawRect(start: Float, finish: Float, width: Float, canvas: Canvas, paint: Paint) {
         val offsetY = (currentHeight-width) / 2.0f
+        val begin = marginStart + start
         val stop = marginStart + (finish / 100.0f * marginEnd)
 
-        canvas.drawRoundRect(marginStart, offsetY, stop, currentHeight-offsetY, 10f, 10f, paint)
+        canvas.drawRoundRect(begin, offsetY, stop, currentHeight-offsetY, 10f, 10f, paint)
     }
 
     private fun drawLine(position: Float, width: Float, canvas: Canvas, paint: Paint) {
@@ -149,6 +149,13 @@ class SwitchGauge : View {
     }
 
     private fun calculateAngle(progress: Float) = maxAngle / maxProgress * progress
+
+    private fun setTickWidth() {
+        when(currentStyle) {
+            GaugeType.BAR   -> tickPaint.strokeWidth   = minmaxPaint.strokeWidth
+            GaugeType.ROUND -> tickPaint.strokeWidth   = backgroundPaint.strokeWidth + marginStart
+        }
+    }
 
     fun setStyle(style: GaugeType, redraw: Boolean = true) {
         currentStyle = style
@@ -161,9 +168,10 @@ class SwitchGauge : View {
             GaugeType.ROUND -> {
                 progressPaint.style     = Paint.Style.STROKE
                 backgroundPaint.style   = Paint.Style.FILL_AND_STROKE
-                tickPaint.style         = Paint.Style.STROKE
             }
         }
+
+        setTickWidth()
 
         if(redraw)
             invalidate()
@@ -233,7 +241,6 @@ class SwitchGauge : View {
 
     fun setProgressBackgroundColor(color: Int, redraw: Boolean = true) {
         backgroundPaint.color = color
-        minmaxBGPaint.color = color
 
         val r = (color and 0xFF0000) shr 16
         val g = (color and 0xFF00) shr 8
@@ -254,7 +261,8 @@ class SwitchGauge : View {
     fun setProgressWidth(width: Float, redraw: Boolean = true) {
         progressPaint.strokeWidth = width
         backgroundPaint.strokeWidth = width
-        tickPaint.strokeWidth = width + marginStart
+
+        setTickWidth()
 
         if(redraw)
             invalidate()
@@ -262,7 +270,8 @@ class SwitchGauge : View {
 
     fun setMinMaxWidth(width: Float, redraw: Boolean = true) {
         minmaxPaint.strokeWidth = width
-        minmaxBGPaint.strokeWidth = width
+
+        setTickWidth()
 
         if(redraw)
             invalidate()
@@ -276,7 +285,7 @@ class SwitchGauge : View {
         progressPaint.strokeCap     = if (rounded) Paint.Cap.ROUND else Paint.Cap.BUTT
         backgroundPaint.strokeCap   = if (rounded) Paint.Cap.ROUND else Paint.Cap.BUTT
         minmaxPaint.strokeCap       = if (rounded) Paint.Cap.ROUND else Paint.Cap.BUTT
-        minmaxBGPaint.strokeCap     = if (rounded) Paint.Cap.ROUND else Paint.Cap.BUTT
+        tickPaint.strokeCap         = if (rounded) Paint.Cap.ROUND else Paint.Cap.BUTT
 
         if(redraw)
             invalidate()
