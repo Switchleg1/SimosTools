@@ -369,7 +369,7 @@ object UDSFlasher {
                                 mLastString = ""
                                 //if the current transfer sequence number is larger than the max
                                 // number that we need for the payload, send a 'transfer exit'
-                                if(transferSequence > totalFrames){
+                                if(transferSequence > totalFrames + 1){
                                     mCommand = UDS_COMMAND.TRANSFER_EXIT.bytes
 
                                     return UDSReturn.COMMAND_QUEUED

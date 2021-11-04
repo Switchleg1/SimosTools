@@ -206,97 +206,97 @@ object FlashUtilities {
         var checkCharacters: ByteArray = byteArrayOf()
         var outputBuffer: ByteArray = byteArrayOf()
         var output: ByteArray = byteArrayOf()
-        var searchStart: Int = 0
-        var index: Int = -1
+        var index: Int
+        var inputIterator = input.iterator()
 
         var i = 0
 
-        fun copyCheckCharacters(){
-            for(j in 0..checkCharacters.size - 1){
-                if(debug) println("    -> Adding " + "%02x".format(checkCharacters[j]) + " to outputBuffer")
-                outputBuffer += byteArrayOf(checkCharacters[j])
-                flagPos = flagPos shr 1
+        fun stepFlag(){
+            flagPos = flagPos shr 1
+            if(flagPos == 0x00 ){
+                output += byteArrayOf(flags.toByte()) + outputBuffer
 
-                if(flagPos == 0x00){
-
-                    output += byteArrayOf(flags.toByte()) + outputBuffer
-
-                    flags = 0
-                    flagPos = 0x80
-                    outputBuffer = byteArrayOf()
-
-                    //println("  output: " + output.toHex())
-                }
+                flags = 0
+                flagPos = 0x80
+                outputBuffer = byteArrayOf()
             }
         }
 
-        while(i <= input.size - 1){
-            if(i > maxSlidingWindowSize) searchStart = i - maxSlidingWindowSize + 1
-            else searchStart = 0
+        var nextByte = inputIterator.next()
+        checkCharacters += nextByte
+        i++
 
-            if(i > 0) searchBuffer = input.copyOfRange(searchStart, i)
-            else searchBuffer = byteArrayOf()
+        while(inputIterator.hasNext()){
+            if(debug) println()
+            while(searchBuffer.size > maxSlidingWindowSize){
+                searchBuffer = searchBuffer.copyOfRange(1, searchBuffer.size)
+            }
 
-            //Add the current byte to the check buffer
-            checkCharacters += input[i]
+            index = searchBuffer.findFirst(checkCharacters) //The index where the bytes appear in the search buffer
 
-            //find out whether the searchBuffer contains our character bytes
-            if(searchBuffer.size > 2)
-                index = searchBuffer.copyOfRange(0, searchBuffer.size - 2).findFirst(checkCharacters) //The index where the bytes appear in the search buffer
+            //if(debug) println("search buffer: " + searchBuffer.toHex())
+            if(debug) println("CheckCharacters: " + checkCharacters.toHex())
+            //if(debug) println("Output: " + output.toHex())
+            if(debug) println("index: $index")
 
-            else
-                index = -1
+            if(index == -1 || index > searchBuffer.size - 3 || checkCharacters.size > 63 || i >= input.size - 1){
+                index = searchBuffer.findFirst(checkCharacters.copyOfRange(0, checkCharacters.size - 1))
+                var length = checkCharacters.size - 1
+                var offset = ((searchBuffer.size - index))
+
+                if(length == 0){
+                    outputBuffer += checkCharacters[0]
+
+                    stepFlag()
 
 
-            //if the searchBuffer does not contain this byteArray OR we're at the end of the file...
-            if(index == -1 || i == input.size - 1 || checkCharacters.size > 63){
+                    searchBuffer += checkCharacters[0]
+                    nextByte = inputIterator.next()
+                    i++
 
-                //If our checkCharacters array is larger than our desired minimum size...
-                if(checkCharacters.size > 3 && i < input.size - 1){
-                    //index = searchBuffer.copyOfRange(0, searchBuffer.size - 2).findFirst(checkCharacters.copyOfRange(0, checkCharacters.size - 1))
-                    index = searchBuffer.findFirst(checkCharacters.copyOfRange(0, checkCharacters.size - 1))
-                    var length = checkCharacters.size - 1//Set the length of the token
+                    checkCharacters = byteArrayOf(nextByte)
 
-                    //var offset = searchBuffer.findLast(checkCharacters.copyOfRange(0, checkCharacters.size - 1)) - length
-                    var offset = ((searchBuffer.size - length - index))//Calculate the relative offset
+                }
 
-                    if(offset == 0){
-                        copyCheckCharacters()
-                        i++
-                        checkCharacters = byteArrayOf()
-                    }
+                else if(length <= 2){
+                    if(debug) println("    -> Adding byte to outputBuffer: " + "%02x".format(checkCharacters[0]))
 
-                    else{
+                    outputBuffer += checkCharacters[0]
+                    stepFlag()
 
-                        outputBuffer += byteArrayOf( ((offset shr 8) or (length shl 2)).toByte(), (offset and 0xFF.toInt()).toByte() )
-
-                        flags = flags or flagPos
-                        flagPos = flagPos shr 1
-
-                        if(flagPos == 0x00 ){
-                            output += byteArrayOf(flags.toByte()) + outputBuffer
-
-                            flags = 0
-                            flagPos = 0x80
-                            outputBuffer = byteArrayOf()
-                        }
-
-                        checkCharacters = byteArrayOf(checkCharacters[checkCharacters.size - 1])
-                        i++
-                    }
+                    searchBuffer += checkCharacters[0]
+                    checkCharacters = checkCharacters.copyOfRange(1, checkCharacters.size)
 
                 }
 
                 else{
-                    copyCheckCharacters()
-                    i++
-                    checkCharacters = byteArrayOf()
+                    if(debug) println("    Creating tag length $length offset $offset index $index searchbuffersize " + searchBuffer.size)
+
+
+                    outputBuffer += byteArrayOf( ((offset shr 8) or (length shl 2)).toByte(), (offset and 0xFF.toInt()).toByte() )
+                    flags = flags or flagPos
+                    stepFlag()
+
+                    searchBuffer += checkCharacters.copyOfRange(0, checkCharacters.size - 1)
+                    checkCharacters = byteArrayOf(checkCharacters[checkCharacters.size - 1])
                 }
             }
-            else i++
+            else{
+
+                nextByte = inputIterator.next()
+                i++
+                checkCharacters += nextByte
+            }
+
         }
 
-        if(outputBuffer.size != 0) output += byteArrayOf(flags.toByte()) + outputBuffer
+        outputBuffer += checkCharacters
+        stepFlag()
+
+        while(outputBuffer.size != 0) {
+            stepFlag()
+
+        }
 
         while(output.size % 0x10 != 0){
             output += byteArrayOf(0x0.toByte())
@@ -304,6 +304,7 @@ object FlashUtilities {
 
         return(output)
     }
+
 
 
     fun decodeLZSS(input: ByteArray, expectedSize: Int): ByteArray{
@@ -523,7 +524,7 @@ object FlashUtilities {
 
 
     fun ByteArray.findFirst(inner: ByteArray): Int{
-        if(inner.isEmpty()) throw IllegalArgumentException("non-empty byte sequence is required")
+        if(inner.isEmpty()) return -1
         if(size == 0) return -1
 
         for(i in 0..(size - 1)){
@@ -544,6 +545,7 @@ object FlashUtilities {
 
         return -1
     }
+
 
     fun encrypt(bin: ByteArray, key: ByteArray, initVector: ByteArray ): ByteArray {
         try {
