@@ -2,6 +2,7 @@ package com.app.simostools
 
 import android.app.*
 import android.bluetooth.*
+import android.bluetooth.BluetoothGatt.CONNECTION_PRIORITY_HIGH
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
@@ -263,7 +264,7 @@ class BTService: Service() {
                 //Set new connection state
                 setConnectionState(BLEConnectionState.CONNECTED)
                 try {
-                    gatt.requestConnectionPriority(ConfigSettings.BLE_PRIORITY.toInt())
+                    gatt.requestConnectionPriority(CONNECTION_PRIORITY_HIGH)
                     enableNotifications(gatt.getService(BLE_SERVICE_UUID)!!.getCharacteristic(BLE_DATA_RX_UUID))
                 } catch (e: Exception) {
                     DebugLog.e(TAG,"Exception enabling ble notifications.", e)
@@ -449,14 +450,10 @@ class BTService: Service() {
         val manager = getSystemService(NotificationManager::class.java)
         manager.createNotificationChannel(serviceChannel)
 
-        //val notificationIntent = Intent(this, MainActivity::class.java)
-        //val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0)
-
         val notification: Notification = Notification.Builder(this, CHANNEL_ID)
             .setContentTitle(getText(R.string.app_name))
             .setContentText(getText(R.string.app_name))
             .setSmallIcon(R.drawable.simostools)
-            //.setContentIntent(pendingIntent)
             .build()
 
         // Notification ID cannot be 0.
@@ -473,7 +470,6 @@ class BTService: Service() {
             ScanFilter.Builder().setServiceUuid(ParcelUuid.fromString(BLE_SERVICE_UUID.toString()))
                 .build()
         )
-        val settings = ScanSettings.Builder().setScanMode(ConfigSettings.BLE_SCAN_MODE.toInt()).build()
 
         //Disable current scan timer
         mScanningTimer?.cancel()
@@ -493,6 +489,7 @@ class BTService: Service() {
         setConnectionState(BLEConnectionState.CONNECTING)
 
         //Start scanning for BLE devices
+        val settings = ScanSettings.Builder().build()
         (getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter.bluetoothLeScanner.startScan(filter, settings, mScanCallback)
         mScanning = true
     }

@@ -1,8 +1,6 @@
 package com.app.simostools
 
 import android.Manifest
-import android.bluetooth.BluetoothGatt
-import android.bluetooth.le.ScanSettings
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
@@ -144,18 +142,18 @@ enum class FLASH_ECU_CAL_SUBTASK {
 
 //Color List
 enum class ColorList(var value: Int, val cfgName: String) {
-    BG_NORMAL(Color.rgb(255, 255, 255), "BGNormal"),
+    BG_NORMAL(Color.rgb(64, 64, 64), "BGNormal"),
     BG_WARN(Color.rgb(127, 127, 255),"BGWarn"),
-    TEXT(Color.rgb(110,   140,   255), "Text"),
+    TEXT(Color.rgb(255,   255,   255), "Text"),
     GAUGE_NORMAL(Color.rgb(0,   255, 0), "GaugeNormal"),
     GAUGE_WARN(Color.rgb(255, 0,   0), "GaugeWarn"),
     GAUGE_BG(Color.rgb(0, 0,   0), "GaugeBG"),
-    ST_ERROR(Color.rgb(255, 0,   0), "StateError"),
-    ST_NONE(Color.rgb(100, 0,   255), "StateNone"),
-    ST_CONNECTING(Color.rgb(100, 100, 255), "StateConnecting"),
-    ST_CONNECTED(Color.rgb(0,   0,   255), "StateConnected"),
-    ST_LOGGING(Color.rgb(255, 255, 0), "StateLogging"),
-    ST_WRITING(Color.rgb(0,   255, 0), "StateWriting"),
+    ST_ERROR(Color.rgb(255, 32,   0), "StateError"),
+    ST_NONE(Color.rgb(255, 0,   0), "StateNone"),
+    ST_CONNECTING(Color.rgb(255, 32, 32), "StateConnecting"),
+    ST_CONNECTED(Color.rgb(0,   255,   0), "StateConnected"),
+    ST_LOGGING(Color.rgb(32, 255, 0), "StateLogging"),
+    ST_WRITING(Color.rgb(0,   0, 255), "StateWriting"),
     BT_RIM(Color.rgb(110, 140, 255), "ButtonRIm"),
     BT_TEXT(Color.rgb(255, 255, 255), "ButtonText"),
     BT_BG(Color.rgb(64,   64, 64), "ButtonBG");
@@ -241,9 +239,7 @@ enum class ConfigSettings(val cfgName: String, var value: Any) {
     DRAW_MIN_MAX("DrawMinMax", true),
     DRAW_GRADUATIONS("DrawGraduations", true),
     DEBUG_LOG("DebugMode", DEBUG_LOG_INFO or DEBUG_LOG_WARNING or DEBUG_LOG_EXCEPTION),
-    AUTO_LOG("AutoLog", false),
-    BLE_SCAN_MODE("BLEScanMode", ScanSettings.SCAN_MODE_LOW_LATENCY),
-    BLE_PRIORITY("BLEPriority", BluetoothGatt.CONNECTION_PRIORITY_HIGH);
+    AUTO_LOG("AutoLog", false);
 
     fun set(newValue: String) {
         try {

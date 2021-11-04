@@ -10,7 +10,7 @@
     <RelativeLayout
         android:layout_weight="1"
         android:layout_width="200dp"
-        android:layout_height="125dp">
+        android:layout_height="140dp">
 
         <com.app.simostools.SwitchGauge
             android:id="@+id/pid_gauge"
@@ -31,7 +31,7 @@
     <RelativeLayout
         android:layout_weight="1"
         android:layout_width="200dp"
-        android:layout_height="125dp">
+        android:layout_height="140dp">
 
         <com.app.simostools.SwitchGauge
             android:id="@+id/pid_gauge1"
@@ -54,7 +54,7 @@
     <RelativeLayout
         android:layout_weight="1"
         android:layout_width="200dp"
-        android:layout_height="125dp">
+        android:layout_height="140dp">
 
         <com.app.simostools.SwitchGauge
             android:id="@+id/pid_gauge2"

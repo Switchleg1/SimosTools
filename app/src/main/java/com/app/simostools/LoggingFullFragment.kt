@@ -46,38 +46,9 @@ class LoggingFullFragment : LoggingBaseFragment() {
             }
         }
 
-        val resetButton = view.findViewById<SwitchButton>(R.id.buttonLoggingReset)
-        resetButton.apply {
-            paintBG.color = ColorList.BT_BG.value
-            paintRim.color = ColorList.BT_RIM.value
-            setTextColor(ColorList.BT_TEXT.value)
-            setOnClickListener {
-                if (mViewModel.currentTask == UDSTask.NONE) {
-                    sendServiceMessage(BTServiceTask.DO_START_LOG.toString())
-                } else {
-                    sendServiceMessage(BTServiceTask.DO_STOP_TASK.toString())
-                }
-
-                //update GUI
-                PIDs.resetData()
-                updatePIDText()
-            }
-        }
-
         //Set packet textview
         mPackCount = view.findViewById(R.id.textViewPackCount)
         mPackCount?.setTextColor(ColorList.GAUGE_NORMAL.value)
-
-        setLoggingButton()
-    }
-
-    private fun setLoggingButton() {
-        view?.findViewById<SwitchButton>(R.id.buttonLoggingReset)?.let {
-            it.text = when(mViewModel.currentTask) {
-                UDSTask.LOGGING -> "Stop"
-                else            -> "Start"
-            }
-        }
     }
 
     override fun onSetFilter(filter: IntentFilter) {
@@ -88,9 +59,11 @@ class LoggingFullFragment : LoggingBaseFragment() {
     override fun onNewMessage(intent: Intent) {
         when(intent.action) {
             GUIMessage.STATE_TASK.toString()       -> mViewModel.currentTask = intent.getSerializableExtra(GUIMessage.STATE_TASK.toString()) as UDSTask
-            GUIMessage.STATE_CONNECTION.toString() -> mViewModel.currentTask = UDSTask.NONE
+            GUIMessage.STATE_CONNECTION.toString() -> {
+                mViewModel.currentTask = UDSTask.NONE
+                sendServiceMessage(BTServiceTask.DO_START_LOG.toString())
+            }
         }
-        setLoggingButton()
     }
 
     override fun buildPIDList() {

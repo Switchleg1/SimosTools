@@ -95,6 +95,7 @@ open class LoggingBaseFragment: Fragment() {
 
             buildPIDList()
             buildLayout()
+            DebugLog.i(TAG, "Rebuilt layout.")
         }
     }
 
@@ -221,6 +222,7 @@ open class LoggingBaseFragment: Fragment() {
             }
         } catch (e: Exception) {
             DebugLog.e(TAG, "Unable to update text [$lastI:${mPIDList.count()}]", e)
+            rebuildLayout()
         }
     }
 
@@ -283,6 +285,7 @@ open class LoggingBaseFragment: Fragment() {
             mLastWarning = warnAny
         } catch (e: Exception) {
             DebugLog.e(TAG, "Unable to update display [$lastI:${mPIDList.count()}]", e)
+            rebuildLayout()
         }
     }
 

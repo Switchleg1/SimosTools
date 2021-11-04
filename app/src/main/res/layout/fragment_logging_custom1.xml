@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CustomFragment1"
-    android:id="@+id/CustomLayout1">
+    tools:context=".LoggingCustomFragment1"
+    android:id="@+id/LoggingCustomLayout1">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -19,7 +19,7 @@
         tools:ignore="SpeakableTextPresentCheck">
 
         <LinearLayout
-            android:id="@+id/CustomLayoutScroll1"
+            android:id="@+id/LoggingCustomLayoutScroll1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">

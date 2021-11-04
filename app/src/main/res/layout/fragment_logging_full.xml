@@ -24,16 +24,6 @@
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/buttonLoggingReset" />
-
-    <com.app.simostools.SwitchButton
-        android:id="@+id/buttonLoggingReset"
-        android:layout_width="0dp"
-        android:layout_height="64dp"
-        android:text="@string/button_reset"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="@+id/buttonLoggingBack"
-        app:layout_constraintEnd_toStartOf="@+id/buttonLoggingBack"
         app:layout_constraintStart_toEndOf="@+id/textViewPackCount" />
 
     <ScrollView

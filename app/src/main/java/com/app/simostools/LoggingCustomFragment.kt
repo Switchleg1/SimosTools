@@ -9,7 +9,7 @@ class LoggingCustomFragment1 : LoggingCustomFragment() {
     override var TAG                    = "LoggingCustomFragment1"
     override var mFragmentName          = "Layout1"
     override var mCustomName: String    = "Layout1"
-    override var mLayoutName: Int   = R.id.CustomLayoutScroll1
+    override var mLayoutName: Int       = R.id.LoggingCustomLayoutScroll1
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -24,7 +24,7 @@ class LoggingCustomFragment2 : LoggingCustomFragment() {
     override var TAG                    = "LoggingCustomFragment2"
     override var mFragmentName          = "Layout2"
     override var mCustomName: String    = "Layout2"
-    override var mLayoutName: Int       = R.id.CustomLayoutScroll2
+    override var mLayoutName: Int       = R.id.LoggingCustomLayoutScroll2
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,7 +39,7 @@ class LoggingCustomFragment3 : LoggingCustomFragment() {
     override var TAG                    = "LoggingCustomFragment3"
     override var mFragmentName          = "Layout3"
     override var mCustomName: String    = "Layout3"
-    override var mLayoutName: Int       = R.id.CustomLayoutScroll3
+    override var mLayoutName: Int       = R.id.LoggingCustomLayoutScroll3
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -54,7 +54,7 @@ class LoggingCustomFragment4 : LoggingCustomFragment() {
     override var TAG                    = "LoggingCustomFragment4"
     override var mFragmentName          = "Layout4"
     override var mCustomName: String    = "Layout4"
-    override var mLayoutName: Int       = R.id.CustomLayoutScroll4
+    override var mLayoutName: Int       = R.id.LoggingCustomLayoutScroll4
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

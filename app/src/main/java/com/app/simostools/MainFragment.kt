@@ -30,6 +30,7 @@ class MainFragment : Fragment() {
             paintRim.color = ColorList.BT_RIM.value
             setTextColor(ColorList.BT_TEXT.value)
             setOnClickListener {
+                sendServiceMessage(BTServiceTask.DO_START_LOG.toString())
                 findNavController().navigate(R.id.action_MainFragment_to_LoggingFragment)
             }
         }
@@ -84,5 +85,17 @@ class MainFragment : Fragment() {
         //Set background color
         view.setBackgroundColor(ColorList.BG_NORMAL.value)
         view.findViewById<ImageView>(R.id.imageMainLogo).setBackgroundColor(ColorList.BG_NORMAL.value)
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        sendServiceMessage(BTServiceTask.DO_STOP_TASK.toString())
+    }
+
+    private fun sendServiceMessage(type: String) {
+        val serviceIntent = Intent(requireActivity(), BTService::class.java)
+        serviceIntent.action = type
+        ContextCompat.startForegroundService(requireActivity(), serviceIntent)
     }
 }
