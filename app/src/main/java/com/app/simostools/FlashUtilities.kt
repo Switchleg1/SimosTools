@@ -1,4 +1,4 @@
-package com.app.simoslogger
+package com.app.simostools
 
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec

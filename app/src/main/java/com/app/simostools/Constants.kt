@@ -441,7 +441,7 @@ val SIMOS18_AES_IV = byteArrayOf(
     0xD1.toByte()
 )
 
-val CAL_BLOCK_TRANSFER_SIZE = 0x190
+val CAL_BLOCK_TRANSFER_SIZE = 0xFF0
 
 
 //Additional properties

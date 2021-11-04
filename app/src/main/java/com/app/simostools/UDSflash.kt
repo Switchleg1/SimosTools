@@ -294,8 +294,7 @@ object UDSFlasher {
                             }
                         }
                         else ->{
-                            //mCommand = sendTesterPresent()
-                            //DebugLog.d(TAG,"Response: " + buff.toHex())
+                            mLastString = ""
                             return UDSReturn.OK
                         }
                     }
@@ -391,11 +390,13 @@ object UDSFlasher {
                             progress = 0
                             mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
                             mTask = mTask.next()
+                            mLastString = "Transfer Done"
                             return UDSReturn.COMMAND_QUEUED
                         }
 
                         UDS_RESPONSE.NEGATIVE_RESPONSE -> {
                             if(buff[2] == 0x78.toByte()){
+                                mLastString = ""
                                 //just a wait message, return OK
                                 return UDSReturn.OK
                             }
@@ -421,6 +422,13 @@ object UDSFlasher {
                             mTask = mTask.next()
                             return UDSReturn.COMMAND_QUEUED
                         }
+                        UDS_RESPONSE.NEGATIVE_RESPONSE -> {
+                            if(buff[2] == 0x78.toByte()){
+                                mLastString = ""
+                                //just a wait message, return OK
+                                return UDSReturn.OK
+                            }
+                        }
                         else -> {
                             return UDSReturn.ERROR_UNKNOWN
                         }
@@ -440,6 +448,13 @@ object UDSFlasher {
                             mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
                             mTask = mTask.next()
                             return UDSReturn.COMMAND_QUEUED
+                        }
+                        UDS_RESPONSE.NEGATIVE_RESPONSE -> {
+                            if(buff[2] == 0x78.toByte()){
+                                mLastString = ""
+                                //just a wait message, return OK
+                                return UDSReturn.OK
+                            }
                         }
 
                         else -> {

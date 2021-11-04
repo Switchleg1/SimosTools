@@ -170,7 +170,7 @@ class FlashingFragment : Fragment() {
                 GUIMessage.FLASH_PROGRESS.toString()      -> setProgressBar(intent.getIntExtra(GUIMessage.FLASH_PROGRESS.toString(), 0))
                 GUIMessage.FLASH_PROGRESS_MAX.toString()  -> setProgressBarMax(intent.getIntExtra(GUIMessage.FLASH_PROGRESS_MAX.toString(), 0))
                 GUIMessage.FLASH_PROGRESS_SHOW.toString() -> setProgressBarShow(intent.getBooleanExtra(GUIMessage.FLASH_PROGRESS_SHOW.toString(), false))
-                GUIMessage.FLASH_INFO_CLEAR.toString()    -> doClearMessages()
+                //GUIMessage.FLASH_INFO_CLEAR.toString()    -> doClearMessages()
             }
         }
     }
