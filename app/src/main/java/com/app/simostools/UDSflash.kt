@@ -13,6 +13,10 @@ object UDSFlasher {
     private var transferSequence = -1
     private var progress = 0
 
+    fun getSubtask(): FLASH_ECU_CAL_SUBTASK{
+        return mTask
+    }
+
     fun getInfo(): String {
         val response = mLastString
         //mLastString = ""

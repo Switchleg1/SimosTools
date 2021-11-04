@@ -785,7 +785,7 @@ class BTService: Service() {
 
         private fun startTaskFlashing(){
             DebugLog.d(TAG,"Setting stmin to 550")
-            setBridgeSTMIN(550)
+            setBridgeSTMIN(350)
             writePacket(UDSFlasher.startTask(0))
         }
 
@@ -967,8 +967,13 @@ class BTService: Service() {
                 }
             }
             else{
-                DebugLog.d(TAG,"Sending tester present.... Flasher is idle")
-                mWriteQueue.add(buildBLEFrame(UDS_COMMAND.TESTER_PRESENT.bytes))
+                if(UDSFlasher.getSubtask() == FLASH_ECU_CAL_SUBTASK.FLASH_BLOCK){
+                    //Do NOTHING
+                }
+                else {
+                    DebugLog.d(TAG, "Sending tester present.... Flasher is idle")
+                    mWriteQueue.add(buildBLEFrame(UDS_COMMAND.TESTER_PRESENT.bytes))
+                }
             }
         }
 
@@ -1047,7 +1052,12 @@ class BTService: Service() {
             val bleHeader = BLEHeader()
             bleHeader.cmdSize = 2
             bleHeader.cmdFlags = BLECommandFlags.SETTINGS.value or BLESettings.ISOTP_STMIN.value
-            val buff = bleHeader.toByteArray() + amount.toArray2()
+            //val buff = bleHeader.toByteArray() + amount.toArray2()
+            val buff = bleHeader.toByteArray() + byteArrayOf(
+                (amount shr 0).toByte(),
+                (amount shr 8).toByte(),
+
+                )
             writePacket(buff)
         }
 
