@@ -15,28 +15,24 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/buttonCancelColor"
+    <com.app.simostools.SwitchButton
+        android:id="@+id/buttonColorBack"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="2dp"
-        android:layout_marginEnd="8dp"
-        android:layout_weight="1"
-        android:text="@string/button_cancel"
+        android:layout_height="64dp"
+        android:text="@string/button_back"
+        android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/buttonSaveColor" />
+        app:layout_constraintStart_toEndOf="@+id/buttonColorSave" />
 
-    <Button
-        android:id="@+id/buttonSaveColor"
+    <com.app.simostools.SwitchButton
+        android:id="@+id/buttonColorSave"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="2dp"
-        android:layout_weight="1"
+        android:layout_height="64dp"
         android:text="@string/button_save"
+        android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/buttonCancelColor"
+        app:layout_constraintEnd_toStartOf="@+id/buttonColorBack"
         app:layout_constraintStart_toStartOf="parent" />
 
     <SeekBar

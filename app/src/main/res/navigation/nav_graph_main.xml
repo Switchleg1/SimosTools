@@ -7,19 +7,53 @@
 
     <fragment
         android:id="@+id/MainFragment"
-        android:name="com.app.simoslogger.MainFragment"
+        android:name="com.app.simostools.MainFragment"
         android:label="@string/nav_main"
         tools:layout="@layout/fragment_main">
 
         <action
-            android:id="@+id/action_MainFragment_to_ColorFragment"
+            android:id="@+id/action_MainFragment_to_LoggingFragment"
+            app:destination="@id/LoggingFragment"/>
+
+        <action
+            android:id="@+id/action_MainFragment_to_FlashingFragment"
+            app:destination="@id/FlashingFragment"/>
+
+        <action
+            android:id="@+id/action_MainFragment_to_SettingsFragment"
+            app:destination="@id/SettingsFragment"/>
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/LoggingFragment"
+        android:name="com.app.simostools.LoggingMainFragment"
+        android:label="@string/nav_logging"
+        tools:layout="@layout/fragment_logging_main">
+    </fragment>
+
+    <fragment
+        android:id="@+id/FlashingFragment"
+        android:name="com.app.simostools.FlashingFragment"
+        android:label="@string/nav_flashing"
+        tools:layout="@layout/fragment_flashing">
+    </fragment>
+
+    <fragment
+        android:id="@+id/SettingsFragment"
+        android:name="com.app.simostools.SettingsFragment"
+        android:label="@string/nav_settings"
+        tools:layout="@layout/fragment_settings">
+
+        <action
+            android:id="@+id/action_SettingsFragment_to_ColorFragment"
             app:destination="@id/ColorFragment"/>
 
     </fragment>
 
     <fragment
         android:id="@+id/ColorFragment"
-        android:name="com.app.simoslogger.ColorFragment"
+        android:name="com.app.simostools.ColorFragment"
         android:label="@string/nav_color"
         tools:layout="@layout/fragment_color">
     </fragment>

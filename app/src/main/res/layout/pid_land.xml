@@ -4,16 +4,16 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     android:orientation="horizontal"
-    android:id="@+id/pid_land_round"
+    android:id="@+id/pid_land"
     android:baselineAligned="false">
 
     <RelativeLayout
         android:layout_weight="1"
         android:layout_width="200dp"
-        android:layout_height="125dp">
+        android:layout_height="140dp">
 
-        <com.app.simoslogger.SwitchGauge
-            android:id="@+id/pid_progress"
+        <com.app.simostools.SwitchGauge
+            android:id="@+id/pid_gauge"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
@@ -31,10 +31,10 @@
     <RelativeLayout
         android:layout_weight="1"
         android:layout_width="200dp"
-        android:layout_height="125dp">
+        android:layout_height="140dp">
 
-        <com.app.simoslogger.SwitchGauge
-            android:id="@+id/pid_progress1"
+        <com.app.simostools.SwitchGauge
+            android:id="@+id/pid_gauge1"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="invisible"/>
@@ -54,10 +54,10 @@
     <RelativeLayout
         android:layout_weight="1"
         android:layout_width="200dp"
-        android:layout_height="125dp">
+        android:layout_height="140dp">
 
-        <com.app.simoslogger.SwitchGauge
-            android:id="@+id/pid_progress2"
+        <com.app.simostools.SwitchGauge
+            android:id="@+id/pid_gauge2"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="invisible"/>
