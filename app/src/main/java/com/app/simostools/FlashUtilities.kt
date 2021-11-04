@@ -95,7 +95,7 @@ object FlashUtilities {
         return(checksummedBin(bin,checksumCurrent.toHex(), checksumCalculated.toHex(), true))
     }
 
-    fun encodeLZSS(input: ByteArray, maxSlidingWindowSize: Int = 1023, debug: Boolean = false): ByteArray {
+    fun encodeLZSS_orig(input: ByteArray, maxSlidingWindowSize: Int = 1023, debug: Boolean = false): ByteArray {
         var flags = 0
         var flagPos = 0x80
 
@@ -198,6 +198,115 @@ object FlashUtilities {
         return(output)
     }
 
+    fun encodeLZSS(input: ByteArray, maxSlidingWindowSize: Int = 1023, debug: Boolean = false): ByteArray {
+        var flags = 0
+        var flagPos = 0x80
+
+        var searchBuffer: ByteArray = byteArrayOf()
+        var checkCharacters: ByteArray = byteArrayOf()
+        var outputBuffer: ByteArray = byteArrayOf()
+        var output: ByteArray = byteArrayOf()
+        var index: Int
+        var inputIterator = input.iterator()
+
+        var i = 0
+
+        fun stepFlag(){
+            flagPos = flagPos shr 1
+            if(flagPos == 0x00 ){
+                output += byteArrayOf(flags.toByte()) + outputBuffer
+
+                flags = 0
+                flagPos = 0x80
+                outputBuffer = byteArrayOf()
+            }
+        }
+
+        var nextByte = inputIterator.next()
+        checkCharacters += nextByte
+        i++
+
+        while(inputIterator.hasNext()){
+            if(debug) println()
+            while(searchBuffer.size > maxSlidingWindowSize){
+                searchBuffer = searchBuffer.copyOfRange(1, searchBuffer.size)
+            }
+
+            index = searchBuffer.findFirst(checkCharacters) //The index where the bytes appear in the search buffer
+
+            //if(debug) println("search buffer: " + searchBuffer.toHex())
+            if(debug) println("CheckCharacters: " + checkCharacters.toHex())
+            //if(debug) println("Output: " + output.toHex())
+            if(debug) println("index: $index")
+
+            if(index == -1 || index > searchBuffer.size - 3 || checkCharacters.size > 63 || i >= input.size - 1){
+                index = searchBuffer.findFirst(checkCharacters.copyOfRange(0, checkCharacters.size - 1))
+                var length = checkCharacters.size - 1
+                var offset = ((searchBuffer.size - index))
+
+                if(length == 0){
+                    outputBuffer += checkCharacters[0]
+
+                    stepFlag()
+
+
+                    searchBuffer += checkCharacters[0]
+                    nextByte = inputIterator.next()
+                    i++
+
+                    checkCharacters = byteArrayOf(nextByte)
+
+                }
+
+                else if(length <= 2){
+                    if(debug) println("    -> Adding byte to outputBuffer: " + "%02x".format(checkCharacters[0]))
+
+                    outputBuffer += checkCharacters[0]
+                    stepFlag()
+
+                    searchBuffer += checkCharacters[0]
+                    checkCharacters = checkCharacters.copyOfRange(1, checkCharacters.size)
+
+                }
+
+                else{
+                    if(debug) println("    Creating tag length $length offset $offset index $index searchbuffersize " + searchBuffer.size)
+
+
+                    outputBuffer += byteArrayOf( ((offset shr 8) or (length shl 2)).toByte(), (offset and 0xFF.toInt()).toByte() )
+                    flags = flags or flagPos
+                    stepFlag()
+
+                    searchBuffer += checkCharacters.copyOfRange(0, checkCharacters.size - 1)
+                    checkCharacters = byteArrayOf(checkCharacters[checkCharacters.size - 1])
+                }
+            }
+            else{
+
+                nextByte = inputIterator.next()
+                i++
+                checkCharacters += nextByte
+            }
+
+        }
+
+        outputBuffer += checkCharacters
+        stepFlag()
+
+        while(outputBuffer.size != 0) {
+            stepFlag()
+
+        }
+
+        while(output.size % 0x10 != 0){
+            output += byteArrayOf(0x0.toByte())
+        }
+
+        return(output)
+    }
+
+
+
     fun decodeLZSS(input: ByteArray, expectedSize: Int): ByteArray{
 
         var output: ByteArray = byteArrayOf()
@@ -270,45 +379,48 @@ object FlashUtilities {
         return output
 
     }
-    
+
     public class Sa2SeedKey(inputTape: ByteArray, seed: ByteArray) {
         var instructionPointer = 0
         var instructionTape = inputTape
-        var register = byteArrayToInt(seed)
-        var carry_flag: Int = 0
+        var register = seed.getUIntAt(0)
+        var carry_flag: UInt = 0.toUInt()
         var for_pointers: ArrayDeque<Int> = ArrayDeque()
         var for_iterations: ArrayDeque<Int> = ArrayDeque()
 
         fun rsl(){
-            carry_flag = register and 0x80000000.toInt()
+            println("rsl")
+            carry_flag = register and 0x80000000.toUInt()
             register = register shl 1
-            if(carry_flag != 0)
-                register = register or 0x1.toInt()
+            if(carry_flag != 0.toUInt())
+                register = register or 0x1.toUInt()
 
-            register = register and 0xFFFFFFFF.toInt()
+            register = register and 0xFFFFFFFF.toUInt()
             instructionPointer += 1
         }
 
         fun rsr(){
-            carry_flag = register and 0x1.toInt()
-            register = register ushr 1
+            println("rsr")
+            carry_flag = register and 0x1.toUInt()
+            register = register shr 1
 
-            if(carry_flag != 0)
-                register = register or 0x80000000.toInt()
+            if(carry_flag != 0.toUInt())
+                register = register or 0x80000000.toUInt()
 
             instructionPointer += 1
 
         }
 
         fun add(){
-            carry_flag = 0
+            println("add")
+            carry_flag = 0.toUInt()
             var operands = instructionTape.copyOfRange(instructionPointer + 1, instructionPointer + 5)
 
-            var output_register = register + byteArrayToInt(operands)
+            var output_register = register + operands.getUIntAt(0)
 
-            if (output_register > 0xffffffff.toInt()){
-                carry_flag = 1
-                output_register = output_register and 0xffffffff.toInt()
+            if (output_register > 0xffffffff.toUInt()){
+                carry_flag = 1.toUInt()
+                output_register = output_register and 0xffffffff.toUInt()
             }
 
             register = output_register
@@ -318,13 +430,14 @@ object FlashUtilities {
         }
 
         fun sub(){
-            carry_flag = 0
+            println("sub")
+            carry_flag = 0.toUInt()
             var operands = instructionTape.copyOfRange(instructionPointer + 1, instructionPointer + 5)
-            var output_register = register - byteArrayToInt(operands)
+            var output_register = register - operands.getUIntAt(0)
 
-            if (output_register < 0){
-                carry_flag = 1
-                output_register = output_register and 0xffffffff.toInt()
+            if (output_register < 0.toUInt()){
+                carry_flag = 1.toUInt()
+                output_register = output_register and 0xffffffff.toUInt()
             }
 
             register = output_register
@@ -333,11 +446,12 @@ object FlashUtilities {
 
         fun eor(){
             var operands = instructionTape.copyOfRange(instructionPointer + 1,instructionPointer + 5)
-            register = register xor byteArrayToInt(operands)
+            register = register xor operands.getUIntAt(0)
             instructionPointer += 5
         }
 
         fun for_loop(){
+
             var operands = instructionTape.copyOfRange(instructionPointer + 1,instructionPointer + 2)
             for_iterations.addFirst(operands[0] - 1)
             instructionPointer += 2
@@ -345,22 +459,24 @@ object FlashUtilities {
         }
 
         fun next_loop(){
+
             if(for_iterations[0] > 0){
                 for_iterations[0] -= 1
                 instructionPointer = for_pointers[0]
             }
             else{
-                for_iterations.first()
-                for_pointers.first()
+                for_iterations.removeFirst()
+                for_pointers.removeFirst()
                 instructionPointer += 1
             }
 
         }
 
         fun bcc(){
+
             var operands = instructionTape.copyOfRange(instructionPointer + 1,instructionPointer + 2)
             var skip_count = operands[0].toUByte().toInt() + 2
-            if(carry_flag == 0){
+            if(carry_flag == 0.toUInt()){
                 instructionPointer += skip_count
             }
             else{
@@ -394,17 +510,21 @@ object FlashUtilities {
                 0x4C.toByte() to ::finish,
             )
 
+
             while(instructionPointer < instructionTape.size){
+
                 instructionSet[instructionTape[instructionPointer]]?.invoke()
             }
 
-            return intToByteArray(register)
+            return UIntToByteArray(register)
 
         }
     }
 
+
+
     fun ByteArray.findFirst(inner: ByteArray): Int{
-        if(inner.isEmpty()) throw IllegalArgumentException("non-empty byte sequence is required")
+        if(inner.isEmpty()) return -1
         if(size == 0) return -1
 
         for(i in 0..(size - 1)){
@@ -425,6 +545,7 @@ object FlashUtilities {
 
         return -1
     }
+
 
     fun encrypt(bin: ByteArray, key: ByteArray, initVector: ByteArray ): ByteArray {
         try {
@@ -458,4 +579,57 @@ object FlashUtilities {
             (data shr 0).toByte()
         )
     }
+
+    fun UIntToByteArray(data: UInt): ByteArray {
+        return byteArrayOf(
+            (data shr 24).toByte(),
+            (data shr 16).toByte(),
+            (data shr 8).toByte(),
+            (data shr 0).toByte()
+        )
+    }
+
+
 }
+
+
+enum class UDS_RESPONSE(val str: String, val udsByte: Byte?) {
+    POSITIVE_RESPONSE("Tester Present", 0x7E.toByte()),
+    NEGATIVE_RESPONSE("Negative Response", 0x7f.toByte()),
+    NO_RESPONSE("Positive Response", null),
+    ROUTINE_ACCEPTED("Remote activation of routine, accepted", 0x71.toByte()),
+    DOWNLOAD_ACCEPTED("Request download accepted", 0x74.toByte()),
+    TRANSFER_DATA_ACCEPTED("Transfer data accepted", 0x76.toByte()),
+    TRANSFER_EXIT_ACCEPTED("Transfer exit accepted", 0x77.toByte()),
+    SECURITY_ACCESS_GRANTED("Security access granted", 0x67.toByte()),
+    ECU_RESET_ACCEPTED("Ecu Reset Accepted", 0x51.toByte()),
+    WRITE_IDENTIFIER_ACCEPTED("Write Identifier Accepted", 0x6e.toByte()),
+    EXTENDED_DIAG_ACCEPTED("Extended diagnostics accepted", 0x50.toByte()),
+    CLEAR_DTC_SUCCESSFUL("Clear DTC Successful", 0x44.toByte()),
+    READ_IDENTIFIER("Read Identifier Response", 0x62.toByte()),
+}
+
+enum class UDS_COMMAND(val bytes: ByteArray){
+    TESTER_PRESENT(byteArrayOf(0x3e.toByte(), 0x00.toByte())),
+    RESET_ECU(byteArrayOf(0x11.toByte(), 0x01.toByte())),
+    START_ROUTINE(byteArrayOf(0x31.toByte(), 0x01.toByte())),
+    EXTENDED_DIAGNOSTIC(byteArrayOf(0x10.toByte())),
+    READ_IDENTIFIER(byteArrayOf(0x22.toByte())),
+    SECURITY_ACCESS(byteArrayOf(0x27.toByte())),
+    REQUEST_DOWNLOAD(byteArrayOf(0x34.toByte())),
+    TRANSFER_DATA(byteArrayOf(0x36.toByte())),
+    TRANSFER_EXIT(byteArrayOf(0x37.toByte()))
+
+
+}
+
+enum class UDS_ROUTINE(val bytes: ByteArray){
+    CHECK_PROGRAMMING_PRECONDITION(byteArrayOf(0x02.toByte(),0x03.toByte())),
+
+}
+
+fun ByteArray.getUIntAt(idx: Int) =
+    ((this[idx].toUInt() and 0xFFu) shl 24) or
+            ((this[idx + 1].toUInt() and 0xFFu) shl 16) or
+            ((this[idx + 2].toUInt() and 0xFFu) shl 8) or
+            (this[idx + 3].toUInt() and 0xFFu)

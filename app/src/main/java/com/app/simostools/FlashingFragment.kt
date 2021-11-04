@@ -133,6 +133,7 @@ class FlashingFragment : Fragment() {
             progress.isVisible = false
             progress.max = 100
             progress.min = 0
+            progress.setScaleY(3F)
         }
 
         setColor()
@@ -148,6 +149,8 @@ class FlashingFragment : Fragment() {
         filter.addAction(GUIMessage.STATE_TASK.toString())
         filter.addAction(GUIMessage.FLASH_INFO.toString())
         filter.addAction(GUIMessage.FLASH_PROGRESS.toString())
+        filter.addAction(GUIMessage.FLASH_PROGRESS_SHOW.toString())
+        filter.addAction(GUIMessage.FLASH_INFO_CLEAR.toString())
         this.activity?.registerReceiver(mBroadcastReceiver, filter)
     }
 
@@ -159,6 +162,7 @@ class FlashingFragment : Fragment() {
 
     private val mBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
+            DebugLog.d(TAG, "Flashing Fragment received action: " + intent.action.toString())
             when (intent.action) {
                 GUIMessage.STATE_CONNECTION.toString()    -> mViewModel.connectionState = intent.getSerializableExtra(GUIMessage.STATE_CONNECTION.toString()) as BLEConnectionState
                 GUIMessage.STATE_TASK.toString()          -> mViewModel.connectionState = BLEConnectionState.CONNECTED
@@ -166,6 +170,7 @@ class FlashingFragment : Fragment() {
                 GUIMessage.FLASH_PROGRESS.toString()      -> setProgressBar(intent.getIntExtra(GUIMessage.FLASH_PROGRESS.toString(), 0))
                 GUIMessage.FLASH_PROGRESS_MAX.toString()  -> setProgressBarMax(intent.getIntExtra(GUIMessage.FLASH_PROGRESS_MAX.toString(), 0))
                 GUIMessage.FLASH_PROGRESS_SHOW.toString() -> setProgressBarShow(intent.getBooleanExtra(GUIMessage.FLASH_PROGRESS_SHOW.toString(), false))
+                GUIMessage.FLASH_INFO_CLEAR.toString()    -> doClearMessages()
             }
         }
     }

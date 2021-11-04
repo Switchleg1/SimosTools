@@ -10,6 +10,7 @@
         android:id="@+id/listViewMessage"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
+        android:transcriptMode="alwaysScroll"
         app:layout_constraintBottom_toTopOf="@+id/progressBarFlash"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
