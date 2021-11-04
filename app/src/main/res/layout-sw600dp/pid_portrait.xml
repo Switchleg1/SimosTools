@@ -4,13 +4,13 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     android:orientation="horizontal"
-    android:id="@+id/pid_land"
+    android:id="@+id/pid_portrait"
     android:baselineAligned="false">
 
     <RelativeLayout
         android:layout_weight="1"
-        android:layout_width="200dp"
-        android:layout_height="140dp">
+        android:layout_width="300dp"
+        android:layout_height="250dp">
 
         <com.app.simostools.SwitchGauge
             android:id="@+id/pid_gauge"
@@ -19,19 +19,19 @@
 
         <TextView
             android:id="@+id/pid_text"
-            android:layout_width="140dp"
+            android:layout_width="240dp"
             android:layout_height="match_parent"
             android:layout_centerInParent="true"
             android:gravity="center"
             android:text="@string/textPID"
-            android:textSize="20sp" />
+            android:textSize="24sp" />
 
     </RelativeLayout>
 
     <RelativeLayout
         android:layout_weight="1"
-        android:layout_width="200dp"
-        android:layout_height="140dp">
+        android:layout_width="300dp"
+        android:layout_height="250dp">
 
         <com.app.simostools.SwitchGauge
             android:id="@+id/pid_gauge1"
@@ -41,36 +41,14 @@
 
         <TextView
             android:id="@+id/pid_text1"
-            android:layout_width="140dp"
+            android:layout_width="240dp"
             android:layout_height="match_parent"
             android:layout_centerInParent="true"
             android:gravity="center"
             android:text="@string/textPID"
-            android:textSize="20sp"
+            android:textSize="24sp"
             android:visibility="invisible"/>
 
     </RelativeLayout>
 
-    <RelativeLayout
-        android:layout_weight="1"
-        android:layout_width="200dp"
-        android:layout_height="140dp">
-
-        <com.app.simostools.SwitchGauge
-            android:id="@+id/pid_gauge2"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="invisible"/>
-
-        <TextView
-            android:id="@+id/pid_text2"
-            android:layout_width="140dp"
-            android:layout_height="match_parent"
-            android:layout_centerInParent="true"
-            android:gravity="center"
-            android:text="@string/textPID"
-            android:textSize="20sp"
-            android:visibility="invisible"/>
-
-    </RelativeLayout>
 </LinearLayout>
