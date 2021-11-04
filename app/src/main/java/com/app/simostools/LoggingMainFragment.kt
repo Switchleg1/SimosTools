@@ -63,6 +63,6 @@ class LoggingMainFragment : Fragment() {
                 }.attach()
             }
         }
-        DebugLog.d(TAG, "Built layouts")
+        DebugLog.d(TAG, "Built logging fragments")
     }
 }

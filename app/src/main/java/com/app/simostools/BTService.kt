@@ -857,10 +857,7 @@ class BTService: Service() {
                         if (mTaskTick % ConfigSettings.UPDATE_RATE.toInt() == 0) {
                             val intentMessage = Intent(GUIMessage.READ_LOG.toString())
                             intentMessage.putExtra("readCount", mTaskTick)
-                            intentMessage.putExtra(
-                                "readTime",
-                                System.currentTimeMillis() - mTaskTime
-                            )
+                            intentMessage.putExtra("readTime", System.currentTimeMillis() - mTaskTime)
                             intentMessage.putExtra("readResult", result)
                             sendBroadcast(intentMessage)
                         }

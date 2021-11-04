@@ -81,9 +81,10 @@ open class LoggingCustomFragment : LoggingBaseFragment() {
             //get list of custom PIDS
             var customList = byteArrayOf()
             for (i in 0 until list.count()) {
-                val pid = list[i]!!
-                if (pid.enabled && pid.tabs.contains(mCustomName)) {
-                    customList += i.toByte()
+                list[i]?.let { pid ->
+                    if (pid.enabled && pid.tabs.contains(mCustomName)) {
+                        customList += i.toByte()
+                    }
                 }
             }
             mPIDList = customList
