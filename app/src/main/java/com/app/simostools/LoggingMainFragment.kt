@@ -11,8 +11,9 @@ import com.google.android.material.tabs.TabLayoutMediator
 
 class LoggingMainFragment : Fragment() {
     private val TAG = "LoggingMainFragment"
-    private var mTabLayout: TabLayout? = null
-    private var mViewPager: ViewPager2? = null
+    private var mTabLayout: TabLayout?          = null
+    private var mViewPager: ViewPager2?         = null
+    private var mFragments: Array<Fragment?>?   = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -25,17 +26,33 @@ class LoggingMainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        buildLayouts()
+    }
+
+
+    private fun buildLayouts() {
         mTabLayout = requireActivity().findViewById(R.id.tabLayout)
         mViewPager = requireActivity().findViewById(R.id.viewPager)
 
         mTabLayout?.let { tabs->
             mViewPager?.let { pager ->
+                //pager.removeAllViews()
                 val adapter = ViewPagerAdapter(requireActivity())
-                adapter.addFragment(LoggingFullFragment(), "All")
-                adapter.addFragment(LoggingCustomFragment1(), "Layout1")
-                adapter.addFragment(LoggingCustomFragment2(), "Layout2")
-                adapter.addFragment(LoggingCustomFragment3(), "Layout3")
-                adapter.addFragment(LoggingCustomFragment4(), "Layout4")
+                mFragments = arrayOfNulls(5)
+                mFragments?.let { fragments ->
+                    fragments[0] = LoggingFullFragment()
+                    fragments[1] = LoggingCustomFragment1()
+                    fragments[2] = LoggingCustomFragment2()
+                    fragments[3] = LoggingCustomFragment3()
+                    fragments[4] = LoggingCustomFragment4()
+
+                    fragments.forEach { fragment ->
+                        fragment?.let {
+                            adapter.addFragment(it, (it as LoggingBaseFragment).getName())
+                        }
+                    }
+                }
+
                 pager.adapter = adapter
                 TabLayoutMediator(tabs, pager) { tab, position ->
                     tab.text = adapter.getName(position)
@@ -46,5 +63,6 @@ class LoggingMainFragment : Fragment() {
                 }.attach()
             }
         }
+        DebugLog.d(TAG, "Built layouts")
     }
 }

@@ -18,9 +18,10 @@ class LoggingViewModel : ViewModel() {
 }
 
 class LoggingFullFragment : LoggingBaseFragment() {
-    override var TAG = "LoggingFragment"
-    private var mLastEnabled = false
-    private var mPackCount: TextView? = null
+    override var TAG                    = "LoggingFragment"
+    override var mFragmentName          = "All"
+    private var mLastEnabled            = false
+    private var mPackCount: TextView?   = null
     private lateinit var mViewModel: LoggingViewModel
 
     override fun onCreateView(

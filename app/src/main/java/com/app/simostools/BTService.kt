@@ -889,6 +889,9 @@ class BTService: Service() {
                         }
                     }
                 }
+            } ?: if(UDSLogger.processPacket(mTaskTick, buff, applicationContext) != UDSReturn.OK) {
+                DebugLog.w(TAG, "Logging timeout.")
+                setTaskState(UDSTask.NONE)
             }
         }
 

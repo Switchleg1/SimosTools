@@ -15,15 +15,20 @@ import java.lang.Exception
 import java.lang.Math.abs
 
 open class LoggingBaseFragment: Fragment() {
-    open var TAG = "LoggingBaseFragment"
-    open var mLastWarning = false
-    open var mLayouts: Array<View?>? = null
-    open var mGauges: Array<SwitchGauge?>? = null
-    open var mTextViews: Array<TextView?>? = null
-    open var mPIDsPerLayout = 1
-    open var mLayoutType = R.layout.pid_portrait
-    open var mLayoutName: Int = R.id.loggingLayoutScroll
-    open var mPIDList = byteArrayOf()
+    open var TAG                            = "LoggingBaseFragment"
+    open var mFragmentName                  = "All"
+    open var mLastWarning                   = false
+    open var mLayouts: Array<View?>?        = null
+    open var mGauges: Array<SwitchGauge?>?  = null
+    open var mTextViews: Array<TextView?>?  = null
+    open var mPIDsPerLayout                 = 1
+    open var mLayoutType                    = R.layout.pid_portrait
+    open var mLayoutName: Int               = R.id.loggingLayoutScroll
+    open var mPIDList                       = byteArrayOf()
+
+    fun getName(): String {
+        return mFragmentName
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -31,17 +36,14 @@ open class LoggingBaseFragment: Fragment() {
         //check orientation and type
         checkOrientation()
 
-        //Build our list of PIDS that are to be shown on this tab
-        buildPIDList()
-
-        //Build the layout
-        buildLayout()
-
-        //Do we keep the screen on?
-        view.keepScreenOn = ConfigSettings.KEEP_SCREEN_ON.toBoolean()
+        //Build our layout
+        rebuildLayout()
 
         //update PID text
         updatePIDText()
+
+        //Do we keep the screen on?
+        view.keepScreenOn = ConfigSettings.KEEP_SCREEN_ON.toBoolean()
 
         //Set background color
         view.setBackgroundColor(ColorList.BG_NORMAL.value)
@@ -50,7 +52,7 @@ open class LoggingBaseFragment: Fragment() {
     override fun onResume() {
         super.onResume()
 
-        setColor()
+        rebuildLayout()
 
         val filter = IntentFilter()
         filter.addAction(GUIMessage.READ_LOG.toString())
@@ -80,6 +82,19 @@ open class LoggingBaseFragment: Fragment() {
                 mLayoutType = R.layout.pid_portrait
                 mPIDsPerLayout = 2
             }
+        }
+    }
+
+    open fun rebuildLayout() {
+        view?.let { currentview ->
+            val lLayout = currentview.findViewById<LinearLayout>(mLayoutName)
+            lLayout.removeAllViews()
+            mGauges = null
+            mLayouts = null
+            mTextViews = null
+
+            buildPIDList()
+            buildLayout()
         }
     }
 
@@ -183,6 +198,7 @@ open class LoggingBaseFragment: Fragment() {
     }
 
     open fun updatePIDText() {
+        var lastI = -1
         //Update text
         try {
             for (i in 0 until mPIDList.count()) {
@@ -201,15 +217,17 @@ open class LoggingBaseFragment: Fragment() {
                         )
                     }
                 }
+                lastI = i
             }
         } catch (e: Exception) {
-            DebugLog.e(TAG, "Unable to update text", e)
+            DebugLog.e(TAG, "Unable to update text [$lastI:${mPIDList.count()}]", e)
         }
     }
 
     open fun updateProgress() {
         //Set the UI values
         var warnAny = false
+        var lastI = -1
         try {
             for (i in 0 until mPIDList.count()) {
                 //get the current pid
@@ -249,6 +267,7 @@ open class LoggingBaseFragment: Fragment() {
                     gauge.setMinMaxColor(ColorList.GAUGE_NORMAL.value)
                     warnAny = true
                 }
+                lastI = i
             }
 
             //If any visible PIDS are in warning state set background color to warn
@@ -263,61 +282,7 @@ open class LoggingBaseFragment: Fragment() {
             }
             mLastWarning = warnAny
         } catch (e: Exception) {
-            DebugLog.e(TAG, "Unable to update display", e)
-        }
-    }
-
-    open fun setColor() {
-        try {
-            //Build layout
-            mGauges?.let { gauge ->
-                mTextViews?.let { text ->
-                    var warnAny = false
-                    PIDs.getData()?.let { dataList ->
-                        for (i in 0 until mPIDList.count()) {
-                            //get the current pid
-                            dataList[mPIDList[i].toInt()]?.let { data ->
-                                if (data.warn) {
-                                    gauge[i]?.setProgressColor(ColorList.GAUGE_WARN.value, false)
-                                    gauge[i]?.setMinMaxColor(ColorList.GAUGE_NORMAL.value, false)
-                                    warnAny = true
-                                } else {
-                                    gauge[i]?.setProgressColor(ColorList.GAUGE_NORMAL.value, false)
-                                    gauge[i]?.setMinMaxColor(ColorList.GAUGE_WARN.value, false)
-                                }
-
-                                gauge[i]?.setMinMax(ConfigSettings.DRAW_MIN_MAX.toBoolean(), false)
-                                gauge[i]?.setProgressBackgroundColor(
-                                    ColorList.GAUGE_BG.value,
-                                    false
-                                )
-                                gauge[i]?.setStyle(ConfigSettings.GAUGE_TYPE.toGaugeType(), false)
-                                when (ConfigSettings.GAUGE_TYPE.toGaugeType()) {
-                                    GaugeType.BAR -> gauge[i]?.setProgressWidth(250f)
-                                    GaugeType.ROUND -> gauge[i]?.setProgressWidth(50f)
-                                }
-                                gauge[i]?.setGraduations(ConfigSettings.DRAW_GRADUATIONS.toBoolean(), false)
-                                PIDs.getList()?.let { pidlist ->
-                                    pidlist[mPIDList[i].toInt()]?.let { pid ->
-                                        gauge[i]?.setCentered(kotlin.math.abs(pid.progMin) == kotlin.math.abs(
-                                            pid.progMax
-                                        ), true)
-                                    }
-                                }
-
-                                text[i]?.setTextColor(ColorList.TEXT.value)
-                            }
-                        }
-                    }
-                    //Set background color
-                    if (warnAny) view?.setBackgroundColor(ColorList.BG_WARN.value)
-                    else view?.setBackgroundColor(ColorList.BG_NORMAL.value)
-
-                    mLastWarning = warnAny
-                }
-            }
-        } catch(e: Exception) {
-            DebugLog.e(TAG, "Unable to update PID colors.", e)
+            DebugLog.e(TAG, "Unable to update display [$lastI:${mPIDList.count()}]", e)
         }
     }
 
