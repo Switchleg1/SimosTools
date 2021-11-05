@@ -54,6 +54,8 @@ object UDSFlasher {
     fun setBinFile(input: InputStream) {
         DebugLog.d(TAG, "Received BIN stream from GUI")
         mTask = FLASH_ECU_CAL_SUBTASK.NONE
+        flashConfirmed = false
+        cancelFlash = false
         bin =  input.readBytes()
     }
 
@@ -145,29 +147,31 @@ object UDSFlasher {
                         return UDSReturn.ERROR_RESPONSE
                     }
 
-                    mLastString = mTask.toString() + "\nBox code on selected BIN file: " + String(binAswVersion)
+                    mLastString = mTask.toString() + "\nBox code on selected BIN file: " + String(binAswVersion) +
+                            "\nPlease confirm flash procedure"
                     mTask = mTask.next()
                     mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
                     return UDSReturn.COMMAND_QUEUED
                 }
 
                 FLASH_ECU_CAL_SUBTASK.CONFIRM_PROCEED -> {
+                    mLastString = ""
                     if(cancelFlash){
                         mLastString = "Flash has been canceled"
                         bin = byteArrayOf()
                         mTask = FLASH_ECU_CAL_SUBTASK.NONE
-                        return UDSReturn.ERROR_UNKNOWN
+                        return UDSReturn.ABORTED
                     }
 
                     if(!flashConfirmed){
-                        mLastString = "Please confirm flash procedure"
+
                         return UDSReturn.FLASH_CONFIRM
                     }
                     else{
                         mLastString = "Flash confirmed! Proceeding"
                         mTask = mTask.next()
                         mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
-                        return UDSReturn.COMMAND_QUEUED
+                        return UDSReturn.OK
                     }
                 }
 

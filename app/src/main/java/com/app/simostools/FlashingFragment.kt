@@ -156,6 +156,7 @@ class FlashingFragment : Fragment() {
         filter.addAction(GUIMessage.FLASH_PROGRESS_SHOW.toString())
         filter.addAction(GUIMessage.FLASH_INFO_CLEAR.toString())
         filter.addAction(GUIMessage.FLASH_CONFIRM.toString())
+        filter.addAction(GUIMessage.FLASH_BUTTON_RESET.toString())
         this.activity?.registerReceiver(mBroadcastReceiver, filter)
     }
 
@@ -176,7 +177,29 @@ class FlashingFragment : Fragment() {
                 GUIMessage.FLASH_PROGRESS_MAX.toString()  -> setProgressBarMax(intent.getIntExtra(GUIMessage.FLASH_PROGRESS_MAX.toString(), 0))
                 GUIMessage.FLASH_PROGRESS_SHOW.toString() -> setProgressBarShow(intent.getBooleanExtra(GUIMessage.FLASH_PROGRESS_SHOW.toString(), false))
                 GUIMessage.FLASH_CONFIRM.toString()       -> promptUserConfirmation()
+                GUIMessage.FLASH_BUTTON_RESET.toString()  -> resetFlashButton()
                 //GUIMessage.FLASH_INFO_CLEAR.toString()    -> doClearMessages()
+            }
+        }
+    }
+
+    private fun resetFlashButton() {
+        val flashButton = requireView().findViewById<SwitchButton>(R.id.buttonFlashCAL)
+
+        flashButton.apply {
+            paintBG.color = ColorList.BT_BG.value
+            paintRim.color = ColorList.BT_RIM.value
+            setTextColor(ColorList.BT_TEXT.value)
+            text = "Flash CAL"
+            setOnClickListener {
+                if (mViewModel.connectionState == BLEConnectionState.CONNECTED) {
+                    var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
+                    chooseFile.type = "*/*"
+                    chooseFile = Intent.createChooser(chooseFile, "Choose a CAL file")
+                    resultPickLauncher.launch(chooseFile)
+                } else {
+                    doWriteMessage("Not connected")
+                }
             }
         }
     }
@@ -198,12 +221,14 @@ class FlashingFragment : Fragment() {
                         MotionEvent.ACTION_UP -> {
                             var now = SystemClock.uptimeMillis()
                             if(now - flashConfirmationHoldTime > 1000){
-                                //Button was held
+
                                 sendServiceMessage(BTServiceTask.FLASH_CONFIRMED.toString())
+
                             }
                             else{
-                                //Button was pressed
+
                                 sendServiceMessage(BTServiceTask.FLASH_CANCELED.toString())
+
                             }
 
                         }
@@ -212,6 +237,9 @@ class FlashingFragment : Fragment() {
                     return v?.onTouchEvent(event) ?: true
                 }
             })
+            setOnClickListener {
+
+            }
         }
     }
 

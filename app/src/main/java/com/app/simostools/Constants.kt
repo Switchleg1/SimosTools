@@ -21,7 +21,8 @@ enum class GUIMessage {
     FLASH_PROGRESS,
     FLASH_PROGRESS_MAX,
     FLASH_PROGRESS_SHOW,
-    FLASH_CONFIRM
+    FLASH_CONFIRM,
+    FLASH_BUTTON_RESET
 }
 
 // Constants that indicate the current connection state
@@ -104,6 +105,7 @@ enum class UDSReturn {
     COMMAND_QUEUED,
     CLEAR_DTC_REQUEST,
     FLASH_CONFIRM,
+    ABORTED,
 }
 
 enum class ECUInfo(val str: String, val address: ByteArray) {
