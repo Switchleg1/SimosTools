@@ -23,13 +23,13 @@
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/buttonColorSave" />
+        app:layout_constraintStart_toEndOf="@+id/buttonColorSet" />
 
     <com.app.simostools.SwitchButton
-        android:id="@+id/buttonColorSave"
+        android:id="@+id/buttonColorSet"
         android:layout_width="0dp"
         android:layout_height="40dp"
-        android:text="@string/button_save"
+        android:text="@string/button_set"
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/buttonColorBack"

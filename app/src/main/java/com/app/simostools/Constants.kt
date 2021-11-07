@@ -21,8 +21,11 @@ enum class GUIMessage {
     FLASH_PROGRESS,
     FLASH_PROGRESS_MAX,
     FLASH_PROGRESS_SHOW,
+
     FLASH_CONFIRM,
-    FLASH_BUTTON_RESET
+    FLASH_BUTTON_RESET,
+
+    PID_RELOAD
 }
 
 // Constants that indicate the current connection state
@@ -484,4 +487,3 @@ fun Long.toHex(): String = "%16x".format(this)
 fun Long.toArray2(): ByteArray = byteArrayOf((this and 0xFF00 shr 8).toByte(), (this and 0xFF).toByte())
 fun Long.toArray4(): ByteArray = byteArrayOf((this and 0xFF000000 shr 24).toByte(), (this and 0xFF0000 shr 16).toByte(), (this and 0xFF00 shr 8).toByte(), (this and 0xFF).toByte())
 fun ByteArray.toHex(): String = joinToString(separator = " ") { eachByte -> "%02x".format(eachByte) }
-

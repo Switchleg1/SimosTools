@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
             //Write pid default files
             UDSLoggingMode.values().forEach { mode ->
                 //Build default PID data in case we don't load a csv
-                PIDs.buildData(mode)
+                PIDs.loadDefaultPIDS(mode)
 
                 //write default
                 PIDCSVFile.write(getString(R.string.filename_pid_csv, mode.cfgName), applicationContext, PIDs.getList(mode), false)

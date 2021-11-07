@@ -35,18 +35,6 @@ open class LoggingBaseFragment: Fragment() {
 
         //check orientation and type
         checkOrientation()
-
-        //Build our layout
-        buildLayout()
-
-        //update PID text
-        updatePIDText()
-
-        //Do we keep the screen on?
-        view.keepScreenOn = ConfigSettings.KEEP_SCREEN_ON.toBoolean()
-
-        //Set background color
-        view.setBackgroundColor(ColorList.BG_NORMAL.value)
     }
 
     override fun onResume() {
@@ -62,6 +50,22 @@ open class LoggingBaseFragment: Fragment() {
         super.onPause()
 
         this.activity?.unregisterReceiver(mBroadcastReceiver)
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        //Build our layout
+        buildLayout()
+
+        //update PID text
+        updatePIDText()
+
+        //Do we keep the screen on?
+        view?.keepScreenOn = ConfigSettings.KEEP_SCREEN_ON.toBoolean()
+
+        //Set background color
+        view?.setBackgroundColor(ColorList.BG_NORMAL.value)
     }
 
     open fun checkOrientation() {
@@ -87,7 +91,7 @@ open class LoggingBaseFragment: Fragment() {
         view?.let { currentview ->
             try {
                 //Clear current layout
-                val lLayout = currentview.findViewById<LinearLayout>(mLayoutName)
+                var lLayout = currentview.findViewById<LinearLayout>(mLayoutName)
                 lLayout.removeAllViews()
                 mGauges = null
                 mLayouts = null
@@ -112,7 +116,7 @@ open class LoggingBaseFragment: Fragment() {
                         when (i % mPIDsPerLayout) {
                             0 -> {
                                 val pidLayout = layoutInflater.inflate(mLayoutType, null)
-                                val lLayout = currentview.findViewById<LinearLayout>(mLayoutName)
+                                lLayout = currentview.findViewById(mLayoutName)
                                 lLayout.addView(pidLayout)
                                 mLayouts!![i / mPIDsPerLayout] = pidLayout
                                 progID = R.id.pid_gauge
