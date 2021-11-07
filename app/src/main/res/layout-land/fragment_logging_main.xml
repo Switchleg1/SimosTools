@@ -23,30 +23,30 @@
         android:id="@+id/viewPagerLogging"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginBottom="64dp"
+        android:layout_marginRight="64dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tabLayoutLogging" >
     </androidx.viewpager2.widget.ViewPager2>
 
     <TextView
         android:id="@+id/textViewPackCount"
-        android:layout_width="80dp"
+        android:layout_width="64dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
         android:text="@string/textview_fps_null"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <com.app.simostools.SwitchButton
         android:id="@+id/buttonLoggingBack"
-        android:layout_width="0dp"
-        android:layout_height="64dp"
+        android:layout_width="64dp"
+        android:layout_height="match_parent"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="64dp"
         android:text="@string/button_back"
         android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textViewPackCount" />
+        app:layout_constraintTop_toBottomOf="@+id/tabLayoutLogging"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

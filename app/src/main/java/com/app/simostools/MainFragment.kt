@@ -51,6 +51,7 @@ class MainFragment : Fragment() {
             paintRim.color = ColorList.BT_RIM.value
             setTextColor(ColorList.BT_TEXT.value)
             setOnClickListener {
+                TempPIDS.reset(context)
                 ColorSettings.resetColors()
                 findNavController().navigate(R.id.action_MainFragment_to_SettingsFragment)
             }

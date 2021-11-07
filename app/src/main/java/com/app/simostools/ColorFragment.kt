@@ -64,7 +64,7 @@ class ColorFragment : Fragment() {
             }
         }
 
-        val saveButton = view.findViewById<SwitchButton>(R.id.buttonColorSave)
+        val saveButton = view.findViewById<SwitchButton>(R.id.buttonColorSet)
         saveButton.apply {
             paintBG.color = ColorList.BT_BG.value
             paintRim.color = ColorList.BT_RIM.value

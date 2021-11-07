@@ -11,6 +11,8 @@
     <string name="tab_settings">Settings</string>
     <string name="tab_logging">Logging</string>
     <!-- Strings used for buttons -->
+    <string name="switch_enable">Enable</string>
+    <!-- Strings used for buttons -->
     <string name="button_exit">Exit</string>
     <string name="button_flashing">Flashing</string>
     <string name="button_logging">Logging</string>
@@ -22,6 +24,7 @@
     <string name="button_start">Start</string>
     <string name="button_reset">Reset</string>
     <string name="button_save">Save</string>
+    <string name="button_set">Set</string>
     <string name="button_cancel">Cancel</string>
     <string name="button_settings">Settings</string>
     <string name="button_set_bg_normal_color">Set background normal color</string>
@@ -70,11 +73,34 @@
     <string name="textview_settings_import_csv">Import PID CSV:</string>
     <string name="textview_settings_import_22_csv">22 CSV</string>
     <string name="textview_settings_import_3E_csv">3E CSV</string>
+    <string name="textview_settings_import_22_csv_reset">Reset 22 CSV</string>
+    <string name="textview_settings_import_3E_csv_reset">Reset 3E CSV</string>
+    <string name="textview_settings_pid_up">↑</string>
+    <string name="textview_settings_pid_down">↓</string>
+    <string name="textview_settings_pid_name">Name:</string>
+    <string name="textview_settings_pid_unit">Unit:</string>
+    <string name="textview_settings_pid_address">Address:</string>
+    <string name="textview_settings_pid_length">Length:</string>
+    <string name="textview_settings_pid_gauge_min">Gauge Min:</string>
+    <string name="textview_settings_pid_gauge_max">Gauge Max:</string>
+    <string name="textview_settings_pid_warn_min">Warn Min:</string>
+    <string name="textview_settings_pid_warn_max">Warn Max:</string>
+    <string name="textview_settings_pid_equation">Equation:</string>
+    <string name="textview_settings_pid_smoothing">Smoothing:</string>
+    <string name="textview_settings_pid_assign_to">Assign To:</string>
+    <string name="textview_settings_pid_format">Format:</string>
+    <string name="textview_settings_pid_enabled">Enabled</string>
+    <string name="textview_settings_pid_layout1">L1</string>
+    <string name="textview_settings_pid_layout2">L2</string>
+    <string name="textview_settings_pid_layout3">L3</string>
+    <string name="textview_settings_pid_layout4">L4</string>
     <string name="textview_color_r">R: <xliff:g id="value">%1$d</xliff:g></string>
     <string name="textview_color_g">G: <xliff:g id="value">%1$d</xliff:g></string>
     <string name="textview_color_b">B: <xliff:g id="value">%1$d</xliff:g></string>
     <string name="textview_fps">fps: <xliff:g id="value">%1$s</xliff:g></string>
     <string name="textview_fps_null">fps: 0</string>
+    <!-- Strings used for edit text -->
+    <string name="edittext_pid_name"><xliff:g id="value">%1$s</xliff:g></string>
     <!-- Strings used for misc -->
     <string name="bt_status">Bluetooth: </string>
     <string name="bt_connect">Connect</string>

@@ -25,6 +25,8 @@ object UDSLogger {
     private var mTimeoutCounter     = TIME_OUT_LOGGING
     private var mCalculatedTQ       = 0f
     private var mCalculatedHP       = 0f
+    private var mLastFrameSize      = -1
+    private var mRevision           = "SimosTools [R1:Aaron loves:Pops'n'Bangs]"
 
     fun getTQ(): Float {
         return mCalculatedTQ
@@ -340,10 +342,12 @@ object UDSLogger {
                     0x00.toByte()
                 )
 
+                mLastFrameSize = -1
                 DebugLog.d(TAG, "Building 3E frame $index with length ${writeBuffer.count()}: ${writeBuffer.toHex()}")
                 return writeBuffer
             }
 
+            mLastFrameSize = -1
             DebugLog.d(TAG, "Building 3E frame $index does not exist")
             return byteArrayOf()
         }
@@ -365,7 +369,8 @@ object UDSLogger {
             0x32.toByte()
         ) + memoryOffset.toArray4() + selectArray.count().toArray2() + selectArray
 
-        DebugLog.d(TAG, "Building 3E frame $index with length ${writeBuffer.count()}: ${writeBuffer.toHex()}")
+        mLastFrameSize = selectArray.count()
+        DebugLog.d(TAG, "Building 3E frame $index with length ${writeBuffer.count()}:${writeBuffer.toHex()}:$mLastFrameSize")
         return writeBuffer
     }
 
@@ -480,12 +485,9 @@ object UDSLogger {
             }
 
             // make sure we received an 'OK' from the ECU while initiating
-            if(tick < frameCount3E()) {
-                if(tick < frameCount3E()-2 && (bData[1] != 0x00.toByte() || bData[2] != 0x8f.toByte())) {
+            if(tick < frameCount3E()-1) {
+                if(bData[1] != 0x00.toByte() || bData[2] != (mLastFrameSize and 0xFF).toByte())
                     return UDSReturn.ERROR_RESPONSE
-                } else if(tick == frameCount3E()-2 && (bData[1] != 0x00.toByte() || bData[2] != 0x37.toByte())) {
-                    return UDSReturn.ERROR_RESPONSE
-                }
 
                 return UDSReturn.OK
             }
@@ -547,6 +549,10 @@ object UDSLogger {
     }
 
     private fun writeToLog(tick: Int, context: Context): UDSReturn {
+        //don't log until stream is constant
+        if(tick < 50)
+            return UDSReturn.OK
+
         PIDs.getList()?.let { list ->
             val dEnable = list[list.count() - 1]
             if ((!ConfigSettings.INVERT_CRUISE.toBoolean() && dEnable?.value != 0.0f) ||
@@ -566,9 +572,10 @@ object UDSLogger {
                     //Add time its required
                     var strItems: String? = "Time"
 
-                    //Add PIDs
+                    //Add PIDs including units
                     for (x in 0 until list.count()) {
-                        strItems += ",${list[x]?.name}"
+                        if(x != list.count()-1) strItems += ",${list[x]?.name} (${list[x]?.unit})"
+                            else strItems += ",$mRevision"
                     }
 
                     //Send it

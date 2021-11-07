@@ -20,6 +20,7 @@ enum class GUIMessage {
     FLASH_PROGRESS,
     FLASH_PROGRESS_MAX,
     FLASH_PROGRESS_SHOW,
+    PID_RELOAD
 }
 
 // Constants that indicate the current connection state

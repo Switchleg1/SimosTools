@@ -41,9 +41,9 @@
 
     <fragment
         android:id="@+id/SettingsFragment"
-        android:name="com.app.simostools.SettingsFragment"
+        android:name="com.app.simostools.SettingsMainFragment"
         android:label="@string/nav_settings"
-        tools:layout="@layout/fragment_settings">
+        tools:layout="@layout/fragment_settings_main">
 
         <action
             android:id="@+id/action_SettingsFragment_to_ColorFragment"

@@ -1,6 +1,7 @@
 package com.app.simostools
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -9,19 +10,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import android.widget.Toast
 
 class SettingsViewModel : ViewModel() {
     var logMode = UDSLoggingMode.MODE_22
 }
 
-class SettingsFragment : Fragment() {
-    private val TAG = "Settings"
+class SettingsGeneralFragment : Fragment() {
+    private val TAG = "SettingsGeneral"
     private lateinit var mViewModel: SettingsViewModel
 
     var resultPickLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -35,6 +36,8 @@ class SettingsFragment : Fragment() {
                     val CSVFileName = getString(R.string.filename_pid_csv, mViewModel.logMode.cfgName)
                     if(PIDCSVFile.write(CSVFileName, context, pidList, true)) {
                         PIDs.setList(mViewModel.logMode, pidList)
+
+                        findNavController().navigateUp()
 
                         Toast.makeText(activity, "Success", Toast.LENGTH_SHORT).show()
                     } else {
@@ -52,32 +55,12 @@ class SettingsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_settings, container, false)
+        return inflater.inflate(R.layout.fragment_settings_general, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mViewModel = ViewModelProvider(this).get(SettingsViewModel::class.java)
-
-        val backButton = view.findViewById<SwitchButton>(R.id.buttonSettingsBack)
-        backButton.apply {
-            paintBG.color = ColorList.BT_BG.value
-            paintRim.color = ColorList.BT_RIM.value
-            setTextColor(ColorList.BT_TEXT.value)
-            setOnClickListener {
-                findNavController().navigateUp()
-            }
-        }
-
-        val saveButton = view.findViewById<SwitchButton>(R.id.buttonSettingsSave)
-        saveButton.apply {
-            paintBG.color = ColorList.BT_BG.value
-            paintRim.color = ColorList.BT_RIM.value
-            setTextColor(ColorList.BT_TEXT.value)
-            setOnClickListener {
-                doSave()
-            }
-        }
 
         val csv22Button = view.findViewById<SwitchButton>(R.id.button22CSV)
         csv22Button.apply {
@@ -104,6 +87,58 @@ class SettingsFragment : Fragment() {
                 chooseFile = Intent.createChooser(chooseFile, "Choose a 3E A CSV")
                 mViewModel.logMode = UDSLoggingMode.MODE_3E
                 resultPickLauncher.launch(chooseFile)
+            }
+        }
+
+        val csv22ButtonReset = view.findViewById<SwitchButton>(R.id.button22CSVReset)
+        csv22ButtonReset.apply {
+            paintBG.color = ColorList.BT_BG.value
+            paintRim.color = ColorList.BT_RIM.value
+            setTextColor(ColorList.BT_TEXT.value)
+            setOnClickListener {
+                val builder = AlertDialog.Builder(context)
+                //Setting message manually and performing action on button click
+                builder.setMessage("Do you want to load mode 22 csv defaults?")
+                    .setCancelable(false)
+                    .setPositiveButton("Yes",  { dialog, id ->
+                        PIDs.loadDefaultPIDS(UDSLoggingMode.MODE_22)
+                        TempPIDS.reset(context)
+                        TempPIDS.save(context)
+                        findNavController().navigateUp()
+                    })
+                    .setNegativeButton("No", { dialog, id -> })
+                //Creating dialog box
+                val alert: AlertDialog = builder.create()
+
+                //Setting the title manually
+                alert.setTitle("Reset mode 22 CSV")
+                alert.show()
+            }
+        }
+
+        val csv3EButtonReset = view.findViewById<SwitchButton>(R.id.button3ECSVReset)
+        csv3EButtonReset.apply {
+            paintBG.color = ColorList.BT_BG.value
+            paintRim.color = ColorList.BT_RIM.value
+            setTextColor(ColorList.BT_TEXT.value)
+            setOnClickListener {
+                val builder = AlertDialog.Builder(context)
+                //Setting message manually and performing action on button click
+                builder.setMessage("Do you want to load mode 3E csv defaults?")
+                    .setCancelable(false)
+                    .setPositiveButton("Yes",  { dialog, id ->
+                        PIDs.loadDefaultPIDS(UDSLoggingMode.MODE_3E)
+                        TempPIDS.reset(context)
+                        TempPIDS.save(context)
+                        findNavController().navigateUp()
+                    })
+                    .setNegativeButton("No", { dialog, id -> })
+                //Creating dialog box
+                val alert: AlertDialog = builder.create()
+
+                //Setting the title manually
+                alert.setTitle("Reset mode 3E CSV")
+                alert.show()
             }
         }
 
@@ -226,44 +261,15 @@ class SettingsFragment : Fragment() {
 
     private fun doSetColor() {
         view?.let { currentView ->
-            //Set button color
-            val backButton = currentView.findViewById<SwitchButton>(R.id.buttonSettingsBack)
-            backButton.apply {
-                paintBG.color = ColorList.BT_BG.value
-                paintRim.color = ColorList.BT_RIM.value
-                setTextColor(ColorList.BT_TEXT.value)
-            }
-
-            val saveButton = currentView.findViewById<SwitchButton>(R.id.buttonSettingsSave)
-            saveButton.apply {
-                paintBG.color = ColorList.BT_BG.value
-                paintRim.color = ColorList.BT_RIM.value
-                setTextColor(ColorList.BT_TEXT.value)
-            }
-
-            val csv22Button = currentView.findViewById<SwitchButton>(R.id.button22CSV)
-            csv22Button.apply {
-                paintBG.color = ColorList.BT_BG.value
-                paintRim.color = ColorList.BT_RIM.value
-                setTextColor(ColorList.BT_TEXT.value)
-            }
-
-            val csv3EButton = currentView.findViewById<SwitchButton>(R.id.button3ECSV)
-            csv3EButton.apply {
-                paintBG.color = ColorList.BT_BG.value
-                paintRim.color = ColorList.BT_RIM.value
-                setTextColor(ColorList.BT_TEXT.value)
-            }
-
             //Set font color
             val color = ColorList.TEXT.value
             currentView.findViewById<TextView>(R.id.textViewUpdateRate).setTextColor(color)
             currentView.findViewById<TextView>(R.id.textViewPersistDelay).setTextColor(color)
             currentView.findViewById<TextView>(R.id.textViewPersistQDelay).setTextColor(color)
+            currentView.findViewById<TextView>(R.id.textViewPIDCSV).setTextColor(color)
             currentView.findViewById<TextView>(R.id.textViewOutputDirectory).setTextColor(color)
             currentView.findViewById<TextView>(R.id.textViewDisplayType).setTextColor(color)
             currentView.findViewById<TextView>(R.id.textViewLoggingMode).setTextColor(color)
-            currentView.findViewById<TextView>(R.id.textViewPIDCSV).setTextColor(color)
             currentView.findViewById<TextView>(R.id.textViewMiscOptions).setTextColor(color)
             currentView.findViewById<TextView>(R.id.textViewCalcHPOptions).setTextColor(color)
             currentView.findViewById<TextView>(R.id.textViewColorOptions).setTextColor(color)
@@ -394,7 +400,7 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    private fun doSave() {
+    fun doSave() {
         view?.let { currentView ->
             // Set update rate
             ConfigFile.set(ConfigSettings.UPDATE_RATE.cfgName, (11-currentView.findViewById<SeekBar>(R.id.seekBarUpdateRate).progress).toString())
@@ -464,15 +470,6 @@ class SettingsFragment : Fragment() {
                     ColorSettings.mColorList[i].toColorHex()
                 )
             }
-
-            //Stop all tasks
-            val serviceIntent = Intent(context, BTService::class.java)
-            serviceIntent.action = BTServiceTask.DO_STOP_TASK.toString()
-            ContextCompat.startForegroundService(this.requireContext(), serviceIntent)
-
-            // Write config
-            ConfigFile.write(getString(R.string.filename_config), context)
-            ConfigFile.read(getString(R.string.filename_config), context)
 
             //Reset colors
             ColorSettings.resetColors()
