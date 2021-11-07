@@ -513,6 +513,7 @@ object UDSFlasher {
 
                 }
                 FLASH_ECU_CAL_SUBTASK.RESET_ECU -> {
+                    DebugLog.d(TAG,"Response during reset ecu request: " + buff.toHex())
                     when(checkResponse(buff)){
                         UDS_RESPONSE.POSITIVE_RESPONSE -> {
                             mCommand = UDS_COMMAND.RESET_ECU.bytes
@@ -521,7 +522,19 @@ object UDSFlasher {
                         }
                         UDS_RESPONSE.ECU_RESET_ACCEPTED -> {
                             mLastString = "Resetting ECU Complete, Please cycle Key"
-                            return UDSReturn.OK
+                            bin = byteArrayOf()
+                            mTask = FLASH_ECU_CAL_SUBTASK.NONE
+                            return UDSReturn.FLASH_COMPLETE
+                        }
+                        UDS_RESPONSE.NEGATIVE_RESPONSE -> {
+                            if (buff[2] == 0x78.toByte()) {
+                                mLastString = ""
+                                //just a wait message, return OK
+                                return UDSReturn.OK
+                            }
+                            else {
+                                return UDSReturn.ERROR_UNKNOWN
+                            }
                         }
                         else -> {
                             return UDSReturn.ERROR_UNKNOWN

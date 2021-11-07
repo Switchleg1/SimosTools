@@ -106,6 +106,7 @@ enum class UDSReturn {
     CLEAR_DTC_REQUEST,
     FLASH_CONFIRM,
     ABORTED,
+    FLASH_COMPLETE
 }
 
 enum class ECUInfo(val str: String, val address: ByteArray) {

@@ -961,6 +961,9 @@ class BTService: Service() {
                         val intentMessage = Intent(GUIMessage.FLASH_BUTTON_RESET.toString())
                         sendBroadcast(intentMessage)
                     }
+                    UDSReturn.FLASH_COMPLETE -> {
+
+                    }
                     UDSReturn.CLEAR_DTC_REQUEST -> {
 
                             //Send clear request
