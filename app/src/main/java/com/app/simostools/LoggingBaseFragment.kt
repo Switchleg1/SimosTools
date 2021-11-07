@@ -37,7 +37,7 @@ open class LoggingBaseFragment: Fragment() {
         checkOrientation()
 
         //Build our layout
-        rebuildLayout()
+        buildLayout()
 
         //update PID text
         updatePIDText()
@@ -51,8 +51,6 @@ open class LoggingBaseFragment: Fragment() {
 
     override fun onResume() {
         super.onResume()
-
-        rebuildLayout()
 
         val filter = IntentFilter()
         filter.addAction(GUIMessage.READ_LOG.toString())
@@ -85,23 +83,19 @@ open class LoggingBaseFragment: Fragment() {
         }
     }
 
-    open fun rebuildLayout() {
-        view?.let { currentview ->
-            val lLayout = currentview.findViewById<LinearLayout>(mLayoutName)
-            lLayout.removeAllViews()
-            mGauges = null
-            mLayouts = null
-            mTextViews = null
-
-            buildPIDList()
-            buildLayout()
-            DebugLog.i(TAG, "Rebuilt layout.")
-        }
-    }
-
     open fun buildLayout() {
         view?.let { currentview ->
             try {
+                //Clear current layout
+                val lLayout = currentview.findViewById<LinearLayout>(mLayoutName)
+                lLayout.removeAllViews()
+                mGauges = null
+                mLayouts = null
+                mTextViews = null
+
+                //Build PID List
+                buildPIDList()
+
                 //Build layout
                 PIDs.getList()?.let { list ->
                     var layoutCount = mPIDList.count() / mPIDsPerLayout
@@ -191,6 +185,8 @@ open class LoggingBaseFragment: Fragment() {
                         }
                         gauge.setEnable(pid.enabled)
                     }
+
+                    DebugLog.d(TAG, "Built layout.")
                 }
             } catch (e: Exception) {
                 DebugLog.e(TAG, "Unable to build PID layout.", e)
@@ -222,7 +218,7 @@ open class LoggingBaseFragment: Fragment() {
             }
         } catch (e: Exception) {
             DebugLog.e(TAG, "Unable to update text [$lastI:${mPIDList.count()}]", e)
-            rebuildLayout()
+            buildLayout()
         }
     }
 
@@ -285,7 +281,7 @@ open class LoggingBaseFragment: Fragment() {
             mLastWarning = warnAny
         } catch (e: Exception) {
             DebugLog.e(TAG, "Unable to update display [$lastI:${mPIDList.count()}]", e)
-            rebuildLayout()
+            buildLayout()
         }
     }
 

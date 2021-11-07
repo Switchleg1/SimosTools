@@ -90,7 +90,8 @@ class MainFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        sendServiceMessage(BTServiceTask.DO_STOP_TASK.toString())
+        if(!ConfigSettings.AUTO_LOG.toBoolean())
+            sendServiceMessage(BTServiceTask.DO_STOP_TASK.toString())
     }
 
     private fun sendServiceMessage(type: String) {

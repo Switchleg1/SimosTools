@@ -305,10 +305,13 @@ object UDSLogger {
 
             val buff = byteArrayOf(0x22.toByte()) + mAddressArray22.copyOfRange(startIndex, endIndex)
             bleHeader.cmdSize = buff.count()
+            val writeBuffer = bleHeader.toByteArray() + buff
 
-            return bleHeader.toByteArray() + buff
+            DebugLog.d(TAG, "Building 22 frame $index with length ${writeBuffer.count()}: ${writeBuffer.toHex()}")
+            return writeBuffer
         }
 
+        DebugLog.d(TAG, "Building 22 frame $index does not exist")
         return byteArrayOf()
     }
 
