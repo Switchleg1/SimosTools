@@ -476,11 +476,13 @@ object UDSLogger {
 
             // make sure we received an 'OK' from the ECU
             if (bData.count() < 3 || bData[0] != 0x7e.toByte()) {
+                DebugLog.d(TAG, "ERROR in response from ECU: " + bData.toHex())
                 return UDSReturn.ERROR_RESPONSE
             }
 
             // make sure we received an 'OK' from the ECU while initiating
             if(tick < frameCount3E()) {
+                DebugLog.d(TAG, "ERROR in response from ECU: " + bData.toHex())
                 if(tick < frameCount3E()-2 && (bData[1] != 0x00.toByte() || bData[2] != 0x8f.toByte())) {
                     return UDSReturn.ERROR_RESPONSE
                 } else if(tick == frameCount3E()-2 && (bData[1] != 0x00.toByte() || bData[2] != 0x37.toByte())) {
