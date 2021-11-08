@@ -16,9 +16,9 @@ class SwitchButton: androidx.appcompat.widget.AppCompatTextView {
         super.setGravity(Gravity.CENTER)
     }
 
-    private var mRect   = RectF(0f, 0f, 0f,0f)
-    var margin          = 10f
-    var round           = 50f
+    private var mRect       = RectF(0f, 0f, 0f,0f)
+    var margin              = 10f
+    var round               = 50f
     val paintBG: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style       = Paint.Style.FILL
         color       = Color.LTGRAY

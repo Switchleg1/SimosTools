@@ -20,16 +20,6 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import android.media.MediaPlayer
-
-import android.R.attr.name
-import kotlinx.coroutines.delay
-
-import android.R.attr.name
-import java.util.*
-import android.os.CountDownTimer
-
-import android.R.attr.name
 
 var gMsgList: Array<String>? = null
 

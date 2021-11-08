@@ -1,8 +1,9 @@
 package com.app.simostools
 
 object UDSdtc {
-    private val TAG = "UDSdtc"
-    private var mLastString: String = ""
+    private val TAG                     = "UDSdtc"
+    private var mLastString: String     = ""
+    private var mTimeoutCounter: Int    = TIME_OUT_DTC
 
     fun getInfo(): String {
         return mLastString
@@ -29,6 +30,8 @@ object UDSdtc {
 
     fun processPacket(ticks: Int, buff: ByteArray?): UDSReturn {
         buff?.let {
+            resetTimeout()
+
             if(ticks < getStartCount()) {
                 if (buff.count() == 9 && buff[8] == 0x44.toByte()) {
                     mLastString = "DTC: cleared."
@@ -42,6 +45,18 @@ object UDSdtc {
             return UDSReturn.ERROR_UNKNOWN
         }
 
-        return UDSReturn.ERROR_NULL
+        return addTimeout()
+    }
+
+    private fun addTimeout(): UDSReturn {
+        if(--mTimeoutCounter == 0) {
+            return UDSReturn.ERROR_TIME_OUT
+        }
+
+        return UDSReturn.OK
+    }
+
+    private fun resetTimeout() {
+        mTimeoutCounter = TIME_OUT_DTC
     }
 }

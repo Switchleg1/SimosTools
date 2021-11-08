@@ -22,7 +22,8 @@ class SettingsViewModel : ViewModel() {
 }
 
 class SettingsGeneralFragment : Fragment() {
-    private val TAG = "SettingsGeneral"
+    private val TAG                                     = "SettingsGeneral"
+    private var mLoadCallback: (() -> Unit)?            = null
     private lateinit var mViewModel: SettingsViewModel
 
     var resultPickLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -36,9 +37,8 @@ class SettingsGeneralFragment : Fragment() {
                     val CSVFileName = getString(R.string.filename_pid_csv, mViewModel.logMode.cfgName)
                     if(PIDCSVFile.write(CSVFileName, context, pidList, true)) {
                         PIDs.setList(mViewModel.logMode, pidList)
-
-                        findNavController().navigateUp()
-
+                        TempPIDS.reset(context)
+                        mLoadCallback?.invoke()
                         Toast.makeText(activity, "Success", Toast.LENGTH_SHORT).show()
                     } else {
                         Toast.makeText(activity, "Failed", Toast.LENGTH_SHORT).show()
@@ -100,13 +100,13 @@ class SettingsGeneralFragment : Fragment() {
                 //Setting message manually and performing action on button click
                 builder.setMessage("Do you want to load mode 22 csv defaults?")
                     .setCancelable(false)
-                    .setPositiveButton("Yes",  { dialog, id ->
+                    .setPositiveButton("Yes") { _, _ ->
                         PIDs.loadDefaultPIDS(UDSLoggingMode.MODE_22)
                         TempPIDS.reset(context)
                         TempPIDS.save(context)
-                        findNavController().navigateUp()
-                    })
-                    .setNegativeButton("No", { dialog, id -> })
+                        mLoadCallback?.invoke()
+                    }
+                    .setNegativeButton("No") { _, _ -> }
                 //Creating dialog box
                 val alert: AlertDialog = builder.create()
 
@@ -126,13 +126,13 @@ class SettingsGeneralFragment : Fragment() {
                 //Setting message manually and performing action on button click
                 builder.setMessage("Do you want to load mode 3E csv defaults?")
                     .setCancelable(false)
-                    .setPositiveButton("Yes",  { dialog, id ->
+                    .setPositiveButton("Yes") { _, _ ->
                         PIDs.loadDefaultPIDS(UDSLoggingMode.MODE_3E)
                         TempPIDS.reset(context)
                         TempPIDS.save(context)
-                        findNavController().navigateUp()
-                    })
-                    .setNegativeButton("No", { dialog, id -> })
+                        mLoadCallback?.invoke()
+                    }
+                    .setNegativeButton("No") { _, _ -> }
                 //Creating dialog box
                 val alert: AlertDialog = builder.create()
 
@@ -398,6 +398,10 @@ class SettingsGeneralFragment : Fragment() {
             //Set colors
             doSetColor()
         }
+    }
+
+    fun setLoadCallback(callback: (() -> Unit)?) {
+        mLoadCallback = callback
     }
 
     fun doSave() {
