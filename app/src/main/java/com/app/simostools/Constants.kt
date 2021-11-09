@@ -153,6 +153,21 @@ enum class FLASH_ECU_CAL_SUBTASK {
     }
 }
 
+enum class FLASH_ECU_BLOCK{
+    NONE,
+    CBOOT,
+    ASW1,
+    ASW2,
+    ASW3,
+    CAL;
+
+    fun next(): FLASH_ECU_BLOCK {
+        val vals = FLASH_ECU_BLOCK.values()
+        return vals[(this.ordinal+1) % vals.size]
+
+    }
+}
+
 //Color List
 enum class ColorList(var value: Int, val cfgName: String) {
     BG_NORMAL(Color.rgb(64, 64, 64), "BGNormal"),

@@ -11,9 +11,11 @@ object UDSFlasher {
     private var flashConfirmed: Boolean = false
     private var cancelFlash: Boolean = false
     private var bin: ByteArray = byteArrayOf()
+    private var inputBin: ByteArray = byteArrayOf()
     private var ecuAswVersion: ByteArray = byteArrayOf()
     private var transferSequence = -1
     private var progress = 0
+    private var flashEcuBlock = FLASH_ECU_BLOCK.NONE
 
     fun getSubtask(): FLASH_ECU_CAL_SUBTASK{
         return mTask
@@ -56,28 +58,31 @@ object UDSFlasher {
         mTask = FLASH_ECU_CAL_SUBTASK.NONE
         flashConfirmed = false
         cancelFlash = false
-        bin =  input.readBytes()
+        inputBin =  input.readBytes()
     }
 
     fun startTask(ticks: Int): ByteArray {
 
-        if(bin.size < 500000){
+        if(inputBin.size < 500000){
             mLastString = "Selected file too small..."
             return byteArrayOf()
         }
-        else if(bin.size > 500000 && bin.size < 4000000){
+        else if(inputBin.size > 500000 && inputBin.size < 4000000){
             //Read box code from ECU
             mTask = FLASH_ECU_CAL_SUBTASK.GET_ECU_BOX_CODE
+            flashEcuBlock = FLASH_ECU_BLOCK.CAL
 
             DebugLog.d(TAG, "Initiating Calibration Flash subroutine: " + mTask.toString())
             mLastString = "Initiating calibration flash routines"
+            bin = inputBin
             return UDS_COMMAND.READ_IDENTIFIER.bytes + ECUInfo.PART_NUMBER.address
         }
         else{
             //It's a full bin flash....
             mLastString = "Full flash isn't implemented yet, extracting JUST the cal..."
             mTask = FLASH_ECU_CAL_SUBTASK.GET_ECU_BOX_CODE
-            bin = FlashUtilities.splitBinBlocks(bin)[5]
+            flashEcuBlock = FLASH_ECU_BLOCK.CAL
+            bin = FlashUtilities.splitBinBlocks(inputBin)[5]
             return UDS_COMMAND.READ_IDENTIFIER.bytes + ECUInfo.PART_NUMBER.address
         }
     }
