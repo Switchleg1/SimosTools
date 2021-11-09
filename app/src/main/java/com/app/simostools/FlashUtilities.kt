@@ -677,6 +677,7 @@ enum class UDS_COMMAND(val bytes: ByteArray){
 enum class UDS_ROUTINE(val bytes: ByteArray){
     CHECK_PROGRAMMING_PRECONDITION(byteArrayOf(0x02.toByte(),0x03.toByte())),
     ERASE_BLOCK(byteArrayOf(0xFF.toByte(),0x00.toByte())),
+    CHECKSUM_BLOCK(byteArrayOf(0x02.toByte(), 0x02.toByte())),
 
 }
 

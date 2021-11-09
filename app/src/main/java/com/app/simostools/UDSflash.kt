@@ -10,7 +10,7 @@ object UDSFlasher {
     private var mLastString: String = ""
     private var flashConfirmed: Boolean = false
     private var cancelFlash: Boolean = false
-    private var bin: ByteArray = byteArrayOf()
+    private var bin: Array<ByteArray> = arrayOf(byteArrayOf(), byteArrayOf(), byteArrayOf(), byteArrayOf(), byteArrayOf(), byteArrayOf())
     private var inputBin: ByteArray = byteArrayOf()
     private var ecuAswVersion: ByteArray = byteArrayOf()
     private var transferSequence = -1
@@ -19,6 +19,7 @@ object UDSFlasher {
     private var binAswVersion = COMPATIBLE_BOXCODE_VERSIONS._UNDEFINED
     private var clearDTCStart = 0
     private var clearDTCcontinue = 0
+    private var currentBlockOperation = 0
 
     fun getSubtask(): FLASH_ECU_CAL_SUBTASK{
         return mTask
@@ -80,7 +81,9 @@ object UDSFlasher {
 
             DebugLog.d(TAG, "Initiating Calibration Flash subroutine: " + mTask.toString())
             mLastString = "Initiating calibration flash routines"
-            bin = inputBin
+            //Reading inputBin into block position 5 of the bin array
+            bin[5] = inputBin
+
             return UDS_COMMAND.READ_IDENTIFIER.bytes + ECUInfo.PART_NUMBER.address
         }
         else{
@@ -88,7 +91,7 @@ object UDSFlasher {
             mLastString = "Full flash isn't implemented yet, extracting JUST the cal..."
             mTask = FLASH_ECU_CAL_SUBTASK.GET_ECU_BOX_CODE
             flashEcuBlock = FLASH_ECU_BLOCK.CAL
-            bin = FlashUtilities.splitBinBlocks(inputBin)[5]
+            bin[FLASH_ECU_BLOCK.CAL.identifier] = FlashUtilities.splitBinBlocks(inputBin)[FLASH_ECU_BLOCK.CAL.identifier]
             return UDS_COMMAND.READ_IDENTIFIER.bytes + ECUInfo.PART_NUMBER.address
         }
     }
@@ -151,7 +154,7 @@ object UDSFlasher {
                 FLASH_ECU_CAL_SUBTASK.CHECK_FILE_COMPAT -> {
 
                     //val binAswVersion = bin.copyOfRange(0x60, 0x6B)
-                    binAswVersion = FlashUtilities.getBoxCodeFromBin(bin) ?: COMPATIBLE_BOXCODE_VERSIONS._UNDEFINED
+                    binAswVersion = FlashUtilities.getBoxCodeFromBin(inputBin) ?: COMPATIBLE_BOXCODE_VERSIONS._UNDEFINED
 
                     //Compare the two strings:
                     if (String(ecuAswVersion).trim() != binAswVersion!!.str) {
@@ -173,7 +176,7 @@ object UDSFlasher {
                     mLastString = ""
                     if(cancelFlash){
                         mLastString = "Flash has been canceled"
-                        bin = byteArrayOf()
+                        bin = arrayOf(byteArrayOf(), byteArrayOf(), byteArrayOf(), byteArrayOf(), byteArrayOf(), byteArrayOf())
                         mTask = FLASH_ECU_CAL_SUBTASK.NONE
                         return UDSReturn.ABORTED
                     }
@@ -191,63 +194,97 @@ object UDSFlasher {
                 }
 
                 FLASH_ECU_CAL_SUBTASK.CHECKSUM_BIN ->{
-                    mLastString = mTask.toString() + "\n"
+                    if(currentBlockOperation == bin.size){
+                        currentBlockOperation = 0
 
-                    var checksummed = FlashUtilities.checksumSimos18(bin)
-                    mLastString += "Original checksum: " + checksummed.fileChecksum + "\n"
-                    mLastString += "Calculatated checksum: " + checksummed.calculatedChecksum + "\n"
-                    if(checksummed.updated) mLastString += "    Checksum corrected\n"
-                    else mLastString += "    Checksum not updated\n"
+                        mTask = mTask.next()
+                        mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
+                        return UDSReturn.COMMAND_QUEUED
+                    }
 
-                    checksummed = FlashUtilities.checksumECM3(checksummed.bin)
-                    mLastString += "Original ECM3: " + checksummed.fileChecksum + "\n"
-                    mLastString += "    Calculated ECM3: " + checksummed.calculatedChecksum + "\n"
-                    if(checksummed.updated) mLastString += "Checksum corrected\n"
-                    else mLastString += "    Checksum not updated\n"
+                    if(bin[currentBlockOperation].size != 0){
 
-                    bin = checksummed.bin
+                        mLastString = mTask.toString() + "\n"
+                        mLastString += "Block identifier: $currentBlockOperation" + "\n"
 
-                    mTask = mTask.next()
+                        var checksummed = FlashUtilities.checksumSimos18(bin[currentBlockOperation])
+                        mLastString += "Original checksum: " + checksummed.fileChecksum + "\n"
+                        mLastString += "Calculatated checksum: " + checksummed.calculatedChecksum + "\n"
+                        if (checksummed.updated) mLastString += "    Checksum corrected\n"
+                        else mLastString += "    Checksum not updated\n"
+
+                        checksummed = FlashUtilities.checksumECM3(checksummed.bin)
+                        mLastString += "Original ECM3: " + checksummed.fileChecksum + "\n"
+                        mLastString += "    Calculated ECM3: " + checksummed.calculatedChecksum + "\n"
+                        if (checksummed.updated) mLastString += "Checksum corrected\n"
+                        else mLastString += "    Checksum not updated\n"
+
+                        bin[currentBlockOperation] = checksummed.bin
+
+                    }
+
+                    currentBlockOperation++
+
                     mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
                     return UDSReturn.COMMAND_QUEUED
                 }
 
                 FLASH_ECU_CAL_SUBTASK.COMPRESS_BIN ->{
-                    mLastString = mTask.toString() + "\n"
+                    if(currentBlockOperation == bin.size){
+                        currentBlockOperation = 0
 
-                    var uncompressedSize = bin.size
-                    bin = FlashUtilities.encodeLZSS(bin)
+                        mTask = mTask.next()
+                        mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
+                        return UDSReturn.COMMAND_QUEUED
+                    }
 
-                    var compressedSize = bin.size
+                    if(bin[currentBlockOperation].size != 0) {
+                        mLastString = mTask.toString() + "\n"
 
-                    mLastString += "Uncompressed bin size: $uncompressedSize\n"
-                    mLastString += "Compressed bin size: $compressedSize"
+                        var uncompressedSize = bin[currentBlockOperation].size
+                        bin[currentBlockOperation] = FlashUtilities.encodeLZSS(bin[currentBlockOperation])
 
-                    mTask = mTask.next()
+                        var compressedSize = bin[currentBlockOperation].size
+
+                        mLastString += "Uncompressed bin size: $uncompressedSize\n"
+                        mLastString += "Compressed bin size: $compressedSize"
+                    }
+
+                    currentBlockOperation++
+
                     mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
                     return UDSReturn.COMMAND_QUEUED
 
                 }
 
                 FLASH_ECU_CAL_SUBTASK.ENCRYPT_BIN -> {
-                    mLastString = mTask.toString() + "\n"
-                    var unencryptedSize = bin.size
+                    if(currentBlockOperation == bin.size){
+                        currentBlockOperation = 0
 
-                    bin = FlashUtilities.encrypt(bin, SIMOS18_AES_KEY, SIMOS18_AES_IV)
-
-                    var encryptedSize = bin.size
-
-                    mLastString += "Unencrypted bin size: $unencryptedSize \n"
-                    mLastString += "Encrypted bin size: $encryptedSize \n"
-
-                    if(bin.isEmpty()){
-                        mLastString = "Error encrypting BIN"
-                        return UDSReturn.ERROR_UNKNOWN
+                        mTask = mTask.next()
+                        mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
+                        return UDSReturn.COMMAND_QUEUED
                     }
 
-                    DebugLog.d(TAG, bin.copyOfRange(0, CAL_BLOCK_TRANSFER_SIZE * 2).toHex())
+                    if(bin[currentBlockOperation].size != 0) {
+                        mLastString = mTask.toString() + "\n"
+                        var unencryptedSize = bin[currentBlockOperation].size
 
-                    mTask = mTask.next()
+                        bin[currentBlockOperation] = FlashUtilities.encrypt(bin[currentBlockOperation], SIMOS18_AES_KEY, SIMOS18_AES_IV)
+
+                        var encryptedSize = bin.size
+
+                        mLastString += "Unencrypted bin size: $unencryptedSize \n"
+                        mLastString += "Encrypted bin size: $encryptedSize \n"
+
+                        if (bin.isEmpty()) {
+                            mLastString = "Error encrypting BIN"
+                            return UDSReturn.ERROR_UNKNOWN
+                        }
+
+                    }
+
+                    currentBlockOperation++
                     mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
 
                     return UDSReturn.COMMAND_QUEUED
@@ -410,14 +447,30 @@ object UDSFlasher {
 
                 }
                 FLASH_ECU_CAL_SUBTASK.FLASH_BLOCK -> {
+                    //If we're done flashing all the blocks, pass off into the
+                    //  Reset ecu stage
+                    if(currentBlockOperation == bin.size){
+                        currentBlockOperation = 0
+
+                        mTask = FLASH_ECU_CAL_SUBTASK.RESET_ECU
+                        mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
+                        return UDSReturn.COMMAND_QUEUED
+                    }
+
+                    if(bin[currentBlockOperation].size == 0){
+                        currentBlockOperation++
+                        mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
+                        return UDSReturn.COMMAND_QUEUED
+                    }
+
                     when(checkResponse(buff)){
                         //We should enter here from a tester present.
                         UDS_RESPONSE.POSITIVE_RESPONSE -> {
-                            //erase block: 31 01 FF 00 01 05
+                            //erase block: 31 01 FF 00 01 BLOCKID
                             mCommand = UDS_COMMAND.START_ROUTINE.bytes +
                                     UDS_ROUTINE.ERASE_BLOCK.bytes +
                                     0x01.toByte() +
-                                    binAswVersion.software.blockNumberMap[5].toByte()
+                                    binAswVersion.software.blockNumberMap[currentBlockOperation].toByte()
 
                             DebugLog.d(TAG, "Executing ERASE block command: ${mCommand.toHex()}")
                             mLastString = "Erasing CAL block to prepare for flashing"
@@ -430,8 +483,8 @@ object UDSFlasher {
                             mCommand = UDS_COMMAND.REQUEST_DOWNLOAD.bytes +
                                     UDS_DOWNLOAD_PROPERTIES.ENCRYPTED_COMPRESSED.bytes +
                                     UDS_DOWNLOAD_PROPERTIES.FOUR_ONE_ADDRESS_LENGTH.bytes +
-                                    binAswVersion.software.blockNumberMap[5].toByte() +
-                                    FlashUtilities.intToByteArray(binAswVersion.software.blockLengths[binAswVersion.software.blockNumberMap[5]])
+                                    binAswVersion.software.blockNumberMap[currentBlockOperation].toByte() +
+                                    FlashUtilities.intToByteArray(binAswVersion.software.blockLengths[binAswVersion.software.blockNumberMap[currentBlockOperation]])
 
                             DebugLog.d(TAG, "Executing Request download command: ${mCommand.toHex()}")
                             mLastString = "Requesting block download"
@@ -439,18 +492,18 @@ object UDSFlasher {
                         }
                         UDS_RESPONSE.DOWNLOAD_ACCEPTED -> {
                             transferSequence = 1
-                            progress = round(transferSequence.toFloat() / (bin.size / CAL_BLOCK_TRANSFER_SIZE) * 100)
+                            progress = round(transferSequence.toFloat() / (bin[currentBlockOperation].size / CAL_BLOCK_TRANSFER_SIZE) * 100)
 
                             //Send bytes, 0x36 [frame number]
                             //Break the whole bin into frames of FFD size, and
                             // we'll use that array.
-                            mCommand = UDS_COMMAND.TRANSFER_DATA.bytes +  byteArrayOf(transferSequence.toByte()) + bin.copyOfRange(0, CAL_BLOCK_TRANSFER_SIZE)
+                            mCommand = UDS_COMMAND.TRANSFER_DATA.bytes +  byteArrayOf(transferSequence.toByte()) + bin[currentBlockOperation].copyOfRange(0, CAL_BLOCK_TRANSFER_SIZE)
                             mLastString = "Transfer Started"
 
                             return UDSReturn.COMMAND_QUEUED
                         }
                         UDS_RESPONSE.TRANSFER_DATA_ACCEPTED -> {
-                            val totalFrames: Int = bin.size / CAL_BLOCK_TRANSFER_SIZE
+                            val totalFrames: Int = bin[currentBlockOperation].size / CAL_BLOCK_TRANSFER_SIZE
 
 
                             //If the last frame we sent was acked, increment the transfer counter
@@ -459,7 +512,7 @@ object UDSFlasher {
                             // the transfer
                             if(buff[1] == transferSequence.toByte()){
                                 transferSequence++
-                                progress = round(transferSequence.toFloat() / (bin.size / CAL_BLOCK_TRANSFER_SIZE) * 100)
+                                progress = round(transferSequence.toFloat() / (bin[currentBlockOperation].size / CAL_BLOCK_TRANSFER_SIZE) * 100)
 
                                 mLastString = ""
                                 //if the current transfer sequence number is larger than the max
@@ -476,9 +529,9 @@ object UDSFlasher {
                             // end is start + frame size *OR* the end of the bin
                             var start = CAL_BLOCK_TRANSFER_SIZE * (transferSequence - 1)
                             var end = start + CAL_BLOCK_TRANSFER_SIZE
-                            if(end > bin.size) end = bin.size
+                            if(end > bin[currentBlockOperation].size) end = bin[currentBlockOperation].size
 
-                            mCommand = UDS_COMMAND.TRANSFER_DATA.bytes + byteArrayOf(transferSequence.toByte()) + bin.copyOfRange(start, end)
+                            mCommand = UDS_COMMAND.TRANSFER_DATA.bytes + byteArrayOf(transferSequence.toByte()) + bin[currentBlockOperation].copyOfRange(start, end)
                             return UDSReturn.COMMAND_QUEUED
                         }
 
@@ -508,14 +561,20 @@ object UDSFlasher {
                     when(checkResponse(buff)){
 
                         UDS_RESPONSE.POSITIVE_RESPONSE -> {
-                            mCommand = UDS_COMMAND.START_ROUTINE.bytes + byteArrayOf(0x02.toByte(),0x02.toByte(),0x01.toByte(),0x05.toByte(), 0x00.toByte(), 0x04.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte())
+                            mCommand = UDS_COMMAND.START_ROUTINE.bytes +
+                                    UDS_ROUTINE.CHECKSUM_BLOCK.bytes +
+                                    0x01.toByte() +
+                                    binAswVersion.software.blockNumberMap[currentBlockOperation].toByte() +
+                                    0x00.toByte() + 0x04.toByte() + 0x00.toByte() + 0x00.toByte() + 0x00.toByte() + 0x00.toByte()
                             mLastString = "Checksumming flashed block"
                             return UDSReturn.COMMAND_QUEUED
                         }
                         UDS_RESPONSE.ROUTINE_ACCEPTED -> {
                             mLastString = "Block Checksummed OK"
                             mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
-                            mTask = mTask.next()
+
+                            currentBlockOperation++
+                            mTask = FLASH_ECU_CAL_SUBTASK.FLASH_BLOCK
                             return UDSReturn.COMMAND_QUEUED
                         }
                         UDS_RESPONSE.NEGATIVE_RESPONSE -> {
@@ -570,7 +629,8 @@ object UDSFlasher {
                         }
                         UDS_RESPONSE.ECU_RESET_ACCEPTED -> {
                             mLastString = "Resetting ECU Complete, Please cycle Key"
-                            bin = byteArrayOf()
+                            bin = arrayOf(byteArrayOf(), byteArrayOf(), byteArrayOf(),
+                                byteArrayOf(), byteArrayOf(), byteArrayOf())
                             mTask = FLASH_ECU_CAL_SUBTASK.NONE
                             return UDSReturn.FLASH_COMPLETE
                         }

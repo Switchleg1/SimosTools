@@ -154,13 +154,13 @@ enum class FLASH_ECU_CAL_SUBTASK {
     }
 }
 
-enum class FLASH_ECU_BLOCK{
-    NONE,
-    CBOOT,
-    ASW1,
-    ASW2,
-    ASW3,
-    CAL;
+enum class FLASH_ECU_BLOCK(val identifier: Int){
+    NONE(0),
+    CBOOT(1),
+    ASW1(2),
+    ASW2(3),
+    ASW3(4),
+    CAL(5);
 
     fun next(): FLASH_ECU_BLOCK {
         val vals = FLASH_ECU_BLOCK.values()
