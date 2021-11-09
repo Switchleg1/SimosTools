@@ -456,10 +456,70 @@ val SIMOS18_AES_IV = byteArrayOf(
 
 val CAL_BLOCK_TRANSFER_SIZE = 0xFF0
 
+enum class SIMOS_18(val version: String,
+                    val baseAddresses: LongArray,
+                    val blockLengths: IntArray,
+                    val fullBinLocations: IntArray){
+    _1("Simos 18.1",
+        longArrayOf(
+            0x80000000,  // SBOOT
+            0x8001C000,  // CBOOT
+            0x80040000,  // ASW1
+            0x80140000,  // ASW2
+            0x80880000,  // ASW3
+            0xA0800000,  // CAL
+            0x80840000,  // CBOOT_temp
+        ),
+        intArrayOf(
+            0x0,      //SBOOT, we don't care but this way things line up.
+            0x23E00,  // CBOOT
+            0xFFC00,  // ASW1
+            0xBFC00,  // ASW2
+            0x7FC00,  // ASW3
+            0x7FC00,  // CAL
+            0x23E00,  // CBOOT_temp
+        ),
+        intArrayOf(
+            0x0,        //SBOOT, we don't care.... but
+            0x1c000,    //CBOOT
+            0x40000,    //ASW1
+            0x140000,   //ASW2
+            0x280000,   //ASW3
+            0x200000,   //CAL
+        )),
+    _10("Simos 18.10",
+        longArrayOf(
+            0x80000000,  // SBOOT
+            0x80800000,  // CBOOT
+            0x80020000,  // ASW1
+            0x80100000,  // ASW2
+            0x808C0000,  // ASW3
+            0xA0820000,  // CAL
+            0x80840000,  // CBOOT_temp
+        ),
+        intArrayOf(
+            0x0,      //SBOOT, we don't care but this way things line up.
+            0x1FE00,  // CBOOT
+            0xDFC00,  // ASW1
+            0xFFC00,  // ASW2
+            0x13FC00,  // ASW3
+            0x9FC00,  // CAL
+            0x1FE00,  // CBOOT_temp
+        ),
+        intArrayOf(
+            0x0,        //SBOOT, we don't care.... but
+            0x200000,    //CBOOT
+            0x20000,    //ASW1
+            0x100000,   //ASW2
+            0x2c0000,   //ASW3
+            0x220000,   //CAL
+        ))
 
-enum class COMPATIBLE_SW_VERSIONS(val str: String, val locationOfIdentifier: ByteArray) {
-    _5G0906259L("5G0906259L", byteArrayOf(0x60.toByte(), 0x68.toByte()))
+}
 
+enum class COMPATIBLE_BOXCODE_VERSIONS(val str: String, val boxCodeLocation: IntArray, val software: SIMOS_18) {
+    _5G0906259L("5G0906259L", intArrayOf(0x60, 0x68), SIMOS_18._1),
+    _8V0906264M("8V0906264M", intArrayOf(0x60, 0x68), SIMOS_18._1),
 }
 
 

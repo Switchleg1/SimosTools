@@ -75,8 +75,10 @@ object UDSFlasher {
         }
         else{
             //It's a full bin flash....
-            mLastString = "Full flash isn't implemented yet"
-            return byteArrayOf()
+            mLastString = "Full flash isn't implemented yet, extracting JUST the cal..."
+            mTask = FLASH_ECU_CAL_SUBTASK.GET_ECU_BOX_CODE
+            bin = FlashUtilities.splitBinBlocks(bin)[5]
+            return UDS_COMMAND.READ_IDENTIFIER.bytes + ECUInfo.PART_NUMBER.address
         }
     }
     
@@ -136,18 +138,17 @@ object UDSFlasher {
 
                 FLASH_ECU_CAL_SUBTASK.CHECK_FILE_COMPAT -> {
 
-                    val binAswVersion = bin.copyOfRange(0x60, 0x6B)
-                    //Hard code an ASW version that won't work so it won't flash!
-                    //val binAswVersion = byteArrayOf(0xFF.toByte(),0xFF.toByte(),0xFF.toByte(),0xFF.toByte())
+                    //val binAswVersion = bin.copyOfRange(0x60, 0x6B)
+                    val binAswVersion = FlashUtilities.getBoxCodeFromBin(bin).toString()
 
                     //Compare the two strings:
-                    if (String(ecuAswVersion).trim() != String(binAswVersion).trim()) {
+                    if (String(ecuAswVersion).trim() != binAswVersion.trim()) {
                         DebugLog.d(TAG,"ECU software version: ${ecuAswVersion.toHex()}, and file" +
-                                " software version: ${binAswVersion.toHex()}")
+                                " software version: $binAswVersion")
                         return UDSReturn.ERROR_RESPONSE
                     }
 
-                    mLastString = mTask.toString() + "\nBox code on selected BIN file: " + String(binAswVersion) +
+                    mLastString = mTask.toString() + "\nBox code on selected BIN file: $binAswVersion" +
                             "\nPlease confirm flash procedure"
                     mTask = mTask.next()
                     mCommand = UDS_COMMAND.TESTER_PRESENT.bytes

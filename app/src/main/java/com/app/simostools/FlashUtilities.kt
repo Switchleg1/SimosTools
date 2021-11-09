@@ -10,7 +10,54 @@ data class checksummedBin(var bin: ByteArray, var fileChecksum: String, var calc
 
 object FlashUtilities {
 
+    fun splitBinBlocks(bin: ByteArray): Array<ByteArray>{
+        val boxCode = getBoxCodeFromBin(bin)
 
+        var splitBlocks: Array<ByteArray> = arrayOf()
+
+        //Add the "sboot" block to the array at index 0 (to keep things lined up everywhere.
+        splitBlocks += byteArrayOf()
+
+        for(i in 1..5){
+            splitBlocks += bin.copyOfRange(boxCode!!.software.fullBinLocations[i], boxCode.software.fullBinLocations[i] + boxCode.software.blockLengths[i])
+        }
+
+        return splitBlocks
+    }
+
+    fun getBoxCodeFromBin(bin: ByteArray): COMPATIBLE_BOXCODE_VERSIONS?{
+        if(bin.size >= 4000000){
+            //This is a full flash file, so the box code location needs to be checked
+                //based on the offset of the CAL in a full bin..
+            enumValues<COMPATIBLE_BOXCODE_VERSIONS>().forEach {
+                if (it.str == String(
+                        bin.copyOfRange(
+                            it.boxCodeLocation[0] + it.software.fullBinLocations[5],
+                            it.boxCodeLocation[1] + it.software.fullBinLocations[5]
+                        )
+                    )
+                ) {
+                    return it
+                }
+            }
+        }
+        else {
+            //This is only a CAL file, so we'll check with boxCodeLocation directly
+            enumValues<COMPATIBLE_BOXCODE_VERSIONS>().forEach {
+                if (it.str == String(
+                        bin.copyOfRange(
+                            it.boxCodeLocation[0],
+                            it.boxCodeLocation[1]
+                        )
+                    )
+                ) {
+                    return it
+                }
+            }
+
+        }
+        return null
+    }
 
     fun checksumSimos18(bin: ByteArray): checksummedBin{
         var currentChecksum = bin.copyOfRange(0x300, 0x308)
