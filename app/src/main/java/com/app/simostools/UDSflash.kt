@@ -144,12 +144,12 @@ object UDSFlasher {
                 FLASH_ECU_CAL_SUBTASK.CHECK_FILE_COMPAT -> {
 
                     //val binAswVersion = bin.copyOfRange(0x60, 0x6B)
-                    val binAswVersion = FlashUtilities.getBoxCodeFromBin(bin).toString()
+                    val binAswVersion = FlashUtilities.getBoxCodeFromBin(bin)
 
                     //Compare the two strings:
-                    if (String(ecuAswVersion).trim() != binAswVersion.trim()) {
+                    if (String(ecuAswVersion).trim() != binAswVersion!!.str) {
                         DebugLog.d(TAG,"ECU software version: ${ecuAswVersion.toHex()}, and file" +
-                                " software version: $binAswVersion")
+                                " software version: ${binAswVersion.toString()}")
                         return UDSReturn.ERROR_RESPONSE
                     }
 

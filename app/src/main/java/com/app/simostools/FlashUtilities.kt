@@ -9,6 +9,7 @@ data class checksummedBin(var bin: ByteArray, var fileChecksum: String, var calc
 
 
 object FlashUtilities {
+    val TAG = "FlashUtilities"
 
     fun splitBinBlocks(bin: ByteArray): Array<ByteArray>{
         val boxCode = getBoxCodeFromBin(bin)
@@ -26,6 +27,7 @@ object FlashUtilities {
     }
 
     fun getBoxCodeFromBin(bin: ByteArray): COMPATIBLE_BOXCODE_VERSIONS?{
+        DebugLog.d(TAG, "getBoxCodeFromBin")
         if(bin.size >= 4000000){
             //This is a full flash file, so the box code location needs to be checked
                 //based on the offset of the CAL in a full bin..
@@ -44,13 +46,15 @@ object FlashUtilities {
         else {
             //This is only a CAL file, so we'll check with boxCodeLocation directly
             enumValues<COMPATIBLE_BOXCODE_VERSIONS>().forEach {
-                if (it.str == String(
-                        bin.copyOfRange(
-                            it.boxCodeLocation[0],
-                            it.boxCodeLocation[1]
-                        )
+                val boxFromBin = String(
+                    bin.copyOfRange(
+                        it.boxCodeLocation[0],
+                        it.boxCodeLocation[1]
                     )
-                ) {
+                ).trim()
+                if (it.str == boxFromBin )
+                {
+                    DebugLog.d(TAG,"Matched BIN to compatible box code: $boxFromBin")
                     return it
                 }
             }
