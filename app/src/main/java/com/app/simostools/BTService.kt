@@ -603,6 +603,8 @@ class BTService: Service() {
         override fun run() {
             DebugLog.d(TAG, "BEGIN mConnectionThread")
 
+            //sendPassword("")
+
             while (mConnectionState == BLEConnectionState.CONNECTED && !currentThread().isInterrupted) {
                 //See if there are any packets waiting to be sent
                 if (!mWriteQueue.isEmpty() && mWriteSemaphore.tryAcquire()) {
@@ -858,7 +860,7 @@ class BTService: Service() {
                 val result = UDSLogger.processPacket(mTaskTick, buff, applicationContext)
 
                 //Are we still sending initial frames?
-                if (mTaskTick < UDSLogger.frameCount()-1) {
+                if (mTaskTick < UDSLogger.frameCount() - 1) {
                     //If we failed init abort
                     if (result != UDSReturn.OK) {
                         DebugLog.w(TAG, "Unable to initialize logging, UDS Error: $result")
@@ -998,33 +1000,43 @@ class BTService: Service() {
         }
 
         private fun processPacketGetInfo(buff: ByteArray?) {
-            if(UDSInfo.processPacket(mTaskTick, buff) == UDSReturn.OK) {
-                val intentMessage = Intent(GUIMessage.FLASH_INFO.toString())
-                intentMessage.putExtra(GUIMessage.FLASH_INFO.toString(), UDSInfo.getInfo())
-                sendBroadcast(intentMessage)
+            buff?.let {
+                if (UDSInfo.processPacket(mTaskTick, buff) == UDSReturn.OK) {
+                    val intentMessage = Intent(GUIMessage.FLASH_INFO.toString())
+                    intentMessage.putExtra(GUIMessage.FLASH_INFO.toString(), UDSInfo.getInfo())
+                    sendBroadcast(intentMessage)
 
-                if(mTaskTick < UDSInfo.getStartCount()-1) {
-                    writePacket(UDSInfo.startTask(mTaskTick + 1))
+                    if (mTaskTick < UDSInfo.getStartCount() - 1) {
+                        writePacket(UDSInfo.startTask(mTaskTick + 1))
+                    } else {
+                        setTaskState(UDSTask.NONE)
+                    }
                 } else {
                     setTaskState(UDSTask.NONE)
                 }
-            } else {
+            }?: if(UDSInfo.processPacket(mTaskTick, buff) != UDSReturn.OK) {
+                DebugLog.w(TAG, "GetInfo timeout.")
                 setTaskState(UDSTask.NONE)
             }
         }
 
         private fun processPacketClearDTC(buff: ByteArray?) {
-            if(UDSdtc.processPacket(mTaskTick, buff) == UDSReturn.OK) {
-                val intentMessage = Intent(GUIMessage.FLASH_INFO.toString())
-                intentMessage.putExtra(GUIMessage.FLASH_INFO.toString(), UDSdtc.getInfo())
-                sendBroadcast(intentMessage)
+            buff?.let {
+                if (UDSdtc.processPacket(mTaskTick, buff) == UDSReturn.OK) {
+                    val intentMessage = Intent(GUIMessage.FLASH_INFO.toString())
+                    intentMessage.putExtra(GUIMessage.FLASH_INFO.toString(), UDSdtc.getInfo())
+                    sendBroadcast(intentMessage)
 
-                if(mTaskTick < UDSdtc.getStartCount()) {
-                    writePacket(UDSdtc.startTask(mTaskTick + 1))
+                    if (mTaskTick < UDSdtc.getStartCount() - 1) {
+                        writePacket(UDSdtc.startTask(mTaskTick + 1))
+                    } else {
+                        setTaskState(UDSTask.NONE)
+                    }
                 } else {
                     setTaskState(UDSTask.NONE)
                 }
-            } else {
+            }?: if(UDSdtc.processPacket(mTaskTick, buff) != UDSReturn.OK) {
+                DebugLog.w(TAG, "ClearDTC timeout.")
                 setTaskState(UDSTask.NONE)
             }
         }
@@ -1081,12 +1093,22 @@ class BTService: Service() {
             writePacket(buff)
         }
 
+
         private fun buildBLEFrame(udsCommand: ByteArray): ByteArray{
             val bleHeader = BLEHeader()
             bleHeader.cmdSize = udsCommand.size
             bleHeader.cmdFlags = BLECommandFlags.PER_CLEAR.value
 
             return bleHeader.toByteArray() + udsCommand
+        }
+        private fun sendPassword(password: String) {
+            //send password
+            val bleHeader = BLEHeader()
+            bleHeader.cmdSize = password.length
+            bleHeader.cmdFlags = BLECommandFlags.SETTINGS.value or BLESettings.PASSWORD.value
+            val buff = bleHeader.toByteArray() + password.toByteArray()
+            writePacket(buff)
+
         }
     }
 }

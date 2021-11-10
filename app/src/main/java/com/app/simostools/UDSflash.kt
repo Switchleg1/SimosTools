@@ -86,11 +86,12 @@ object UDSFlasher {
             return UDS_COMMAND.READ_IDENTIFIER.bytes + ECUInfo.PART_NUMBER.address
         }
     }
-    
+
     @Synchronized
     fun processFlashCAL(ticks: Int, buff: ByteArray?): UDSReturn {
 
         buff?.let {
+            resetTimeout()
 
 
             DebugLog.d(TAG, "Flash subroutine: " + mTask)
@@ -324,7 +325,7 @@ object UDSFlasher {
 
 
                 }
-                
+
 
                 FLASH_ECU_CAL_SUBTASK.SA2SEEDKEY -> {
                     //Pass SA2SeedKey unlock_security_access(17)

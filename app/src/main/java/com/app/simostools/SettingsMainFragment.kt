@@ -86,7 +86,7 @@ class SettingsMainFragment : Fragment() {
 
     fun doLoad() {
         mMode22Fragment?.doLoad()
-
+        mMode3EFragment?.doLoad()
     }
 
     private fun doSave() {
@@ -126,11 +126,10 @@ class SettingsMainFragment : Fragment() {
 
         mTabLayout?.let { tabs->
             mViewPager?.let { pager ->
-                //pager.removeAllViews()
                 val adapter = ViewPagerAdapter(requireActivity())
                 mGeneralFragment = SettingsGeneralFragment()
+                mGeneralFragment?.setLoadCallback { doLoad() }
                 adapter.addFragment(mGeneralFragment!!, "General")
-
                 mMode22Fragment = SettingsMode22Fragment()
                 adapter.addFragment(mMode22Fragment!!, "Mode22")
                 mMode3EFragment = SettingsMode3EFragment()
