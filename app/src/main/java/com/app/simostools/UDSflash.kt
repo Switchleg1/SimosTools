@@ -17,6 +17,8 @@ object UDSFlasher {
     private var progress = 0
     private var flashEcuBlock = FLASH_ECU_BLOCK.NONE
     private var binAswVersion = COMPATIBLE_BOXCODE_VERSIONS._UNDEFINED
+    private var clearDTCStart = 0
+    private var clearDTCcontinue = 0
 
     fun getSubtask(): FLASH_ECU_CAL_SUBTASK{
         return mTask
@@ -59,6 +61,7 @@ object UDSFlasher {
         mTask = FLASH_ECU_CAL_SUBTASK.NONE
         flashConfirmed = false
         cancelFlash = false
+        progress = 0
         inputBin =  input.readBytes()
     }
 
@@ -152,6 +155,8 @@ object UDSFlasher {
                     if (String(ecuAswVersion).trim() != binAswVersion!!.str) {
                         DebugLog.d(TAG,"ECU software version: ${ecuAswVersion.toHex()}, and file" +
                                 " software version: ${binAswVersion.toString()}")
+                        mLastString = "Box code on selected BIN file: $binAswVersion" +
+                                "\n File mismatch!!!"
                         return UDSReturn.ERROR_RESPONSE
                     }
 
@@ -231,7 +236,7 @@ object UDSFlasher {
                     var encryptedSize = bin.size
 
                     mLastString += "Unencrypted bin size: $unencryptedSize \n"
-                    mLastString += "Encrypted bin size: $encryptedSize"
+                    mLastString += "Encrypted bin size: $encryptedSize \n"
 
                     if(bin.isEmpty()){
                         mLastString = "Error encrypting BIN"
@@ -242,6 +247,9 @@ object UDSFlasher {
 
                     mTask = mTask.next()
                     mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
+                    mLastString += "Attempting to clear DTC"
+                    clearDTCStart = ticks
+                    clearDTCcontinue = ticks + 15
                     return UDSReturn.COMMAND_QUEUED
                 }
 
@@ -262,13 +270,25 @@ object UDSFlasher {
                         UDS_RESPONSE.NEGATIVE_RESPONSE ->{
                             mCommand = byteArrayOf()
                             mLastString = "Waiting for CLEAR DTC successful"
+                            //Move the ticks counter out of the way since it should actually be in ASW
+                            clearDTCcontinue = ticks + 15
                             return UDSReturn.OK
                         }
                         UDS_RESPONSE.POSITIVE_RESPONSE ->{
-                            DebugLog.d(TAG,"Received " + buff.toHex())
+                            //There's a chance we're stuck in CBOOT... if that's the case
+                            // when we try to clear DTCs it'll give us a positive response, but
+                            // will never actually succeed
+                            if(ticks > clearDTCcontinue){
+                                mCommand = (UDS_COMMAND.EXTENDED_DIAGNOSTIC.bytes) + byteArrayOf(0x03.toByte())
+                                mLastString = "Entering extended diagnostic 03"
+                                return UDSReturn.COMMAND_QUEUED
+                            }
+                            else{
+                                DebugLog.d(TAG,"Received " + buff.toHex() + "for $ticks")
+                                mLastString = ""
 
-                            mLastString = mTask.toString()
-                            return UDSReturn.CLEAR_DTC_REQUEST
+                                return UDSReturn.CLEAR_DTC_REQUEST
+                            }
                         }
                         else -> {
                             mCommand = byteArrayOf()
