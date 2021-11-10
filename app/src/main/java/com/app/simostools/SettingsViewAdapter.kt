@@ -9,7 +9,6 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.SwitchCompat
-import androidx.navigation.fragment.findNavController
 import java.lang.Exception
 import androidx.recyclerview.widget.ItemTouchHelper
 import java.lang.Long.parseLong

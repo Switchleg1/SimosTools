@@ -93,7 +93,8 @@ enum class BLESettings(val value: Int) {
     PERSIST_DELAY(3),
     PERSIST_Q_DELAY(4),
     BLE_SEND_DELAY(5),
-    BLE_MULTI_DELAY(6)
+    BLE_MULTI_DELAY(6),
+    PASSWORD(7)
 }
 
 // UDS return codes
@@ -347,6 +348,9 @@ val TASK_BUMP_DELAY             = 250
 val TASK_END_DELAY              = 500
 val TASK_END_TIMEOUT            = 3000
 val TIME_OUT_LOGGING            = 10
+val TIME_OUT_DTC                = 10
+val TIME_OUT_FLASH              = 10
+val TIME_OUT_INFO               = 10
 
 //Service info
 val CHANNEL_ID                  = "BTService"

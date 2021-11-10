@@ -75,6 +75,18 @@ object UDSLogger {
         return addTimeout()
     }
 
+    private fun addTimeout(): UDSReturn {
+        if(--mTimeoutCounter == 0) {
+            return UDSReturn.ERROR_TIME_OUT
+        }
+
+        return UDSReturn.OK
+    }
+
+    private fun resetTimeout() {
+        mTimeoutCounter = TIME_OUT_LOGGING
+    }
+
     private fun isCalcHP(): Boolean {
         if(ConfigSettings.CALCULATE_HP.toBoolean() && (mFoundTQPIDS || mFoundMS2PIDS)) {
             return true
@@ -124,18 +136,6 @@ object UDSLogger {
                 }
             }
         }
-    }
-
-    private fun addTimeout(): UDSReturn {
-        if(--mTimeoutCounter == 0) {
-            return UDSReturn.ERROR_TIME_OUT
-        }
-
-        return UDSReturn.OK
-    }
-
-    private fun resetTimeout() {
-        mTimeoutCounter = TIME_OUT_LOGGING
     }
 
     private fun resetHPPIDS() {

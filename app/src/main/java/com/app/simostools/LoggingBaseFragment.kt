@@ -12,7 +12,6 @@ import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import java.lang.Exception
-import java.lang.Math.abs
 
 open class LoggingBaseFragment: Fragment() {
     open var TAG                            = "LoggingBaseFragment"
