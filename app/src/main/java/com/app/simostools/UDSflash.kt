@@ -91,7 +91,7 @@ object UDSFlasher {
     fun processFlashCAL(ticks: Int, buff: ByteArray?): UDSReturn {
 
         buff?.let {
-            resetTimeout()
+
 
 
             DebugLog.d(TAG, "Flash subroutine: " + mTask)
