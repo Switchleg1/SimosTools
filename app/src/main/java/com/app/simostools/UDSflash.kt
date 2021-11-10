@@ -16,6 +16,7 @@ object UDSFlasher {
     private var transferSequence = -1
     private var progress = 0
     private var flashEcuBlock = FLASH_ECU_BLOCK.NONE
+    private var binAswVersion = COMPATIBLE_BOXCODE_VERSIONS._UNDEFINED
 
     fun getSubtask(): FLASH_ECU_CAL_SUBTASK{
         return mTask
@@ -145,7 +146,7 @@ object UDSFlasher {
                 FLASH_ECU_CAL_SUBTASK.CHECK_FILE_COMPAT -> {
 
                     //val binAswVersion = bin.copyOfRange(0x60, 0x6B)
-                    val binAswVersion = FlashUtilities.getBoxCodeFromBin(bin)
+                    binAswVersion = FlashUtilities.getBoxCodeFromBin(bin) ?: COMPATIBLE_BOXCODE_VERSIONS._UNDEFINED
 
                     //Compare the two strings:
                     if (String(ecuAswVersion).trim() != binAswVersion!!.str) {
@@ -385,14 +386,26 @@ object UDSFlasher {
                         //We should enter here from a tester present.
                         UDS_RESPONSE.POSITIVE_RESPONSE -> {
                             //erase block: 31 01 FF 00 01 05
-                            mCommand = UDS_COMMAND.START_ROUTINE.bytes + byteArrayOf(0xFF.toByte(),0x00.toByte(),0x01.toByte(),0x05.toByte())
+                            mCommand = UDS_COMMAND.START_ROUTINE.bytes +
+                                    UDS_ROUTINE.ERASE_BLOCK.bytes +
+                                    0x01.toByte() +
+                                    binAswVersion.software.blockNumberMap[5].toByte()
+
+                            DebugLog.d(TAG, "Executing ERASE block command: ${mCommand.toHex()}")
                             mLastString = "Erasing CAL block to prepare for flashing"
                             return UDSReturn.COMMAND_QUEUED
                         }
                         //We should have a 71 in response to the erase command we just sent....
                         UDS_RESPONSE.ROUTINE_ACCEPTED -> {
                             //Request download 34 AA 41 05 00 07 FC 00
-                            mCommand = byteArrayOf(0x34.toByte(),0xAA.toByte(),0x41.toByte(),0x05.toByte(),0x00.toByte(),0x07.toByte(), 0xFC.toByte(), 0x00.toByte())
+
+                            mCommand = UDS_COMMAND.REQUEST_DOWNLOAD.bytes +
+                                    UDS_DOWNLOAD_PROPERTIES.ENCRYPTED_COMPRESSED.bytes +
+                                    UDS_DOWNLOAD_PROPERTIES.FOUR_ONE_ADDRESS_LENGTH.bytes +
+                                    binAswVersion.software.blockNumberMap[5].toByte() +
+                                    FlashUtilities.intToByteArray(binAswVersion.software.blockLengths[binAswVersion.software.blockNumberMap[5]])
+
+                            DebugLog.d(TAG, "Executing Request download command: ${mCommand.toHex()}")
                             mLastString = "Requesting block download"
                             return UDSReturn.COMMAND_QUEUED
                         }

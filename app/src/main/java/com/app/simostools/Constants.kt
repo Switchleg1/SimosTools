@@ -478,7 +478,8 @@ val CAL_BLOCK_TRANSFER_SIZE = 0xFF0
 enum class SIMOS_18(val version: String,
                     val baseAddresses: LongArray,
                     val blockLengths: IntArray,
-                    val fullBinLocations: IntArray){
+                    val fullBinLocations: IntArray,
+                    val blockNumberMap: IntArray){
     _1("Simos 18.1",
         longArrayOf(
             0x80000000,  // SBOOT
@@ -505,6 +506,9 @@ enum class SIMOS_18(val version: String,
             0x140000,   //ASW2
             0x280000,   //ASW3
             0x200000,   //CAL
+        ),
+        intArrayOf(
+            0,1,2,3,4,5
         )),
     _10("Simos 18.10",
         longArrayOf(
@@ -532,11 +536,14 @@ enum class SIMOS_18(val version: String,
             0x100000,   //ASW2
             0x2c0000,   //ASW3
             0x220000,   //CAL
+        ),
+        intArrayOf(
+            0,1,2,3,4,5
         ))
-
 }
 
 enum class COMPATIBLE_BOXCODE_VERSIONS(val str: String, val boxCodeLocation: IntArray, val software: SIMOS_18) {
+    _UNDEFINED("UNDEFINED", intArrayOf(0x0, 0x01), SIMOS_18._1),
     _5G0906259L("5G0906259L", intArrayOf(0x60, 0x6B), SIMOS_18._1),
     _8V0906264M("8V0906264M", intArrayOf(0x60, 0x6B), SIMOS_18._1),
     _8V0906259K("8V0906259K", intArrayOf(0x60, 0x6B), SIMOS_18._1),

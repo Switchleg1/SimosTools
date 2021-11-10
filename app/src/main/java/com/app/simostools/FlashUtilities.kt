@@ -622,7 +622,7 @@ object FlashUtilities {
                 (data[0].toUByte().toInt() shl 24)
     }
 
-    private fun intToByteArray(data: Int): ByteArray {
+    fun intToByteArray(data: Int): ByteArray {
         return byteArrayOf(
             (data shr 24).toByte(),
             (data shr 16).toByte(),
@@ -676,8 +676,16 @@ enum class UDS_COMMAND(val bytes: ByteArray){
 
 enum class UDS_ROUTINE(val bytes: ByteArray){
     CHECK_PROGRAMMING_PRECONDITION(byteArrayOf(0x02.toByte(),0x03.toByte())),
+    ERASE_BLOCK(byteArrayOf(0xFF.toByte(),0x00.toByte())),
 
 }
+
+enum class UDS_DOWNLOAD_PROPERTIES(val bytes: ByteArray){
+    ENCRYPTED_COMPRESSED(byteArrayOf(0xAA.toByte())),
+    FOUR_ONE_ADDRESS_LENGTH(byteArrayOf(0x41.toByte())),
+
+}
+
 
 fun ByteArray.getUIntAt(idx: Int) =
     ((this[idx].toUInt() and 0xFFu) shl 24) or
