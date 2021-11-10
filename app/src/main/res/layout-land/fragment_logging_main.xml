@@ -9,13 +9,14 @@
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayoutLogging"
+        android:background="@color/colorPrimary"
+        android:layout_gravity="center_horizontal"
         android:layout_height="32dp"
         android:layout_width="match_parent"
-        android:background="@color/colorPrimary"
-        app:tabTextColor="#fff"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:tabTextColor="#fff"
         app:tabMode="scrollable" >
     </com.google.android.material.tabs.TabLayout>
 

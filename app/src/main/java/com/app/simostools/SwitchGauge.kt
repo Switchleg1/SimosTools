@@ -3,12 +3,19 @@ package com.app.simostools
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
+import android.view.Gravity
 import android.view.View
 
-class SwitchGauge : View {
-    constructor(context: Context) : super(context)
-    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
+class SwitchGauge: androidx.appcompat.widget.AppCompatTextView {
+    constructor(context: Context) : super(context) {
+        super.setGravity(Gravity.CENTER)
+    }
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
+        super.setGravity(Gravity.CENTER)
+    }
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+        super.setGravity(Gravity.CENTER)
+    }
 
     private val progressPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
@@ -100,6 +107,7 @@ class SwitchGauge : View {
                 }
             }
         }
+        super.onDraw(canvas)
     }
 
     override fun onSizeChanged(width: Int, height: Int, oldWidth: Int, oldHeight: Int) {

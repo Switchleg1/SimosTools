@@ -14,67 +14,67 @@
         <View
             android:id="@+id/divider12"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
 
         <TextView
-            android:id="@+id/textViewUpdateRate"
+            android:id="@+id/textViewDisplayRate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="@string/textview_settings_updaterate"
+            android:text="@string/textview_settings_display_rate"
             android:textSize="24sp" />
 
         <SeekBar
-            android:id="@+id/seekBarUpdateRate"
-            android:contentDescription="@string/textview_settings_updaterate"
+            android:id="@+id/seekBarDisplayRate"
+            android:contentDescription="@string/textview_settings_display_rate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <View
             android:id="@+id/divider13"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
 
         <TextView
-            android:id="@+id/textViewPersistDelay"
+            android:id="@+id/textViewLoggingRate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="@string/textview_settings_persist_delay"
+            android:text="@string/textview_settings_logging_rate"
             android:textSize="24sp" />
 
         <SeekBar
-            android:id="@+id/seekBarPersistDelay"
-            android:contentDescription="@string/textview_settings_persist_delay"
+            android:id="@+id/seekBarLoggingRate"
+            android:contentDescription="@string/textview_settings_logging_rate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <View
             android:id="@+id/divider14"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
 
         <TextView
-            android:id="@+id/textViewPersistQDelay"
+            android:id="@+id/textViewQCorrection"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="@string/textview_settings_persist_q_delay"
+            android:text="@string/textview_settings_q_correction"
             android:textSize="24sp" />
 
         <SeekBar
-            android:id="@+id/seekBarPersistQDelay"
-            android:contentDescription="@string/textview_settings_persist_q_delay"
+            android:id="@+id/seekBarQCorrection"
+            android:contentDescription="@string/textview_settings_q_correction"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <View
             android:id="@+id/divider27"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
 
         <TextView
@@ -150,7 +150,7 @@
         <View
             android:id="@+id/divider15"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
 
         <TextView
@@ -195,7 +195,7 @@
         <View
             android:id="@+id/divider22"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
 
         <TextView
@@ -257,7 +257,7 @@
         <View
             android:id="@+id/divider16"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
 
         <TextView
@@ -296,7 +296,7 @@
         <View
             android:id="@+id/divider17"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
 
         <TextView
@@ -336,9 +336,31 @@
             android:text="@string/check_settings_auto_log" />
 
         <View
+            android:id="@+id/divider29"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="?android:attr/listDivider" />
+
+        <TextView
+            android:id="@+id/textViewLogName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/textview_settings_log_name"
+            android:textSize="32sp" />
+
+        <EditText
+            android:id="@+id/editTextLogName"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:inputType="text"
+            android:text=""
+            android:importantForAutofill="no" />
+
+        <View
             android:id="@+id/divider19"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
 
         <TextView
@@ -374,7 +396,7 @@
         <View
             android:id="@+id/divider21"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
 
         <TextView
@@ -396,7 +418,7 @@
         <View
             android:id="@+id/divider2"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
 
         <Button
@@ -410,7 +432,7 @@
         <View
             android:id="@+id/divider3"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
 
         <Button
@@ -424,7 +446,7 @@
         <View
             android:id="@+id/divider4"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
 
         <Button
@@ -438,7 +460,7 @@
         <View
             android:id="@+id/divider5"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
 
         <Button
@@ -452,7 +474,7 @@
         <View
             android:id="@+id/divider23"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
 
         <Button
@@ -466,7 +488,7 @@
         <View
             android:id="@+id/divider6"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
 
         <Button
@@ -480,7 +502,7 @@
         <View
             android:id="@+id/divider7"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
 
         <Button
@@ -494,7 +516,7 @@
         <View
             android:id="@+id/divider8"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
 
         <Button
@@ -508,7 +530,7 @@
         <View
             android:id="@+id/divider9"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
 
         <Button
@@ -523,7 +545,7 @@
         <View
             android:id="@+id/divider10"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
 
         <Button
@@ -537,7 +559,7 @@
         <View
             android:id="@+id/divider11"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
 
         <Button
@@ -551,7 +573,7 @@
         <View
             android:id="@+id/divider24"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
 
         <Button
@@ -565,7 +587,7 @@
         <View
             android:id="@+id/divider25"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
 
         <Button
@@ -579,7 +601,7 @@
         <View
             android:id="@+id/divider26"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
 
         <Button
@@ -589,6 +611,12 @@
             android:layout_height="wrap_content"
             android:text="@string/button_set_bt_text"
             android:textColor="#5E35B1" />
+
+        <View
+            android:id="@+id/divider28"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:background="?android:attr/listDivider" />
 
     </LinearLayout>
 </ScrollView>

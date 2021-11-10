@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 
 class LoggingFullFragment : LoggingBaseFragment() {
-    override var TAG                    = "LoggingFragment"
+    override var TAG                    = "LoggingAllFragment"
     override var mFragmentName          = "All"
 
     override fun onCreateView(
@@ -38,7 +38,7 @@ class LoggingFullFragment : LoggingBaseFragment() {
 
     override fun onGaugeClick(view: View?): Boolean {
         PIDs.resetData()
-        updatePIDText()
+        updateGauges()
 
         return true
     }

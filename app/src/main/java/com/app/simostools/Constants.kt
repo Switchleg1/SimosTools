@@ -227,9 +227,9 @@ enum class CSVItems(val csvName: String) {
 enum class ConfigSettings(val cfgName: String, var value: Any) {
     KEEP_SCREEN_ON("KeepScreenOn", true),
     INVERT_CRUISE("InvertCruise", false),
-    UPDATE_RATE("UpdateRate", 4),
-    PERSIST_DELAY("PersistDelay", 20),
-    PERSIST_Q_DELAY("PersistQDelay", 10),
+    DISPLAY_RATE("DisplayRate", 15),
+    LOGGING_RATE("LoggingRate", 50),
+    Q_CORRECTION("QCorrection", 10),
     CALCULATE_HP("CalculateHP", true),
     USE_MS2("UseMS2Torque", true),
     TIRE_DIAMETER("TireDiameter", 0.632f),
@@ -241,7 +241,8 @@ enum class ConfigSettings(val cfgName: String, var value: Any) {
     DRAW_MIN_MAX("DrawMinMax", true),
     DRAW_GRADUATIONS("DrawGraduations", true),
     DEBUG_LOG("DebugMode", DEBUG_LOG_INFO or DEBUG_LOG_WARNING or DEBUG_LOG_EXCEPTION),
-    AUTO_LOG("AutoLog", false);
+    AUTO_LOG("AutoLog", false),
+    LOG_NAME("LogName", "simostools");
 
     fun set(newValue: String) {
         try {

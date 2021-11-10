@@ -149,13 +149,13 @@ class FlashingFragment : Fragment() {
         filter.addAction(GUIMessage.STATE_TASK.toString())
         filter.addAction(GUIMessage.FLASH_INFO.toString())
         filter.addAction(GUIMessage.FLASH_PROGRESS.toString())
-        this.activity?.registerReceiver(mBroadcastReceiver, filter)
+        context?.registerReceiver(mBroadcastReceiver, filter)
     }
 
     override fun onPause() {
         super.onPause()
 
-        this.activity?.unregisterReceiver(mBroadcastReceiver)
+        context?.unregisterReceiver(mBroadcastReceiver)
     }
 
     private val mBroadcastReceiver = object : BroadcastReceiver() {
@@ -205,8 +205,10 @@ class FlashingFragment : Fragment() {
     }
 
     private fun sendServiceMessage(type: String) {
-        val serviceIntent = Intent(context, BTService::class.java)
-        serviceIntent.action = type
-        startForegroundService(this.requireContext(), serviceIntent)
+        context?.let {
+            val serviceIntent = Intent(it, BTService::class.java)
+            serviceIntent.action = type
+            startForegroundService(it, serviceIntent)
+        }
     }
 }

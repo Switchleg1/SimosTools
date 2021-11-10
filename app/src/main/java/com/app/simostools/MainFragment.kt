@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startForegroundService
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 
@@ -75,10 +76,7 @@ class MainFragment : Fragment() {
                 }
 
                 //Stop our BT Service
-                val serviceIntent = Intent(requireActivity(), BTService::class.java)
-                serviceIntent.action = BTServiceTask.STOP_SERVICE.toString()
-                ContextCompat.startForegroundService(requireActivity(), serviceIntent)
-
+                sendServiceMessage(BTServiceTask.STOP_SERVICE.toString())
                 requireActivity().finish()
             }
         }
@@ -96,8 +94,10 @@ class MainFragment : Fragment() {
     }
 
     private fun sendServiceMessage(type: String) {
-        val serviceIntent = Intent(requireActivity(), BTService::class.java)
-        serviceIntent.action = type
-        ContextCompat.startForegroundService(requireActivity(), serviceIntent)
+        context?.let {
+            val serviceIntent = Intent(it, BTService::class.java)
+            serviceIntent.action = type
+            startForegroundService(it, serviceIntent)
+        }
     }
 }

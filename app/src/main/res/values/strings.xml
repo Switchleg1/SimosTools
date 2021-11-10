@@ -60,14 +60,15 @@
     <string name="radio_settings_mode_documents">Documents</string>
     <string name="radio_settings_mode_application">Application</string>
     <!-- Strings used for textview -->
-    <string name="textview_settings_updaterate">Display update rate: <xliff:g id="rate">%1$d</xliff:g></string>
-    <string name="textview_settings_persist_delay">Transfer delay: <xliff:g id="rate">%1$d</xliff:g></string>
-    <string name="textview_settings_persist_q_delay">Queued delay: <xliff:g id="rate">%1$d</xliff:g></string>
-    <string name="textview_settings_mode">Logging Mode:</string>
+    <string name="textview_settings_display_rate">Max display rate: <xliff:g id="rate">%1$d</xliff:g>hz</string>
+    <string name="textview_settings_logging_rate">Max logging rate: <xliff:g id="rate">%1$d</xliff:g>hz</string>
+    <string name="textview_settings_q_correction">Q correction: <xliff:g id="rate">%1$d</xliff:g>ms</string>
+    <string name="textview_settings_mode">Logging mode:</string>
     <string name="textview_settings_display">Gauges:</string>
-    <string name="textview_settings_list">Use PID List:</string>
-    <string name="textview_settings_directory">Output Directory:</string>
+    <string name="textview_settings_list">Use PID list:</string>
+    <string name="textview_settings_directory">Output directory:</string>
     <string name="textview_settings_misc_options">Misc options:</string>
+    <string name="textview_settings_log_name">Log name:</string>
     <string name="textview_settings_color_options">Color options:</string>
     <string name="textview_settings_hp_options">Calculated HP options:</string>
     <string name="textview_settings_import_csv">Import PID CSV:</string>
