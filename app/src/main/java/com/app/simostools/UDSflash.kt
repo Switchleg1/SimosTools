@@ -62,6 +62,8 @@ object UDSFlasher {
         flashConfirmed = false
         cancelFlash = false
         progress = 0
+        clearDTCStart = 0
+        clearDTCcontinue = 0
         inputBin =  input.readBytes()
     }
 
@@ -247,9 +249,7 @@ object UDSFlasher {
 
                     mTask = mTask.next()
                     mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
-                    mLastString += "Attempting to clear DTC"
-                    clearDTCStart = ticks
-                    clearDTCcontinue = ticks + 15
+
                     return UDSReturn.COMMAND_QUEUED
                 }
 
@@ -278,6 +278,14 @@ object UDSFlasher {
                             //There's a chance we're stuck in CBOOT... if that's the case
                             // when we try to clear DTCs it'll give us a positive response, but
                             // will never actually succeed
+                            if(clearDTCStart == 0){
+                                mLastString = "Attempting to clear DTC"
+                                clearDTCStart = ticks
+                                clearDTCcontinue = ticks + 15
+                            }
+                            else{
+                                mLastString = ""
+                            }
                             if(ticks > clearDTCcontinue){
                                 mCommand = (UDS_COMMAND.EXTENDED_DIAGNOSTIC.bytes) + byteArrayOf(0x03.toByte())
                                 mLastString = "Entering extended diagnostic 03"
