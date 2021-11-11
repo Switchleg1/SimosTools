@@ -102,6 +102,8 @@ class BTService: Service() {
             BTServiceTask.DO_GET_INFO.toString()    -> mConnectionThread?.setTaskState(UDSTask.INFO)
             BTServiceTask.DO_CLEAR_DTC.toString()   -> mConnectionThread?.setTaskState(UDSTask.DTC)
             BTServiceTask.DO_STOP_TASK.toString()   -> mConnectionThread?.setTaskState(UDSTask.NONE)
+            BTServiceTask.FLASH_CONFIRMED.toString() -> confirmFlashProceed()
+            BTServiceTask.FLASH_CANCELED.toString() -> cancelFlash()
         }
 
         // If we get killed, after returning from here, restart
@@ -445,6 +447,16 @@ class BTService: Service() {
     }
 
     @Synchronized
+    private fun confirmFlashProceed(){
+        UDSFlasher.setFlashConfirmed(true)
+    }
+
+    @Synchronized
+    private fun cancelFlash(){
+        UDSFlasher.cancelFlash()
+    }
+
+    @Synchronized
     private fun doStartService() {
         val serviceChannel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT)
         val manager = getSystemService(NotificationManager::class.java)
@@ -653,6 +665,7 @@ class BTService: Service() {
                     //Have we sat idle waiting without receiving a packet?
                     if(mTaskTimeNext < System.currentTimeMillis()) {
                         DebugLog.d(TAG, "Task timeout.")
+
                         //Process packet
                         processPacket(null)
                     }
@@ -788,11 +801,16 @@ class BTService: Service() {
                 DebugLog.e(TAG, "Invalid logging rates.", e)
             }
 
+            val intentMessage = Intent(GUIMessage.FLASH_INFO_CLEAR.toString())
+            sendBroadcast(intentMessage)
+
             //Write first frame
             writePacket(UDSLogger.startTask(0))
         }
 
         private fun startTaskFlashing(){
+            DebugLog.d(TAG,"Setting stmin to 350")
+            setBridgeSTMIN(350)
             writePacket(UDSFlasher.startTask(0))
         }
 
@@ -907,22 +925,92 @@ class BTService: Service() {
         }
 
         private fun processPacketFlashing(buff: ByteArray?) {
-            buff?.let {
-                if (UDSFlasher.processPacket(mTaskTick, buff) == UDSReturn.OK) {
-                    if (UDSFlasher.getInfo() != "") {
-                        val intentMessage = Intent(GUIMessage.FLASH_INFO.toString())
-                        intentMessage.putExtra(GUIMessage.FLASH_INFO.toString(), UDSInfo.getInfo())
+
+            if(buff != null) {
+                var response = buff!!.copyOfRange(8, buff.size)
+
+                var flashStatus = UDSFlasher.processFlashCAL(mTaskTick, response)
+
+                if (UDSFlasher.getInfo() != "") {
+                    DebugLog.d(
+                        TAG,
+                        "Received status message from UDSFlash: ${UDSFlasher.getInfo()}"
+                    )
+                    val intentMessage = Intent(GUIMessage.FLASH_INFO.toString())
+                    intentMessage.putExtra(GUIMessage.FLASH_INFO.toString(), UDSFlasher.getInfo())
+                    sendBroadcast(intentMessage)
+                }
+
+                var progress = UDSFlasher.getProgress()
+
+                if(progress > 0){
+                    DebugLog.d(TAG, "Total Progress: $progress")
+
+                    val intentMessage = Intent(GUIMessage.FLASH_PROGRESS_SHOW.toString())
+                    intentMessage.putExtra(GUIMessage.FLASH_PROGRESS_SHOW.toString(), true)
+                    sendBroadcast(intentMessage)
+
+                    val intentMessage2 = Intent(GUIMessage.FLASH_PROGRESS.toString())
+                    intentMessage2.putExtra(GUIMessage.FLASH_PROGRESS.toString(), progress)
+                    sendBroadcast(intentMessage2)
+                }
+                else{
+                    val intentMessage = Intent(GUIMessage.FLASH_PROGRESS_SHOW.toString())
+                    intentMessage.putExtra(GUIMessage.FLASH_PROGRESS_SHOW.toString(), false)
+                    sendBroadcast(intentMessage)
+                }
+
+
+                when (flashStatus) {
+                    UDSReturn.FLASH_CONFIRM -> {
+                        val intentMessage = Intent(GUIMessage.FLASH_CONFIRM.toString())
                         sendBroadcast(intentMessage)
                     }
+                    UDSReturn.OK -> {
+                        val intentMessage = Intent(GUIMessage.FLASH_BUTTON_RESET.toString())
+                        sendBroadcast(intentMessage)
+                    }
+                    UDSReturn.ABORTED -> {
+                        val intentMessage = Intent(GUIMessage.FLASH_BUTTON_RESET.toString())
+                        sendBroadcast(intentMessage)
+                    }
+                    UDSReturn.FLASH_COMPLETE -> {
 
-                    if (!UDSFlasher.finished())
-                        writePacket(UDSFlasher.startTask(mTaskTick + 1))
-                } else {
-                    setTaskState(UDSTask.NONE)
+                    }
+                    UDSReturn.CLEAR_DTC_REQUEST -> {
+
+                            //Send clear request
+                            val bleHeader = BLEHeader()
+                            bleHeader.rxID = 0x7E8
+                            bleHeader.txID = 0x700
+                            bleHeader.cmdSize = 1
+                            bleHeader.cmdFlags = BLECommandFlags.PER_CLEAR.value
+                            val dataBytes = byteArrayOf(0x04.toByte())
+                            val buf = bleHeader.toByteArray() + dataBytes
+                            mWriteQueue.add(buf)
+
+                    }
+                    UDSReturn.COMMAND_QUEUED -> {
+                        var queuedCommand = buildBLEFrame(UDSFlasher.getCommand())
+                        //DebugLog.d(TAG,"UDSFlash, built BLE frame: " + queuedCommand.toHex())
+
+                        writePacket(queuedCommand)
+
+                    }
+                    else -> {
+                        DebugLog.d(TAG, "Received ${flashStatus} from UDSFlash")
+                        setTaskState(UDSTask.NONE)
+                    }
                 }
-            }?: if(UDSFlasher.processPacket(mTaskTick, buff) != UDSReturn.OK) {
-                DebugLog.w(TAG, "Flashing timeout.")
-                setTaskState(UDSTask.NONE)
+            }
+            else{
+                if(UDSFlasher.getSubtask() == FLASH_ECU_CAL_SUBTASK.FLASH_BLOCK){
+                    //Do NOTHING
+                }
+                else {
+                    DebugLog.d(TAG, "Sending tester present.... Flasher is idle")
+                    mWriteQueue.add(buildBLEFrame(UDS_COMMAND.TESTER_PRESENT.bytes))
+                }
             }
         }
 
@@ -1011,10 +1099,23 @@ class BTService: Service() {
             val bleHeader = BLEHeader()
             bleHeader.cmdSize = 2
             bleHeader.cmdFlags = BLECommandFlags.SETTINGS.value or BLESettings.ISOTP_STMIN.value
-            val buff = bleHeader.toByteArray() + amount.toArray2()
+            //val buff = bleHeader.toByteArray() + amount.toArray2()
+            val buff = bleHeader.toByteArray() + byteArrayOf(
+                (amount shr 0).toByte(),
+                (amount shr 8).toByte(),
+
+                )
             writePacket(buff)
         }
 
+
+        private fun buildBLEFrame(udsCommand: ByteArray): ByteArray{
+            val bleHeader = BLEHeader()
+            bleHeader.cmdSize = udsCommand.size
+            bleHeader.cmdFlags = BLECommandFlags.PER_CLEAR.value
+
+            return bleHeader.toByteArray() + udsCommand
+        }
         private fun sendPassword(password: String) {
             //send password
             val bleHeader = BLEHeader()
@@ -1022,7 +1123,7 @@ class BTService: Service() {
             bleHeader.cmdFlags = BLECommandFlags.SETTINGS.value or BLESettings.PASSWORD.value
             val buff = bleHeader.toByteArray() + password.toByteArray()
             writePacket(buff)
+
         }
     }
 }
-

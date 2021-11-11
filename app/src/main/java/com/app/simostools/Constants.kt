@@ -17,9 +17,14 @@ enum class GUIMessage {
     READ_LOG,
     WRITE_LOG,
     FLASH_INFO,
+    FLASH_INFO_CLEAR,
     FLASH_PROGRESS,
     FLASH_PROGRESS_MAX,
     FLASH_PROGRESS_SHOW,
+
+    FLASH_CONFIRM,
+    FLASH_BUTTON_RESET,
+
     PID_RELOAD
 }
 
@@ -54,7 +59,9 @@ enum class BTServiceTask {
     DO_START_FLASH,
     DO_GET_INFO,
     DO_CLEAR_DTC,
-    DO_STOP_TASK
+    DO_STOP_TASK,
+    FLASH_CONFIRMED,
+    FLASH_CANCELED,
 }
 
 //Intent constants
@@ -99,6 +106,11 @@ enum class UDSReturn {
     ERROR_CMDSIZE,
     ERROR_TIME_OUT,
     ERROR_UNKNOWN,
+    COMMAND_QUEUED,
+    CLEAR_DTC_REQUEST,
+    FLASH_CONFIRM,
+    ABORTED,
+    FLASH_COMPLETE
 }
 
 enum class ECUInfo(val str: String, val address: ByteArray) {
@@ -120,23 +132,38 @@ enum class ECUInfo(val str: String, val address: ByteArray) {
 enum class FLASH_ECU_CAL_SUBTASK {
     NONE,
     GET_ECU_BOX_CODE,
-    READ_FILE_FROM_STORAGE,
     CHECK_FILE_COMPAT,
+    CONFIRM_PROCEED,
     CHECKSUM_BIN,
     COMPRESS_BIN,
     ENCRYPT_BIN,
     CLEAR_DTC,
+    CHECK_PROGRAMMING_PRECONDITION,
     OPEN_EXTENDED_DIAGNOSTIC,
-    CHECK_PROGRAMMING_PRECONDITION, //routine 0x0203
     SA2SEEDKEY,
     WRITE_WORKSHOP_LOG,
     FLASH_BLOCK,
-    CHECKSUM_BLOCK, //0x0202
+    CHECKSUM_BLOCK,
     VERIFY_PROGRAMMING_DEPENDENCIES,
     RESET_ECU;
 
     fun next(): FLASH_ECU_CAL_SUBTASK {
         val vals = values()
+        return vals[(this.ordinal+1) % vals.size]
+
+    }
+}
+
+enum class FLASH_ECU_BLOCK{
+    NONE,
+    CBOOT,
+    ASW1,
+    ASW2,
+    ASW3,
+    CAL;
+
+    fun next(): FLASH_ECU_BLOCK {
+        val vals = FLASH_ECU_BLOCK.values()
         return vals[(this.ordinal+1) % vals.size]
 
     }
@@ -157,8 +184,10 @@ enum class ColorList(var value: Int, val cfgName: String) {
     ST_LOGGING(Color.rgb(32, 255, 0), "StateLogging"),
     ST_WRITING(Color.rgb(0,   0, 255), "StateWriting"),
     BT_RIM(Color.rgb(110, 140, 255), "ButtonRIm"),
+    BT_RIM_ALERT(Color.rgb(255,204, 0), "ButtonRimAlert"),
     BT_TEXT(Color.rgb(255, 255, 255), "ButtonText"),
-    BT_BG(Color.rgb(64,   64, 64), "ButtonBG");
+    BT_BG(Color.rgb(64,   64, 64), "ButtonBG"),
+    BT_BG_ALERT(Color.rgb(255,165,0), "ButtonBGAlert");
 
     val key = "Color"
 }
@@ -363,6 +392,167 @@ val TQ_CONSTANT                 = 16.3f
 //Max allowed PID count
 val MAX_PIDS                    = 100
 
+//SA2SeedKeyTape
+val VW_SEEDKEY_TAPE = byteArrayOf(
+    0x68.toByte(),
+    0x2.toByte(),
+    0x81.toByte(),
+    0x4a.toByte(),
+    0x10.toByte(),
+    0x68.toByte(),
+    0x4.toByte(),
+    0x93.toByte(),
+    0x8.toByte(),
+    0x8.toByte(),
+    0x20.toByte(),
+    0x9.toByte(),
+    0x4a.toByte(),
+    0x5.toByte(),
+    0x87.toByte(),
+    0x22.toByte(),
+    0x12.toByte(),
+    0x19.toByte(),
+    0x54.toByte(),
+    0x82.toByte(),
+    0x49.toByte(),
+    0x93.toByte(),
+    0x7.toByte(),
+    0x12.toByte(),
+    0x20.toByte(),
+    0x11.toByte(),
+    0x82.toByte(),
+    0x4a.toByte(),
+    0x5.toByte(),
+    0x87.toByte(),
+    0x3.toByte(),
+    0x11.toByte(),
+    0x20.toByte(),
+    0x10.toByte(),
+    0x82.toByte(),
+    0x4a.toByte(),
+    0x1.toByte(),
+    0x81.toByte(),
+    0x49.toByte(),
+    0x4c.toByte(),
+)
+
+val SIMOS18_AES_KEY = byteArrayOf(
+    0x98.toByte(),
+    0xD3.toByte(),
+    0x12.toByte(),
+    0x02.toByte(),
+    0xE4.toByte(),
+    0x8E.toByte(),
+    0x38.toByte(),
+    0x54.toByte(),
+    0xF2.toByte(),
+    0xCA.toByte(),
+    0x56.toByte(),
+    0x15.toByte(),
+    0x45.toByte(),
+    0xBA.toByte(),
+    0x6F.toByte(),
+    0x2F.toByte()
+)
+
+val SIMOS18_AES_IV = byteArrayOf(
+    0xE7.toByte(),
+    0x86.toByte(),
+    0x12.toByte(),
+    0x78.toByte(),
+    0xC5.toByte(),
+    0x08.toByte(),
+    0x53.toByte(),
+    0x27.toByte(),
+    0x98.toByte(),
+    0xBC.toByte(),
+    0xA4.toByte(),
+    0xFE.toByte(),
+    0x45.toByte(),
+    0x1D.toByte(),
+    0x20.toByte(),
+    0xD1.toByte()
+)
+
+val CAL_BLOCK_TRANSFER_SIZE = 0xFF0
+
+enum class SIMOS_18(val version: String,
+                    val baseAddresses: LongArray,
+                    val blockLengths: IntArray,
+                    val fullBinLocations: IntArray,
+                    val blockNumberMap: IntArray){
+    _1("Simos 18.1",
+        longArrayOf(
+            0x80000000,  // SBOOT
+            0x8001C000,  // CBOOT
+            0x80040000,  // ASW1
+            0x80140000,  // ASW2
+            0x80880000,  // ASW3
+            0xA0800000,  // CAL
+            0x80840000,  // CBOOT_temp
+        ),
+        intArrayOf(
+            0x0,      //SBOOT, we don't care but this way things line up.
+            0x23E00,  // CBOOT
+            0xFFC00,  // ASW1
+            0xBFC00,  // ASW2
+            0x7FC00,  // ASW3
+            0x7FC00,  // CAL
+            0x23E00,  // CBOOT_temp
+        ),
+        intArrayOf(
+            0x0,        //SBOOT, we don't care.... but
+            0x1c000,    //CBOOT
+            0x40000,    //ASW1
+            0x140000,   //ASW2
+            0x280000,   //ASW3
+            0x200000,   //CAL
+        ),
+        intArrayOf(
+            0,1,2,3,4,5
+        )),
+    _10("Simos 18.10",
+        longArrayOf(
+            0x80000000,  // SBOOT
+            0x80800000,  // CBOOT
+            0x80020000,  // ASW1
+            0x80100000,  // ASW2
+            0x808C0000,  // ASW3
+            0xA0820000,  // CAL
+            0x80840000,  // CBOOT_temp
+        ),
+        intArrayOf(
+            0x0,      //SBOOT, we don't care but this way things line up.
+            0x1FE00,  // CBOOT
+            0xDFC00,  // ASW1
+            0xFFC00,  // ASW2
+            0x13FC00,  // ASW3
+            0x9FC00,  // CAL
+            0x1FE00,  // CBOOT_temp
+        ),
+        intArrayOf(
+            0x0,        //SBOOT, we don't care.... but
+            0x200000,    //CBOOT
+            0x20000,    //ASW1
+            0x100000,   //ASW2
+            0x2c0000,   //ASW3
+            0x220000,   //CAL
+        ),
+        intArrayOf(
+            0,1,2,3,4,5
+        ))
+}
+
+enum class COMPATIBLE_BOXCODE_VERSIONS(val str: String, val boxCodeLocation: IntArray, val software: SIMOS_18) {
+    _UNDEFINED("UNDEFINED", intArrayOf(0x0, 0x01), SIMOS_18._1),
+    _5G0906259L("5G0906259L", intArrayOf(0x60, 0x6B), SIMOS_18._1),
+    _8V0906264M("8V0906264M", intArrayOf(0x60, 0x6B), SIMOS_18._1),
+    _8V0906259K("8V0906259K", intArrayOf(0x60, 0x6B), SIMOS_18._1),
+}
+
+
+
+
 //Additional properties
 infix fun Byte.shl(that: Int): Int = this.toInt().shl(that)
 infix fun Short.shl(that: Int): Int = this.toInt().shl(that)
@@ -385,4 +575,3 @@ fun Long.toHex(): String = "%16x".format(this)
 fun Long.toArray2(): ByteArray = byteArrayOf((this and 0xFF00 shr 8).toByte(), (this and 0xFF).toByte())
 fun Long.toArray4(): ByteArray = byteArrayOf((this and 0xFF000000 shr 24).toByte(), (this and 0xFF0000 shr 16).toByte(), (this and 0xFF00 shr 8).toByte(), (this and 0xFF).toByte())
 fun ByteArray.toHex(): String = joinToString(separator = " ") { eachByte -> "%02x".format(eachByte) }
-

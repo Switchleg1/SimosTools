@@ -485,6 +485,7 @@ object UDSLogger {
 
             // make sure we received an 'OK' from the ECU
             if (bData.count() < 3 || bData[0] != 0x7e.toByte()) {
+                DebugLog.d(TAG, "ERROR in response from ECU: " + bData.toHex())
                 return UDSReturn.ERROR_RESPONSE
             }
 
