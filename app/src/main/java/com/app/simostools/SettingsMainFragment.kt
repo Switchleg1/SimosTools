@@ -6,7 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startForegroundService
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
@@ -14,8 +14,8 @@ import com.google.android.material.tabs.TabLayoutMediator
 
 class SettingsMainFragment : Fragment() {
     private val TAG = "SettingsMain"
-    private var mTabLayout: TabLayout?          = null
-    private var mViewPager: ViewPager2?         = null
+    private var mTabLayout: TabLayout?                      = null
+    private var mViewPager: ViewPager2?                     = null
     private var mGeneralFragment: SettingsGeneralFragment?  = null
     private var mMode22Fragment: SettingsMode22Fragment?    = null
     private var mMode3EFragment: SettingsMode3EFragment?    = null
@@ -24,6 +24,7 @@ class SettingsMainFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        DebugLog.d(TAG, "onCreateView")
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_settings_main, container, false)
     }
@@ -52,12 +53,71 @@ class SettingsMainFragment : Fragment() {
             }
         }
 
+        mTabLayout = view.findViewById(R.id.tabLayoutSettings)
+        mViewPager = view.findViewById(R.id.viewPagerSettings)
+
+        mTabLayout?.let { tabs ->
+            mViewPager?.let { pager ->
+                val adapter = ViewPagerAdapter(requireActivity())
+                if (mGeneralFragment == null) {
+                    mGeneralFragment = SettingsGeneralFragment()
+                    mGeneralFragment?.setLoadCallback { doLoad() }
+                }
+                adapter.addFragment(mGeneralFragment!!, "General")
+                if (mMode22Fragment == null) {
+                    mMode22Fragment = SettingsMode22Fragment()
+                }
+                adapter.addFragment(mMode22Fragment!!, "Mode22")
+                if (mMode3EFragment == null) {
+                    mMode3EFragment = SettingsMode3EFragment()
+                }
+                adapter.addFragment(mMode3EFragment!!, "Mode3E")
+
+                pager.adapter = adapter
+                TabLayoutMediator(tabs, pager) { tab, position ->
+                    tab.text = adapter.getName(position)
+                }.attach()
+
+                TabLayoutMediator(tabs, pager) { tab, position ->
+                    tab.text = adapter.getName(position)
+                }.attach()
+            }
+        }
+
         doLoad()
-        buildLayouts()
-        doReset()
+
+        //Set colors
+        doSetColor()
+
+        DebugLog.d(TAG, "onViewCreated")
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        mTabLayout          = null
+        mViewPager          = null
+        DebugLog.d(TAG, "onDestroyView")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        mGeneralFragment?.onDestroy()
+        mGeneralFragment    = null
+        mMode22Fragment?.onDestroy()
+        mMode22Fragment     = null
+        mMode3EFragment?.onDestroy()
+        mMode3EFragment     = null
+
+        DebugLog.d(TAG, "onDestroy")
     }
 
     private fun doSetColor() {
+        mGeneralFragment?.doSetColor()
+        mMode22Fragment?.doSetColor()
+        mMode3EFragment?.doSetColor()
+
         view?.let { currentView ->
             //Set button color
             val backButton = currentView.findViewById<SwitchButton>(R.id.buttonSettingsBack)
@@ -77,16 +137,18 @@ class SettingsMainFragment : Fragment() {
             //Set background color
             currentView.setBackgroundColor(ColorList.BG_NORMAL.value)
         }
-    }
 
-    private fun doReset() {
-        //Set colors
-        doSetColor()
+        mTabLayout?.setBackgroundColor(ColorList.BT_BG.value)
+        mTabLayout?.setTabTextColors(ColorList.BT_TEXT.value, ColorList.BT_TEXT.value)
+
+        DebugLog.d(TAG, "doSetColor")
     }
 
     fun doLoad() {
         mMode22Fragment?.doLoad()
         mMode3EFragment?.doLoad()
+
+        DebugLog.d(TAG, "doLoad")
     }
 
     private fun doSave() {
@@ -95,9 +157,7 @@ class SettingsMainFragment : Fragment() {
         mMode3EFragment?.doSave()
 
         //Stop all tasks
-        val serviceIntent = Intent(context, BTService::class.java)
-        serviceIntent.action = BTServiceTask.DO_STOP_TASK.toString()
-        ContextCompat.startForegroundService(this.requireContext(), serviceIntent)
+        sendServiceMessage(BTServiceTask.DO_STOP_TASK.toString())
 
         //Save CSVs
         TempPIDS.save(context)
@@ -118,34 +178,16 @@ class SettingsMainFragment : Fragment() {
 
         //Set colors
         doSetColor()
+
+        DebugLog.d(TAG, "doSave")
     }
 
-    private fun buildLayouts() {
-        mTabLayout = requireActivity().findViewById(R.id.tabLayoutSettings)
-        mViewPager = requireActivity().findViewById(R.id.viewPagerSettings)
-
-        mTabLayout?.let { tabs->
-            mViewPager?.let { pager ->
-                val adapter = ViewPagerAdapter(requireActivity())
-                mGeneralFragment = SettingsGeneralFragment()
-                mGeneralFragment?.setLoadCallback { doLoad() }
-                adapter.addFragment(mGeneralFragment!!, "General")
-                mMode22Fragment = SettingsMode22Fragment()
-                adapter.addFragment(mMode22Fragment!!, "Mode22")
-                mMode3EFragment = SettingsMode3EFragment()
-                adapter.addFragment(mMode3EFragment!!, "Mode3E")
-
-                pager.adapter = adapter
-                TabLayoutMediator(tabs, pager) { tab, position ->
-                    tab.text = adapter.getName(position)
-                }.attach()
-
-                TabLayoutMediator(tabs, pager) { tab, position ->
-                    tab.text = adapter.getName(position)
-                }.attach()
-            }
+    private fun sendServiceMessage(type: String) {
+        context?.let {
+            val serviceIntent = Intent(it, BTService::class.java)
+            serviceIntent.action = type
+            startForegroundService(it, serviceIntent)
         }
-        DebugLog.d(TAG, "Built settings fragments")
     }
 }
 

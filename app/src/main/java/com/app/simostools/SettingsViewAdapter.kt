@@ -255,7 +255,6 @@ class SettingsViewAdapter internal constructor(context: Context?, data: Array<PI
                 setOnClickListener {
                     if (mIndex > 0) {
                         onRowMoved(mIndex, mIndex - 1)
-                        Toast.makeText(itemView.context, "Up", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -267,7 +266,6 @@ class SettingsViewAdapter internal constructor(context: Context?, data: Array<PI
                 setOnClickListener {
                     if (mIndex < mData.count() - 1) {
                         onRowMoved(mIndex, mIndex + 1)
-                        Toast.makeText(itemView.context, "Down", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -341,7 +339,7 @@ class SettingsViewAdapter internal constructor(context: Context?, data: Array<PI
 class ItemMoveCallback(private val mAdapter: ItemTouchHelperContract) :
     ItemTouchHelper.Callback() {
     override fun isLongPressDragEnabled(): Boolean {
-        return true
+        return false
     }
 
     override fun isItemViewSwipeEnabled(): Boolean {

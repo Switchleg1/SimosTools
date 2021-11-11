@@ -26,7 +26,7 @@ object UDSLogger {
     private var mCalculatedTQ       = 0f
     private var mCalculatedHP       = 0f
     private var mLastFrameSize      = -1
-    private var mRevision           = "SimosTools [R1:Aaron loves:Pops'n'Bangs]"
+    private var mRevision           = "SimosTools [R1.1:Commercial Product]"
 
     fun getTQ(): Float {
         return mCalculatedTQ
@@ -452,6 +452,10 @@ object UDSLogger {
             //Update PID data
             PIDs.updateData()
 
+            //don't log until stream is constant
+            if(tick < 50)
+                return UDSReturn.OK
+
             //Check if we need to write to log
             return writeToLog(bleHeader.tickCount, context)
         }
@@ -542,6 +546,10 @@ object UDSLogger {
             //Update PID data
             PIDs.updateData()
 
+            //don't log until stream is constant
+            if(tick < 25)
+                return UDSReturn.OK
+
             //Check if we need to write to log
             return writeToLog(bleHeader.tickCount, context)
         }
@@ -550,10 +558,6 @@ object UDSLogger {
     }
 
     private fun writeToLog(tick: Int, context: Context): UDSReturn {
-        //don't log until stream is constant
-        if(tick < 50)
-            return UDSReturn.OK
-
         PIDs.getList()?.let { list ->
             val dEnable = list[list.count() - 1]
             if ((!ConfigSettings.INVERT_CRUISE.toBoolean() && dEnable?.value != 0.0f) ||
@@ -563,7 +567,7 @@ object UDSLogger {
                 if (!mLastEnabled) {
                     val currentDateTime = LocalDateTime.now()
                     LogFile.create(
-                        "simoslogger-${
+                        "${ConfigSettings.LOG_NAME}-${
                             currentDateTime.format(
                                 DateTimeFormatter.ofPattern("yyyy_MM_dd-HH_mm_ss")
                             )

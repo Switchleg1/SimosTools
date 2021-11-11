@@ -117,7 +117,7 @@ class BTService: Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "${getString(R.string.app_name)} Done", Toast.LENGTH_SHORT).show()
         doDisconnect()
     }
 
@@ -588,12 +588,13 @@ class BTService: Service() {
     }
 
     private inner class ConnectionThread: Thread() {
-        private var mTask: UDSTask      = UDSTask.NONE
-        private var mTaskNext: UDSTask  = UDSTask.NONE
-        private var mTaskTick: Int      = 0
-        private var mTaskTime: Long     = 0
-        private var mTaskTimeNext: Long = 0
-        private var mTaskTimeOut: Long  = 0
+        private var mTask: UDSTask              = UDSTask.NONE
+        private var mTaskNext: UDSTask          = UDSTask.NONE
+        private var mTaskTick: Int              = 0
+        private var mTaskTime: Long             = 0
+        private var mTaskTimeNext: Long         = 0
+        private var mTaskTimeOut: Long          = 0
+        private var mTaskNextBroadcast: Long    = 0
 
         init {
             setTaskState(UDSTask.NONE)
@@ -686,6 +687,9 @@ class BTService: Service() {
                 return
             }
 
+            if(newTask == mTask)
+                return
+
             //queue up next task and set start time
             mTaskTimeNext   = System.currentTimeMillis() + TASK_END_DELAY
             mTaskTimeOut    = System.currentTimeMillis() + TASK_END_TIMEOUT
@@ -699,7 +703,7 @@ class BTService: Service() {
 
         @Synchronized
         fun sendTaskState() {
-            if(UDSLogger.isEnabled()) {
+            if(mTask == UDSTask.LOGGING && UDSLogger.isEnabled()) {
                 val intentMessage = Intent(GUIMessage.WRITE_LOG.toString())
                 intentMessage.putExtra(GUIMessage.WRITE_LOG.toString(), UDSLogger.isEnabled())
                 sendBroadcast(intentMessage)
@@ -790,8 +794,12 @@ class BTService: Service() {
 
         private fun startTaskLogging(){
             //set connection settings
-            setBridgePersistDelay(ConfigSettings.PERSIST_DELAY.toInt())
-            setBridgePersistQDelay(ConfigSettings.PERSIST_Q_DELAY.toInt())
+            try {
+                setBridgePersistDelay(1000 / ConfigSettings.LOGGING_RATE.toInt())
+                setBridgePersistQDelay(ConfigSettings.Q_CORRECTION.toInt())
+            } catch (e: Exception) {
+                DebugLog.e(TAG, "Invalid logging rates.", e)
+            }
 
             val intentMessage = Intent(GUIMessage.FLASH_INFO_CLEAR.toString())
             sendBroadcast(intentMessage)
@@ -825,8 +833,9 @@ class BTService: Service() {
 
             //Only increment task packet count when buffer isn't empty
             buff?.let {
-                if(it.count() >= BLEHeader().size())
+                if(it.count() >= BLEHeader().size()) {
                     mTaskTick++
+                }
             }
 
             //check if we are ready to switch to a new task
@@ -874,12 +883,18 @@ class BTService: Service() {
                         setTaskState(UDSTask.NONE)
                     } else {
                         //Broadcast new PID data
-                        if (mTaskTick % ConfigSettings.UPDATE_RATE.toInt() == 0) {
+                        if (System.currentTimeMillis() > mTaskNextBroadcast) {
                             val intentMessage = Intent(GUIMessage.READ_LOG.toString())
                             intentMessage.putExtra("readCount", mTaskTick)
                             intentMessage.putExtra("readTime", System.currentTimeMillis() - mTaskTime)
                             intentMessage.putExtra("readResult", result)
                             sendBroadcast(intentMessage)
+                            try {
+                                mTaskNextBroadcast = System.currentTimeMillis() + (1000 / (ConfigSettings.DISPLAY_RATE.toInt())).toLong()
+                            } catch (e: Exception) {
+                                mTaskNextBroadcast = System.currentTimeMillis() + 100
+                                DebugLog.d(TAG, "Invalid display rate")
+                            }
                         }
 
                         //If we changed logging write states broadcast a new message and set LED color

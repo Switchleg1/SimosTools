@@ -91,7 +91,7 @@ open class SettingsLoggingFragment : Fragment() {
         doLoad()
     }
 
-    private fun doSetColor() {
+    fun doSetColor() {
         view?.let { currentView ->
             //Set background color
             currentView.setBackgroundColor(ColorList.BG_NORMAL.value)

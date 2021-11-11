@@ -20,10 +20,11 @@ import androidx.lifecycle.ViewModelProvider
 import java.util.*
 
 class MainViewModel : ViewModel() {
-    var started: Boolean = false
+    var started: Boolean                    = false
     var connectionState: BLEConnectionState = BLEConnectionState.NONE
-    var currentTask: UDSTask = UDSTask.NONE
-    var guiTimer: Timer? = null
+    var currentTask: UDSTask                = UDSTask.NONE
+    var guiTimer: Timer?                    = null
+    var writeLog: Boolean                   = false
 }
 
 class MainActivity : AppCompatActivity() {
@@ -63,9 +64,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             //Start our BT Service
-            val serviceIntent = Intent(this, BTService::class.java)
-            serviceIntent.action = BTServiceTask.START_SERVICE.toString()
-            ContextCompat.startForegroundService(this, serviceIntent)
+            sendServiceMessage(BTServiceTask.START_SERVICE.toString())
 
             //get permissions
             getPermissions()
@@ -89,6 +88,8 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
+        window.statusBarColor = ColorList.BT_BG.value
+        window.navigationBarColor = ColorList.BT_BG.value
     }
 
     override fun onResume() {
@@ -125,9 +126,11 @@ class MainActivity : AppCompatActivity() {
                 }
                 GUIMessage.WRITE_LOG.toString() -> {
                     if(intent.getBooleanExtra(GUIMessage.WRITE_LOG.toString(), false)) {
-                        setActionBarColor(ColorList.ST_WRITING.value)
+                        mViewModel.writeLog = true
+                        setStatus()
                     } else {
-                        setActionBarColor(ColorList.ST_LOGGING.value)
+                        mViewModel.writeLog = false
+                        setStatus()
                     }
                 }
                 GUIMessage.TOAST.toString() -> {
@@ -153,9 +156,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun sendServiceMessage(type: String) {
-        val serviceIntent = Intent(this, BTService::class.java)
-        serviceIntent.action = type
-        ContextCompat.startForegroundService(this, serviceIntent)
+        applicationContext?.let {
+            val serviceIntent = Intent(it, BTService::class.java)
+            serviceIntent.action = type
+            startForegroundService(serviceIntent)
+        }
     }
 
     private fun doConnect() {
@@ -179,18 +184,14 @@ class MainActivity : AppCompatActivity() {
 
         if(havePermissions) {
             //Tell service to connect
-            val serviceIntent = Intent(baseContext, BTService::class.java)
-            serviceIntent.action = BTServiceTask.DO_CONNECT.toString()
-            startForegroundService(serviceIntent)
+            sendServiceMessage(BTServiceTask.DO_CONNECT.toString())
         } else {
             checkNextPermission(0, true)
         }
     }
 
     private fun doDisconnect() {
-        val serviceIntent = Intent(baseContext, BTService::class.java)
-        serviceIntent.action = BTServiceTask.DO_DISCONNECT.toString()
-        startForegroundService(serviceIntent)
+        sendServiceMessage(BTServiceTask.DO_DISCONNECT.toString())
     }
 
     private fun setStatus() {
@@ -217,8 +218,13 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             UDSTask.LOGGING -> {
-                newString = "Logging"
-                setActionBarColor(ColorList.ST_LOGGING.value)
+                if(mViewModel.writeLog) {
+                    newString = "Logging"
+                    setActionBarColor(ColorList.ST_WRITING.value)
+                } else {
+                    newString = "Polling"
+                    setActionBarColor(ColorList.ST_LOGGING.value)
+                }
             }
             UDSTask.FLASHING -> {
                 newString = "Flashing"

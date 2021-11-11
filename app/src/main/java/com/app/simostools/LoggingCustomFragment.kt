@@ -70,7 +70,7 @@ open class LoggingCustomFragment : LoggingBaseFragment() {
 
     override fun onGaugeClick(view: View?): Boolean {
         PIDs.resetData()
-        updatePIDText()
+        updateGauges()
 
         return true
     }
