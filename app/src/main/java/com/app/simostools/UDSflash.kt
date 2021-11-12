@@ -91,7 +91,7 @@ object UDSFlasher {
             mLastString = "Full flash isn't implemented yet, extracting JUST the cal..."
             mTask = FLASH_ECU_CAL_SUBTASK.GET_ECU_BOX_CODE
             flashEcuBlock = FLASH_ECU_BLOCK.CAL
-            bin[FLASH_ECU_BLOCK.CAL.identifier] = FlashUtilities.splitBinBlocks(inputBin)[FLASH_ECU_BLOCK.CAL.identifier]
+            bin = FlashUtilities.splitBinBlocks(inputBin)
             return UDS_COMMAND.READ_IDENTIFIER.bytes + ECUInfo.PART_NUMBER.address
         }
     }
@@ -194,6 +194,7 @@ object UDSFlasher {
                 }
 
                 FLASH_ECU_CAL_SUBTASK.CHECKSUM_BIN ->{
+                    mLastString = ""
                     if(currentBlockOperation == bin.size){
                         currentBlockOperation = 0
 
@@ -207,7 +208,11 @@ object UDSFlasher {
                         mLastString = mTask.toString() + "\n"
                         mLastString += "Block identifier: $currentBlockOperation" + "\n"
 
-                        var checksummed = FlashUtilities.checksumSimos18(bin[currentBlockOperation])
+                        var checksummed = FlashUtilities.checksumSimos18(bin[currentBlockOperation],
+                            binAswVersion.software.baseAddresses[currentBlockOperation],
+                            binAswVersion.software.checksumLocations[currentBlockOperation]
+
+                            )
                         mLastString += "Original checksum: " + checksummed.fileChecksum + "\n"
                         mLastString += "Calculatated checksum: " + checksummed.calculatedChecksum + "\n"
                         if (checksummed.updated) mLastString += "    Checksum corrected\n"
@@ -230,6 +235,7 @@ object UDSFlasher {
                 }
 
                 FLASH_ECU_CAL_SUBTASK.COMPRESS_BIN ->{
+                    mLastString = ""
                     if(currentBlockOperation == bin.size){
                         currentBlockOperation = 0
 
@@ -258,6 +264,7 @@ object UDSFlasher {
                 }
 
                 FLASH_ECU_CAL_SUBTASK.ENCRYPT_BIN -> {
+                    mLastString = ""
                     if(currentBlockOperation == bin.size){
                         currentBlockOperation = 0
 
@@ -272,7 +279,7 @@ object UDSFlasher {
 
                         bin[currentBlockOperation] = FlashUtilities.encrypt(bin[currentBlockOperation], SIMOS18_AES_KEY, SIMOS18_AES_IV)
 
-                        var encryptedSize = bin.size
+                        var encryptedSize = bin[currentBlockOperation].size
 
                         mLastString += "Unencrypted bin size: $unencryptedSize \n"
                         mLastString += "Encrypted bin size: $encryptedSize \n"
@@ -447,6 +454,7 @@ object UDSFlasher {
 
                 }
                 FLASH_ECU_CAL_SUBTASK.FLASH_BLOCK -> {
+                    mLastString = ""
                     //If we're done flashing all the blocks, pass off into the
                     //  Reset ecu stage
                     if(currentBlockOperation == bin.size){

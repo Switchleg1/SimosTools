@@ -477,19 +477,21 @@ val SIMOS18_AES_IV = byteArrayOf(
 val CAL_BLOCK_TRANSFER_SIZE = 0xFF0
 
 enum class SIMOS_18(val version: String,
-                    val baseAddresses: LongArray,
+                    val baseAddresses: UIntArray,
                     val blockLengths: IntArray,
                     val fullBinLocations: IntArray,
-                    val blockNumberMap: IntArray){
+                    val blockNumberMap: IntArray,
+                    val checksumLocations: IntArray,
+                    ){
     _1("Simos 18.1",
-        longArrayOf(
-            0x80000000,  // SBOOT
-            0x8001C000,  // CBOOT
-            0x80040000,  // ASW1
-            0x80140000,  // ASW2
-            0x80880000,  // ASW3
-            0xA0800000,  // CAL
-            0x80840000,  // CBOOT_temp
+        uintArrayOf(
+            (0x80000000).toUInt(),  // SBOOT
+            (0x8001C000).toUInt(),  // CBOOT
+            (0x80040000).toUInt(),  // ASW1
+            (0x80140000).toUInt(),  // ASW2
+            (0x80880000).toUInt(),  // ASW3
+            (0xA0800000).toUInt(),  // CAL
+            (0x80840000).toUInt(),  // CBOOT_temp
         ),
         intArrayOf(
             0x0,      //SBOOT, we don't care but this way things line up.
@@ -510,16 +512,26 @@ enum class SIMOS_18(val version: String,
         ),
         intArrayOf(
             0,1,2,3,4,5
-        )),
+        ),
+        intArrayOf(
+            0x300,
+            0x300,
+            0x300,
+            0x0,
+            0x0,
+            0x300,
+
+        )
+    ),
     _10("Simos 18.10",
-        longArrayOf(
-            0x80000000,  // SBOOT
-            0x80800000,  // CBOOT
-            0x80020000,  // ASW1
-            0x80100000,  // ASW2
-            0x808C0000,  // ASW3
-            0xA0820000,  // CAL
-            0x80840000,  // CBOOT_temp
+        uintArrayOf(
+            (0x80000000).toUInt(),  // SBOOT
+            (0x80800000).toUInt(),  // CBOOT
+            (0x80020000).toUInt(),  // ASW1
+            (0x80100000).toUInt(),  // ASW2
+            (0x808C0000).toUInt(),  // ASW3
+            (0xA0820000).toUInt(),  // CAL
+            (0x80840000).toUInt(),  // CBOOT_temp
         ),
         intArrayOf(
             0x0,      //SBOOT, we don't care but this way things line up.
@@ -540,7 +552,16 @@ enum class SIMOS_18(val version: String,
         ),
         intArrayOf(
             0,1,2,3,4,5
-        ))
+        ),
+        intArrayOf(
+            0x300,
+            0x300,
+            0x300,
+            0x0,
+            0x0,
+            0x300,
+        )
+    )
 }
 
 enum class COMPATIBLE_BOXCODE_VERSIONS(val str: String, val boxCodeLocation: IntArray, val software: SIMOS_18) {
