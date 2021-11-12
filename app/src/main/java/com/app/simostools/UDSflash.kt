@@ -218,13 +218,15 @@ object UDSFlasher {
                         if (checksummed.updated) mLastString += "    Checksum corrected\n"
                         else mLastString += "    Checksum not updated\n"
 
-                        checksummed = FlashUtilities.checksumECM3(checksummed.bin)
-                        mLastString += "Original ECM3: " + checksummed.fileChecksum + "\n"
-                        mLastString += "    Calculated ECM3: " + checksummed.calculatedChecksum + "\n"
-                        if (checksummed.updated) mLastString += "Checksum corrected\n"
-                        else mLastString += "    Checksum not updated\n"
+                        if(currentBlockOperation == 5) {
+                            checksummed = FlashUtilities.checksumECM3(checksummed.bin)
+                            mLastString += "Original ECM3: " + checksummed.fileChecksum + "\n"
+                            mLastString += "    Calculated ECM3: " + checksummed.calculatedChecksum + "\n"
+                            if (checksummed.updated) mLastString += "Checksum corrected\n"
+                            else mLastString += "    Checksum not updated\n"
 
-                        bin[currentBlockOperation] = checksummed.bin
+                            bin[currentBlockOperation] = checksummed.bin
+                        }
 
                     }
 
@@ -481,7 +483,7 @@ object UDSFlasher {
                                     binAswVersion.software.blockNumberMap[currentBlockOperation].toByte()
 
                             DebugLog.d(TAG, "Executing ERASE block command: ${mCommand.toHex()}")
-                            mLastString = "Erasing CAL block to prepare for flashing"
+                            mLastString = "Erasing block: $currentBlockOperation to prepare for flashing"
                             return UDSReturn.COMMAND_QUEUED
                         }
                         //We should have a 71 in response to the erase command we just sent....
@@ -574,11 +576,11 @@ object UDSFlasher {
                                     0x01.toByte() +
                                     binAswVersion.software.blockNumberMap[currentBlockOperation].toByte() +
                                     0x00.toByte() + 0x04.toByte() + 0x00.toByte() + 0x00.toByte() + 0x00.toByte() + 0x00.toByte()
-                            mLastString = "Checksumming flashed block"
+                            mLastString = "Checksumming block $currentBlockOperation"
                             return UDSReturn.COMMAND_QUEUED
                         }
                         UDS_RESPONSE.ROUTINE_ACCEPTED -> {
-                            mLastString = "Block Checksummed OK"
+                            mLastString = "Block: $currentBlockOperation Checksummed OK"
                             mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
 
                             currentBlockOperation++

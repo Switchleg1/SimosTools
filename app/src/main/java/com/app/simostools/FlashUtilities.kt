@@ -74,9 +74,13 @@ object FlashUtilities {
         var startAddress2 = byteArrayToInt(bin.copyOfRange(checksumLocation + 20, checksumLocation + 24).reversedArray()).toUInt() - offset
         var endAddress2 = byteArrayToInt(bin.copyOfRange(checksumLocation + 24, checksumLocation + 28).reversedArray()).toUInt() - offset
 
+        var checksumData: ByteArray = byteArrayOf()
 
+        checksumData = bin.copyOfRange(startAddress1.toInt(), endAddress1.toInt() + 1)
 
-        var checksumData: ByteArray = bin.copyOfRange(startAddress1.toInt(), endAddress1.toInt() + 1) + bin.copyOfRange(startAddress2.toInt(), endAddress2.toInt() + 1)
+        if(endAddress2 - startAddress2 > 0.toUInt()){
+            checksumData += bin.copyOfRange(startAddress2.toInt(), endAddress2.toInt() + 1)
+        }
 
         var polynomial = 0x4c11db7;
         var crc = 0x00000000;
