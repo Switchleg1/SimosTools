@@ -569,6 +569,7 @@ enum class COMPATIBLE_BOXCODE_VERSIONS(val str: String, val boxCodeLocation: Int
     _5G0906259L("5G0906259L", intArrayOf(0x60, 0x6B), SIMOS_18._1),
     _8V0906264M("8V0906264M", intArrayOf(0x60, 0x6B), SIMOS_18._1),
     _8V0906259K("8V0906259K", intArrayOf(0x60, 0x6B), SIMOS_18._1),
+    _8V0906259H("8V0906259H", intArrayOf(0x60, 0x6B), SIMOS_18._1),
 }
 
 

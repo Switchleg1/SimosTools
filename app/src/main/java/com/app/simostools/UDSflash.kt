@@ -12,6 +12,7 @@ object UDSFlasher {
     private var cancelFlash: Boolean = false
     private var bin: Array<ByteArray> = arrayOf(byteArrayOf(), byteArrayOf(), byteArrayOf(), byteArrayOf(), byteArrayOf(), byteArrayOf())
     private var inputBin: ByteArray = byteArrayOf()
+    private var patchBin: ByteArray = byteArrayOf()
     private var ecuAswVersion: ByteArray = byteArrayOf()
     private var transferSequence = -1
     private var progress = 0
@@ -66,6 +67,7 @@ object UDSFlasher {
         clearDTCStart = 0
         clearDTCcontinue = 0
         inputBin =  input.readBytes()
+        patchBin = byteArrayOf()
     }
 
     fun startTask(ticks: Int): ByteArray {
@@ -86,12 +88,19 @@ object UDSFlasher {
 
             return UDS_COMMAND.READ_IDENTIFIER.bytes + ECUInfo.PART_NUMBER.address
         }
-        else{
+        else if(inputBin.size <= 0x400000){
             //It's a full bin flash....
-            mLastString = "Full flash isn't implemented yet, extracting JUST the cal..."
+            mLastString = "Full flash file selected..."
             mTask = FLASH_ECU_CAL_SUBTASK.GET_ECU_BOX_CODE
             flashEcuBlock = FLASH_ECU_BLOCK.CAL
             bin = FlashUtilities.splitBinBlocks(inputBin)
+            return UDS_COMMAND.READ_IDENTIFIER.bytes + ECUInfo.PART_NUMBER.address
+        }
+        else{
+            mLastString = "UNLOCK FLASH SELECTED!!!"
+            mTask = FLASH_ECU_CAL_SUBTASK.GET_ECU_BOX_CODE
+            bin = FlashUtilities.splitBinBlocks(inputBin)
+            patchBin = inputBin.copyOfRange(0x400000, inputBin.size)
             return UDS_COMMAND.READ_IDENTIFIER.bytes + ECUInfo.PART_NUMBER.address
         }
     }
@@ -153,11 +162,26 @@ object UDSFlasher {
 
                 FLASH_ECU_CAL_SUBTASK.CHECK_FILE_COMPAT -> {
 
+
                     //val binAswVersion = bin.copyOfRange(0x60, 0x6B)
                     binAswVersion = FlashUtilities.getBoxCodeFromBin(inputBin) ?: COMPATIBLE_BOXCODE_VERSIONS._UNDEFINED
 
+                    if(patchBin.size > 0){
+                        //We're patching the ECU, so make sure the bin is the right H version
+                        if(binAswVersion != COMPATIBLE_BOXCODE_VERSIONS._8V0906259H){
+                            mLastString = "Wrong box code provided for patching: $binAswVersion" +
+                                    "\n Exiting!!!"
+                            return UDSReturn.ERROR_RESPONSE
+                        }
+
+                        mLastString = mTask.toString() + "\nValid unlock file provided... continuing with flash unlock"
+                        mTask = mTask.next()
+                        mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
+                        return UDSReturn.COMMAND_QUEUED
+                    }
+
                     //Compare the two strings:
-                    if (String(ecuAswVersion).trim() != binAswVersion!!.str) {
+                    if (String(ecuAswVersion).trim() != binAswVersion.str) {
                         DebugLog.d(TAG,"ECU software version: ${ecuAswVersion.toHex()}, and file" +
                                 " software version: ${binAswVersion.toString()}")
                         mLastString = "Box code on selected BIN file: $binAswVersion" +
@@ -177,6 +201,7 @@ object UDSFlasher {
                     if(cancelFlash){
                         mLastString = "Flash has been canceled"
                         bin = arrayOf(byteArrayOf(), byteArrayOf(), byteArrayOf(), byteArrayOf(), byteArrayOf(), byteArrayOf())
+                        patchBin = byteArrayOf()
                         mTask = FLASH_ECU_CAL_SUBTASK.NONE
                         return UDSReturn.ABORTED
                     }
@@ -269,6 +294,18 @@ object UDSFlasher {
                     mLastString = ""
                     if(currentBlockOperation == bin.size){
                         currentBlockOperation = 0
+
+                        if(patchBin.size > 0){
+                            mLastString = mTask.toString() + "\n"
+                            var unencryptedSize = patchBin.size
+
+                            patchBin = FlashUtilities.encrypt(patchBin, SIMOS18_AES_KEY, SIMOS18_AES_IV)
+
+                            var encryptedSize = patchBin.size
+
+                            mLastString += "Unencrypted PATCH size: $unencryptedSize \n"
+                            mLastString += "Encrypted PATCH size: $encryptedSize \n"
+                        }
 
                         mTask = mTask.next()
                         mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
@@ -401,7 +438,6 @@ object UDSFlasher {
 
                 }
 
-
                 FLASH_ECU_CAL_SUBTASK.SA2SEEDKEY -> {
                     //Pass SA2SeedKey unlock_security_access(17)
                     when(checkResponse(buff)){
@@ -430,6 +466,7 @@ object UDSFlasher {
                     }
 
                 }
+
                 FLASH_ECU_CAL_SUBTASK.WRITE_WORKSHOP_LOG -> {
                     when(checkResponse(buff)){
                         UDS_RESPONSE.POSITIVE_RESPONSE -> {
@@ -455,6 +492,7 @@ object UDSFlasher {
                     }
 
                 }
+
                 FLASH_ECU_CAL_SUBTASK.FLASH_BLOCK -> {
                     mLastString = ""
                     //If we're done flashing all the blocks, pass off into the
@@ -567,6 +605,7 @@ object UDSFlasher {
                         }
                     }
                 }
+
                 FLASH_ECU_CAL_SUBTASK.CHECKSUM_BLOCK -> {
                     when(checkResponse(buff)){
 
@@ -600,6 +639,7 @@ object UDSFlasher {
                     }
 
                 }
+
                 FLASH_ECU_CAL_SUBTASK.VERIFY_PROGRAMMING_DEPENDENCIES -> {
                     //Verify programming dependencies, routine 0xFF01
                     when(checkResponse(buff)){
@@ -629,6 +669,7 @@ object UDSFlasher {
                     }
 
                 }
+
                 FLASH_ECU_CAL_SUBTASK.RESET_ECU -> {
                     DebugLog.d(TAG,"Response during reset ecu request: " + buff.toHex())
                     when(checkResponse(buff)){
