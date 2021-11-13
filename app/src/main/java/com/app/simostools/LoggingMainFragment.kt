@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -25,11 +24,11 @@ class LoggingViewModel : ViewModel() {
 
 class LoggingMainFragment : Fragment() {
     private val TAG = "LoggingMainFragment"
-    private var mTabLayout: TabLayout?                      = null
-    private var mViewPager: ViewPager2?                     = null
-    private var mFragments: Array<LoggingBaseFragment?>?    = null
-    private var mLastEnabled                                = false
-    private var mPackCount: TextView?                       = null
+    private var mTabLayout: TabLayout?                  = null
+    private var mViewPager: ViewPager2?                 = null
+    private var mViewAdapter: LoggingViewPagerAdapter?  = null
+    private var mLastEnabled                            = false
+    private var mPackCount: TextView?                   = null
     private lateinit var mViewModel: LoggingViewModel
 
     override fun onCreateView(
@@ -43,15 +42,6 @@ class LoggingMainFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-
-        mFragments?.let { fragments ->
-            for(i in 0 until fragments.count()) {
-                fragments[i]?.onDestroy()
-                fragments[i] = null
-            }
-
-        }
-        mFragments = null
 
         DebugLog.d(TAG, "onDestroy")
     }
@@ -79,37 +69,24 @@ class LoggingMainFragment : Fragment() {
 
         mTabLayout?.let { tabs->
             mViewPager?.let { pager ->
-                //only create fragments if null
-                if(mFragments == null) {
-                    mFragments = arrayOfNulls(5)
-                    mFragments?.let { fragments ->
-                        fragments[0] = LoggingFullFragment()
-                        fragments[1] = LoggingCustomFragment1()
-                        fragments[2] = LoggingCustomFragment2()
-                        fragments[3] = LoggingCustomFragment3()
-                        fragments[4] = LoggingCustomFragment4()
+                mViewAdapter = LoggingViewPagerAdapter(this)
+                mViewAdapter?.let { adapter ->
+                    //Add tabs
+                    adapter.add("All")
+                    PIDs.getTabs().toSortedMap().forEach {
+                        if(it.key != "")
+                            adapter.add(it.key)
                     }
-                    DebugLog.d(TAG, "Created Logging Fragments.")
+
+                    pager.adapter = adapter
+                    TabLayoutMediator(tabs, pager) { tab, position ->
+                        tab.text = adapter.getName(position)
+                    }.attach()
+
+                    TabLayoutMediator(tabs, pager) { tab, position ->
+                        tab.text = adapter.getName(position)
+                    }.attach()
                 }
-
-                //add fragments to pager
-                val adapter = ViewPagerAdapter(requireActivity())
-                mFragments?.let { fragments ->
-                    fragments.forEach { fragment ->
-                        fragment?.let {
-                            adapter.addFragment(it, it.getName())
-                        }
-                    }
-                }
-
-                pager.adapter = adapter
-                TabLayoutMediator(tabs, pager) { tab, position ->
-                    tab.text = adapter.getName(position)
-                }.attach()
-
-                TabLayoutMediator(tabs, pager) { tab, position ->
-                    tab.text = adapter.getName(position)
-                }.attach()
             }
         }
 
@@ -133,7 +110,7 @@ class LoggingMainFragment : Fragment() {
         filter.addAction(GUIMessage.READ_LOG.toString())
         filter.addAction(GUIMessage.STATE_CONNECTION.toString())
         filter.addAction(GUIMessage.STATE_TASK.toString())
-        context?.registerReceiver(mBroadcastReceiver, filter)
+        activity?.registerReceiver(mBroadcastReceiver, filter)
 
         //Set background color
         mTabLayout?.setBackgroundColor(ColorList.BT_BG.value)
@@ -146,12 +123,12 @@ class LoggingMainFragment : Fragment() {
     override fun onPause() {
         super.onPause()
 
-        context?.unregisterReceiver(mBroadcastReceiver)
+        activity?.unregisterReceiver(mBroadcastReceiver)
 
         DebugLog.d(TAG, "onPause")
     }
 
-    private fun doUpdate(readCount: Int, readTime: Long) {
+    fun doUpdate(readCount: Int, readTime: Long) {
         //Clear stats are startup
         if(readCount < 50) {
             PIDs.resetData()
@@ -172,17 +149,10 @@ class LoggingMainFragment : Fragment() {
             }
         }
         mLastEnabled = UDSLogger.isEnabled()
-
-        //update child fragments
-        mFragments?.let { fragments ->
-            fragments.forEach {
-                it?.updateGauges()
-            }
-        }
     }
 
     private fun sendServiceMessage(type: String) {
-        context?.let {
+        activity?.let {
             val serviceIntent = Intent(it, BTService::class.java)
             serviceIntent.action = type
             startForegroundService(it, serviceIntent)

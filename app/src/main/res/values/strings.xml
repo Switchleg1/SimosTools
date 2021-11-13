@@ -33,6 +33,7 @@
     <string name="button_set_gauge_normal_color">Set gauge normal color</string>
     <string name="button_set_gauge_warn_color">Set gauge warn color</string>
     <string name="button_set_gauge_bg_color">Set gauge background color</string>
+    <string name="button_set_gauge_value_color">Set gauge value color</string>
     <string name="button_set_st_error">Set state error color</string>
     <string name="button_set_st_none">Set state none color</string>
     <string name="button_set_st_connecting">Set state connecting color</string>
@@ -52,7 +53,9 @@
     <string name="check_settings_always_portrait">Always use portrait view?</string>
     <string name="check_settings_auto_log">Start logging when idle?</string>
     <!-- Strings used for radio buttons -->
-    <string name="radio_settings_display_bar">Bar</string>
+    <string name="radio_settings_display_bar_h">Bar horizontal</string>
+    <string name="radio_settings_display_bar_v">Bar vertical</string>
+    <string name="radio_settings_display_bb">Basic bitch</string>
     <string name="radio_settings_display_round">Round</string>
     <string name="radio_settings_mode_22">22</string>
     <string name="radio_settings_mode_3E">3E</string>
@@ -91,10 +94,7 @@
     <string name="textview_settings_pid_assign_to">Assign To:</string>
     <string name="textview_settings_pid_format">Format:</string>
     <string name="textview_settings_pid_enabled">Enabled</string>
-    <string name="textview_settings_pid_layout1">L1</string>
-    <string name="textview_settings_pid_layout2">L2</string>
-    <string name="textview_settings_pid_layout3">L3</string>
-    <string name="textview_settings_pid_layout4">L4</string>
+    <string name="textview_settings_pid_tabs">Tabs</string>
     <string name="textview_color_r">R: <xliff:g id="value">%1$d</xliff:g></string>
     <string name="textview_color_g">G: <xliff:g id="value">%1$d</xliff:g></string>
     <string name="textview_color_b">B: <xliff:g id="value">%1$d</xliff:g></string>
@@ -113,7 +113,9 @@
     <string name="title_not_connected">not connected</string>
     <string name="title_error">error <xliff:g id="error_name">%1$s</xliff:g></string>
     <string name="title_connected_to">connected to <xliff:g id="device_name">%1$s</xliff:g></string>
-    <string name="textPID"><xliff:g id="pid_str">%1$s</xliff:g>\n<xliff:g id="pid_val">%2$s</xliff:g> <xliff:g id="pid_unit">%3$s</xliff:g>\n[<xliff:g id="pid_unit">%4$s</xliff:g>:<xliff:g id="pid_unit">%5$s</xliff:g>]</string>
+    <string name="textPID"><big>%1$s</big>\n%2$s %3$s\n[%4$s:%5$s]</string>
+    <string name="textPID1"><xliff:g id="pid_str">%1$s</xliff:g>\n<xliff:g id="pid_val">%2$s</xliff:g> <xliff:g id="pid_unit">%3$s</xliff:g>\n[<xliff:g id="pid_unit">%4$s</xliff:g>:<xliff:g id="pid_unit">%5$s</xliff:g>]</string>
+
     <!-- Strings used for filenames -->
     <string name="filename_pid_csv">PIDList<xliff:g id="log_mode">%1$s</xliff:g>.csv</string>
     <string name="filename_debug_log">debug.log</string>

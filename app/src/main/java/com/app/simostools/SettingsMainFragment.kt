@@ -16,6 +16,7 @@ class SettingsMainFragment : Fragment() {
     private val TAG = "SettingsMain"
     private var mTabLayout: TabLayout?                      = null
     private var mViewPager: ViewPager2?                     = null
+    private var mViewAdapter: SettingsViewPagerAdapter?     = null
     private var mGeneralFragment: SettingsGeneralFragment?  = null
     private var mMode22Fragment: SettingsMode22Fragment?    = null
     private var mMode3EFragment: SettingsMode3EFragment?    = null
@@ -58,29 +59,31 @@ class SettingsMainFragment : Fragment() {
 
         mTabLayout?.let { tabs ->
             mViewPager?.let { pager ->
-                val adapter = ViewPagerAdapter(requireActivity())
-                if (mGeneralFragment == null) {
-                    mGeneralFragment = SettingsGeneralFragment()
-                    mGeneralFragment?.setLoadCallback { doLoad() }
-                }
-                adapter.addFragment(mGeneralFragment!!, "General")
-                if (mMode22Fragment == null) {
-                    mMode22Fragment = SettingsMode22Fragment()
-                }
-                adapter.addFragment(mMode22Fragment!!, "Mode22")
-                if (mMode3EFragment == null) {
-                    mMode3EFragment = SettingsMode3EFragment()
-                }
-                adapter.addFragment(mMode3EFragment!!, "Mode3E")
+                mViewAdapter = SettingsViewPagerAdapter(this)
+                mViewAdapter?.let { adapter ->
+                    if (mGeneralFragment == null) {
+                        mGeneralFragment = SettingsGeneralFragment()
+                        mGeneralFragment?.setLoadCallback { doLoad() }
+                    }
+                    adapter.addFragment(mGeneralFragment!!, "General")
+                    if (mMode22Fragment == null) {
+                        mMode22Fragment = SettingsMode22Fragment()
+                    }
+                    adapter.addFragment(mMode22Fragment!!, "Mode22")
+                    if (mMode3EFragment == null) {
+                        mMode3EFragment = SettingsMode3EFragment()
+                    }
+                    adapter.addFragment(mMode3EFragment!!, "Mode3E")
 
-                pager.adapter = adapter
-                TabLayoutMediator(tabs, pager) { tab, position ->
-                    tab.text = adapter.getName(position)
-                }.attach()
+                    pager.adapter = adapter
+                    TabLayoutMediator(tabs, pager) { tab, position ->
+                        tab.text = adapter.getName(position)
+                    }.attach()
 
-                TabLayoutMediator(tabs, pager) { tab, position ->
-                    tab.text = adapter.getName(position)
-                }.attach()
+                    TabLayoutMediator(tabs, pager) { tab, position ->
+                        tab.text = adapter.getName(position)
+                    }.attach()
+                }
             }
         }
 
@@ -183,7 +186,7 @@ class SettingsMainFragment : Fragment() {
     }
 
     private fun sendServiceMessage(type: String) {
-        context?.let {
+        activity?.let {
             val serviceIntent = Intent(it, BTService::class.java)
             serviceIntent.action = type
             startForegroundService(it, serviceIntent)

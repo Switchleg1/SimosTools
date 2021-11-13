@@ -157,13 +157,13 @@ class FlashingFragment : Fragment() {
         filter.addAction(GUIMessage.FLASH_INFO_CLEAR.toString())
         filter.addAction(GUIMessage.FLASH_CONFIRM.toString())
         filter.addAction(GUIMessage.FLASH_BUTTON_RESET.toString())
-        context?.registerReceiver(mBroadcastReceiver, filter)
+        activity?.registerReceiver(mBroadcastReceiver, filter)
     }
 
     override fun onPause() {
         super.onPause()
 
-        context?.unregisterReceiver(mBroadcastReceiver)
+        activity?.unregisterReceiver(mBroadcastReceiver)
     }
 
     private val mBroadcastReceiver = object : BroadcastReceiver() {
@@ -285,7 +285,7 @@ class FlashingFragment : Fragment() {
     }
 
     private fun sendServiceMessage(type: String) {
-        context?.let {
+        activity?.let {
             val serviceIntent = Intent(it, BTService::class.java)
             serviceIntent.action = type
             startForegroundService(it, serviceIntent)

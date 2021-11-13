@@ -595,6 +595,7 @@ class BTService: Service() {
         private var mTaskTimeNext: Long         = 0
         private var mTaskTimeOut: Long          = 0
         private var mTaskNextBroadcast: Long    = 0
+        private var mPasswordAccepted: Boolean  = true
 
         init {
             setTaskState(UDSTask.NONE)
@@ -823,29 +824,45 @@ class BTService: Service() {
         }
 
         private fun processPacket(buff: ByteArray?) {
-            when (mTask) {
-                UDSTask.NONE     -> processPacketNone(buff)
-                UDSTask.LOGGING  -> processPacketLogging(buff)
-                UDSTask.FLASHING -> processPacketFlashing(buff)
-                UDSTask.INFO     -> processPacketGetInfo(buff)
-                UDSTask.DTC      -> processPacketClearDTC(buff)
-            }
-
-            //Only increment task packet count when buffer isn't empty
-            buff?.let {
-                if(it.count() >= BLEHeader().size()) {
-                    mTaskTick++
+            if(mPasswordAccepted) {
+                when (mTask) {
+                    UDSTask.NONE -> processPacketNone(buff)
+                    UDSTask.LOGGING -> processPacketLogging(buff)
+                    UDSTask.FLASHING -> processPacketFlashing(buff)
+                    UDSTask.INFO -> processPacketGetInfo(buff)
+                    UDSTask.DTC -> processPacketClearDTC(buff)
                 }
-            }
 
-            //check if we are ready to switch to a new task
-            if (mTaskNext != UDSTask.NONE) {
-                mTaskTimeNext = System.currentTimeMillis() + TASK_END_DELAY
+                //Only increment task packet count when buffer isn't empty
+                buff?.let {
+                    if (it.count() >= BLEHeader().size()) {
+                        mTaskTick++
+                    }
+                }
 
-                //Write debug log
-                DebugLog.d(TAG, "Packet extended task start delay.")
+                //check if we are ready to switch to a new task
+                if (mTaskNext != UDSTask.NONE) {
+                    mTaskTimeNext = System.currentTimeMillis() + TASK_END_DELAY
+
+                    //Write debug log
+                    DebugLog.d(TAG, "Packet extended task start delay.")
+                } else {
+                    mTaskTimeNext = System.currentTimeMillis() + TASK_BUMP_DELAY
+                }
             } else {
-                mTaskTimeNext = System.currentTimeMillis() + TASK_BUMP_DELAY
+                buff?.let {
+                    if (it.count() == BLEHeader().size() + 1) {
+                        val bleHeader = BLEHeader()
+                        bleHeader.fromByteArray(it)
+                        if(bleHeader.isValid() && it[8] == 0xFF.toByte()) {
+                            DebugLog.i(TAG, "Password accepted.")
+                            mPasswordAccepted = true
+                        } else {
+                            DebugLog.i(TAG, "Password failed.")
+                            doDisconnect()
+                        }
+                    }
+                }
             }
         }
 
@@ -927,9 +944,9 @@ class BTService: Service() {
         private fun processPacketFlashing(buff: ByteArray?) {
 
             if(buff != null) {
-                var response = buff!!.copyOfRange(8, buff.size)
+                val response = buff.copyOfRange(8, buff.size)
 
-                var flashStatus = UDSFlasher.processFlashCAL(mTaskTick, response)
+                val flashStatus = UDSFlasher.processFlashCAL(mTaskTick, response)
 
                 if (UDSFlasher.getInfo() != "") {
                     DebugLog.d(
@@ -941,7 +958,7 @@ class BTService: Service() {
                     sendBroadcast(intentMessage)
                 }
 
-                var progress = UDSFlasher.getProgress()
+                val progress = UDSFlasher.getProgress()
 
                 if(progress > 0){
                     DebugLog.d(TAG, "Total Progress: $progress")
@@ -1099,12 +1116,7 @@ class BTService: Service() {
             val bleHeader = BLEHeader()
             bleHeader.cmdSize = 2
             bleHeader.cmdFlags = BLECommandFlags.SETTINGS.value or BLESettings.ISOTP_STMIN.value
-            //val buff = bleHeader.toByteArray() + amount.toArray2()
-            val buff = bleHeader.toByteArray() + byteArrayOf(
-                (amount shr 0).toByte(),
-                (amount shr 8).toByte(),
-
-                )
+            val buff = bleHeader.toByteArray() + byteArrayOf((amount shr 0).toByte(), (amount shr 8).toByte())
             writePacket(buff)
         }
 
@@ -1123,7 +1135,6 @@ class BTService: Service() {
             bleHeader.cmdFlags = BLECommandFlags.SETTINGS.value or BLESettings.PASSWORD.value
             val buff = bleHeader.toByteArray() + password.toByteArray()
             writePacket(buff)
-
         }
     }
 }

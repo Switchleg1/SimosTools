@@ -16,6 +16,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import android.widget.Toast
+import androidx.core.view.forEach
+import androidx.core.view.forEachIndexed
 
 class SettingsViewModel : ViewModel() {
     var logMode = UDSLoggingMode.MODE_22
@@ -183,6 +185,11 @@ class SettingsGeneralFragment : Fragment() {
             findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
         }
 
+        view.findViewById<Button>(R.id.buttonSetGaugeValueColor).setOnClickListener {
+            ColorSettings.getColor(ColorList.GAUGE_VALUE)
+            findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
+        }
+
         view.findViewById<Button>(R.id.buttonSetErrorColor).setOnClickListener {
             ColorSettings.getColor(ColorList.ST_ERROR)
             findNavController().navigate(R.id.action_SettingsFragment_to_ColorFragment)
@@ -300,21 +307,23 @@ class SettingsGeneralFragment : Fragment() {
 
             //Get gauge mode
             when(ConfigSettings.GAUGE_TYPE.toGaugeType()) {
-                GaugeType.BAR -> currentView.findViewById<RadioButton>(R.id.radioButtonBAR).isChecked = true
-                GaugeType.ROUND -> currentView.findViewById<RadioButton>(R.id.radioButtonROUND).isChecked = true
+                GaugeType.BAR_H -> currentView.findViewById<RadioButton>(R.id.radioButtonBARH).isChecked    = true
+                GaugeType.BAR_V -> currentView.findViewById<RadioButton>(R.id.radioButtonBARV).isChecked    = true
+                GaugeType.BB    -> currentView.findViewById<RadioButton>(R.id.radioButtonBB).isChecked      = true
+                GaugeType.ROUND -> currentView.findViewById<RadioButton>(R.id.radioButtonROUND).isChecked   = true
             }
 
             //Get logging mode
             when(UDSLogger.getMode()) {
-                UDSLoggingMode.MODE_22 -> currentView.findViewById<RadioButton>(R.id.radioButton22).isChecked = true
-                else -> currentView.findViewById<RadioButton>(R.id.radioButton3E).isChecked = true
+                UDSLoggingMode.MODE_22  -> currentView.findViewById<RadioButton>(R.id.radioButton22).isChecked  = true
+                else                    -> currentView.findViewById<RadioButton>(R.id.radioButton3E).isChecked  = true
             }
 
             //Get output directory
             when (ConfigSettings.OUT_DIRECTORY.toDirectory()) {
-                DirectoryList.DOWNLOADS -> currentView.findViewById<RadioButton>(R.id.radioButtonDownloads).isChecked = true
-                DirectoryList.DOCUMENTS -> currentView.findViewById<RadioButton>(R.id.radioButtonDocuments).isChecked = true
-                DirectoryList.APP -> currentView.findViewById<RadioButton>(R.id.radioButtonApplication).isChecked = true
+                DirectoryList.DOWNLOADS -> currentView.findViewById<RadioButton>(R.id.radioButtonDownloads).isChecked   = true
+                DirectoryList.DOCUMENTS -> currentView.findViewById<RadioButton>(R.id.radioButtonDocuments).isChecked   = true
+                DirectoryList.APP       -> currentView.findViewById<RadioButton>(R.id.radioButtonApplication).isChecked = true
             }
 
             //Get draw minmax
@@ -369,7 +378,9 @@ class SettingsGeneralFragment : Fragment() {
             currentView.findViewById<RadioButton>(R.id.radioButtonDownloads).setTextColor(color)
             currentView.findViewById<RadioButton>(R.id.radioButtonDocuments).setTextColor(color)
             currentView.findViewById<RadioButton>(R.id.radioButtonApplication).setTextColor(color)
-            currentView.findViewById<RadioButton>(R.id.radioButtonBAR).setTextColor(color)
+            currentView.findViewById<RadioButton>(R.id.radioButtonBARH).setTextColor(color)
+            currentView.findViewById<RadioButton>(R.id.radioButtonBARV).setTextColor(color)
+            currentView.findViewById<RadioButton>(R.id.radioButtonBB).setTextColor(color)
             currentView.findViewById<RadioButton>(R.id.radioButtonROUND).setTextColor(color)
             currentView.findViewById<RadioButton>(R.id.radioButton3E).setTextColor(color)
             currentView.findViewById<RadioButton>(R.id.radioButton22).setTextColor(color)
@@ -398,6 +409,8 @@ class SettingsGeneralFragment : Fragment() {
             currentView.findViewById<Button>(R.id.buttonSetGaugeWarnColor).setBackgroundColor(ColorSettings.mColorList[ColorList.GAUGE_WARN.ordinal])
             currentView.findViewById<Button>(R.id.buttonSetGaugeBGColor).setTextColor(ColorSettings.mColorList[ColorList.GAUGE_BG.ordinal].toColorInverse())
             currentView.findViewById<Button>(R.id.buttonSetGaugeBGColor).setBackgroundColor(ColorSettings.mColorList[ColorList.GAUGE_BG.ordinal])
+            currentView.findViewById<Button>(R.id.buttonSetGaugeValueColor).setTextColor(ColorSettings.mColorList[ColorList.GAUGE_VALUE.ordinal].toColorInverse())
+            currentView.findViewById<Button>(R.id.buttonSetGaugeValueColor).setBackgroundColor(ColorSettings.mColorList[ColorList.GAUGE_VALUE.ordinal])
             currentView.findViewById<Button>(R.id.buttonSetErrorColor).setTextColor(ColorSettings.mColorList[ColorList.ST_ERROR.ordinal].toColorInverse())
             currentView.findViewById<Button>(R.id.buttonSetErrorColor).setBackgroundColor(ColorSettings.mColorList[ColorList.ST_ERROR.ordinal])
             currentView.findViewById<Button>(R.id.buttonSetNoneColor).setTextColor(ColorSettings.mColorList[ColorList.ST_NONE.ordinal].toColorInverse())
@@ -438,10 +451,24 @@ class SettingsGeneralFragment : Fragment() {
             // Set persist delay
             ConfigFile.set(ConfigSettings.Q_CORRECTION.cfgName, currentView.findViewById<SeekBar>(R.id.seekBarQCorrection).progress.toString())
 
-            // Set gauge mode
-            when (currentView.findViewById<RadioButton>(R.id.radioButtonBAR).isChecked) {
-                true -> ConfigFile.set(ConfigSettings.GAUGE_TYPE.cfgName, GaugeType.BAR.cfgName)
-                false -> ConfigFile.set(ConfigSettings.GAUGE_TYPE.cfgName, GaugeType.ROUND.cfgName)
+            // Set gauge type
+            when {
+                currentView.findViewById<RadioButton>(R.id.radioButtonBARH).isChecked -> ConfigFile.set(
+                    ConfigSettings.GAUGE_TYPE.cfgName,
+                    GaugeType.BAR_H.cfgName
+                )
+                currentView.findViewById<RadioButton>(R.id.radioButtonBARV).isChecked -> ConfigFile.set(
+                    ConfigSettings.GAUGE_TYPE.cfgName,
+                    GaugeType.BAR_V.cfgName
+                )
+                currentView.findViewById<RadioButton>(R.id.radioButtonBB).isChecked -> ConfigFile.set(
+                    ConfigSettings.GAUGE_TYPE.cfgName,
+                    GaugeType.BB.cfgName
+                )
+                currentView.findViewById<RadioButton>(R.id.radioButtonROUND).isChecked -> ConfigFile.set(
+                    ConfigSettings.GAUGE_TYPE.cfgName,
+                    GaugeType.ROUND.cfgName
+                )
             }
 
             // Set logging mode

@@ -352,33 +352,27 @@
                     android:layout_weight="1"
                     android:text="@string/textview_settings_pid_enabled"/>
 
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/switchLayout1"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                <LinearLayout
                     android:layout_weight="1"
-                    android:text="@string/textview_settings_pid_layout1" />
+                    android:layout_height="match_parent"
+                    android:layout_width="match_parent"
+                    android:orientation="horizontal">
 
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/switchLayout2"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="@string/textview_settings_pid_layout2" />
+                    <TextView
+                        android:id="@+id/textViewTabs"
+                        android:layout_width="80dp"
+                        android:layout_height="match_parent"
+                        android:text="@string/textview_settings_pid_tabs"
+                        android:layout_marginTop="16dp"/>
 
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/switchLayout3"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="@string/textview_settings_pid_layout3" />
+                    <EditText
+                        android:id="@+id/editTextTabs"
+                        android:layout_height="match_parent"
+                        android:layout_width="match_parent"
+                        android:inputType="text"
+                        android:text=""/>
 
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/switchLayout4"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="@string/textview_settings_pid_layout4" />
+                </LinearLayout>
 
             </LinearLayout>
         </LinearLayout>

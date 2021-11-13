@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.view.Gravity
-import android.view.View
 
 class SwitchGauge: androidx.appcompat.widget.AppCompatTextView {
     constructor(context: Context) : super(context) {
@@ -33,6 +32,12 @@ class SwitchGauge: androidx.appcompat.widget.AppCompatTextView {
         color = Color.RED
         strokeWidth = 5.0f
     }
+    val rimPaint: Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style       = Paint.Style.STROKE
+        color       = Color.DKGRAY
+        strokeCap   = Paint.Cap.ROUND
+        strokeWidth = 5.0f
+    }
 
     private val rect            = RectF()
     private val minAngle        = 120f
@@ -44,76 +49,88 @@ class SwitchGauge: androidx.appcompat.widget.AppCompatTextView {
     private var currentWidth    = 0f
     private var currentHeight   = 0f
     private var currentProgress = 0f
-    private var currentStyle    = GaugeType.BAR
+    private var currentStyle    = GaugeType.BAR_V
     private var currentIndex    = 0
     private var currentEnable   = true
     private var currentMin      = 0f
     private var currentMax      = 0f
     private var showMinMax      = true
     private var showGraduations = true
-    private var marginStart     = 10.0f
-    private var marginEnd       = 10.0f
     private var centerGauge     = false
+    var margin                  = 10f
+    var round                   = 50f
 
     override fun onDraw(canvas: Canvas) {
         if(currentEnable) {
             when (currentStyle) {
-                GaugeType.BAR -> {
-                    if(showGraduations) {
-                        for (i in 1 until 10) {
-                            drawLine(i.toFloat()*10f, progressPaint.strokeWidth+marginStart*4f, canvas, tickPaint)
-                        }
-                    }
-
-                    drawRect(0f, 100.0f, backgroundPaint.strokeWidth, canvas, backgroundPaint)
-
-                    if(centerGauge) {
-                        if (currentProgress < 50.0f) {
-                            drawRect(currentProgress, 50.0f, progressPaint.strokeWidth, canvas, progressPaint)
-                        } else {
-                            drawRect(50.0f, currentProgress, progressPaint.strokeWidth, canvas, progressPaint)
-                        }
-                    } else {
-                        drawRect(0f, currentProgress, progressPaint.strokeWidth, canvas, progressPaint)
-                    }
-
-                    if(showMinMax) {
-                        drawLine(currentMin, progressPaint.strokeWidth, canvas, minmaxPaint)
-                        drawLine(currentMax, progressPaint.strokeWidth, canvas, minmaxPaint)
-                    }
-                }
-                GaugeType.ROUND -> {
-                    drawCircle(minAngle, maxAngle, canvas, backgroundPaint)
-                    if(centerGauge) {
-                        if (currentProgress < 50.0f) {
-                            drawCircle(minAngle + angleProgress, maxAngle * 0.5f - angleProgress, canvas, progressPaint)
-                        } else {
-                            drawCircle(minAngle + maxAngle * 0.5f, angleProgress - maxAngle * 0.5f, canvas, progressPaint)
-                        }
-                    } else {
-                        drawCircle(minAngle, angleProgress, canvas, progressPaint)
-                    }
-
-                    if(showMinMax) {
-                        drawCircle(minAngle + angleMin-0.5f, angleMax+1.0f-angleMin, canvas, minmaxPaint)
-                    }
-
-                    if(showGraduations) {
-                        for (i in 1 until 10) {
-                            val start = minAngle + 30.0f * i.toFloat()
-                            drawCircle(start - 0.25f, 0.5f, canvas, tickPaint)
-                        }
-                    }
-                }
+                GaugeType.BAR_H -> drawBar(false, canvas)
+                GaugeType.BAR_V -> drawBar(true, canvas)
+                GaugeType.BB    -> drawBB(canvas)
+                GaugeType.ROUND -> drawRound(canvas)
             }
         }
         super.onDraw(canvas)
     }
 
+    private fun drawBar(vertical: Boolean, canvas: Canvas) {
+        drawBB(canvas)
+
+        progressPaint.alpha = 180
+        if(centerGauge) {
+            if (currentProgress < 50.0f) {
+                drawRect(vertical, currentProgress, 50.0f, canvas, progressPaint)
+            } else {
+                drawRect(vertical, 50.0f, currentProgress, canvas, progressPaint)
+            }
+        } else {
+            drawRect(vertical, 0f, currentProgress, canvas, progressPaint)
+        }
+
+        if(showGraduations) {
+            tickPaint.alpha = 25
+            for (i in 1 until 10) {
+                drawLine(vertical, i.toFloat()*10f, progressPaint.strokeWidth+margin*1.5f, canvas, tickPaint)
+            }
+        }
+
+        if(showMinMax) {
+            drawLine(vertical, currentMin, progressPaint.strokeWidth, canvas, minmaxPaint)
+            drawLine(vertical, currentMax, progressPaint.strokeWidth, canvas, minmaxPaint)
+        }
+    }
+
+    private fun drawBB(canvas: Canvas) {
+        drawRect(false, 0f, 100.0f, canvas, backgroundPaint)
+        drawRect(false, 0f, 100.0f, canvas, rimPaint)
+    }
+
+    private fun drawRound(canvas: Canvas) {
+        drawCircle(minAngle, maxAngle, canvas, backgroundPaint)
+        if(centerGauge) {
+            if (currentProgress < 50.0f) {
+                drawCircle(minAngle + angleProgress, maxAngle * 0.5f - angleProgress, canvas, progressPaint)
+            } else {
+                drawCircle(minAngle + maxAngle * 0.5f, angleProgress - maxAngle * 0.5f, canvas, progressPaint)
+            }
+        } else {
+            drawCircle(minAngle, angleProgress, canvas, progressPaint)
+        }
+
+        if(showMinMax) {
+            drawCircle(minAngle + angleMin-0.5f, angleMax+1.0f-angleMin, canvas, minmaxPaint)
+        }
+
+        if(showGraduations) {
+            for (i in 1 until 10) {
+                val start = minAngle + 30.0f * i.toFloat()
+                drawCircle(start - 0.25f, 0.5f, canvas, tickPaint)
+            }
+        }
+    }
+
     override fun onSizeChanged(width: Int, height: Int, oldWidth: Int, oldHeight: Int) {
         currentWidth = width.toFloat()
         currentHeight = height.toFloat()
-        marginEnd = currentWidth - (marginStart * 2.0f)
 
         var r = ((backgroundPaint.color and 0xFF0000) shr 16) + 40
         var g = ((backgroundPaint.color and 0xFF00) shr 8) + 40
@@ -134,32 +151,68 @@ class SwitchGauge: androidx.appcompat.widget.AppCompatTextView {
     }
 
     private fun drawCircle(start: Float, finish: Float, canvas: Canvas, paint: Paint) {
+        val margin_h = margin / 2f
         val strokeWidth = paint.strokeWidth / 2.0f
-        rect.set(marginStart + strokeWidth, strokeWidth, currentWidth - strokeWidth - marginStart, currentHeight - strokeWidth)
+        rect.set(margin_h + strokeWidth, strokeWidth, currentWidth - strokeWidth - margin_h, currentHeight - strokeWidth)
         canvas.drawArc(rect, start, finish, false, paint)
     }
 
-    private fun drawRect(start: Float, finish: Float, width: Float, canvas: Canvas, paint: Paint) {
-        val offsetY = (currentHeight-width) / 2.0f
-        val begin = marginStart + start
-        val stop = marginStart + (finish / 100.0f * marginEnd)
-
-        canvas.drawRoundRect(begin, offsetY, stop, currentHeight-offsetY, 10f, 10f, paint)
+    private fun drawRect(vertical: Boolean, start: Float, finish: Float, canvas: Canvas, paint: Paint) {
+        when(vertical) {
+            true    -> drawRectV(start, finish, canvas, paint)
+            false   -> drawRectH(start, finish, canvas, paint)
+        }
     }
 
-    private fun drawLine(position: Float, width: Float, canvas: Canvas, paint: Paint) {
-        val offsetY = (currentHeight-width+marginStart) / 2.0f
-        val begin = marginStart + (position / 100.0f * marginEnd)
+    private fun drawRectH(start: Float, finish: Float, canvas: Canvas, paint: Paint) {
+        val marginEnd = currentWidth-margin*2f
+        val offsetY = margin
+        val begin = margin + (start / 100.0f * marginEnd)
+        val stop = margin + (finish / 100.0f * marginEnd)
+
+        canvas.drawRoundRect(begin, offsetY, stop, currentHeight-offsetY, round, round, paint)
+    }
+
+    private fun drawRectV(start: Float, finish: Float, canvas: Canvas, paint: Paint) {
+        val marginEnd = currentHeight-margin*2f
+        val offsetX = margin
+        val begin = margin + ((100.0f-start) / 100.0f * marginEnd)
+        val stop = margin + ((100.0f-finish) / 100.0f * marginEnd)
+
+        canvas.drawRoundRect(offsetX, begin, currentWidth-offsetX, stop, round, round, paint)
+    }
+
+    private fun drawLine(vertical: Boolean, start: Float, finish: Float, canvas: Canvas, paint: Paint) {
+        when(vertical) {
+            true    -> drawLineV(start, finish, canvas, paint)
+            false   -> drawLineH(start, finish, canvas, paint)
+        }
+    }
+
+    private fun drawLineH(position: Float, width: Float, canvas: Canvas, paint: Paint) {
+        val marginEnd = currentWidth-margin
+        val offsetY = (currentHeight-width+margin) / 2.0f
+        val begin = margin + (position / 100.0f * marginEnd)
 
         canvas.drawLine(begin, offsetY, begin, currentHeight-offsetY, paint)
+    }
+
+    private fun drawLineV(position: Float, height: Float, canvas: Canvas, paint: Paint) {
+        val marginEnd = currentHeight-margin
+        val offsetX = (currentWidth-height+margin) / 2.0f
+        val begin = margin + (position / 100.0f * marginEnd)
+
+        canvas.drawLine(offsetX, begin, currentWidth-offsetX, begin, paint)
     }
 
     private fun calculateAngle(progress: Float) = maxAngle / maxProgress * progress
 
     private fun setTickWidth() {
         when(currentStyle) {
-            GaugeType.BAR   -> tickPaint.strokeWidth   = minmaxPaint.strokeWidth
-            GaugeType.ROUND -> tickPaint.strokeWidth   = backgroundPaint.strokeWidth + marginStart
+            GaugeType.BAR_H -> tickPaint.strokeWidth   = minmaxPaint.strokeWidth
+            GaugeType.BAR_V -> tickPaint.strokeWidth   = minmaxPaint.strokeWidth
+            GaugeType.BB    -> tickPaint.strokeWidth   = minmaxPaint.strokeWidth
+            GaugeType.ROUND -> tickPaint.strokeWidth   = backgroundPaint.strokeWidth + margin
         }
     }
 
@@ -167,7 +220,15 @@ class SwitchGauge: androidx.appcompat.widget.AppCompatTextView {
         currentStyle = style
 
         when(currentStyle) {
-            GaugeType.BAR -> {
+            GaugeType.BAR_H -> {
+                progressPaint.style     = Paint.Style.FILL
+                backgroundPaint.style   = Paint.Style.FILL
+            }
+            GaugeType.BAR_V -> {
+                progressPaint.style     = Paint.Style.FILL
+                backgroundPaint.style   = Paint.Style.FILL
+            }
+            GaugeType.BB -> {
                 progressPaint.style     = Paint.Style.FILL
                 backgroundPaint.style   = Paint.Style.FILL
             }
@@ -259,6 +320,13 @@ class SwitchGauge: androidx.appcompat.widget.AppCompatTextView {
 
     fun setMinMaxColor(color: Int, redraw: Boolean = true) {
         minmaxPaint.color = color
+
+        if(redraw)
+            invalidate()
+    }
+
+    fun setRimColor(color: Int, redraw: Boolean = true) {
+        rimPaint.color = color
 
         if(redraw)
             invalidate()

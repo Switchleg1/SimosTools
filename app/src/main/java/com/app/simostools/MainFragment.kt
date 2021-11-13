@@ -94,7 +94,7 @@ class MainFragment : Fragment() {
     }
 
     private fun sendServiceMessage(type: String) {
-        context?.let {
+        activity?.let {
             val serviceIntent = Intent(it, BTService::class.java)
             serviceIntent.action = type
             startForegroundService(it, serviceIntent)

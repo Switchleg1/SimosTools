@@ -67,10 +67,8 @@ class SettingsViewAdapter internal constructor(context: Context?, data: Array<PI
         var mAssignToEdit: EditText?        = null
         var mAssignToText: TextView?        = null
         var mEnableSwitch: SwitchCompat?    = null
-        var mLayout1Switch: SwitchCompat?   = null
-        var mLayout2Switch: SwitchCompat?   = null
-        var mLayout3Switch: SwitchCompat?   = null
-        var mLayout4Switch: SwitchCompat?   = null
+        var mTabsText: TextView?            = null
+        var mTabsEdit: EditText?            = null
         var mUpArrowButton: SwitchButton?   = null
         var mDownArrowButton: SwitchButton? = null
 
@@ -139,23 +137,10 @@ class SettingsViewAdapter internal constructor(context: Context?, data: Array<PI
                 isChecked = pid?.enabled!!
                 setTextColor(ColorList.TEXT.value)
             }
-            mLayout1Switch?.apply {
-                isChecked = pid?.tabs!!.contains("Layout1")
+            mTabsEdit?.apply {
+                setText(pid?.tabs)
                 setTextColor(ColorList.TEXT.value)
             }
-            mLayout2Switch?.apply {
-                isChecked = pid?.tabs!!.contains("Layout2")
-                setTextColor(ColorList.TEXT.value)
-            }
-            mLayout3Switch?.apply {
-                isChecked = pid?.tabs!!.contains("Layout3")
-                setTextColor(ColorList.TEXT.value)
-            }
-            mLayout4Switch?.apply {
-                isChecked = pid?.tabs!!.contains("Layout4")
-                setTextColor(ColorList.TEXT.value)
-            }
-
             mNameText?.setTextColor(ColorList.TEXT.value)
             mUnitText?.setTextColor(ColorList.TEXT.value)
             mAddressText?.setTextColor(ColorList.TEXT.value)
@@ -168,6 +153,7 @@ class SettingsViewAdapter internal constructor(context: Context?, data: Array<PI
             mFormatText?.setTextColor(ColorList.TEXT.value)
             mSmoothingText?.setTextColor(ColorList.TEXT.value)
             mAssignToText?.setTextColor(ColorList.TEXT.value)
+            mTabsText?.setTextColor(ColorList.TEXT.value)
         }
 
         fun saveData() {
@@ -186,27 +172,7 @@ class SettingsViewAdapter internal constructor(context: Context?, data: Array<PI
                     pid.smoothing = mSmoothingEdit?.text.toString().toFloat()
                     pid.assignTo = mAssignToEdit?.text.toString()
                     pid.enabled = mEnableSwitch?.isChecked == true
-                    pid.tabs = ""
-                    if (mLayout1Switch?.isChecked!!) {
-                        if (pid.tabs != "")
-                            pid.tabs += "."
-                        pid.tabs += "Layout1"
-                    }
-                    if (mLayout2Switch?.isChecked!!) {
-                        if (pid.tabs != "")
-                            pid.tabs += "."
-                        pid.tabs += "Layout2"
-                    }
-                    if (mLayout3Switch?.isChecked!!) {
-                        if (pid.tabs != "")
-                            pid.tabs += "."
-                        pid.tabs += "Layout3"
-                    }
-                    if (mLayout4Switch?.isChecked!!) {
-                        if (pid.tabs != "")
-                            pid.tabs += "."
-                        pid.tabs += "Layout4"
-                    }
+                    pid.tabs = mTabsEdit?.text.toString()
                 }
             } catch(e: Exception) {
                 DebugLog.e(TAG, "D", e)
@@ -243,10 +209,8 @@ class SettingsViewAdapter internal constructor(context: Context?, data: Array<PI
             mAssignToEdit = itemView.findViewById(R.id.editTextAssignTo)
             mAssignToText = itemView.findViewById(R.id.textViewAssignTo)
             mEnableSwitch = itemView.findViewById(R.id.switchEnable)
-            mLayout1Switch = itemView.findViewById(R.id.switchLayout1)
-            mLayout2Switch = itemView.findViewById(R.id.switchLayout2)
-            mLayout3Switch = itemView.findViewById(R.id.switchLayout3)
-            mLayout4Switch = itemView.findViewById(R.id.switchLayout4)
+            mTabsText = itemView.findViewById(R.id.textViewTabs)
+            mTabsEdit = itemView.findViewById(R.id.editTextTabs)
             mUpArrowButton = itemView.findViewById(R.id.buttonUp)
             mUpArrowButton?.apply {
                 paintBG.color = ColorList.BT_BG.value

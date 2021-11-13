@@ -163,6 +163,7 @@
             app:lineHeight="60dp" />
 
         <RadioGroup
+            android:id="@+id/radioGroupdFolder"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:orientation="horizontal">
@@ -210,21 +211,37 @@
         <RadioGroup
             android:id="@+id/radioGroupDisplayType"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:orientation="horizontal">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <RadioButton
-                android:id="@+id/radioButtonBAR"
+                android:id="@+id/radioButtonBARH"
                 android:layout_weight="1"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="48dp"
-                android:text="@string/radio_settings_display_bar" />
+                android:text="@string/radio_settings_display_bar_h" />
+
+            <RadioButton
+                android:id="@+id/radioButtonBARV"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="@string/radio_settings_display_bar_v" />
+
+            <RadioButton
+                android:id="@+id/radioButtonBB"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="@string/radio_settings_display_bb" />
 
             <RadioButton
                 android:id="@+id/radioButtonROUND"
                 android:layout_weight="1"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="48dp"
                 android:text="@string/radio_settings_display_round" />
@@ -483,6 +500,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/button_set_gauge_bg_color"
+            android:textColor="#5E35B1" />
+
+        <View
+            android:id="@+id/divider18"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="?android:attr/listDivider" />
+
+        <Button
+            android:id="@+id/buttonSetGaugeValueColor"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/button_set_gauge_value_color"
             android:textColor="#5E35B1" />
 
         <View

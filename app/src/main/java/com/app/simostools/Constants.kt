@@ -21,10 +21,8 @@ enum class GUIMessage {
     FLASH_PROGRESS,
     FLASH_PROGRESS_MAX,
     FLASH_PROGRESS_SHOW,
-
     FLASH_CONFIRM,
     FLASH_BUTTON_RESET,
-
     PID_RELOAD
 }
 
@@ -177,6 +175,7 @@ enum class ColorList(var value: Int, val cfgName: String) {
     GAUGE_NORMAL(Color.rgb(0,   255, 0), "GaugeNormal"),
     GAUGE_WARN(Color.rgb(255, 0,   0), "GaugeWarn"),
     GAUGE_BG(Color.rgb(0, 0,   0), "GaugeBG"),
+    GAUGE_VALUE(Color.rgb(255, 255,   255), "GaugeValue"),
     ST_ERROR(Color.rgb(255, 32,   0), "StateError"),
     ST_NONE(Color.rgb(255, 0,   0), "StateNone"),
     ST_CONNECTING(Color.rgb(255, 32, 32), "StateConnecting"),
@@ -220,7 +219,9 @@ enum class DirectoryList(val cfgName: String, val location: String) {
 }
 
 enum class GaugeType(val cfgName: String) {
-    BAR("Bar"),
+    BAR_H("BarHorizontal"),
+    BAR_V("BarVertical"),
+    BB("BasicBitch"),
     ROUND("Round")
 }
 
@@ -266,9 +267,9 @@ enum class ConfigSettings(val cfgName: String, var value: Any) {
     DRAG_COEFFICIENT("DragCoefficient", 1500f),
     ALWAYS_PORTRAIT("AlwaysPortrait", false),
     OUT_DIRECTORY("OutputDirectory", DirectoryList.APP),
-    GAUGE_TYPE("GaugeType", GaugeType.ROUND),
-    DRAW_MIN_MAX("DrawMinMax", true),
-    DRAW_GRADUATIONS("DrawGraduations", true),
+    GAUGE_TYPE("GaugeType", GaugeType.BB),
+    DRAW_MIN_MAX("DrawMinMax", false),
+    DRAW_GRADUATIONS("DrawGraduations", false),
     DEBUG_LOG("DebugMode", DEBUG_LOG_INFO or DEBUG_LOG_WARNING or DEBUG_LOG_EXCEPTION),
     AUTO_LOG("AutoLog", false),
     LOG_NAME("LogName", "simostools");
@@ -352,6 +353,8 @@ val TIME_OUT_LOGGING            = 10
 val TIME_OUT_DTC                = 10
 val TIME_OUT_FLASH              = 10
 val TIME_OUT_INFO               = 10
+
+val LAYOUT_NAME                 = "LAYOUT_NAME"
 
 //Service info
 val CHANNEL_ID                  = "BTService"
@@ -549,9 +552,6 @@ enum class COMPATIBLE_BOXCODE_VERSIONS(val str: String, val boxCodeLocation: Int
     _8V0906264M("8V0906264M", intArrayOf(0x60, 0x6B), SIMOS_18._1),
     _8V0906259K("8V0906259K", intArrayOf(0x60, 0x6B), SIMOS_18._1),
 }
-
-
-
 
 //Additional properties
 infix fun Byte.shl(that: Int): Int = this.toInt().shl(that)
