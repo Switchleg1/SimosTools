@@ -68,6 +68,7 @@ object UDSFlasher {
         clearDTCcontinue = 0
         inputBin =  input.readBytes()
         patchBin = byteArrayOf()
+        currentBlockOperation = 0
     }
 
     fun startTask(ticks: Int): ByteArray {
@@ -112,7 +113,7 @@ object UDSFlasher {
 
 
 
-            DebugLog.d(TAG, "Flash subroutine: " + mTask)
+            //DebugLog.d(TAG, "Flash subroutine: " + mTask)
             if(checkResponse(buff) == UDS_RESPONSE.NEGATIVE_RESPONSE){
                 //DebugLog.w(TAG,"Negative response received from ECU!")
                 //mCommand = sendTesterPresent()
@@ -224,6 +225,8 @@ object UDSFlasher {
                         currentBlockOperation = 0
 
                         mTask = mTask.next()
+
+
                         mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
                         return UDSReturn.COMMAND_QUEUED
                     }
@@ -531,6 +534,7 @@ object UDSFlasher {
 
                             mCommand = UDS_COMMAND.REQUEST_DOWNLOAD.bytes +
                                     UDS_DOWNLOAD_PROPERTIES.ENCRYPTED_COMPRESSED.bytes +
+                                    //UDS_DOWNLOAD_PROPERTIES.ENCRYPTED_UNCOMPRESSED.bytes +
                                     UDS_DOWNLOAD_PROPERTIES.FOUR_ONE_ADDRESS_LENGTH.bytes +
                                     binAswVersion.software.blockNumberMap[currentBlockOperation].toByte() +
                                     FlashUtilities.intToByteArray(binAswVersion.software.blockLengths[binAswVersion.software.blockNumberMap[currentBlockOperation]])

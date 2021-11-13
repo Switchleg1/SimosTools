@@ -467,7 +467,7 @@ val SIMOS18_AES_IV = byteArrayOf(
     0xD1.toByte()
 )
 
-val CAL_BLOCK_TRANSFER_SIZE = 0xFF0
+val CAL_BLOCK_TRANSFER_SIZE = 0xFA0
 
 fun patchTransferSize(address: Int): Int {
 

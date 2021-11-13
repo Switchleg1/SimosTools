@@ -692,6 +692,7 @@ enum class UDS_ROUTINE(val bytes: ByteArray){
 enum class UDS_DOWNLOAD_PROPERTIES(val bytes: ByteArray){
     ENCRYPTED_COMPRESSED(byteArrayOf(0xAA.toByte())),
     ENCRYPTED_UNCOMPRESSED(byteArrayOf(0x0A.toByte())),
+    UNENCRYPTED_UNCOMPRESSED(byteArrayOf(0x00.toByte())),
     FOUR_ONE_ADDRESS_LENGTH(byteArrayOf(0x41.toByte())),
 
 }
