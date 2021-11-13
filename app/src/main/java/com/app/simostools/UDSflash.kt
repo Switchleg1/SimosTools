@@ -232,6 +232,7 @@ object UDSFlasher {
 
                         mLastString = mTask.toString() + "\n"
                         mLastString += "Block identifier: $currentBlockOperation" + "\n"
+                        DebugLog.d(TAG,"Checksumming block: $currentBlockOperation")
 
                         var checksummed = FlashUtilities.checksumSimos18(bin[currentBlockOperation],
                             binAswVersion.software.baseAddresses[currentBlockOperation],
@@ -595,7 +596,8 @@ object UDSFlasher {
                         }
 
                         UDS_RESPONSE.NEGATIVE_RESPONSE -> {
-                            if(buff[2] == 0x78.toByte()){
+
+                            if(buff[2] == 0x78.toByte() ){
                                 mLastString = ""
                                 //just a wait message, return OK
                                 return UDSReturn.OK
@@ -834,7 +836,7 @@ object UDSFlasher {
             }
         }
 
-        DebugLog.d(TAG, "Flash subroutine: " + mTask)
+        DebugLog.d(TAG, "Flash subroutine: $mTask " + buff!!.toHex())
         return UDSReturn.ERROR_NULL
     }
 
