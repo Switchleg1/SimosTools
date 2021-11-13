@@ -130,6 +130,7 @@ enum class ECUInfo(val str: String, val address: ByteArray) {
 }
 
 enum class FLASH_ECU_CAL_SUBTASK {
+    PATCH_BLOCK,
     NONE,
     GET_ECU_BOX_CODE,
     CHECK_FILE_COMPAT,
@@ -154,19 +155,11 @@ enum class FLASH_ECU_CAL_SUBTASK {
     }
 }
 
-enum class FLASH_ECU_BLOCK(val identifier: Int){
-    NONE(0),
-    CBOOT(1),
-    ASW1(2),
-    ASW2(3),
-    ASW3(4),
-    CAL(5);
+enum class FLASH_ECU_ACTION(){
+    NONE,
+    FLASH,
+    PATCH,
 
-    fun next(): FLASH_ECU_BLOCK {
-        val vals = FLASH_ECU_BLOCK.values()
-        return vals[(this.ordinal+1) % vals.size]
-
-    }
 }
 
 //Color List
@@ -476,6 +469,22 @@ val SIMOS18_AES_IV = byteArrayOf(
 
 val CAL_BLOCK_TRANSFER_SIZE = 0xFF0
 
+fun patchTransferSize(address: Int): Int {
+
+    if(address < 0x9600)
+        return 0x100
+    if(address >= 0x9600 && address < 0x9800)
+        return 0x8
+    if(address >= 0x9800 && address < 0x7DD00)
+        return 0x100
+    if(address >= 0x7DD00 && address < 0x7E200)
+        return 0x8
+    if(address >= 0x7E200 && address < 0x7F900)
+        return 0x100
+
+    return 0x8
+
+}
 enum class SIMOS_18(val version: String,
                     val baseAddresses: UIntArray,
                     val blockLengths: IntArray,

@@ -16,11 +16,11 @@ object UDSFlasher {
     private var ecuAswVersion: ByteArray = byteArrayOf()
     private var transferSequence = -1
     private var progress = 0
-    private var flashEcuBlock = FLASH_ECU_BLOCK.NONE
     private var binAswVersion = COMPATIBLE_BOXCODE_VERSIONS._UNDEFINED
     private var clearDTCStart = 0
     private var clearDTCcontinue = 0
     private var currentBlockOperation = 0
+    private var patchTransferAddress = 0
 
     fun getSubtask(): FLASH_ECU_CAL_SUBTASK{
         return mTask
@@ -79,7 +79,6 @@ object UDSFlasher {
         else if(inputBin.size > 500000 && inputBin.size < 4000000){
             //Read box code from ECU
             mTask = FLASH_ECU_CAL_SUBTASK.GET_ECU_BOX_CODE
-            flashEcuBlock = FLASH_ECU_BLOCK.CAL
 
             DebugLog.d(TAG, "Initiating Calibration Flash subroutine: " + mTask.toString())
             mLastString = "Initiating calibration flash routines"
@@ -92,7 +91,7 @@ object UDSFlasher {
             //It's a full bin flash....
             mLastString = "Full flash file selected..."
             mTask = FLASH_ECU_CAL_SUBTASK.GET_ECU_BOX_CODE
-            flashEcuBlock = FLASH_ECU_BLOCK.CAL
+
             bin = FlashUtilities.splitBinBlocks(inputBin)
             return UDS_COMMAND.READ_IDENTIFIER.bytes + ECUInfo.PART_NUMBER.address
         }
@@ -100,6 +99,7 @@ object UDSFlasher {
             mLastString = "UNLOCK FLASH SELECTED!!!"
             mTask = FLASH_ECU_CAL_SUBTASK.GET_ECU_BOX_CODE
             bin = FlashUtilities.splitBinBlocks(inputBin)
+            
             patchBin = inputBin.copyOfRange(0x400000, inputBin.size)
             return UDS_COMMAND.READ_IDENTIFIER.bytes + ECUInfo.PART_NUMBER.address
         }
@@ -540,6 +540,9 @@ object UDSFlasher {
                         }
                         UDS_RESPONSE.DOWNLOAD_ACCEPTED -> {
                             transferSequence = 1
+
+
+
                             progress = round(transferSequence.toFloat() / (bin[currentBlockOperation].size / CAL_BLOCK_TRANSFER_SIZE) * 100)
 
                             //Send bytes, 0x36 [frame number]
@@ -606,6 +609,121 @@ object UDSFlasher {
                     }
                 }
 
+                FLASH_ECU_CAL_SUBTASK.PATCH_BLOCK -> {
+                    mLastString = ""
+
+                    //In the patch block stage, we're going to erase the next block (which
+                    // is actually the 'currentBlockOperation', and then we're going to
+                    // request download to the currentBlockOperation - 1... transfer the patch
+
+                    when(checkResponse(buff)){
+                        //We should enter here from a tester present.
+                        UDS_RESPONSE.POSITIVE_RESPONSE -> {
+                            //erase block: 31 01 FF 00 01 BLOCKID
+                            mCommand = UDS_COMMAND.START_ROUTINE.bytes +
+                                    UDS_ROUTINE.ERASE_BLOCK.bytes +
+                                    0x01.toByte() +
+                                    binAswVersion.software.blockNumberMap[currentBlockOperation].toByte()
+
+                            DebugLog.d(TAG, "Executing ERASE block command: ${mCommand.toHex()}")
+                            mLastString = "Erasing block: $currentBlockOperation to prepare for PATCHING"
+                            return UDSReturn.COMMAND_QUEUED
+                        }
+                        //We should have a 71 in response to the erase command we just sent....
+                        UDS_RESPONSE.ROUTINE_ACCEPTED -> {
+                            //Request download 34 A0 41 05 00 07 FC 00
+
+                            mCommand = UDS_COMMAND.REQUEST_DOWNLOAD.bytes +
+                                    UDS_DOWNLOAD_PROPERTIES.ENCRYPTED_UNCOMPRESSED.bytes +
+                                    UDS_DOWNLOAD_PROPERTIES.FOUR_ONE_ADDRESS_LENGTH.bytes +
+                                    binAswVersion.software.blockNumberMap[currentBlockOperation - 1].toByte() +
+                                    FlashUtilities.intToByteArray(binAswVersion.software.blockLengths[binAswVersion.software.blockNumberMap[currentBlockOperation - 1]])
+
+                            DebugLog.d(TAG, "Executing Request download command: ${mCommand.toHex()}")
+                            mLastString = "Requesting block download FOR PATCHING"
+                            return UDSReturn.COMMAND_QUEUED
+                        }
+                        UDS_RESPONSE.DOWNLOAD_ACCEPTED -> {
+                            transferSequence = 1
+                            patchTransferAddress = 0
+                            progress = round(patchTransferAddress.toFloat() / (patchBin.size) * 100)
+
+                            //Send bytes, 0x36 [frame number]
+                            //Break the whole bin into frames of PATCH_TRANSFER_SIZE size, and
+                            // we'll use that array.
+                            var transferSize = patchTransferSize(patchTransferAddress)
+                            patchTransferAddress += transferSize
+
+                            mCommand = UDS_COMMAND.TRANSFER_DATA.bytes +  byteArrayOf(transferSequence.toByte()) + patchBin.copyOfRange(0, transferSize)
+                            mLastString = "PATCHING Started"
+                            DebugLog.d(TAG, "transferring: $patchTransferAddress")
+
+                            return UDSReturn.COMMAND_QUEUED
+                        }
+                        UDS_RESPONSE.TRANSFER_DATA_ACCEPTED -> {
+                            DebugLog.d(TAG, "transferring: $patchTransferAddress")
+
+
+                            //If the last frame we sent was acked, increment the transfer counter
+                            // set the progress bar.  Check to see if we're at the total number
+                            // of frames that we should be (and if we are, request an exit from
+                            // the transfer
+                            if(buff[1] == transferSequence.toByte()){
+                                transferSequence++
+                                patchTransferAddress += patchTransferSize(patchTransferAddress)
+                                progress = round(patchTransferAddress.toFloat() / (patchBin.size) * 100)
+
+                                mLastString = ""
+                                //if the current transfer sequence number is larger than the max
+                                // number that we need for the payload, send a 'transfer exit'
+                                if(patchTransferAddress > patchBin.size){
+                                    mCommand = UDS_COMMAND.TRANSFER_EXIT.bytes
+
+                                    return UDSReturn.COMMAND_QUEUED
+                                }
+                            }
+
+                            //otherwise, we get here
+                            // start is frame size + transfer sequence
+                            // end is start + frame size *OR* the end of the bin
+                            var start = patchTransferAddress
+                            var end = start + patchTransferSize(patchTransferAddress)
+
+
+
+                            if(end > patchBin.size) end = patchBin.size
+
+                            mCommand = UDS_COMMAND.TRANSFER_DATA.bytes + byteArrayOf(transferSequence.toByte()) + patchBin.copyOfRange(start, end)
+                            return UDSReturn.COMMAND_QUEUED
+                        }
+
+                        UDS_RESPONSE.TRANSFER_EXIT_ACCEPTED -> {
+                            progress = 0
+                            mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
+                            //When we're patching, after we exit we actually want to jump back
+                            // up to the flash step so we can actually flash the CAL
+                            mTask = FLASH_ECU_CAL_SUBTASK.FLASH_BLOCK
+                            mLastString = "PATCHING Done, continuing flash"
+                            return UDSReturn.COMMAND_QUEUED
+                        }
+
+                        UDS_RESPONSE.NEGATIVE_RESPONSE -> {
+                            if(buff[2] == 0x78.toByte()){
+                                mLastString = ""
+                                //just a wait message, return OK
+                                return UDSReturn.OK
+                            }
+                        }
+
+                        else -> {
+                            mLastString = buff.toHex()
+                            return UDSReturn.ERROR_UNKNOWN
+                        }
+                    }
+                }
+
+
+
                 FLASH_ECU_CAL_SUBTASK.CHECKSUM_BLOCK -> {
                     when(checkResponse(buff)){
 
@@ -623,7 +741,16 @@ object UDSFlasher {
                             mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
 
                             currentBlockOperation++
-                            mTask = FLASH_ECU_CAL_SUBTASK.FLASH_BLOCK
+
+                            //If there's a patch bin loaded up and we're about to flash the CAL
+                            //  We're going to set the flashAction to PATCH
+                            if(patchBin.size > 0 && currentBlockOperation == 5){
+                                mTask = FLASH_ECU_CAL_SUBTASK.PATCH_BLOCK
+                            }
+                            else {
+                                mTask = FLASH_ECU_CAL_SUBTASK.FLASH_BLOCK
+                            }
+
                             return UDSReturn.COMMAND_QUEUED
                         }
                         UDS_RESPONSE.NEGATIVE_RESPONSE -> {
