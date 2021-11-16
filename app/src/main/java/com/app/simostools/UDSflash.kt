@@ -97,9 +97,6 @@ object UDSFlasher {
     fun processFlashCAL(ticks: Int, buff: ByteArray?): UDSReturn {
 
         buff?.let {
-
-
-
             DebugLog.d(TAG, "Flash subroutine: " + mTask)
             if(checkResponse(buff) == UDS_RESPONSE.NEGATIVE_RESPONSE){
                 //DebugLog.w(TAG,"Negative response received from ECU!")
@@ -154,9 +151,9 @@ object UDSFlasher {
                     binAswVersion = FlashUtilities.getBoxCodeFromBin(bin) ?: COMPATIBLE_BOXCODE_VERSIONS._UNDEFINED
 
                     //Compare the two strings:
-                    if (String(ecuAswVersion).trim() != binAswVersion!!.str) {
+                    if (String(ecuAswVersion).trim() != binAswVersion.str) {
                         DebugLog.d(TAG,"ECU software version: ${ecuAswVersion.toHex()}, and file" +
-                                " software version: ${binAswVersion.toString()}")
+                                " software version: $binAswVersion")
                         mLastString = "Box code on selected BIN file: $binAswVersion" +
                                 "\n File mismatch!!!"
                         return UDSReturn.ERROR_RESPONSE

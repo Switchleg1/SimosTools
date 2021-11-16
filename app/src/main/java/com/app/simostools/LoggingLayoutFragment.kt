@@ -234,7 +234,7 @@ class LoggingBaseFragment: Fragment() {
                                 gauge.setProgressWidth(400f, false)
                                 gauge.textSize = 30f
                             }
-                            GaugeType.BB -> {
+                            GaugeType.BASIC -> {
                                 gauge.setProgressWidth(400f, false)
                                 gauge.textSize = 30f
                             }
@@ -313,7 +313,8 @@ class LoggingBaseFragment: Fragment() {
 
                     //update text which will invalidate and redraw
                     gauge.text = Html.fromHtml(
-                        "<b><small>${pid.name}<br></small><big><font color=\"#${ColorList.GAUGE_VALUE.value.toColorHex()}\">" +
+                        "<b><small>${pid.name}<br></small><big>" +
+                                "<font color=\"#${ColorList.GAUGE_VALUE.value.toColorHex()}\">" +
                                 "${pid.format.format(pid.value)}</font></big></b>" +
                                 "<small><br>${pid.format.format(data.min)} <b>:</b> " +
                                 "${pid.format.format(data.max)}<br>${pid.unit}</small>"
@@ -325,14 +326,19 @@ class LoggingBaseFragment: Fragment() {
                 //If any visible PIDS are in warning state set background color to warn
                 if (warnAny) {
                     if (!mLastWarning) {
+                        mLastWarning = true
                         view?.setBackgroundColor(ColorList.BG_WARN.value)
+                    } else {
+                        mLastWarning = false
+                        view?.setBackgroundColor(ColorList.BG_NORMAL.value)
                     }
                 } else {
                     if (mLastWarning) {
                         view?.setBackgroundColor(ColorList.BG_NORMAL.value)
                     }
+                    mLastWarning = false
                 }
-                mLastWarning = warnAny
+
                 DebugLog.d(TAG, "updateGauges [$lastI:${mPIDList.count()}]")
             } catch (e: Exception) {
                 DebugLog.e(TAG, "updateGauges - exception [$lastI:${mPIDList.count()}]", e)

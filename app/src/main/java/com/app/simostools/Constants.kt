@@ -43,7 +43,8 @@ enum class UDSTask {
     LOGGING,
     FLASHING,
     INFO,
-    DTC
+    DTC,
+    SET_ADAPTER
 }
 
 //BT functions
@@ -57,6 +58,7 @@ enum class BTServiceTask {
     DO_START_FLASH,
     DO_GET_INFO,
     DO_CLEAR_DTC,
+    DO_SET_ADAPTER,
     DO_STOP_TASK,
     FLASH_CONFIRMED,
     FLASH_CANCELED,
@@ -92,7 +94,8 @@ enum class BLESettings(val value: Int) {
     PERSIST_Q_DELAY(4),
     BLE_SEND_DELAY(5),
     BLE_MULTI_DELAY(6),
-    PASSWORD(7)
+    PASSWORD(7),
+    GAP(8)
 }
 
 // UDS return codes
@@ -221,7 +224,7 @@ enum class DirectoryList(val cfgName: String, val location: String) {
 enum class GaugeType(val cfgName: String) {
     BAR_H("BarHorizontal"),
     BAR_V("BarVertical"),
-    BB("BasicBitch"),
+    BASIC("Basic"),
     ROUND("Round")
 }
 
@@ -267,12 +270,13 @@ enum class ConfigSettings(val cfgName: String, var value: Any) {
     DRAG_COEFFICIENT("DragCoefficient", 1500f),
     ALWAYS_PORTRAIT("AlwaysPortrait", false),
     OUT_DIRECTORY("OutputDirectory", DirectoryList.APP),
-    GAUGE_TYPE("GaugeType", GaugeType.BB),
+    GAUGE_TYPE("GaugeType", GaugeType.BASIC),
     DRAW_MIN_MAX("DrawMinMax", false),
     DRAW_GRADUATIONS("DrawGraduations", false),
     DEBUG_LOG("DebugMode", DEBUG_LOG_INFO or DEBUG_LOG_WARNING or DEBUG_LOG_EXCEPTION),
     AUTO_LOG("AutoLog", false),
-    LOG_NAME("LogName", "simostools");
+    LOG_NAME("LogName", "simostools"),
+    ADAPTER_NAME("AdapterName", "BLE_TO_ISOTP20");
 
     fun set(newValue: String) {
         try {
@@ -355,13 +359,13 @@ val TIME_OUT_FLASH              = 10
 val TIME_OUT_INFO               = 10
 
 val LAYOUT_NAME                 = "LAYOUT_NAME"
+val MAX_GAP_LENGTH              = 14
 
 //Service info
 val CHANNEL_ID                  = "BTService"
 val CHANNEL_NAME                = "BTService"
 
 //BLE settings
-val BLE_DEVICE_NAME             = "BLE_TO_ISOTP"
 val BLE_GATT_MTU_SIZE           = 512
 val BLE_SCAN_PERIOD             = 5000L
 val BLE_THREAD_PRIORITY         = 5 //Priority (max is 10)

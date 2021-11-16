@@ -16,11 +16,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import android.widget.Toast
-import androidx.core.view.forEach
-import androidx.core.view.forEachIndexed
+import androidx.core.content.ContextCompat
 
 class SettingsViewModel : ViewModel() {
-    var logMode = UDSLoggingMode.MODE_22
+    var logMode         = UDSLoggingMode.MODE_22
+    var adapterName     = ""
 }
 
 class SettingsGeneralFragment : Fragment() {
@@ -152,6 +152,40 @@ class SettingsGeneralFragment : Fragment() {
                 //Setting the title manually
                 alert.setTitle("Reset mode 3E CSV")
                 alert.show()
+            }
+        }
+
+        val setAdapterButton = view.findViewById<SwitchButton>(R.id.buttonAdapterName)
+        setAdapterButton.apply {
+            paintBG.color = ColorList.BT_BG.value
+            paintRim.color = ColorList.BT_RIM.value
+            setTextColor(ColorList.BT_TEXT.value)
+            setOnClickListener {
+                val builder = AlertDialog.Builder(context)
+                var adapterName = view.findViewById<EditText>(R.id.editTextAdapterName).text.toString()
+                if(adapterName.length > MAX_GAP_LENGTH)
+                    adapterName = adapterName.subSequence(0, MAX_GAP_LENGTH).toString()
+
+                if(adapterName.isNotEmpty()) {
+
+                    //Setting message manually and performing action on button click
+                    builder.setMessage("Are you sure you would like to set the name of the adapter to $adapterName?")
+                        .setCancelable(false)
+                        .setPositiveButton("Yes") { _, _ ->
+                            mViewModel.adapterName = adapterName
+                            ConfigSettings.ADAPTER_NAME.value = adapterName
+                            view.findViewById<EditText>(R.id.editTextAdapterName)
+                                .setText(adapterName)
+                            sendServiceMessage(BTServiceTask.DO_SET_ADAPTER.toString())
+                        }
+                        .setNegativeButton("No") { _, _ -> }
+                    //Creating dialog box
+                    val alert: AlertDialog = builder.create()
+
+                    //Setting the title manually
+                    alert.setTitle("Set adapter name")
+                    alert.show()
+                }
             }
         }
 
@@ -309,7 +343,7 @@ class SettingsGeneralFragment : Fragment() {
             when(ConfigSettings.GAUGE_TYPE.toGaugeType()) {
                 GaugeType.BAR_H -> currentView.findViewById<RadioButton>(R.id.radioButtonBARH).isChecked    = true
                 GaugeType.BAR_V -> currentView.findViewById<RadioButton>(R.id.radioButtonBARV).isChecked    = true
-                GaugeType.BB    -> currentView.findViewById<RadioButton>(R.id.radioButtonBB).isChecked      = true
+                GaugeType.BASIC -> currentView.findViewById<RadioButton>(R.id.radioButtonBASIC).isChecked   = true
                 GaugeType.ROUND -> currentView.findViewById<RadioButton>(R.id.radioButtonROUND).isChecked   = true
             }
 
@@ -350,8 +384,12 @@ class SettingsGeneralFragment : Fragment() {
             //Get auto log
             currentView.findViewById<CheckBox>(R.id.checkBoxAutoLog).isChecked = ConfigSettings.AUTO_LOG.toBoolean()
 
-            //Get logname
+            //Get log name
             currentView.findViewById<EditText>(R.id.editTextLogName).setText(ConfigSettings.LOG_NAME.toString())
+
+            //Get adapter name
+            mViewModel.adapterName = ConfigSettings.ADAPTER_NAME.toString()
+            currentView.findViewById<EditText>(R.id.editTextAdapterName).setText(mViewModel.adapterName)
 
             //Set colors
             doSetColor()
@@ -373,6 +411,7 @@ class SettingsGeneralFragment : Fragment() {
             currentView.findViewById<TextView>(R.id.textViewLoggingMode).setTextColor(color)
             currentView.findViewById<TextView>(R.id.textViewMiscOptions).setTextColor(color)
             currentView.findViewById<TextView>(R.id.textViewLogName).setTextColor(color)
+            currentView.findViewById<TextView>(R.id.textViewAdapterName).setTextColor(color)
             currentView.findViewById<TextView>(R.id.textViewCalcHPOptions).setTextColor(color)
             currentView.findViewById<TextView>(R.id.textViewColorOptions).setTextColor(color)
             currentView.findViewById<RadioButton>(R.id.radioButtonDownloads).setTextColor(color)
@@ -380,7 +419,7 @@ class SettingsGeneralFragment : Fragment() {
             currentView.findViewById<RadioButton>(R.id.radioButtonApplication).setTextColor(color)
             currentView.findViewById<RadioButton>(R.id.radioButtonBARH).setTextColor(color)
             currentView.findViewById<RadioButton>(R.id.radioButtonBARV).setTextColor(color)
-            currentView.findViewById<RadioButton>(R.id.radioButtonBB).setTextColor(color)
+            currentView.findViewById<RadioButton>(R.id.radioButtonBASIC).setTextColor(color)
             currentView.findViewById<RadioButton>(R.id.radioButtonROUND).setTextColor(color)
             currentView.findViewById<RadioButton>(R.id.radioButton3E).setTextColor(color)
             currentView.findViewById<RadioButton>(R.id.radioButton22).setTextColor(color)
@@ -395,6 +434,7 @@ class SettingsGeneralFragment : Fragment() {
 
             //Set color edit
             currentView.findViewById<EditText>(R.id.editTextLogName).setTextColor(color)
+            currentView.findViewById<EditText>(R.id.editTextAdapterName).setTextColor(color)
 
             //Set color boxes
             currentView.findViewById<Button>(R.id.buttonSetBGNormalColor).setTextColor(ColorSettings.mColorList[ColorList.BG_NORMAL.ordinal].toColorInverse())
@@ -461,9 +501,9 @@ class SettingsGeneralFragment : Fragment() {
                     ConfigSettings.GAUGE_TYPE.cfgName,
                     GaugeType.BAR_V.cfgName
                 )
-                currentView.findViewById<RadioButton>(R.id.radioButtonBB).isChecked -> ConfigFile.set(
+                currentView.findViewById<RadioButton>(R.id.radioButtonBASIC).isChecked -> ConfigFile.set(
                     ConfigSettings.GAUGE_TYPE.cfgName,
-                    GaugeType.BB.cfgName
+                    GaugeType.BASIC.cfgName
                 )
                 currentView.findViewById<RadioButton>(R.id.radioButtonROUND).isChecked -> ConfigFile.set(
                     ConfigSettings.GAUGE_TYPE.cfgName,
@@ -517,8 +557,11 @@ class SettingsGeneralFragment : Fragment() {
             //Auto log when idle
             ConfigFile.set(ConfigSettings.AUTO_LOG.cfgName, currentView.findViewById<CheckBox>(R.id.checkBoxAutoLog).isChecked.toString())
 
-            //Get logname
+            //Set log name
             ConfigFile.set(ConfigSettings.LOG_NAME.cfgName, currentView.findViewById<EditText>(R.id.editTextLogName).text.toString())
+
+            //Set adapter name
+            ConfigFile.set(ConfigSettings.ADAPTER_NAME.cfgName, mViewModel.adapterName)
 
             //Set Colors
             ColorList.values().forEachIndexed { i, color ->
@@ -529,5 +572,13 @@ class SettingsGeneralFragment : Fragment() {
             }
         }
         DebugLog.d(TAG, "doSave")
+    }
+
+    private fun sendServiceMessage(type: String) {
+        activity?.let {
+            val serviceIntent = Intent(it, BTService::class.java)
+            serviceIntent.action = type
+            ContextCompat.startForegroundService(it, serviceIntent)
+        }
     }
 }

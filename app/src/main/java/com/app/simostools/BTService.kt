@@ -92,18 +92,19 @@ class BTService: Service() {
         super.onStartCommand(intent, flags, startId)
 
         when (intent.action) {
-            BTServiceTask.STOP_SERVICE.toString()   -> doStopService()
-            BTServiceTask.START_SERVICE.toString()  -> doStartService()
-            BTServiceTask.REQ_STATUS.toString()     -> sendStatus()
-            BTServiceTask.DO_CONNECT.toString()     -> doConnect()
-            BTServiceTask.DO_DISCONNECT.toString()  -> doDisconnect()
-            BTServiceTask.DO_START_LOG.toString()   -> mConnectionThread?.setTaskState(UDSTask.LOGGING)
-            BTServiceTask.DO_START_FLASH.toString() -> mConnectionThread?.setTaskState(UDSTask.FLASHING)
-            BTServiceTask.DO_GET_INFO.toString()    -> mConnectionThread?.setTaskState(UDSTask.INFO)
-            BTServiceTask.DO_CLEAR_DTC.toString()   -> mConnectionThread?.setTaskState(UDSTask.DTC)
-            BTServiceTask.DO_STOP_TASK.toString()   -> mConnectionThread?.setTaskState(UDSTask.NONE)
-            BTServiceTask.FLASH_CONFIRMED.toString() -> confirmFlashProceed()
-            BTServiceTask.FLASH_CANCELED.toString() -> cancelFlash()
+            BTServiceTask.STOP_SERVICE.toString()       -> doStopService()
+            BTServiceTask.START_SERVICE.toString()      -> doStartService()
+            BTServiceTask.REQ_STATUS.toString()         -> sendStatus()
+            BTServiceTask.DO_CONNECT.toString()         -> doConnect()
+            BTServiceTask.DO_DISCONNECT.toString()      -> doDisconnect()
+            BTServiceTask.DO_START_LOG.toString()       -> mConnectionThread?.setTaskState(UDSTask.LOGGING)
+            BTServiceTask.DO_START_FLASH.toString()     -> mConnectionThread?.setTaskState(UDSTask.FLASHING)
+            BTServiceTask.DO_GET_INFO.toString()        -> mConnectionThread?.setTaskState(UDSTask.INFO)
+            BTServiceTask.DO_CLEAR_DTC.toString()       -> mConnectionThread?.setTaskState(UDSTask.DTC)
+            BTServiceTask.DO_SET_ADAPTER.toString()     -> mConnectionThread?.setTaskState(UDSTask.SET_ADAPTER)
+            BTServiceTask.DO_STOP_TASK.toString()       -> mConnectionThread?.setTaskState(UDSTask.NONE)
+            BTServiceTask.FLASH_CONFIRMED.toString()    -> confirmFlashProceed()
+            BTServiceTask.FLASH_CANCELED.toString()     -> cancelFlash()
         }
 
         // If we get killed, after returning from here, restart
@@ -127,14 +128,15 @@ class BTService: Service() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             super.onScanResult(callbackType, result)
             result.device?.let { device ->
-                DebugLog.i(TAG, "Found BLE device ${device.name}")
+                val name = device.name?: ""
+                DebugLog.i(TAG, "Found BLE device $name")
 
-                if (mBluetoothDevice == null && device.name.contains(BLE_DEVICE_NAME, true)) {
+                if (mBluetoothDevice == null && name.contentEquals(ConfigSettings.ADAPTER_NAME.value.toString())) {
                     mBluetoothDevice = device
 
                     stopScanning()
 
-                    DebugLog.i(TAG, "Initiating connection to ${device.name}")
+                    DebugLog.i(TAG, "Initiating connection to $name")
                     device.connectGatt(applicationContext, false, mGattCallback, 2)
                 }
             }
@@ -773,6 +775,7 @@ class BTService: Service() {
                 UDSTask.FLASHING    -> startTaskFlashing()
                 UDSTask.INFO        -> startTaskGetInfo()
                 UDSTask.DTC         -> startTaskClearDTC()
+                UDSTask.SET_ADAPTER -> startTaskSetAdapter()
                 UDSTask.NONE        -> {}
             }
         }
@@ -823,14 +826,20 @@ class BTService: Service() {
             writePacket(UDSdtc.startTask(0))
         }
 
+        private fun startTaskSetAdapter() {
+            changeGAPName(ConfigSettings.ADAPTER_NAME.value.toString())
+            setTaskState(UDSTask.NONE)
+        }
+
         private fun processPacket(buff: ByteArray?) {
             if(mPasswordAccepted) {
                 when (mTask) {
-                    UDSTask.NONE -> processPacketNone(buff)
-                    UDSTask.LOGGING -> processPacketLogging(buff)
-                    UDSTask.FLASHING -> processPacketFlashing(buff)
-                    UDSTask.INFO -> processPacketGetInfo(buff)
-                    UDSTask.DTC -> processPacketClearDTC(buff)
+                    UDSTask.NONE        -> processPacketNone(buff)
+                    UDSTask.LOGGING     -> processPacketLogging(buff)
+                    UDSTask.FLASHING    -> processPacketFlashing(buff)
+                    UDSTask.INFO        -> processPacketGetInfo(buff)
+                    UDSTask.DTC         -> processPacketClearDTC(buff)
+                    UDSTask.SET_ADAPTER -> processPacketSetAdapter(buff)
                 }
 
                 //Only increment task packet count when buffer isn't empty
@@ -1073,6 +1082,12 @@ class BTService: Service() {
             }
         }
 
+        private fun processPacketSetAdapter(buff: ByteArray?) {
+            buff?.let {
+
+            }
+        }
+
         private fun clearBridgePersist() {
             //Disable persist mode
             val bleHeader = BLEHeader()
@@ -1120,7 +1135,6 @@ class BTService: Service() {
             writePacket(buff)
         }
 
-
         private fun buildBLEFrame(udsCommand: ByteArray): ByteArray{
             val bleHeader = BLEHeader()
             bleHeader.cmdSize = udsCommand.size
@@ -1128,12 +1142,31 @@ class BTService: Service() {
 
             return bleHeader.toByteArray() + udsCommand
         }
-        private fun sendPassword(password: String) {
-            //send password
+
+        private fun setPassword(password: String) {
+            //set password
             val bleHeader = BLEHeader()
             bleHeader.cmdSize = password.length
             bleHeader.cmdFlags = BLECommandFlags.SETTINGS.value or BLESettings.PASSWORD.value
             val buff = bleHeader.toByteArray() + password.toByteArray()
+            writePacket(buff)
+        }
+
+        private fun sendPassword(password: String) {
+            //send password
+            val bleHeader = BLEHeader()
+            bleHeader.cmdSize = password.length
+            bleHeader.cmdFlags = BLECommandFlags.SETTINGS.value or BLECommandFlags.SET_GET.value or BLESettings.PASSWORD.value
+            val buff = bleHeader.toByteArray() + password.toByteArray()
+            writePacket(buff)
+        }
+
+        private fun changeGAPName(gap: String) {
+            //set GAP name
+            val bleHeader = BLEHeader()
+            bleHeader.cmdSize = gap.length
+            bleHeader.cmdFlags = BLECommandFlags.SETTINGS.value or BLESettings.GAP.value
+            val buff = bleHeader.toByteArray() + gap.toByteArray()
             writePacket(buff)
         }
     }

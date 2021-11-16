@@ -65,7 +65,7 @@ class SwitchGauge: androidx.appcompat.widget.AppCompatTextView {
             when (currentStyle) {
                 GaugeType.BAR_H -> drawBar(false, canvas)
                 GaugeType.BAR_V -> drawBar(true, canvas)
-                GaugeType.BB    -> drawBB(canvas)
+                GaugeType.BASIC -> drawBB(canvas)
                 GaugeType.ROUND -> drawRound(canvas)
             }
         }
@@ -211,7 +211,7 @@ class SwitchGauge: androidx.appcompat.widget.AppCompatTextView {
         when(currentStyle) {
             GaugeType.BAR_H -> tickPaint.strokeWidth   = minmaxPaint.strokeWidth
             GaugeType.BAR_V -> tickPaint.strokeWidth   = minmaxPaint.strokeWidth
-            GaugeType.BB    -> tickPaint.strokeWidth   = minmaxPaint.strokeWidth
+            GaugeType.BASIC -> tickPaint.strokeWidth   = minmaxPaint.strokeWidth
             GaugeType.ROUND -> tickPaint.strokeWidth   = backgroundPaint.strokeWidth + margin
         }
     }
@@ -228,7 +228,7 @@ class SwitchGauge: androidx.appcompat.widget.AppCompatTextView {
                 progressPaint.style     = Paint.Style.FILL
                 backgroundPaint.style   = Paint.Style.FILL
             }
-            GaugeType.BB -> {
+            GaugeType.BASIC -> {
                 progressPaint.style     = Paint.Style.FILL
                 backgroundPaint.style   = Paint.Style.FILL
             }

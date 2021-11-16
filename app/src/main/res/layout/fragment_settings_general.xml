@@ -100,10 +100,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:text="@string/textview_settings_import_22_csv"
-                android:textSize="24sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textViewPIDCSV"/>
+                android:textSize="24sp"/>
 
             <com.app.simostools.SwitchButton
                 android:id="@+id/button3ECSV"
@@ -111,10 +108,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:text="@string/textview_settings_import_3E_csv"
-                android:textSize="24sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textViewPIDCSV"/>
+                android:textSize="24sp"/>
 
         </LinearLayout>
 
@@ -129,10 +123,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:text="@string/textview_settings_import_22_csv_reset"
-                android:textSize="24sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textViewPIDCSV"/>
+                android:textSize="24sp"/>
 
             <com.app.simostools.SwitchButton
                 android:id="@+id/button3ECSVReset"
@@ -140,10 +131,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:text="@string/textview_settings_import_3E_csv_reset"
-                android:textSize="24sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textViewPIDCSV"/>
+                android:textSize="24sp"/>
 
         </LinearLayout>
 
@@ -231,7 +219,7 @@
                 android:text="@string/radio_settings_display_bar_v" />
 
             <RadioButton
-                android:id="@+id/radioButtonBB"
+                android:id="@+id/radioButtonBASIC"
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -353,28 +341,6 @@
             android:text="@string/check_settings_auto_log" />
 
         <View
-            android:id="@+id/divider29"
-            android:layout_width="match_parent"
-            android:layout_height="5dp"
-            android:background="?android:attr/listDivider" />
-
-        <TextView
-            android:id="@+id/textViewLogName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/textview_settings_log_name"
-            android:textSize="32sp" />
-
-        <EditText
-            android:id="@+id/editTextLogName"
-            android:layout_height="match_parent"
-            android:layout_width="match_parent"
-            android:inputType="text"
-            android:text=""
-            android:importantForAutofill="no" />
-
-        <View
             android:id="@+id/divider19"
             android:layout_width="match_parent"
             android:layout_height="5dp"
@@ -409,6 +375,55 @@
                 android:minHeight="48dp"
                 android:text="@string/check_settings_use_accelerometers" />
         </LinearLayout>
+
+        <View
+            android:id="@+id/divider29"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="?android:attr/listDivider" />
+
+        <TextView
+            android:id="@+id/textViewLogName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/textview_settings_log_name"
+            android:textSize="32sp" />
+
+        <EditText
+            android:id="@+id/editTextLogName"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:inputType="text"
+            android:text=""/>
+
+        <View
+            android:id="@+id/divider30"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="?android:attr/listDivider" />
+
+        <TextView
+            android:id="@+id/textViewAdapterName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/textview_settings_adapter_name"
+            android:textSize="32sp" />
+
+        <EditText
+            android:id="@+id/editTextAdapterName"
+            android:layout_height="48dp"
+            android:layout_width="match_parent"
+            android:inputType="text"
+            android:text=""/>
+
+        <com.app.simostools.SwitchButton
+            android:id="@+id/buttonAdapterName"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="@string/button_set_adapter_name"
+            android:textSize="24sp" />
 
         <View
             android:id="@+id/divider21"
