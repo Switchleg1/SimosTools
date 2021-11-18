@@ -809,8 +809,8 @@ class BTService: Service() {
         }
 
         private fun startTaskFlashing(){
-            DebugLog.d(TAG,"Setting stmin to 350")
-            setBridgeSTMIN(350)
+            DebugLog.d(TAG,"Setting stmin to 325")
+            setBridgeSTMIN(325)
             writePacket(UDSFlasher.startTask(0))
         }
 

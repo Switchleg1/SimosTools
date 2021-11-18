@@ -486,7 +486,14 @@ object UDSFlasher {
                             if(buff[1] == 0xF1.toByte() && buff[2] == 0x5A.toByte()) {
                                 mLastString = "Wrote workshop code"
                                 mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
+
+                                //DEBUG ONLY
+                                //mTask = FLASH_ECU_CAL_SUBTASK.PATCH_BLOCK
+                                //currentBlockOperation = 5
+
+                                //This is real
                                 mTask = mTask.next()
+
                                 return UDSReturn.COMMAND_QUEUED
                             }
                         }
@@ -602,6 +609,7 @@ object UDSFlasher {
                         UDS_RESPONSE.NEGATIVE_RESPONSE -> {
 
                             if(buff[2] == 0x78.toByte() ){
+
                                 mLastString = ""
                                 //just a wait message, return OK
                                 return UDSReturn.OK
@@ -658,7 +666,7 @@ object UDSFlasher {
                             //Break the whole bin into frames of PATCH_TRANSFER_SIZE size, and
                             // we'll use that array.
                             var transferSize = patchTransferSize(patchTransferAddress)
-                            patchTransferAddress += transferSize
+                            //patchTransferAddress += transferSize
 
                             mCommand = UDS_COMMAND.TRANSFER_DATA.bytes +  byteArrayOf(transferSequence.toByte()) + patchBin.copyOfRange(0, transferSize)
                             mLastString = "PATCHING Started"
@@ -667,9 +675,6 @@ object UDSFlasher {
                             return UDSReturn.COMMAND_QUEUED
                         }
                         UDS_RESPONSE.TRANSFER_DATA_ACCEPTED -> {
-                            DebugLog.d(TAG, "transferring: $patchTransferAddress")
-
-
                             //If the last frame we sent was acked, increment the transfer counter
                             // set the progress bar.  Check to see if we're at the total number
                             // of frames that we should be (and if we are, request an exit from
@@ -682,7 +687,7 @@ object UDSFlasher {
                                 mLastString = ""
                                 //if the current transfer sequence number is larger than the max
                                 // number that we need for the payload, send a 'transfer exit'
-                                if(patchTransferAddress > patchBin.size){
+                                if(patchTransferAddress >= patchBin.size){
                                     mCommand = UDS_COMMAND.TRANSFER_EXIT.bytes
 
                                     return UDSReturn.COMMAND_QUEUED
@@ -695,7 +700,7 @@ object UDSFlasher {
                             var start = patchTransferAddress
                             var end = start + patchTransferSize(patchTransferAddress)
 
-
+                            DebugLog.d(TAG, "transferring patch between $start and $end")
 
                             if(end > patchBin.size) end = patchBin.size
 
@@ -718,6 +723,20 @@ object UDSFlasher {
                                 mLastString = ""
                                 //just a wait message, return OK
                                 return UDSReturn.OK
+                            }
+                            else if (buff[2] == 0x72.toByte()){
+                                transferSequence++
+                                mLastString = ""
+                                DebugLog.d(TAG, "Negative response, try again.....")
+                                var start = patchTransferAddress
+                                var end = start + patchTransferSize(patchTransferAddress)
+
+
+
+                                if(end > patchBin.size) end = patchBin.size
+
+                                mCommand = UDS_COMMAND.TRANSFER_DATA.bytes + byteArrayOf(transferSequence.toByte()) + patchBin.copyOfRange(start, end)
+                                return UDSReturn.COMMAND_QUEUED
                             }
                         }
 

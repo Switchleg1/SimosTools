@@ -608,10 +608,10 @@ object FlashUtilities {
 
     fun encrypt(bin: ByteArray, key: ByteArray, initVector: ByteArray ): ByteArray {
         try {
-            val cipher = Cipher.getInstance("AES_128/CBC/PKCS5PADDING")
+            val cipher = Cipher.getInstance("AES/CBC/NoPadding")
             val iv = IvParameterSpec(initVector)
 
-            val skeySpec = SecretKeySpec(key, "AES_128")
+            val skeySpec = SecretKeySpec(key, "AES")
             cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv)
 
             return cipher.doFinal(bin)
