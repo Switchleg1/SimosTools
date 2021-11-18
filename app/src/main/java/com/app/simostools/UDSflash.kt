@@ -248,7 +248,7 @@ object UDSFlasher {
                         else mLastString += "    Checksum not updated\n"
 
                         if(currentBlockOperation == 5) {
-                            checksummed = FlashUtilities.checksumECM3(checksummed.bin)
+                            checksummed = FlashUtilities.checksumECM3(checksummed.bin, binAswVersion.ecm3Range)
                             mLastString += "Original ECM3: " + checksummed.fileChecksum + "\n"
                             mLastString += "    Calculated ECM3: " + checksummed.calculatedChecksum + "\n"
                             if (checksummed.updated) mLastString += "Checksum corrected\n"
@@ -669,7 +669,7 @@ object UDSFlasher {
                             //patchTransferAddress += transferSize
 
                             mCommand = UDS_COMMAND.TRANSFER_DATA.bytes +  byteArrayOf(transferSequence.toByte()) + patchBin.copyOfRange(0, transferSize)
-                            mLastString = "PATCHING Started"
+                            mLastString = "PATCHING Started, be patient..."
                             DebugLog.d(TAG, "transferring: $patchTransferAddress")
 
                             return UDSReturn.COMMAND_QUEUED
@@ -700,7 +700,7 @@ object UDSFlasher {
                             var start = patchTransferAddress
                             var end = start + patchTransferSize(patchTransferAddress)
 
-                            DebugLog.d(TAG, "transferring patch between $start and $end")
+                            //DebugLog.d(TAG, "transferring patch between $start and $end")
 
                             if(end > patchBin.size) end = patchBin.size
 

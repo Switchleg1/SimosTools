@@ -573,12 +573,12 @@ enum class SIMOS_18(val version: String,
     )
 }
 
-enum class COMPATIBLE_BOXCODE_VERSIONS(val str: String, val boxCodeLocation: IntArray, val software: SIMOS_18) {
-    _UNDEFINED("UNDEFINED", intArrayOf(0x0, 0x01), SIMOS_18._1),
-    _5G0906259L("5G0906259L", intArrayOf(0x60, 0x6B), SIMOS_18._1),
-    _8V0906264M("8V0906264M", intArrayOf(0x60, 0x6B), SIMOS_18._1),
-    _8V0906259K("8V0906259K", intArrayOf(0x60, 0x6B), SIMOS_18._1),
-    _8V0906259H("8V0906259H", intArrayOf(0x60, 0x6B), SIMOS_18._1),
+enum class COMPATIBLE_BOXCODE_VERSIONS(val str: String, val boxCodeLocation: IntArray, val ecm3Range: IntArray, val software: SIMOS_18) {
+    _UNDEFINED("UNDEFINED", intArrayOf(0x0, 0x01), intArrayOf(0,0), SIMOS_18._1),
+    _5G0906259L("5G0906259L", intArrayOf(0x60, 0x6B), intArrayOf(55724,66096), SIMOS_18._1),
+    _8V0906264M("8V0906264M", intArrayOf(0x60, 0x6B), intArrayOf(55724,66096), SIMOS_18._1),
+    _8V0906259K("8V0906259K", intArrayOf(0x60, 0x6B), intArrayOf(55724,66096), SIMOS_18._1),
+    _8V0906259H("8V0906259H", intArrayOf(0x60, 0x6B), intArrayOf(55112,65400), SIMOS_18._1),
 }
 
 

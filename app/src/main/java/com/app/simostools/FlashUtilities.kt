@@ -121,9 +121,9 @@ object FlashUtilities {
         return(checksummedBin(bin,currentChecksum.toHex(), checksumCalculated.toHex(), true))
     }
 
-    fun checksumECM3(bin: ByteArray): checksummedBin{
-        var startAddress = 55724
-        var endAddress = 66096
+    fun checksumECM3(bin: ByteArray, range: IntArray): checksummedBin{
+        var startAddress = range[0]
+        var endAddress = range[1]
 
         var checksumLocation = 0x400;
         var checksumCurrent = bin.copyOfRange(checksumLocation, checksumLocation + 8)
