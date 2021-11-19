@@ -13,14 +13,12 @@ object FlashUtilities {
 
     fun splitBinBlocks(bin: ByteArray): Array<ByteArray>{
         val boxCode = getBoxCodeFromBin(bin)
+        DebugLog.d(TAG, boxCode.toString())
 
-        var splitBlocks: Array<ByteArray> = arrayOf()
-
-        //Add the "sboot" block to the array at index 0 (to keep things lined up everywhere.
-        splitBlocks += byteArrayOf()
+        var splitBlocks: Array<ByteArray> = arrayOf(byteArrayOf(),byteArrayOf(),byteArrayOf(),byteArrayOf(),byteArrayOf(),byteArrayOf())
 
         for(i in 1..5){
-            splitBlocks += bin.copyOfRange(boxCode!!.software.fullBinLocations[i], boxCode.software.fullBinLocations[i] + boxCode.software.blockLengths[i])
+            splitBlocks[i] = bin.copyOfRange(boxCode!!.software.fullBinLocations[i], boxCode.software.fullBinLocations[i] + boxCode.software.blockLengths[i])
         }
 
         return splitBlocks
@@ -32,13 +30,15 @@ object FlashUtilities {
             //This is a full flash file, so the box code location needs to be checked
                 //based on the offset of the CAL in a full bin..
             enumValues<COMPATIBLE_BOXCODE_VERSIONS>().forEach {
-                if (it.str == String(
-                        bin.copyOfRange(
-                            it.boxCodeLocation[0] + it.software.fullBinLocations[5],
-                            it.boxCodeLocation[1] + it.software.fullBinLocations[5]
-                        )
+                val boxFromBin = String(
+                    bin.copyOfRange(
+                        it.boxCodeLocation[0] + it.software.fullBinLocations[5],
+                        it.boxCodeLocation[1] + it.software.fullBinLocations[5]
                     )
-                ) {
+                ).trim()
+
+                if (it.str == boxFromBin)
+                {
                     return it
                 }
             }
@@ -63,16 +63,24 @@ object FlashUtilities {
         return null
     }
 
-    fun checksumSimos18(bin: ByteArray): checksummedBin{
-        var currentChecksum = bin.copyOfRange(0x300, 0x308)
-        var offset = (0xA0800000).toUInt()
-        var startAddress1 = byteArrayToInt(bin.copyOfRange(0x30c, 0x30c + 4).reversedArray()).toUInt() - offset
-        var endAddress1 = byteArrayToInt(bin.copyOfRange(0x310, 0x310 + 4).reversedArray()).toUInt() - offset
-        var startAddress2 = byteArrayToInt(bin.copyOfRange(0x314, 0x314 + 4).reversedArray()).toUInt() - offset
-        var endAddress2 = byteArrayToInt(bin.copyOfRange(0x318, 0x318 + 4).reversedArray()).toUInt() - offset
+    fun checksumSimos18(bin: ByteArray, baseAddress: UInt, checksumLocation: Int): checksummedBin{
+        DebugLog.d(TAG, "Checksumming block, base address $baseAddress, and checksum location: $checksumLocation")
 
+        var currentChecksum = bin.copyOfRange(checksumLocation, checksumLocation + 8)
+        DebugLog.d(TAG,"Current Checksum: " + currentChecksum.toHex())
+        var offset = baseAddress
+        var startAddress1 = byteArrayToInt(bin.copyOfRange(checksumLocation + 12, checksumLocation + 16).reversedArray()).toUInt() - offset
+        var endAddress1 = byteArrayToInt(bin.copyOfRange(checksumLocation + 16, checksumLocation + 20).reversedArray()).toUInt() - offset
+        var startAddress2 = byteArrayToInt(bin.copyOfRange(checksumLocation + 20, checksumLocation + 24).reversedArray()).toUInt() - offset
+        var endAddress2 = byteArrayToInt(bin.copyOfRange(checksumLocation + 24, checksumLocation + 28).reversedArray()).toUInt() - offset
 
-        var checksumData: ByteArray = bin.copyOfRange(startAddress1.toInt(), endAddress1.toInt() + 1) + bin.copyOfRange(startAddress2.toInt(), endAddress2.toInt() + 1)
+        var checksumData: ByteArray = byteArrayOf()
+
+        checksumData = bin.copyOfRange(startAddress1.toInt(), endAddress1.toInt() + 1)
+
+        if(endAddress2 - startAddress2 > 0.toUInt()){
+            checksumData += bin.copyOfRange(startAddress2.toInt(), endAddress2.toInt() + 1)
+        }
 
         var polynomial = 0x4c11db7;
         var crc = 0x00000000;
@@ -106,16 +114,16 @@ object FlashUtilities {
         }
 
         for(i in 0..checksumCalculated.size - 1){
-            bin[0x300 + i] = checksumCalculated[i]
+            bin[checksumLocation + i] = checksumCalculated[i]
         }
 
 
         return(checksummedBin(bin,currentChecksum.toHex(), checksumCalculated.toHex(), true))
     }
 
-    fun checksumECM3(bin: ByteArray): checksummedBin{
-        var startAddress = 55724
-        var endAddress = 66096
+    fun checksumECM3(bin: ByteArray, range: IntArray): checksummedBin{
+        var startAddress = range[0]
+        var endAddress = range[1]
 
         var checksumLocation = 0x400;
         var checksumCurrent = bin.copyOfRange(checksumLocation, checksumLocation + 8)
@@ -600,10 +608,10 @@ object FlashUtilities {
 
     fun encrypt(bin: ByteArray, key: ByteArray, initVector: ByteArray ): ByteArray {
         try {
-            val cipher = Cipher.getInstance("AES_128/CBC/PKCS5PADDING")
+            val cipher = Cipher.getInstance("AES/CBC/NoPadding")
             val iv = IvParameterSpec(initVector)
 
-            val skeySpec = SecretKeySpec(key, "AES_128")
+            val skeySpec = SecretKeySpec(key, "AES")
             cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv)
 
             return cipher.doFinal(bin)
@@ -677,11 +685,14 @@ enum class UDS_COMMAND(val bytes: ByteArray){
 enum class UDS_ROUTINE(val bytes: ByteArray){
     CHECK_PROGRAMMING_PRECONDITION(byteArrayOf(0x02.toByte(),0x03.toByte())),
     ERASE_BLOCK(byteArrayOf(0xFF.toByte(),0x00.toByte())),
+    CHECKSUM_BLOCK(byteArrayOf(0x02.toByte(), 0x02.toByte())),
 
 }
 
 enum class UDS_DOWNLOAD_PROPERTIES(val bytes: ByteArray){
     ENCRYPTED_COMPRESSED(byteArrayOf(0xAA.toByte())),
+    ENCRYPTED_UNCOMPRESSED(byteArrayOf(0x0A.toByte())),
+    UNENCRYPTED_UNCOMPRESSED(byteArrayOf(0x00.toByte())),
     FOUR_ONE_ADDRESS_LENGTH(byteArrayOf(0x41.toByte())),
 
 }
