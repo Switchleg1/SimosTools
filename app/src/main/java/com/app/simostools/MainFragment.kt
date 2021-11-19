@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startForegroundService
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -76,6 +75,7 @@ class MainFragment : Fragment() {
                 }
 
                 //Stop our BT Service
+                sendServiceMessage(BTServiceTask.DO_DISCONNECT.toString())
                 sendServiceMessage(BTServiceTask.STOP_SERVICE.toString())
                 requireActivity().finish()
             }

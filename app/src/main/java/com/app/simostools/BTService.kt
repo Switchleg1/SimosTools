@@ -79,6 +79,7 @@ class BTService: Service() {
     private var mLogWriteState: Boolean                         = false
     private var mScanningTimer: Timer?                          = null
     private var mMTUSize: Int                                   = 23
+    private var mFinished: Boolean                              = false
 
     //Gatt additional properties
     private fun BluetoothGattCharacteristic.isReadable(): Boolean = containsProperty(BluetoothGattCharacteristic.PROPERTY_READ)
@@ -91,20 +92,22 @@ class BTService: Service() {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
 
-        when (intent.action) {
-            BTServiceTask.STOP_SERVICE.toString()       -> doStopService()
-            BTServiceTask.START_SERVICE.toString()      -> doStartService()
-            BTServiceTask.REQ_STATUS.toString()         -> sendStatus()
-            BTServiceTask.DO_CONNECT.toString()         -> doConnect()
-            BTServiceTask.DO_DISCONNECT.toString()      -> doDisconnect()
-            BTServiceTask.DO_START_LOG.toString()       -> mConnectionThread?.setTaskState(UDSTask.LOGGING)
-            BTServiceTask.DO_START_FLASH.toString()     -> mConnectionThread?.setTaskState(UDSTask.FLASHING)
-            BTServiceTask.DO_GET_INFO.toString()        -> mConnectionThread?.setTaskState(UDSTask.INFO)
-            BTServiceTask.DO_CLEAR_DTC.toString()       -> mConnectionThread?.setTaskState(UDSTask.DTC)
-            BTServiceTask.DO_SET_ADAPTER.toString()     -> mConnectionThread?.setTaskState(UDSTask.SET_ADAPTER)
-            BTServiceTask.DO_STOP_TASK.toString()       -> mConnectionThread?.setTaskState(UDSTask.NONE)
-            BTServiceTask.FLASH_CONFIRMED.toString()    -> confirmFlashProceed()
-            BTServiceTask.FLASH_CANCELED.toString()     -> cancelFlash()
+        if(!mFinished) {
+            when (intent.action) {
+                BTServiceTask.STOP_SERVICE.toString()       -> doStopService()
+                BTServiceTask.START_SERVICE.toString()      -> doStartService()
+                BTServiceTask.REQ_STATUS.toString()         -> sendStatus()
+                BTServiceTask.DO_CONNECT.toString()         -> doConnect()
+                BTServiceTask.DO_DISCONNECT.toString()      -> doDisconnect()
+                BTServiceTask.DO_START_LOG.toString()       -> mConnectionThread?.setTaskState(UDSTask.LOGGING)
+                BTServiceTask.DO_START_FLASH.toString()     -> mConnectionThread?.setTaskState(UDSTask.FLASHING)
+                BTServiceTask.DO_GET_INFO.toString()        -> mConnectionThread?.setTaskState(UDSTask.INFO)
+                BTServiceTask.DO_CLEAR_DTC.toString()       -> mConnectionThread?.setTaskState(UDSTask.DTC)
+                BTServiceTask.DO_SET_ADAPTER.toString()     -> mConnectionThread?.setTaskState(UDSTask.SET_ADAPTER)
+                BTServiceTask.DO_STOP_TASK.toString()       -> mConnectionThread?.setTaskState(UDSTask.NONE)
+                BTServiceTask.FLASH_CONFIRMED.toString()    -> confirmFlashProceed()
+                BTServiceTask.FLASH_CANCELED.toString()     -> cancelFlash()
+            }
         }
 
         // If we get killed, after returning from here, restart
@@ -117,9 +120,9 @@ class BTService: Service() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         Toast.makeText(this, "${getString(R.string.app_name)} Done", Toast.LENGTH_SHORT).show()
         doDisconnect()
+        super.onDestroy()
     }
 
     private val mScanCallback = object : ScanCallback() {
@@ -442,6 +445,7 @@ class BTService: Service() {
 
     @Synchronized
     private fun doStopService() {
+        mFinished = true
         LogFile.close()
         doDisconnect()
         stopForeground(true)
@@ -525,8 +529,10 @@ class BTService: Service() {
             mBluetoothGatt = null
         }
 
-        //Set new connection status
-        setConnectionState(newState)
+        if(!mFinished) {
+            //Set new connection status
+            setConnectionState(newState)
+        }
     }
 
     @Synchronized
