@@ -131,6 +131,7 @@ enum class ECUInfo(val str: String, val address: ByteArray) {
 }
 
 enum class FLASH_ECU_CAL_SUBTASK {
+    PATCH_BLOCK,
     NONE,
     GET_ECU_BOX_CODE,
     CHECK_FILE_COMPAT,
@@ -155,19 +156,11 @@ enum class FLASH_ECU_CAL_SUBTASK {
     }
 }
 
-enum class FLASH_ECU_BLOCK{
+enum class FLASH_ECU_ACTION(){
     NONE,
-    CBOOT,
-    ASW1,
-    ASW2,
-    ASW3,
-    CAL;
+    FLASH,
+    PATCH,
 
-    fun next(): FLASH_ECU_BLOCK {
-        val vals = FLASH_ECU_BLOCK.values()
-        return vals[(this.ordinal+1) % vals.size]
-
-    }
 }
 
 //Color List
@@ -481,22 +474,40 @@ val SIMOS18_AES_IV = byteArrayOf(
     0xD1.toByte()
 )
 
-val CAL_BLOCK_TRANSFER_SIZE = 0xFF0
+val CAL_BLOCK_TRANSFER_SIZE = 0xFFD
 
+fun patchTransferSize(address: Int): Int {
+
+    if(address < 0x9600)
+        return 0x100
+    if(address >= 0x9600 && address < 0x9800)
+        return 0x8
+    if(address >= 0x9800 && address < 0x7DD00)
+        return 0x100
+    if(address >= 0x7DD00 && address < 0x7E200)
+        return 0x8
+    if(address >= 0x7E200 && address < 0x7F900)
+        return 0x100
+
+    return 0x8
+
+}
 enum class SIMOS_18(val version: String,
-                    val baseAddresses: LongArray,
+                    val baseAddresses: UIntArray,
                     val blockLengths: IntArray,
                     val fullBinLocations: IntArray,
-                    val blockNumberMap: IntArray){
+                    val blockNumberMap: IntArray,
+                    val checksumLocations: IntArray,
+                    ){
     _1("Simos 18.1",
-        longArrayOf(
-            0x80000000,  // SBOOT
-            0x8001C000,  // CBOOT
-            0x80040000,  // ASW1
-            0x80140000,  // ASW2
-            0x80880000,  // ASW3
-            0xA0800000,  // CAL
-            0x80840000,  // CBOOT_temp
+        uintArrayOf(
+            (0x80000000).toUInt(),  // SBOOT
+            (0x8001C000).toUInt(),  // CBOOT
+            (0x80040000).toUInt(),  // ASW1
+            (0x80140000).toUInt(),  // ASW2
+            (0x80880000).toUInt(),  // ASW3
+            (0xA0800000).toUInt(),  // CAL
+            (0x80840000).toUInt(),  // CBOOT_temp
         ),
         intArrayOf(
             0x0,      //SBOOT, we don't care but this way things line up.
@@ -517,16 +528,26 @@ enum class SIMOS_18(val version: String,
         ),
         intArrayOf(
             0,1,2,3,4,5
-        )),
+        ),
+        intArrayOf(
+            0x300,
+            0x300,
+            0x300,
+            0x0,
+            0x0,
+            0x300,
+
+        )
+    ),
     _10("Simos 18.10",
-        longArrayOf(
-            0x80000000,  // SBOOT
-            0x80800000,  // CBOOT
-            0x80020000,  // ASW1
-            0x80100000,  // ASW2
-            0x808C0000,  // ASW3
-            0xA0820000,  // CAL
-            0x80840000,  // CBOOT_temp
+        uintArrayOf(
+            (0x80000000).toUInt(),  // SBOOT
+            (0x80800000).toUInt(),  // CBOOT
+            (0x80020000).toUInt(),  // ASW1
+            (0x80100000).toUInt(),  // ASW2
+            (0x808C0000).toUInt(),  // ASW3
+            (0xA0820000).toUInt(),  // CAL
+            (0x80840000).toUInt(),  // CBOOT_temp
         ),
         intArrayOf(
             0x0,      //SBOOT, we don't care but this way things line up.
@@ -547,14 +568,24 @@ enum class SIMOS_18(val version: String,
         ),
         intArrayOf(
             0,1,2,3,4,5
-        ))
+        ),
+        intArrayOf(
+            0x300,
+            0x300,
+            0x300,
+            0x0,
+            0x0,
+            0x300,
+        )
+    )
 }
 
-enum class COMPATIBLE_BOXCODE_VERSIONS(val str: String, val boxCodeLocation: IntArray, val software: SIMOS_18) {
-    _UNDEFINED("UNDEFINED", intArrayOf(0x0, 0x01), SIMOS_18._1),
-    _5G0906259L("5G0906259L", intArrayOf(0x60, 0x6B), SIMOS_18._1),
-    _8V0906264M("8V0906264M", intArrayOf(0x60, 0x6B), SIMOS_18._1),
-    _8V0906259K("8V0906259K", intArrayOf(0x60, 0x6B), SIMOS_18._1),
+enum class COMPATIBLE_BOXCODE_VERSIONS(val str: String, val boxCodeLocation: IntArray, val ecm3Range: IntArray, val software: SIMOS_18) {
+    _UNDEFINED("UNDEFINED", intArrayOf(0x0, 0x01), intArrayOf(0,0), SIMOS_18._1),
+    _5G0906259L("5G0906259L", intArrayOf(0x60, 0x6B), intArrayOf(55724,66096), SIMOS_18._1),
+    _8V0906264M("8V0906264M", intArrayOf(0x60, 0x6B), intArrayOf(55724,66096), SIMOS_18._1),
+    _8V0906259K("8V0906259K", intArrayOf(0x60, 0x6B), intArrayOf(55724,66096), SIMOS_18._1),
+    _8V0906259H("8V0906259H", intArrayOf(0x60, 0x6B), intArrayOf(55112,65400), SIMOS_18._1),
 }
 
 //Additional properties

@@ -1030,7 +1030,7 @@ class BTService: Service() {
                 }
             }
             else{
-                if(UDSFlasher.getSubtask() == FLASH_ECU_CAL_SUBTASK.FLASH_BLOCK){
+                if(UDSFlasher.getSubtask() == FLASH_ECU_CAL_SUBTASK.FLASH_BLOCK || UDSFlasher.getSubtask() == FLASH_ECU_CAL_SUBTASK.PATCH_BLOCK){
                     //Do NOTHING
                 }
                 else {
