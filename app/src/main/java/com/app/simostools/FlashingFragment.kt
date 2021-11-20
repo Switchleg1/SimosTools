@@ -148,6 +148,10 @@ class FlashingFragment : Fragment() {
 
         setColor()
 
+        //Do we keep the screen on?
+        view?.keepScreenOn = ConfigSettings.KEEP_SCREEN_ON.toBoolean()
+
+        //register broadcast receiver
         val filter = IntentFilter()
         filter.addAction(GUIMessage.STATE_CONNECTION.toString())
         filter.addAction(GUIMessage.STATE_TASK.toString())
@@ -163,6 +167,10 @@ class FlashingFragment : Fragment() {
     override fun onPause() {
         super.onPause()
 
+        //Do we keep the screen on?
+        view?.keepScreenOn = false
+
+        //unregister broadcast receiver
         activity?.unregisterReceiver(mBroadcastReceiver)
     }
 
