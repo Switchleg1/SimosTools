@@ -12,21 +12,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import java.lang.Exception
-import android.graphics.Color
-
-import android.text.style.BackgroundColorSpan
-
-import android.R.attr.text
-
-import android.text.Spannable
-
-import android.R.attr.name
-
-
 
 
 class LoggingBaseFragment: Fragment() {

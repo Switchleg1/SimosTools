@@ -10,8 +10,8 @@ android {
         applicationId "com.app.simostools"
         minSdk 28
         targetSdk 31
-        versionCode 13
-        versionName "0.13"
+        versionCode 14
+        versionName "0.14"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

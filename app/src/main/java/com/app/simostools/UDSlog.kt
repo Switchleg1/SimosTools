@@ -26,7 +26,7 @@ object UDSLogger {
     private var mCalculatedTQ       = 0f
     private var mCalculatedHP       = 0f
     private var mLastFrameSize      = -1
-    private var mRevision           = "SimosTools [R1.1:Commercial Product]"
+    private var mRevision           = "SimosTools [R1.4:We don't respond to emails]"
 
     fun getTQ(): Float {
         return mCalculatedTQ
