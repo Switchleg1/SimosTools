@@ -3,6 +3,7 @@ package com.app.simostools
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -354,10 +355,18 @@ class SettingsGeneralFragment : Fragment() {
             }
 
             //Get output directory
-            when (ConfigSettings.OUT_DIRECTORY.toDirectory()) {
-                DirectoryList.DOWNLOADS -> currentView.findViewById<RadioButton>(R.id.radioButtonDownloads).isChecked   = true
-                DirectoryList.DOCUMENTS -> currentView.findViewById<RadioButton>(R.id.radioButtonDocuments).isChecked   = true
-                DirectoryList.APP       -> currentView.findViewById<RadioButton>(R.id.radioButtonApplication).isChecked = true
+            if(RequiredPermissions.READ_STORAGE.result == PackageManager.PERMISSION_DENIED) {
+                currentView.findViewById<RadioButton>(R.id.radioButtonApplication).isChecked = true
+                currentView.findViewById<RadioButton>(R.id.radioButtonDownloads).isEnabled = false
+                currentView.findViewById<RadioButton>(R.id.radioButtonDocuments).isEnabled = false
+            } else {
+                currentView.findViewById<RadioButton>(R.id.radioButtonDownloads).isEnabled = true
+                currentView.findViewById<RadioButton>(R.id.radioButtonDocuments).isEnabled = true
+                when (ConfigSettings.OUT_DIRECTORY.toDirectory()) {
+                    DirectoryList.DOWNLOADS -> currentView.findViewById<RadioButton>(R.id.radioButtonDownloads).isChecked = true
+                    DirectoryList.DOCUMENTS -> currentView.findViewById<RadioButton>(R.id.radioButtonDocuments).isChecked = true
+                    DirectoryList.APP -> currentView.findViewById<RadioButton>(R.id.radioButtonApplication).isChecked = true
+                }
             }
 
             //Get draw minmax

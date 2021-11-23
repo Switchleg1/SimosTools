@@ -102,7 +102,8 @@ class BTService: Service() {
                 BTServiceTask.DO_START_LOG.toString()       -> mConnectionThread?.setTaskState(UDSTask.LOGGING)
                 BTServiceTask.DO_START_FLASH.toString()     -> mConnectionThread?.setTaskState(UDSTask.FLASHING)
                 BTServiceTask.DO_GET_INFO.toString()        -> mConnectionThread?.setTaskState(UDSTask.INFO)
-                BTServiceTask.DO_CLEAR_DTC.toString()       -> mConnectionThread?.setTaskState(UDSTask.DTC)
+                BTServiceTask.DO_CLEAR_DTC.toString()       -> mConnectionThread?.setTaskState(UDSTask.DTC_CLEAR)
+                BTServiceTask.DO_GET_DTC.toString()         -> mConnectionThread?.setTaskState(UDSTask.DTC_GET)
                 BTServiceTask.DO_SET_ADAPTER.toString()     -> mConnectionThread?.setTaskState(UDSTask.SET_ADAPTER)
                 BTServiceTask.DO_STOP_TASK.toString()       -> mConnectionThread?.setTaskState(UDSTask.NONE)
                 BTServiceTask.FLASH_CONFIRMED.toString()    -> confirmFlashProceed()
@@ -780,7 +781,8 @@ class BTService: Service() {
                 UDSTask.LOGGING     -> startTaskLogging()
                 UDSTask.FLASHING    -> startTaskFlashing()
                 UDSTask.INFO        -> startTaskGetInfo()
-                UDSTask.DTC         -> startTaskClearDTC()
+                UDSTask.DTC_GET     -> startTaskGetDTC()
+                UDSTask.DTC_CLEAR   -> startTaskClearDTC()
                 UDSTask.SET_ADAPTER -> startTaskSetAdapter()
                 UDSTask.NONE        -> {}
             }
@@ -829,7 +831,11 @@ class BTService: Service() {
         }
 
         private fun startTaskClearDTC() {
-            writePacket(UDSdtc.startTask(0))
+            writePacket(UDSdtc.startTask(0, true))
+        }
+
+        private fun startTaskGetDTC() {
+            writePacket(UDSdtc.startTask(0, false))
         }
 
         private fun startTaskSetAdapter() {
@@ -844,7 +850,8 @@ class BTService: Service() {
                     UDSTask.LOGGING     -> processPacketLogging(buff)
                     UDSTask.FLASHING    -> processPacketFlashing(buff)
                     UDSTask.INFO        -> processPacketGetInfo(buff)
-                    UDSTask.DTC         -> processPacketClearDTC(buff)
+                    UDSTask.DTC_GET     -> processPacketGetDTC(buff)
+                    UDSTask.DTC_CLEAR   -> processPacketClearDTC(buff)
                     UDSTask.SET_ADAPTER -> processPacketSetAdapter(buff)
                 }
 
@@ -1067,22 +1074,51 @@ class BTService: Service() {
             }
         }
 
+        private fun processPacketGetDTC(buff: ByteArray?) {
+            buff?.let {
+                when (UDSdtc.processPacket(mTaskTick, buff, false)) {
+                    UDSReturn.OK -> {
+                        if (mTaskTick < UDSdtc.getStartCount(false) - 1) {
+                            writePacket(UDSdtc.startTask(mTaskTick + 1, false))
+                        }
+                    }
+                    UDSReturn.COMPLETE -> {
+                        val intentMessage = Intent(GUIMessage.FLASH_INFO.toString())
+                        intentMessage.putExtra(GUIMessage.FLASH_INFO.toString(), UDSdtc.getInfo())
+                        sendBroadcast(intentMessage)
+
+                        setTaskState(UDSTask.NONE)
+                    }
+                    else -> {
+                        val intentMessage = Intent(GUIMessage.FLASH_INFO.toString())
+                        intentMessage.putExtra(GUIMessage.FLASH_INFO.toString(), UDSdtc.getInfo())
+                        sendBroadcast(intentMessage)
+
+                        setTaskState(UDSTask.NONE)
+                    }
+                }
+            }?: if(UDSdtc.processPacket(mTaskTick, buff, false) != UDSReturn.OK) {
+                DebugLog.w(TAG, "GetDTC timeout.")
+                setTaskState(UDSTask.NONE)
+            }
+        }
+
         private fun processPacketClearDTC(buff: ByteArray?) {
             buff?.let {
-                if (UDSdtc.processPacket(mTaskTick, buff) == UDSReturn.OK) {
+                if (UDSdtc.processPacket(mTaskTick, buff, true) == UDSReturn.OK) {
                     val intentMessage = Intent(GUIMessage.FLASH_INFO.toString())
                     intentMessage.putExtra(GUIMessage.FLASH_INFO.toString(), UDSdtc.getInfo())
                     sendBroadcast(intentMessage)
 
-                    if (mTaskTick < UDSdtc.getStartCount() - 1) {
-                        writePacket(UDSdtc.startTask(mTaskTick + 1))
+                    if (mTaskTick < UDSdtc.getStartCount(true) - 1) {
+                        writePacket(UDSdtc.startTask(mTaskTick + 1, true))
                     } else {
                         setTaskState(UDSTask.NONE)
                     }
                 } else {
                     setTaskState(UDSTask.NONE)
                 }
-            }?: if(UDSdtc.processPacket(mTaskTick, buff) != UDSReturn.OK) {
+            }?: if(UDSdtc.processPacket(mTaskTick, buff, true) != UDSReturn.OK) {
                 DebugLog.w(TAG, "ClearDTC timeout.")
                 setTaskState(UDSTask.NONE)
             }

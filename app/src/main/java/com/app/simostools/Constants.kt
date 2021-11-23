@@ -43,7 +43,8 @@ enum class UDSTask {
     LOGGING,
     FLASHING,
     INFO,
-    DTC,
+    DTC_GET,
+    DTC_CLEAR,
     SET_ADAPTER
 }
 
@@ -57,6 +58,7 @@ enum class BTServiceTask {
     DO_START_LOG,
     DO_START_FLASH,
     DO_GET_INFO,
+    DO_GET_DTC,
     DO_CLEAR_DTC,
     DO_SET_ADAPTER,
     DO_STOP_TASK,
@@ -101,6 +103,7 @@ enum class BLESettings(val value: Int) {
 // UDS return codes
 enum class UDSReturn {
     OK,
+    COMPLETE,
     ERROR_RESPONSE,
     ERROR_NULL,
     ERROR_HEADER,
@@ -262,7 +265,7 @@ enum class ConfigSettings(val cfgName: String, var value: Any) {
     CURB_WEIGHT("CurbWeight", 1500f),
     DRAG_COEFFICIENT("DragCoefficient", 1500f),
     ALWAYS_PORTRAIT("AlwaysPortrait", false),
-    OUT_DIRECTORY("OutputDirectory", DirectoryList.APP),
+    OUT_DIRECTORY("OutputDirectory", DirectoryList.DOWNLOADS),
     GAUGE_TYPE("GaugeType", GaugeType.BASIC),
     DRAW_MIN_MAX("DrawMinMax", false),
     DRAW_GRADUATIONS("DrawGraduations", false),
@@ -347,7 +350,7 @@ val TASK_BUMP_DELAY             = 250
 val TASK_END_DELAY              = 500
 val TASK_END_TIMEOUT            = 3000
 val TIME_OUT_LOGGING            = 10
-val TIME_OUT_DTC                = 10
+val TIME_OUT_DTC                = 20
 val TIME_OUT_FLASH              = 10
 val TIME_OUT_INFO               = 10
 

@@ -34,6 +34,7 @@ class FlashingFragment : Fragment() {
     private var mArrayAdapter: ArrayAdapter<String>? = null
     private lateinit var mViewModel: FlashViewModel
     private var flashConfirmationHoldTime: Long = 0L
+    private var dtcHoldTime: Long = 0L
 
 
     var resultPickLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -113,12 +114,38 @@ class FlashingFragment : Fragment() {
             paintBG.color = ColorList.BT_BG.value
             paintRim.color = ColorList.BT_RIM.value
             setTextColor(ColorList.BT_TEXT.value)
+            setOnTouchListener(object : View.OnTouchListener {
+                override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                    when (event?.action) {
+                        MotionEvent.ACTION_DOWN ->{
+                            dtcHoldTime = SystemClock.uptimeMillis()
+                            //time the button press
+                        }
+                        MotionEvent.ACTION_UP -> {
+                            if (mViewModel.connectionState == BLEConnectionState.CONNECTED) {
+                                val now = SystemClock.uptimeMillis()
+                                if(now - dtcHoldTime > 1000){
+                                    sendServiceMessage(BTServiceTask.DO_CLEAR_DTC.toString())
+                                }
+                                else{
+                                    sendServiceMessage(BTServiceTask.DO_GET_DTC.toString())
+                                }
+                            } else {
+                                doWriteMessage("Not connected")
+                            }
+                        }
+                    }
+
+                    return v?.onTouchEvent(event) ?: true
+                }
+            })
             setOnClickListener {
-                if (mViewModel.connectionState == BLEConnectionState.CONNECTED) {
-                    sendServiceMessage(BTServiceTask.DO_CLEAR_DTC.toString())
+                /*if (mViewModel.connectionState == BLEConnectionState.CONNECTED) {
+                    //sendServiceMessage(BTServiceTask.DO_CLEAR_DTC.toString())
+                    sendServiceMessage(BTServiceTask.DO_GET_DTC.toString())
                 } else {
                     doWriteMessage("Not connected")
-                }
+                }*/
             }
         }
 

@@ -231,8 +231,9 @@ class MainActivity : AppCompatActivity() {
                 newString = "Flashing"
                 setActionBarColor(ColorList.ST_LOGGING.value)
             }
-            UDSTask.INFO -> newString = "Getting ECU Info"
-            UDSTask.DTC -> newString = "Clearing DTC"
+            UDSTask.INFO        -> newString = "Getting ECU Info"
+            UDSTask.DTC_GET     -> newString = "Getting DTC"
+            UDSTask.DTC_CLEAR   -> newString = "Clearing DTC"
         }
         supportActionBar?.title = getString(R.string.app_name) + " - " + newString
     }
