@@ -303,7 +303,7 @@ object UDSFlasher {
                             mLastString = mTask.toString() + "\n"
                             var unencryptedSize = patchBin.size
 
-                            patchBin = FlashUtilities.encrypt(patchBin, SIMOS18_AES_KEY, SIMOS18_AES_IV)
+                            patchBin = FlashUtilities.encrypt(patchBin, binAswVersion.cryptoKey, binAswVersion.cryptoIV)
 
                             var encryptedSize = patchBin.size
 
@@ -320,7 +320,7 @@ object UDSFlasher {
                         mLastString = mTask.toString() + "\n"
                         var unencryptedSize = bin[currentBlockOperation].size
 
-                        bin[currentBlockOperation] = FlashUtilities.encrypt(bin[currentBlockOperation], SIMOS18_AES_KEY, SIMOS18_AES_IV)
+                        bin[currentBlockOperation] = FlashUtilities.encrypt(bin[currentBlockOperation], binAswVersion.cryptoKey, binAswVersion.cryptoIV)
 
                         var encryptedSize = bin[currentBlockOperation].size
 
@@ -449,15 +449,15 @@ object UDSFlasher {
                             if(buff[1] == 0x11.toByte()){
                                 var challenge = buff.copyOfRange(2,buff.size)
 
-                                var vs = FlashUtilities.Sa2SeedKey(VW_SEEDKEY_TAPE, challenge)
+                                var vs = FlashUtilities.Sa2SeedKey(binAswVersion.sa2Script, challenge)
                                 var response = vs.execute()
 
                                 mCommand = UDS_COMMAND.SECURITY_ACCESS.bytes + byteArrayOf(0x12.toByte()) + response
-                                mLastString = "Passing SeedKey challenege"
+                                mLastString = "Passing SeedKey challenge"
                                 return UDSReturn.COMMAND_QUEUED
                             }
                             else if(buff[1] == 0x12.toByte()){
-                                mLastString = "Passed SeedKey Challenege"
+                                mLastString = "Passed SeedKey Challenge"
                                 mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
                                 mTask = mTask.next()
                                 return UDSReturn.COMMAND_QUEUED
