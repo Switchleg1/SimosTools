@@ -422,7 +422,7 @@ enum class SIMOS_18(val version: String,
                     val checksumLocations: IntArray,
                     val sa2Script: ByteArray,
                     val cryptoKey: ByteArray,
-                    val crptoIV: ByteArray,
+                    val cryptoIV: ByteArray,
                     ){
     _1("Simos 18.1",
         uintArrayOf(

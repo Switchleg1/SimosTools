@@ -303,7 +303,7 @@ object UDSFlasher {
                             mLastString = mTask.toString() + "\n"
                             var unencryptedSize = patchBin.size
 
-                            patchBin = FlashUtilities.encrypt(patchBin, binAswVersion.cryptoKey, binAswVersion.cryptoIV)
+                            patchBin = FlashUtilities.encrypt(patchBin, binAswVersion.software.cryptoKey, binAswVersion.software.cryptoIV)
 
                             var encryptedSize = patchBin.size
 
@@ -320,7 +320,7 @@ object UDSFlasher {
                         mLastString = mTask.toString() + "\n"
                         var unencryptedSize = bin[currentBlockOperation].size
 
-                        bin[currentBlockOperation] = FlashUtilities.encrypt(bin[currentBlockOperation], binAswVersion.cryptoKey, binAswVersion.cryptoIV)
+                        bin[currentBlockOperation] = FlashUtilities.encrypt(bin[currentBlockOperation], binAswVersion.software.cryptoKey, binAswVersion.software.cryptoIV)
 
                         var encryptedSize = bin[currentBlockOperation].size
 
@@ -449,7 +449,7 @@ object UDSFlasher {
                             if(buff[1] == 0x11.toByte()){
                                 var challenge = buff.copyOfRange(2,buff.size)
 
-                                var vs = FlashUtilities.Sa2SeedKey(binAswVersion.sa2Script, challenge)
+                                var vs = FlashUtilities.Sa2SeedKey(binAswVersion.software.sa2Script, challenge)
                                 var response = vs.execute()
 
                                 mCommand = UDS_COMMAND.SECURITY_ACCESS.bytes + byteArrayOf(0x12.toByte()) + response
