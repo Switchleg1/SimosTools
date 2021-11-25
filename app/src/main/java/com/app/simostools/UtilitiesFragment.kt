@@ -88,7 +88,7 @@ class UtilitiesFragment : Fragment() {
             }
         }
 
-        val getDTCButton = view.findViewById<SwitchButton>(R.id.buttonClearDTC)
+        val getDTCButton = view.findViewById<SwitchButton>(R.id.buttonGetDTC)
         getDTCButton.apply {
             paintBG.color = ColorList.BT_BG.value
             paintRim.color = ColorList.BT_RIM.value
@@ -98,7 +98,7 @@ class UtilitiesFragment : Fragment() {
             }
         }
 
-        val clearDTCButton = view.findViewById<SwitchButton>(R.id.buttonGetDTC)
+        val clearDTCButton = view.findViewById<SwitchButton>(R.id.buttonClearDTC)
         clearDTCButton.apply {
             paintBG.color = ColorList.BT_BG.value
             paintRim.color = ColorList.BT_RIM.value
