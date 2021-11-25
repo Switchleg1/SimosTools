@@ -100,6 +100,15 @@ object UDSFlasher {
             mTask = FLASH_ECU_CAL_SUBTASK.GET_ECU_BOX_CODE
 
             bin = FlashUtilities.splitBinBlocks(inputBin)
+
+            //If you didn't select a FullFlash (but selected a large bin)
+            // 0 out arrays 0-4 so we only have the CAL left over
+            if(!mFullFlash){
+                for(i in 0..4){
+                    bin[i] = byteArrayOf()
+                }
+            }
+
             return UDS_COMMAND.READ_IDENTIFIER.bytes + ECUInfo.PART_NUMBER.address
         }
         else{
