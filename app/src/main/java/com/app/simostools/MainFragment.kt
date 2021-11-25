@@ -45,6 +45,16 @@ class MainFragment : Fragment() {
             }
         }
 
+        val utilitiesButton = view.findViewById<SwitchButton>(R.id.buttonMainUtilities)
+        utilitiesButton.apply {
+            paintBG.color = ColorList.BT_BG.value
+            paintRim.color = ColorList.BT_RIM.value
+            setTextColor(ColorList.BT_TEXT.value)
+            setOnClickListener {
+                findNavController().navigate(R.id.action_MainFragment_to_UtilitiesFragment)
+            }
+        }
+
         val settingsButton = view.findViewById<SwitchButton>(R.id.buttonMainSettings)
         settingsButton.apply {
             paintBG.color = ColorList.BT_BG.value

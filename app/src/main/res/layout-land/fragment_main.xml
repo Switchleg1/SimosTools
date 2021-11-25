@@ -43,11 +43,11 @@
                 android:textSize="24sp" />
 
             <com.app.simostools.SwitchButton
-                android:id="@+id/buttonMainSettings"
+                android:id="@+id/buttonMainUtilities"
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:text="@string/button_settings"
+                android:text="@string/button_utilities"
                 android:textSize="24sp" />
 
         </LinearLayout>
@@ -67,13 +67,22 @@
                 android:textSize="24sp" />
 
             <com.app.simostools.SwitchButton
-                android:id="@+id/buttonMainExit"
+                android:id="@+id/buttonMainSettings"
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:text="@string/button_exit"
+                android:text="@string/button_settings"
                 android:textSize="24sp" />
 
         </LinearLayout>
+
+        <com.app.simostools.SwitchButton
+            android:id="@+id/buttonMainExit"
+            android:layout_marginVertical="64dp"
+            android:layout_width="64dp"
+            android:layout_height="match_parent"
+            android:text="@string/button_exit"
+            android:textSize="24sp" />
+
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

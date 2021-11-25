@@ -8,6 +8,7 @@ object UDSFlasher {
     private var mTask = FLASH_ECU_CAL_SUBTASK.NONE
     private var mCommand: ByteArray = byteArrayOf()
     private var mLastString: String = ""
+    private var mFullFlash: Boolean = false
     private var flashConfirmed: Boolean = false
     private var cancelFlash: Boolean = false
     private var bin: Array<ByteArray> = arrayOf(byteArrayOf(), byteArrayOf(), byteArrayOf(), byteArrayOf(), byteArrayOf(), byteArrayOf())
@@ -69,6 +70,11 @@ object UDSFlasher {
         inputBin =  input.readBytes()
         patchBin = byteArrayOf()
         currentBlockOperation = 0
+    }
+
+    fun setFullFlash(full: Boolean) {
+        DebugLog.d(TAG, "Set FullFlash to $full")
+        mFullFlash = full
     }
 
     fun startTask(ticks: Int): ByteArray {

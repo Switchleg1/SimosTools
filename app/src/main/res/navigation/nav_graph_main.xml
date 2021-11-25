@@ -20,6 +20,10 @@
             app:destination="@id/FlashingFragment"/>
 
         <action
+            android:id="@+id/action_MainFragment_to_UtilitiesFragment"
+            app:destination="@id/UtilitiesFragment"/>
+
+        <action
             android:id="@+id/action_MainFragment_to_SettingsFragment"
             app:destination="@id/SettingsFragment"/>
 
@@ -37,6 +41,13 @@
         android:name="com.app.simostools.FlashingFragment"
         android:label="@string/nav_flashing"
         tools:layout="@layout/fragment_flashing">
+    </fragment>
+
+    <fragment
+        android:id="@+id/UtilitiesFragment"
+        android:name="com.app.simostools.UtilitiesFragment"
+        android:label="@string/nav_utilities"
+        tools:layout="@layout/fragment_utilities">
     </fragment>
 
     <fragment

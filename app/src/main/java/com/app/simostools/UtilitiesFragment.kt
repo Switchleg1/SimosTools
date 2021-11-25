@@ -23,25 +23,22 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 
-var gFlashMsgList: Array<String>? = null
+var gUtilitiesMsgList: Array<String>? = null
 
-class FlashViewModel : ViewModel() {
+class UtilitiesViewModel : ViewModel() {
     var connectionState: BLEConnectionState = BLEConnectionState.NONE
-    var flashFull: Boolean = false
 }
 
-class FlashingFragment : Fragment() {
-    private val TAG = "FlashingFragment"
+class UtilitiesFragment : Fragment() {
+    private val TAG = "UtilitiesFragment"
     private var mArrayAdapter: ArrayAdapter<String>? = null
     private lateinit var mViewModel: FlashViewModel
-    private var flashConfirmationHoldTime: Long = 0L
 
     var resultPickLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val uri: Uri? = result.data?.data
             uri?.let {
                 UDSFlasher.setBinFile(requireActivity().contentResolver.openInputStream(uri)!!)
-                UDSFlasher.setFullFlash(mViewModel.flashFull)
 
                 // Tell the service to start flashing
                 sendServiceMessage(BTServiceTask.DO_START_FLASH.toString())
@@ -58,7 +55,7 @@ class FlashingFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_flashing, container, false)
+        return inflater.inflate(R.layout.fragment_utilities, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -67,7 +64,7 @@ class FlashingFragment : Fragment() {
 
         mArrayAdapter = ArrayAdapter(requireContext(), R.layout.flashing_message)
         mArrayAdapter?.let { adapter ->
-            gFlashMsgList?.forEach {
+            gUtilitiesMsgList?.forEach {
                 adapter.add(it)
             }
         }
@@ -77,37 +74,37 @@ class FlashingFragment : Fragment() {
             messageBox.setBackgroundColor(Color.WHITE)
         }
 
-        val flashCalButton = view.findViewById<SwitchButton>(R.id.buttonFlashCAL)
-        flashCalButton.apply {
-            paintBG.color = ColorList.BT_BG.value
-            paintRim.color = ColorList.BT_RIM.value
-            setTextColor(ColorList.BT_TEXT.value)
-            setOnClickListener {
-                clickFlash(false)
-            }
-        }
-
-        val flashFullButton = view.findViewById<SwitchButton>(R.id.buttonFlashFull)
-        flashFullButton.apply {
-            paintBG.color = ColorList.BT_BG.value
-            paintRim.color = ColorList.BT_RIM.value
-            setTextColor(ColorList.BT_TEXT.value)
-            setOnClickListener {
-                clickFlash(true)
-            }
-        }
-
-        val tuneInfoButton = view.findViewById<SwitchButton>(R.id.buttonTuneInfo)
-        tuneInfoButton.apply {
+        val ecuInfoButton = view.findViewById<SwitchButton>(R.id.buttonGetInfo)
+        ecuInfoButton.apply {
             paintBG.color = ColorList.BT_BG.value
             paintRim.color = ColorList.BT_RIM.value
             setTextColor(ColorList.BT_TEXT.value)
             setOnClickListener {
                 if (mViewModel.connectionState == BLEConnectionState.CONNECTED) {
-                    //
+                    sendServiceMessage(BTServiceTask.DO_GET_INFO.toString())
                 } else {
                     doWriteMessage("Not connected")
                 }
+            }
+        }
+
+        val getDTCButton = view.findViewById<SwitchButton>(R.id.buttonClearDTC)
+        getDTCButton.apply {
+            paintBG.color = ColorList.BT_BG.value
+            paintRim.color = ColorList.BT_RIM.value
+            setTextColor(ColorList.BT_TEXT.value)
+            setOnClickListener {
+                clickDTC(false)
+            }
+        }
+
+        val clearDTCButton = view.findViewById<SwitchButton>(R.id.buttonGetDTC)
+        clearDTCButton.apply {
+            paintBG.color = ColorList.BT_BG.value
+            paintRim.color = ColorList.BT_RIM.value
+            setTextColor(ColorList.BT_TEXT.value)
+            setOnClickListener {
+                clickDTC(true)
             }
         }
 
@@ -121,7 +118,7 @@ class FlashingFragment : Fragment() {
             }
         }
 
-        view.findViewById<ProgressBar>(R.id.progressBarFlash)?.apply {
+        view.findViewById<ProgressBar>(R.id.progressBarUtilities)?.apply {
             progress = 0
             isVisible = false
             max = 100
@@ -144,13 +141,10 @@ class FlashingFragment : Fragment() {
         val filter = IntentFilter()
         filter.addAction(GUIMessage.STATE_CONNECTION.toString())
         filter.addAction(GUIMessage.STATE_TASK.toString())
-        filter.addAction(GUIMessage.FLASH_INFO.toString())
-        filter.addAction(GUIMessage.FLASH_INFO_CLEAR.toString())
-        filter.addAction(GUIMessage.FLASH_PROGRESS.toString())
-        filter.addAction(GUIMessage.FLASH_PROGRESS_MAX.toString())
-        filter.addAction(GUIMessage.FLASH_PROGRESS_SHOW.toString())
-        filter.addAction(GUIMessage.FLASH_CONFIRM.toString())
-        filter.addAction(GUIMessage.FLASH_BUTTON_RESET.toString())
+        filter.addAction(GUIMessage.UTILITY_INFO.toString())
+        filter.addAction(GUIMessage.UTILITY_PROGRESS.toString())
+        filter.addAction(GUIMessage.UTILITY_PROGRESS_MAX.toString())
+        filter.addAction(GUIMessage.UTILITY_PROGRESS_SHOW.toString())
         activity?.registerReceiver(mBroadcastReceiver, filter)
     }
 
@@ -166,95 +160,33 @@ class FlashingFragment : Fragment() {
 
     private val mBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
-            DebugLog.d(TAG, "Flashing Fragment received action: " + intent.action.toString())
+            DebugLog.d(TAG, "Utility Fragment received action: " + intent.action.toString())
             when (intent.action) {
-                GUIMessage.STATE_CONNECTION.toString()    -> mViewModel.connectionState = intent.getSerializableExtra(GUIMessage.STATE_CONNECTION.toString()) as BLEConnectionState
-                GUIMessage.STATE_TASK.toString()          -> mViewModel.connectionState = BLEConnectionState.CONNECTED
-                GUIMessage.FLASH_INFO.toString()          -> doWriteMessage(intent.getStringExtra(GUIMessage.FLASH_INFO.toString())?: "")
-                GUIMessage.FLASH_INFO_CLEAR.toString()    -> doClearMessages()
-                GUIMessage.FLASH_PROGRESS.toString()      -> setProgressBar(intent.getIntExtra(GUIMessage.FLASH_PROGRESS.toString(), 0))
-                GUIMessage.FLASH_PROGRESS_MAX.toString()  -> setProgressBarMax(intent.getIntExtra(GUIMessage.FLASH_PROGRESS_MAX.toString(), 0))
-                GUIMessage.FLASH_PROGRESS_SHOW.toString() -> setProgressBarShow(intent.getBooleanExtra(GUIMessage.FLASH_PROGRESS_SHOW.toString(), false))
-                GUIMessage.FLASH_CONFIRM.toString()       -> promptUserConfirmation()
-                GUIMessage.FLASH_BUTTON_RESET.toString()  -> resetFlashButton()
+                GUIMessage.STATE_CONNECTION.toString()      -> mViewModel.connectionState = intent.getSerializableExtra(GUIMessage.STATE_CONNECTION.toString()) as BLEConnectionState
+                GUIMessage.STATE_TASK.toString()            -> mViewModel.connectionState = BLEConnectionState.CONNECTED
+                GUIMessage.UTILITY_INFO.toString()          -> doWriteMessage(intent.getStringExtra(GUIMessage.FLASH_INFO.toString())?: "")
+                GUIMessage.UTILITY_INFO_CLEAR.toString()    -> doClearMessages()
+                GUIMessage.UTILITY_PROGRESS.toString()      -> setProgressBar(intent.getIntExtra(GUIMessage.FLASH_PROGRESS.toString(), 0))
+                GUIMessage.UTILITY_PROGRESS_MAX.toString()  -> setProgressBarMax(intent.getIntExtra(GUIMessage.FLASH_PROGRESS_MAX.toString(), 0))
+                GUIMessage.UTILITY_PROGRESS_SHOW.toString() -> setProgressBarShow(intent.getBooleanExtra(GUIMessage.FLASH_PROGRESS_SHOW.toString(), false))
+
             }
         }
     }
 
-    private fun clickFlash(full: Boolean) {
+    private fun clickDTC(clear: Boolean):Boolean {
         if (mViewModel.connectionState == BLEConnectionState.CONNECTED) {
-            mViewModel.flashFull = full
-            var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
-            chooseFile.type = "*/*"
-            chooseFile = Intent.createChooser(chooseFile, "Choose a Fullbin")
-            resultPickLauncher.launch(chooseFile)
+            if(clear) sendServiceMessage(BTServiceTask.DO_CLEAR_DTC.toString())
+            else sendServiceMessage(BTServiceTask.DO_GET_DTC.toString())
         } else {
             doWriteMessage("Not connected")
         }
-    }
 
-    private fun resetFlashButton() {
-        val flashButton = requireView().findViewById<SwitchButton>(R.id.buttonFlashCAL)
-
-        flashButton.apply {
-            paintBG.color = ColorList.BT_BG.value
-            paintRim.color = ColorList.BT_RIM.value
-            setTextColor(ColorList.BT_TEXT.value)
-            text = "Flash CAL"
-            setOnClickListener {
-                if (mViewModel.connectionState == BLEConnectionState.CONNECTED) {
-                    var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
-                    chooseFile.type = "*/*"
-                    chooseFile = Intent.createChooser(chooseFile, "Choose a CAL file")
-                    resultPickLauncher.launch(chooseFile)
-                } else {
-                    doWriteMessage("Not connected")
-                }
-            }
-        }
-    }
-
-    private fun promptUserConfirmation() {
-        val flashButton = requireView().findViewById<SwitchButton>(R.id.buttonFlashCAL)
-        flashButton.apply {
-            paintBG.color = ColorList.BT_BG_ALERT.value
-            paintRim.color = ColorList.BT_RIM_ALERT.value
-            setTextColor(ColorList.BT_TEXT.value)
-            text = "Press to cancel, Hold to confirm"
-            setOnTouchListener(object : View.OnTouchListener {
-                override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-                    when (event?.action) {
-                        MotionEvent.ACTION_DOWN ->{
-                            flashConfirmationHoldTime = SystemClock.uptimeMillis()
-                            //time the button press
-                        }
-                        MotionEvent.ACTION_UP -> {
-                            var now = SystemClock.uptimeMillis()
-                            if(now - flashConfirmationHoldTime > 1000){
-
-                                sendServiceMessage(BTServiceTask.FLASH_CONFIRMED.toString())
-
-                            }
-                            else{
-
-                                sendServiceMessage(BTServiceTask.FLASH_CANCELED.toString())
-
-                            }
-
-                        }
-                    }
-
-                    return v?.onTouchEvent(event) ?: true
-                }
-            })
-            setOnClickListener {
-
-            }
-        }
+        return true
     }
 
     private fun doClearMessages() {
-        gFlashMsgList = arrayOf()
+        gUtilitiesMsgList = arrayOf()
         mArrayAdapter?.let {
             val btMessage = view?.findViewById<ListView>(R.id.listViewMessage)
             btMessage?.setSelection(0)
@@ -263,8 +195,8 @@ class FlashingFragment : Fragment() {
 
     private fun doWriteMessage(message: String) {
         // construct a string from the valid bytes in the buffer
-        val value = gFlashMsgList?: arrayOf()
-        gFlashMsgList = value + message
+        val value = gUtilitiesMsgList?: arrayOf()
+        gUtilitiesMsgList = value + message
         mArrayAdapter?.let {
             it.add(message)
 
@@ -279,18 +211,18 @@ class FlashingFragment : Fragment() {
     }
 
     private fun setProgressBar(amount: Int) {
-        val pBar = view?.findViewById<ProgressBar>(R.id.progressBarFlash)
+        val pBar = view?.findViewById<ProgressBar>(R.id.progressBarUtilities)
         pBar?.progress = amount
 
     }
 
     private fun setProgressBarMax(amount: Int) {
-        val pBar = view?.findViewById<ProgressBar>(R.id.progressBarFlash)
+        val pBar = view?.findViewById<ProgressBar>(R.id.progressBarUtilities)
         pBar?.max = amount
     }
 
     private fun setProgressBarShow(allow: Boolean) {
-        val pBar = view?.findViewById<ProgressBar>(R.id.progressBarFlash)
+        val pBar = view?.findViewById<ProgressBar>(R.id.progressBarUtilities)
         pBar?.isVisible = allow
     }
 

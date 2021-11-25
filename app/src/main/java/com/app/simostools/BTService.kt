@@ -1056,8 +1056,8 @@ class BTService: Service() {
         private fun processPacketGetInfo(buff: ByteArray?) {
             buff?.let {
                 if (UDSInfo.processPacket(mTaskTick, buff) == UDSReturn.OK) {
-                    val intentMessage = Intent(GUIMessage.FLASH_INFO.toString())
-                    intentMessage.putExtra(GUIMessage.FLASH_INFO.toString(), UDSInfo.getInfo())
+                    val intentMessage = Intent(GUIMessage.UTILITY_INFO.toString())
+                    intentMessage.putExtra(GUIMessage.UTILITY_INFO.toString(), UDSInfo.getInfo())
                     sendBroadcast(intentMessage)
 
                     if (mTaskTick < UDSInfo.getStartCount() - 1) {
@@ -1083,15 +1083,15 @@ class BTService: Service() {
                         }
                     }
                     UDSReturn.COMPLETE -> {
-                        val intentMessage = Intent(GUIMessage.FLASH_INFO.toString())
-                        intentMessage.putExtra(GUIMessage.FLASH_INFO.toString(), UDSdtc.getInfo())
+                        val intentMessage = Intent(GUIMessage.UTILITY_INFO.toString())
+                        intentMessage.putExtra(GUIMessage.UTILITY_INFO.toString(), UDSdtc.getInfo())
                         sendBroadcast(intentMessage)
 
                         setTaskState(UDSTask.NONE)
                     }
                     else -> {
-                        val intentMessage = Intent(GUIMessage.FLASH_INFO.toString())
-                        intentMessage.putExtra(GUIMessage.FLASH_INFO.toString(), UDSdtc.getInfo())
+                        val intentMessage = Intent(GUIMessage.UTILITY_INFO.toString())
+                        intentMessage.putExtra(GUIMessage.UTILITY_INFO.toString(), UDSdtc.getInfo())
                         sendBroadcast(intentMessage)
 
                         setTaskState(UDSTask.NONE)
@@ -1106,8 +1106,8 @@ class BTService: Service() {
         private fun processPacketClearDTC(buff: ByteArray?) {
             buff?.let {
                 if (UDSdtc.processPacket(mTaskTick, buff, true) == UDSReturn.OK) {
-                    val intentMessage = Intent(GUIMessage.FLASH_INFO.toString())
-                    intentMessage.putExtra(GUIMessage.FLASH_INFO.toString(), UDSdtc.getInfo())
+                    val intentMessage = Intent(GUIMessage.UTILITY_INFO.toString())
+                    intentMessage.putExtra(GUIMessage.UTILITY_INFO.toString(), UDSdtc.getInfo())
                     sendBroadcast(intentMessage)
 
                     if (mTaskTick < UDSdtc.getStartCount(true) - 1) {

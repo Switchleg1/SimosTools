@@ -234,6 +234,7 @@ class MainActivity : AppCompatActivity() {
             UDSTask.INFO        -> newString = "Getting ECU Info"
             UDSTask.DTC_GET     -> newString = "Getting DTC"
             UDSTask.DTC_CLEAR   -> newString = "Clearing DTC"
+            UDSTask.SET_ADAPTER -> newString = "Setting Adapter Name"
         }
         supportActionBar?.title = getString(R.string.app_name) + " - " + newString
     }
