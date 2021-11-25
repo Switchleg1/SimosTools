@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".UtilitiesFragment">
+
+    <ListView
+        android:id="@+id/listViewMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:transcriptMode="alwaysScroll"
+        app:layout_constraintBottom_toTopOf="@+id/progressBarUtilities"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <ProgressBar
+        android:id="@+id/progressBarUtilities"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/listViewMessage" />
+
+    <com.app.simostools.SwitchButton
+        android:id="@+id/buttonGetDTC"
+        android:layout_width="0dp"
+        android:layout_height="92dp"
+        android:text="@string/button_dtc_get"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toStartOf="@+id/buttonClearDTC"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/progressBarUtilities"
+        app:layout_constraintBottom_toTopOf="@+id/buttonGetInfo"/>
+
+    <com.app.simostools.SwitchButton
+        android:id="@+id/buttonClearDTC"
+        android:layout_width="0dp"
+        android:layout_height="92dp"
+        android:text="@string/button_dtc_clear"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/buttonBack"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/buttonGetDTC"
+        app:layout_constraintTop_toBottomOf="@+id/progressBarUtilities" />
+
+    <com.app.simostools.SwitchButton
+        android:id="@+id/buttonGetInfo"
+        android:layout_width="0dp"
+        android:layout_height="92dp"
+        android:text="@string/button_get_info"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/buttonBack"
+        app:layout_constraintTop_toBottomOf="@+id/buttonGetDTC"/>
+
+    <com.app.simostools.SwitchButton
+        android:id="@+id/buttonBack"
+        android:layout_width="0dp"
+        android:layout_height="92dp"
+        android:text="@string/button_back"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/buttonGetInfo"
+        app:layout_constraintTop_toBottomOf="@+id/buttonClearDTC"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,271 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SettingsCarFragment"
+    android:id="@+id/layoutSettingsCar">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <View
+            android:id="@+id/divider12"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="?android:attr/listDivider" />
+
+        <TextView
+            android:id="@+id/textViewCurbWeight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/textview_settings_curb_weight"
+            android:textSize="24sp" />
+
+        <SeekBar
+            android:id="@+id/seekBarCurbWeight"
+            android:contentDescription="@string/textview_settings_curb_weight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <View
+            android:id="@+id/divider13"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="?android:attr/listDivider" />
+
+        <TextView
+            android:id="@+id/textViewTireDiameter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/textview_settings_tire_diameter"
+            android:textSize="24sp" />
+
+        <SeekBar
+            android:id="@+id/seekBarTireDiameter"
+            android:contentDescription="@string/textview_settings_tire_diameter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <View
+            android:id="@+id/divider14"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="?android:attr/listDivider" />
+
+        <TextView
+            android:id="@+id/textViewDragCoefficient"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/textview_settings_drag_coefficient"
+            android:textSize="24sp" />
+
+        <SeekBar
+            android:id="@+id/seekBarDragCoefficient"
+            android:contentDescription="@string/textview_settings_drag_coefficient"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <View
+            android:id="@+id/divider27"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="?android:attr/listDivider" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textViewGear1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/textview_settings_gear_1"
+                android:textSize="28sp" />
+
+            <EditText
+                android:id="@+id/editTextGear1"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:inputType="text"
+                android:text=""
+                android:textSize="24sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textViewGear2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/textview_settings_gear_2"
+                android:textSize="28sp" />
+
+            <EditText
+                android:id="@+id/editTextGear2"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:inputType="text"
+                android:text=""
+                android:textSize="24sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textViewGear3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/textview_settings_gear_3"
+                android:textSize="28sp" />
+
+            <EditText
+                android:id="@+id/editTextGear3"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:inputType="text"
+                android:text=""
+                android:textSize="24sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textViewGear4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/textview_settings_gear_4"
+                android:textSize="28sp" />
+
+            <EditText
+                android:id="@+id/editTextGear4"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:inputType="text"
+                android:text=""
+                android:textSize="24sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textViewGear5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/textview_settings_gear_5"
+                android:textSize="28sp" />
+
+            <EditText
+                android:id="@+id/editTextGear5"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:inputType="text"
+                android:text=""
+                android:textSize="24sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textViewGear6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/textview_settings_gear_6"
+                android:textSize="28sp" />
+
+            <EditText
+                android:id="@+id/editTextGear6"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:inputType="text"
+                android:text=""
+                android:textSize="24sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textViewGear7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/textview_settings_gear_7"
+                android:textSize="28sp" />
+
+            <EditText
+                android:id="@+id/editTextGear7"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:inputType="text"
+                android:text=""
+                android:textSize="24sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textViewGearFinal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/textview_settings_gear_final"
+                android:textSize="28sp" />
+
+            <EditText
+                android:id="@+id/editTextGearFinal"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:inputType="text"
+                android:text=""
+                android:textSize="24sp" />
+
+        </LinearLayout>
+
+        <View
+            android:id="@+id/divider28"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:background="?android:attr/listDivider" />
+
+    </LinearLayout>
+</ScrollView>

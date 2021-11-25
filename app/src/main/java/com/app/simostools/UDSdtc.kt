@@ -95,10 +95,10 @@ object UDSdtc {
         }
 
         if(buff.count() > 8) {
+            mLastString = "Get DTC\n-------"
             var data = buff.copyOfRange(8, buff.count())
             if(data.count() >= 3 && data[0] == 0x59.toByte() && data[1] == 0x02.toByte() && data[2] == 0xFF.toByte()) {
                 return if (data.count() > 3) {
-                    mLastString = "Get DTC: "
                     data = data.copyOfRange(3, data.count())
                     while(data.count() >= 4) {
                         val resInt = (data[1] shl 8) + data[2]
@@ -113,7 +113,7 @@ object UDSdtc {
 
                     UDSReturn.COMPLETE
                 } else {
-                    mLastString = "Get DTC: None found."
+                    mLastString += "\nNone found."
                     UDSReturn.COMPLETE
                 }
             }
