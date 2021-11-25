@@ -18,6 +18,7 @@ class SettingsMainFragment : Fragment() {
     private var mViewPager: ViewPager2?                     = null
     private var mViewAdapter: SettingsViewPagerAdapter?     = null
     private var mGeneralFragment: SettingsGeneralFragment?  = null
+    private var mCarFragment: SettingsCarFragment?          = null
     private var mMode22Fragment: SettingsMode22Fragment?    = null
     private var mMode3EFragment: SettingsMode3EFragment?    = null
 
@@ -66,6 +67,10 @@ class SettingsMainFragment : Fragment() {
                         mGeneralFragment?.setLoadCallback { doLoad() }
                     }
                     adapter.addFragment(mGeneralFragment!!, "General")
+                    if (mCarFragment == null) {
+                        mCarFragment = SettingsCarFragment()
+                    }
+                    adapter.addFragment(mCarFragment!!, "Car")
                     if (mMode22Fragment == null) {
                         mMode22Fragment = SettingsMode22Fragment()
                     }
@@ -108,6 +113,8 @@ class SettingsMainFragment : Fragment() {
 
         mGeneralFragment?.onDestroy()
         mGeneralFragment    = null
+        mCarFragment?.onDestroy()
+        mCarFragment        = null
         mMode22Fragment?.onDestroy()
         mMode22Fragment     = null
         mMode3EFragment?.onDestroy()
@@ -118,6 +125,7 @@ class SettingsMainFragment : Fragment() {
 
     private fun doSetColor() {
         mGeneralFragment?.doSetColor()
+        mCarFragment?.doSetColor()
         mMode22Fragment?.doSetColor()
         mMode3EFragment?.doSetColor()
 
@@ -156,6 +164,7 @@ class SettingsMainFragment : Fragment() {
 
     private fun doSave() {
         mGeneralFragment?.doSave()
+        mCarFragment?.doSave()
         mMode22Fragment?.doSave()
         mMode3EFragment?.doSave()
 

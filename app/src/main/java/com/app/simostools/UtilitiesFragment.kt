@@ -104,6 +104,9 @@ class UtilitiesFragment : Fragment() {
             paintRim.color = ColorList.BT_RIM.value
             setTextColor(ColorList.BT_TEXT.value)
             setOnClickListener {
+                doWriteMessage("Hold button to clear DTC codes.")
+            }
+            setOnLongClickListener {
                 clickDTC(true)
             }
         }

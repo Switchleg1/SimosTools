@@ -268,7 +268,7 @@ enum class ConfigSettings(val cfgName: String, var value: Any) {
     USE_MS2("UseMS2Torque", true),
     TIRE_DIAMETER("TireDiameter", 0.632f),
     CURB_WEIGHT("CurbWeight", 1500f),
-    DRAG_COEFFICIENT("DragCoefficient", 1500f),
+    DRAG_COEFFICIENT("DragCoefficient", 0.000005),
     ALWAYS_PORTRAIT("AlwaysPortrait", false),
     OUT_DIRECTORY("OutputDirectory", DirectoryList.DOWNLOADS),
     GAUGE_TYPE("GaugeType", GaugeType.BASIC),

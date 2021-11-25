@@ -69,6 +69,18 @@
     <string name="radio_settings_mode_documents">Documents</string>
     <string name="radio_settings_mode_application">Application</string>
     <!-- Strings used for textview -->
+    <string name="textview_settings_curb_weight">Curb weight: <xliff:g id="rate">%1$d</xliff:g>kg</string>
+    <string name="textview_settings_driver_weight">Driver weight: <xliff:g id="rate">%1$d</xliff:g>kg</string>
+    <string name="textview_settings_tire_diameter">Tire diameter: <xliff:g id="rate">%1$f</xliff:g>m</string>
+    <string name="textview_settings_drag_coefficient">Drag coefficient: <xliff:g id="rate">%1$f</xliff:g></string>
+    <string name="textview_settings_gear_1">Gear 1 ratio:</string>
+    <string name="textview_settings_gear_2">Gear 2 ratio:</string>
+    <string name="textview_settings_gear_3">Gear 3 ratio:</string>
+    <string name="textview_settings_gear_4">Gear 4 ratio:</string>
+    <string name="textview_settings_gear_5">Gear 5 ratio:</string>
+    <string name="textview_settings_gear_6">Gear 6 ratio:</string>
+    <string name="textview_settings_gear_7">Gear 7 ratio:</string>
+    <string name="textview_settings_gear_final">Final gear ratio:</string>
     <string name="textview_settings_display_rate">Max display rate: <xliff:g id="rate">%1$d</xliff:g>hz</string>
     <string name="textview_settings_logging_rate">Max logging rate: <xliff:g id="rate">%1$d</xliff:g>hz</string>
     <string name="textview_settings_q_correction">Q correction: <xliff:g id="rate">%1$d</xliff:g>ms</string>
