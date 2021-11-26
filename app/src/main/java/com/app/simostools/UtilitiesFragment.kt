@@ -41,7 +41,7 @@ class UtilitiesFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         mViewModel = ViewModelProvider(this).get(FlashViewModel::class.java)
 
-        mArrayAdapter = SwitchArrayAdapter(requireContext(), R.layout.flashing_message, gUtilitiesMsgList?: arrayOf())
+        mArrayAdapter = SwitchArrayAdapter(requireContext(), R.layout.fragment_message, gUtilitiesMsgList?: arrayOf())
         mArrayAdapter?.let { adapter ->
             gUtilitiesMsgList?.forEach {
                 adapter.add(it)

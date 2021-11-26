@@ -1,8 +1,6 @@
 package com.app.simostools
 
 import android.content.Context
-import android.content.res.ColorStateList
-import android.graphics.Color
 import android.widget.TextView
 import android.view.LayoutInflater
 import android.view.View
@@ -25,9 +23,6 @@ class SwitchArrayAdapter(context: Context, textViewResourceId: Int, list: Array<
 
         text.setTextColor(ColorList.TEXT.value)
         text.text = items[position]
-        //text.setBackgroundColor(Color.RED)
-        //val color = Color.argb(200, 255, 64, 64)
-        //text.setBackgroundColor(color)
 
         return mView
     }

@@ -41,6 +41,7 @@
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout-land/fragment_logging_layout.xml" value="0.2328042328042328" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout-land/fragment_logging_main.xml" value="0.2292768959435626" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout-land/fragment_main.xml" value="0.2495590828924162" />
+        <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout-land/fragment_pid.xml" value="0.23192239858906524" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout-land/fragment_settings.xml" value="0.2495590828924162" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout-land/fragment_settings_logging.xml" value="0.2495590828924162" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout-land/fragment_settings_main.xml" value="0.328042328042328" />
@@ -49,16 +50,22 @@
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout-sw600dp-land/fragment_flashing.xml" value="0.17603748326639893" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout-sw600dp-land/fragment_logging_main.xml" value="0.17603748326639893" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout-sw600dp-land/fragment_main.xml" value="0.17603748326639893" />
+        <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout-sw600dp-land/fragment_pid.xml" value="0.17603748326639893" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout-sw600dp-land/fragment_settings_main.xml" value="0.17603748326639893" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout-sw600dp-land/fragment_utilities.xml" value="0.17603748326639893" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout-sw600dp/fragment_color.xml" value="0.20546875" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout-sw600dp/fragment_flashing.xml" value="0.20546875" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout-sw600dp/fragment_logging_main.xml" value="0.20546875" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout-sw600dp/fragment_main.xml" value="0.20546875" />
+        <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout-sw600dp/fragment_message.xml" value="0.20546875" />
+        <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout-sw600dp/fragment_pid.xml" value="0.20546875" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout-sw600dp/fragment_settings_main.xml" value="0.20546875" />
+        <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout-sw600dp/fragment_settings_mode22.xml" value="0.20546875" />
+        <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout-sw600dp/fragment_settings_pid.xml" value="0.20546875" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout-sw600dp/fragment_utilities.xml" value="0.20546875" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout-sw600dp/pid_land.xml" value="0.22109375" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout-sw600dp/pid_portrait.xml" value="0.22109375" />
+        <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout-sw600dp/settings_pid.xml" value="0.20546875" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout/activity_main.xml" value="0.34103260869565216" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout/flashing_message.xml" value="0.2890625" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout/fragment_color.xml" value="0.2890625" />
@@ -73,6 +80,8 @@
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout/fragment_logging_layout.xml" value="0.275" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout/fragment_logging_main.xml" value="0.2890625" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout/fragment_main.xml" value="0.2890625" />
+        <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout/fragment_message.xml" value="0.27395833333333336" />
+        <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout/fragment_pid.xml" value="0.27395833333333336" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout/fragment_settings.xml" value="0.28541666666666665" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout/fragment_settings_car.xml" value="0.27395833333333336" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout/fragment_settings_general.xml" value="0.28633405639913234" />
@@ -80,6 +89,7 @@
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout/fragment_settings_mode22.xml" value="0.34103260869565216" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout/fragment_settings_mode3E.xml" value="0.34103260869565216" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout/fragment_settings_mode3e.xml" value="0.2947916666666667" />
+        <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout/fragment_settings_pid.xml" value="0.27395833333333336" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout/fragment_utilities.xml" value="0.37681159420289856" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout/message.xml" value="0.2890625" />
         <entry key="..\:/Users/switchleg/AndroidStudioProjects/SimosTools/app/src/main/res/layout/pid_land.xml" value="0.2890625" />
