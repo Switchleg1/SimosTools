@@ -94,7 +94,10 @@ class BTService: Service() {
 
         if(!mFinished) {
             when (intent.action) {
-                BTServiceTask.STOP_SERVICE.toString()       -> doStopService()
+                BTServiceTask.STOP_SERVICE.toString()       -> {
+                    doStopService(startId)
+                    return START_NOT_STICKY
+                }
                 BTServiceTask.START_SERVICE.toString()      -> doStartService()
                 BTServiceTask.REQ_STATUS.toString()         -> sendStatus()
                 BTServiceTask.DO_CONNECT.toString()         -> doConnect()
@@ -445,12 +448,12 @@ class BTService: Service() {
     }
 
     @Synchronized
-    private fun doStopService() {
+    private fun doStopService(startId: Int) {
         mFinished = true
-        LogFile.close()
         doDisconnect()
+        LogFile.close()
         stopForeground(true)
-        stopSelf()
+        stopSelf(startId)
     }
 
     @Synchronized
