@@ -80,6 +80,7 @@ class BTService: Service() {
     private var mScanningTimer: Timer?                          = null
     private var mMTUSize: Int                                   = 23
     private var mFinished: Boolean                              = false
+    private var mStarted: Boolean                               = false
 
     //Gatt additional properties
     private fun BluetoothGattCharacteristic.isReadable(): Boolean = containsProperty(BluetoothGattCharacteristic.PROPERTY_READ)
@@ -468,18 +469,25 @@ class BTService: Service() {
 
     @Synchronized
     private fun doStartService() {
-        val serviceChannel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT)
-        val manager = getSystemService(NotificationManager::class.java)
-        manager.createNotificationChannel(serviceChannel)
+        if(!mStarted) {
+            mStarted = true
+            val serviceChannel = NotificationChannel(
+                CHANNEL_ID,
+                CHANNEL_NAME,
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+            val manager = getSystemService(NotificationManager::class.java)
+            manager.createNotificationChannel(serviceChannel)
 
-        val notification: Notification = Notification.Builder(this, CHANNEL_ID)
-            .setContentTitle(getText(R.string.app_name))
-            .setContentText(getText(R.string.app_name))
-            .setSmallIcon(R.drawable.simostools)
-            .build()
+            val notification: Notification = Notification.Builder(this, CHANNEL_ID)
+                .setContentTitle(getText(R.string.app_name))
+                .setContentText(getText(R.string.app_name))
+                .setSmallIcon(R.drawable.simostools)
+                .build()
 
-        // Notification ID cannot be 0.
-        startForeground(1, notification)
+            // Notification ID cannot be 0.
+            startForeground(1, notification)
+        }
     }
 
     @Synchronized
