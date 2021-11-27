@@ -95,10 +95,7 @@ class BTService: Service() {
 
         if(!mFinished) {
             when (intent.action) {
-                BTServiceTask.STOP_SERVICE.toString()       -> {
-                    doStopService(startId)
-                    return START_NOT_STICKY
-                }
+                BTServiceTask.STOP_SERVICE.toString()       -> doStopService(startId)
                 BTServiceTask.START_SERVICE.toString()      -> doStartService()
                 BTServiceTask.REQ_STATUS.toString()         -> sendStatus()
                 BTServiceTask.DO_CONNECT.toString()         -> doConnect()
@@ -115,8 +112,12 @@ class BTService: Service() {
             }
         }
 
-        // If we get killed, after returning from here, restart
-        return START_STICKY
+        return if(mFinished) {
+            START_NOT_STICKY
+        } else {
+            // If we get killed, after returning from here, restart
+            START_STICKY
+        }
     }
 
     override fun onBind(intent: Intent): IBinder? {
