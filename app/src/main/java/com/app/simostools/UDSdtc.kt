@@ -66,9 +66,9 @@ object UDSdtc {
     private fun processClearPacket(ticks: Int, buff: ByteArray): UDSReturn {
         if(ticks < getStartCount(true)) {
             mLastString = if (buff.count() == 9 && buff[8] == 0x44.toByte()) {
-                "Clear DTC: ok."
+                "ok."
             } else {
-                "Clear DTC: failed."
+                "failed."
             }
 
             return UDSReturn.OK
@@ -86,16 +86,17 @@ object UDSdtc {
             }
 
             return if (resOk) {
-                mLastString = "Get DTC: ok."
+                mLastString = "ok."
                 UDSReturn.OK
             } else {
-                mLastString = "Get DTC: failed."
+                mLastString = "failed."
                 UDSReturn.ERROR_RESPONSE
             }
         }
 
         if(buff.count() > 8) {
-            mLastString = "Get DTC\n-------"
+            var firstPIDs = true
+            mLastString = ""
             var data = buff.copyOfRange(8, buff.count())
             if(data.count() >= 3 && data[0] == 0x59.toByte() && data[1] == 0x02.toByte() && data[2] == 0xFF.toByte()) {
                 return if (data.count() > 3) {
@@ -104,7 +105,10 @@ object UDSdtc {
                         val resInt = (data[1] shl 8) + data[2]
                         DTCs.list.forEachIndexed() { i, d->
                             if(d?.code == resInt) {
-                                mLastString += "\n${d.pcode} ${d.name}"
+                                if(!firstPIDs)
+                                    mLastString += "\n"
+                                mLastString += "${d.pcode} ${d.name}"
+                                firstPIDs = false
                             }
                         }
 
@@ -113,7 +117,7 @@ object UDSdtc {
 
                     UDSReturn.COMPLETE
                 } else {
-                    mLastString += "\nNone found."
+                    mLastString += "None found."
                     UDSReturn.COMPLETE
                 }
             }

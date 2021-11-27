@@ -23,7 +23,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 
-var gFlashMsgList: Array<String>? = null
+var gFlashMsgList: Array<String>? = arrayOf()
 
 class FlashViewModel : ViewModel() {
     var connectionState: BLEConnectionState = BLEConnectionState.NONE
@@ -65,7 +65,7 @@ class FlashingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         mViewModel = ViewModelProvider(this).get(FlashViewModel::class.java)
 
-        mArrayAdapter = ArrayAdapter(requireContext(), R.layout.flashing_message)
+        mArrayAdapter = SwitchArrayAdapter(requireContext(), R.layout.fragment_message, gFlashMsgList?: arrayOf())
         mArrayAdapter?.let { adapter ->
             gFlashMsgList?.forEach {
                 adapter.add(it)
@@ -104,9 +104,9 @@ class FlashingFragment : Fragment() {
             setTextColor(ColorList.BT_TEXT.value)
             setOnClickListener {
                 if (mViewModel.connectionState == BLEConnectionState.CONNECTED) {
-                    //
+                    doWriteMessage("Tune Info\n---------------\nNot implemented.")
                 } else {
-                    doWriteMessage("Not connected")
+                    doWriteMessage("Tune Info\n---------------\nNot connected.")
                 }
             }
         }
@@ -126,7 +126,6 @@ class FlashingFragment : Fragment() {
             isVisible = false
             max = 100
             min = 0
-            scaleY = 3F
         }
 
         setColor()
@@ -176,12 +175,15 @@ class FlashingFragment : Fragment() {
                 GUIMessage.FLASH_PROGRESS_MAX.toString()  -> setProgressBarMax(intent.getIntExtra(GUIMessage.FLASH_PROGRESS_MAX.toString(), 0))
                 GUIMessage.FLASH_PROGRESS_SHOW.toString() -> setProgressBarShow(intent.getBooleanExtra(GUIMessage.FLASH_PROGRESS_SHOW.toString(), false))
                 GUIMessage.FLASH_CONFIRM.toString()       -> promptUserConfirmation()
-                GUIMessage.FLASH_BUTTON_RESET.toString()  -> resetFlashButton()
+                GUIMessage.FLASH_BUTTON_RESET.toString()  -> resetFlashButton(UDSFlasher.getFullFlash())
             }
         }
     }
 
     private fun clickFlash(full: Boolean) {
+        var flashString = if(full) "Flash Full\n---------------"
+        else "Flash CAL\n---------------"
+
         if (mViewModel.connectionState == BLEConnectionState.CONNECTED) {
             mViewModel.flashFull = full
             var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
@@ -189,27 +191,24 @@ class FlashingFragment : Fragment() {
             chooseFile = Intent.createChooser(chooseFile, "Choose a Fullbin")
             resultPickLauncher.launch(chooseFile)
         } else {
-            doWriteMessage("Not connected")
+            flashString += "\nNot connected."
         }
+
+        doWriteMessage(flashString)
     }
 
-    private fun resetFlashButton() {
-        val flashButton = requireView().findViewById<SwitchButton>(R.id.buttonFlashCAL)
+    private fun resetFlashButton(full: Boolean) {
+        val flashButton = if(full) requireView().findViewById<SwitchButton>(R.id.buttonFlashFull)
+            else requireView().findViewById<SwitchButton>(R.id.buttonFlashCAL)
 
         flashButton.apply {
             paintBG.color = ColorList.BT_BG.value
             paintRim.color = ColorList.BT_RIM.value
             setTextColor(ColorList.BT_TEXT.value)
-            text = "Flash CAL"
+            text = if(full) "Flash Full"
+                else "Flash CAL"
             setOnClickListener {
-                if (mViewModel.connectionState == BLEConnectionState.CONNECTED) {
-                    var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
-                    chooseFile.type = "*/*"
-                    chooseFile = Intent.createChooser(chooseFile, "Choose a CAL file")
-                    resultPickLauncher.launch(chooseFile)
-                } else {
-                    doWriteMessage("Not connected")
-                }
+                clickFlash(full)
             }
         }
     }
@@ -256,6 +255,8 @@ class FlashingFragment : Fragment() {
     private fun doClearMessages() {
         gFlashMsgList = arrayOf()
         mArrayAdapter?.let {
+            it.clear()
+
             val btMessage = view?.findViewById<ListView>(R.id.listViewMessage)
             btMessage?.setSelection(0)
         }
@@ -274,6 +275,8 @@ class FlashingFragment : Fragment() {
     }
 
     private fun setColor() {
+        val btMessage = view?.findViewById<ListView>(R.id.listViewMessage)
+        btMessage?.setBackgroundColor(ColorList.BG_NORMAL.value)
         //Set background color
         view?.setBackgroundColor(ColorList.BG_NORMAL.value)
     }

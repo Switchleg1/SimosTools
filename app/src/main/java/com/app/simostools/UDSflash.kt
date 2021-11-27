@@ -77,6 +77,10 @@ object UDSFlasher {
         mFullFlash = full
     }
 
+    fun getFullFlash(): Boolean {
+        return mFullFlash
+    }
+
     fun startTask(ticks: Int): ByteArray {
 
         if(inputBin.size < 500000){

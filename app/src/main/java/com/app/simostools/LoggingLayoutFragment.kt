@@ -24,7 +24,6 @@ class LoggingBaseFragment: Fragment() {
     private var mLayouts: Array<View?>?         = null
     private var mGauges: Array<SwitchGauge?>?   = null
     private var mPIDsPerLayout                  = 1
-    private var mLayoutType                     = R.layout.pid_portrait
     private var mLayoutName: Int                = R.id.loggingLayoutScroll
     private var mPIDList                        = byteArrayOf()
 
@@ -122,11 +121,9 @@ class LoggingBaseFragment: Fragment() {
 
         when(currentOrientation) {
             Configuration.ORIENTATION_LANDSCAPE -> {
-                mLayoutType = R.layout.pid_land
                 mPIDsPerLayout = 3
             }
             Configuration.ORIENTATION_PORTRAIT -> {
-                mLayoutType = R.layout.pid_portrait
                 mPIDsPerLayout = 2
             }
         }
@@ -175,7 +172,7 @@ class LoggingBaseFragment: Fragment() {
                         var progID = 0
                         when (i % mPIDsPerLayout) {
                             0 -> {
-                                val pidLayout = layoutInflater.inflate(mLayoutType, null)
+                                val pidLayout = layoutInflater.inflate(R.layout.fragment_pid, null)
                                 val lLayout = currentview.findViewById<LinearLayout>(mLayoutName)
                                 lLayout.addView(pidLayout)
                                 mLayouts!![i / mPIDsPerLayout] = pidLayout

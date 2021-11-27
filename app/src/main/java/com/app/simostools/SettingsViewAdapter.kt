@@ -23,7 +23,7 @@ class SettingsViewAdapter internal constructor(context: Context?, data: Array<PI
 
     // inflates the row layout from xml when needed
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view: View = mInflater.inflate(R.layout.settings_pid, parent, false)
+        val view: View = mInflater.inflate(R.layout.fragment_settings_pid, parent, false)
         return ViewHolder(view)
     }
 

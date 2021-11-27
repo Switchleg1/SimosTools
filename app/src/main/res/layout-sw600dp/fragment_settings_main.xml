@@ -1,0 +1,52 @@
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SettingsMainFragment"
+    android:id="@+id/layoutSettingsMain">
+
+    <LinearLayout
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:orientation="vertical">
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayoutSettings"
+            android:layout_height="64dp"
+            android:layout_width="match_parent"
+            android:background="@color/colorPrimary"
+            app:tabTextColor="#fff"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tabMode="scrollable"/>
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewPagerSettings"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </LinearLayout>
+
+    <com.app.simostools.SwitchButton
+        android:id="@+id/buttonSettingsBack"
+        android:layout_width="0dp"
+        android:layout_height="128dp"
+        android:text="@string/button_back"
+        android:textSize="42sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/buttonSettingsSave" />
+
+    <com.app.simostools.SwitchButton
+        android:id="@+id/buttonSettingsSave"
+        android:layout_width="0dp"
+        android:layout_height="128dp"
+        android:text="@string/button_save"
+        android:textSize="42sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/buttonSettingsBack"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

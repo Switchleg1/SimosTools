@@ -679,8 +679,8 @@ enum class COMPATIBLE_BOXCODE_VERSIONS(val str: String, val boxCodeLocation: Int
     _8V0906264M("8V0906264M", intArrayOf(0x60, 0x6B), intArrayOf(55724,66096), SIMOS_18._1),
     _8V0906259K("8V0906259K", intArrayOf(0x60, 0x6B), intArrayOf(55724,66096), SIMOS_18._1),
     _8V0906259H("8V0906259H", intArrayOf(0x60, 0x6B), intArrayOf(55112,65400), SIMOS_18._1),
-    _5G0906259Q("5G0906259Q", intArrayOf(0x60, 0x68), intArrayOf(60140,73072), SIMOS_18._10),
-    _8V0906259Q("8V0906259Q", intArrayOf(0x60, 0x68), intArrayOf(60140,73072), SIMOS_18._10),
+    _5G0906259Q("5G0906259Q", intArrayOf(0x60, 0x6B), intArrayOf(60140,73072), SIMOS_18._10),
+    _8V0906259Q("8V0906259Q", intArrayOf(0x60, 0x6B), intArrayOf(60140,73072), SIMOS_18._10),
 }
 
 //Additional properties

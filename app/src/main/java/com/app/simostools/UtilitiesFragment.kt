@@ -1,21 +1,16 @@
 package com.app.simostools
 
-import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Color
-import android.net.Uri
 import android.os.Bundle
-import android.os.SystemClock
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import android.widget.*
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat.startForegroundService
 import android.widget.ArrayAdapter
 import androidx.core.view.isVisible
@@ -23,7 +18,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 
-var gUtilitiesMsgList: Array<String>? = null
+var gUtilitiesMsgList: Array<String>? = arrayOf()
 
 class UtilitiesViewModel : ViewModel() {
     var connectionState: BLEConnectionState = BLEConnectionState.NONE
@@ -31,24 +26,8 @@ class UtilitiesViewModel : ViewModel() {
 
 class UtilitiesFragment : Fragment() {
     private val TAG = "UtilitiesFragment"
-    private var mArrayAdapter: ArrayAdapter<String>? = null
+    private var mArrayAdapter: SwitchArrayAdapter? = null
     private lateinit var mViewModel: FlashViewModel
-
-    var resultPickLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val uri: Uri? = result.data?.data
-            uri?.let {
-                UDSFlasher.setBinFile(requireActivity().contentResolver.openInputStream(uri)!!)
-
-                // Tell the service to start flashing
-                sendServiceMessage(BTServiceTask.DO_START_FLASH.toString())
-
-                Toast.makeText(activity, "Success", Toast.LENGTH_SHORT).show()
-            }?: Toast.makeText(activity, "Failed", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(activity, "Failed", Toast.LENGTH_SHORT).show()
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -62,16 +41,16 @@ class UtilitiesFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         mViewModel = ViewModelProvider(this).get(FlashViewModel::class.java)
 
-        mArrayAdapter = ArrayAdapter(requireContext(), R.layout.flashing_message)
+        mArrayAdapter = SwitchArrayAdapter(requireContext(), R.layout.fragment_message, gUtilitiesMsgList?: arrayOf())
         mArrayAdapter?.let { adapter ->
             gUtilitiesMsgList?.forEach {
                 adapter.add(it)
             }
         }
 
-        view.findViewById<ListView>(R.id.listViewMessage)?.let { messageBox ->
-            messageBox.adapter = mArrayAdapter
-            messageBox.setBackgroundColor(Color.WHITE)
+        view.findViewById<ListView>(R.id.listViewMessage)?.apply {
+            adapter = mArrayAdapter
+            setBackgroundColor(Color.WHITE)
         }
 
         val ecuInfoButton = view.findViewById<SwitchButton>(R.id.buttonGetInfo)
@@ -80,11 +59,13 @@ class UtilitiesFragment : Fragment() {
             paintRim.color = ColorList.BT_RIM.value
             setTextColor(ColorList.BT_TEXT.value)
             setOnClickListener {
+                var ecuString = "Get Info\n---------------"
                 if (mViewModel.connectionState == BLEConnectionState.CONNECTED) {
                     sendServiceMessage(BTServiceTask.DO_GET_INFO.toString())
                 } else {
-                    doWriteMessage("Not connected")
+                    ecuString += "\nNot connected"
                 }
+                doWriteMessage(ecuString)
             }
         }
 
@@ -104,7 +85,7 @@ class UtilitiesFragment : Fragment() {
             paintRim.color = ColorList.BT_RIM.value
             setTextColor(ColorList.BT_TEXT.value)
             setOnClickListener {
-                doWriteMessage("Hold button to clear DTC codes.")
+                doWriteMessage("Clear DTC\n---------------\nHold button to clear DTC codes.")
             }
             setOnLongClickListener {
                 clickDTC(true)
@@ -126,7 +107,6 @@ class UtilitiesFragment : Fragment() {
             isVisible = false
             max = 100
             min = 0
-            scaleY = 3F
         }
 
         setColor()
@@ -167,23 +147,27 @@ class UtilitiesFragment : Fragment() {
             when (intent.action) {
                 GUIMessage.STATE_CONNECTION.toString()      -> mViewModel.connectionState = intent.getSerializableExtra(GUIMessage.STATE_CONNECTION.toString()) as BLEConnectionState
                 GUIMessage.STATE_TASK.toString()            -> mViewModel.connectionState = BLEConnectionState.CONNECTED
-                GUIMessage.UTILITY_INFO.toString()          -> doWriteMessage(intent.getStringExtra(GUIMessage.FLASH_INFO.toString())?: "")
+                GUIMessage.UTILITY_INFO.toString()          -> doWriteMessage(intent.getStringExtra(GUIMessage.UTILITY_INFO.toString())?: "")
                 GUIMessage.UTILITY_INFO_CLEAR.toString()    -> doClearMessages()
-                GUIMessage.UTILITY_PROGRESS.toString()      -> setProgressBar(intent.getIntExtra(GUIMessage.FLASH_PROGRESS.toString(), 0))
-                GUIMessage.UTILITY_PROGRESS_MAX.toString()  -> setProgressBarMax(intent.getIntExtra(GUIMessage.FLASH_PROGRESS_MAX.toString(), 0))
-                GUIMessage.UTILITY_PROGRESS_SHOW.toString() -> setProgressBarShow(intent.getBooleanExtra(GUIMessage.FLASH_PROGRESS_SHOW.toString(), false))
+                GUIMessage.UTILITY_PROGRESS.toString()      -> setProgressBar(intent.getIntExtra(GUIMessage.UTILITY_PROGRESS.toString(), 0))
+                GUIMessage.UTILITY_PROGRESS_MAX.toString()  -> setProgressBarMax(intent.getIntExtra(GUIMessage.UTILITY_PROGRESS_MAX.toString(), 0))
+                GUIMessage.UTILITY_PROGRESS_SHOW.toString() -> setProgressBarShow(intent.getBooleanExtra(GUIMessage.UTILITY_PROGRESS_SHOW.toString(), false))
 
             }
         }
     }
 
     private fun clickDTC(clear: Boolean):Boolean {
+        var dtcString = if(clear) "Clear DTC\n---------------"
+            else "Get DTC\n---------------"
         if (mViewModel.connectionState == BLEConnectionState.CONNECTED) {
             if(clear) sendServiceMessage(BTServiceTask.DO_CLEAR_DTC.toString())
             else sendServiceMessage(BTServiceTask.DO_GET_DTC.toString())
         } else {
-            doWriteMessage("Not connected")
+            dtcString += "\nNot connected."
         }
+
+        doWriteMessage(dtcString)
 
         return true
     }
@@ -191,6 +175,8 @@ class UtilitiesFragment : Fragment() {
     private fun doClearMessages() {
         gUtilitiesMsgList = arrayOf()
         mArrayAdapter?.let {
+            it.clear()
+
             val btMessage = view?.findViewById<ListView>(R.id.listViewMessage)
             btMessage?.setSelection(0)
         }
@@ -209,6 +195,9 @@ class UtilitiesFragment : Fragment() {
     }
 
     private fun setColor() {
+        val btMessage = view?.findViewById<ListView>(R.id.listViewMessage)
+        btMessage?.setBackgroundColor(ColorList.BG_NORMAL.value)
+
         //Set background color
         view?.setBackgroundColor(ColorList.BG_NORMAL.value)
     }

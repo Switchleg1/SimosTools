@@ -113,7 +113,7 @@
     <string name="textview_settings_pid_assign_to">Assign To:</string>
     <string name="textview_settings_pid_format">Format:</string>
     <string name="textview_settings_pid_enabled">Enabled</string>
-    <string name="textview_settings_pid_tabs">Tabs</string>
+    <string name="textview_settings_pid_tabs">Tabs:</string>
     <string name="textview_color_r">R: <xliff:g id="value">%1$d</xliff:g></string>
     <string name="textview_color_g">G: <xliff:g id="value">%1$d</xliff:g></string>
     <string name="textview_color_b">B: <xliff:g id="value">%1$d</xliff:g></string>

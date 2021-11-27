@@ -80,6 +80,7 @@ class BTService: Service() {
     private var mScanningTimer: Timer?                          = null
     private var mMTUSize: Int                                   = 23
     private var mFinished: Boolean                              = false
+    private var mStarted: Boolean                               = false
 
     //Gatt additional properties
     private fun BluetoothGattCharacteristic.isReadable(): Boolean = containsProperty(BluetoothGattCharacteristic.PROPERTY_READ)
@@ -94,7 +95,7 @@ class BTService: Service() {
 
         if(!mFinished) {
             when (intent.action) {
-                BTServiceTask.STOP_SERVICE.toString()       -> doStopService()
+                BTServiceTask.STOP_SERVICE.toString()       -> doStopService(startId)
                 BTServiceTask.START_SERVICE.toString()      -> doStartService()
                 BTServiceTask.REQ_STATUS.toString()         -> sendStatus()
                 BTServiceTask.DO_CONNECT.toString()         -> doConnect()
@@ -111,8 +112,12 @@ class BTService: Service() {
             }
         }
 
-        // If we get killed, after returning from here, restart
-        return START_STICKY
+        return if(mFinished) {
+            START_NOT_STICKY
+        } else {
+            // If we get killed, after returning from here, restart
+            START_STICKY
+        }
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -445,12 +450,12 @@ class BTService: Service() {
     }
 
     @Synchronized
-    private fun doStopService() {
+    private fun doStopService(startId: Int) {
         mFinished = true
-        LogFile.close()
         doDisconnect()
+        LogFile.close()
         stopForeground(true)
-        stopSelf()
+        stopSelf(startId)
     }
 
     @Synchronized
@@ -465,18 +470,25 @@ class BTService: Service() {
 
     @Synchronized
     private fun doStartService() {
-        val serviceChannel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT)
-        val manager = getSystemService(NotificationManager::class.java)
-        manager.createNotificationChannel(serviceChannel)
+        if(!mStarted) {
+            mStarted = true
+            val serviceChannel = NotificationChannel(
+                CHANNEL_ID,
+                CHANNEL_NAME,
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+            val manager = getSystemService(NotificationManager::class.java)
+            manager.createNotificationChannel(serviceChannel)
 
-        val notification: Notification = Notification.Builder(this, CHANNEL_ID)
-            .setContentTitle(getText(R.string.app_name))
-            .setContentText(getText(R.string.app_name))
-            .setSmallIcon(R.drawable.simostools)
-            .build()
+            val notification: Notification = Notification.Builder(this, CHANNEL_ID)
+                .setContentTitle(getText(R.string.app_name))
+                .setContentText(getText(R.string.app_name))
+                .setSmallIcon(R.drawable.simostools)
+                .build()
 
-        // Notification ID cannot be 0.
-        startForeground(1, notification)
+            // Notification ID cannot be 0.
+            startForeground(1, notification)
+        }
     }
 
     @Synchronized
