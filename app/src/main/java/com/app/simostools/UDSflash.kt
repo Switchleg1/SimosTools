@@ -273,25 +273,28 @@ object UDSFlasher {
                         mLastString += "Block identifier: $currentBlockOperation" + "\n"
                         DebugLog.d(TAG,"Checksumming block: $currentBlockOperation")
 
-                        var checksummed = FlashUtilities.checksumSimos18(bin[currentBlockOperation],
-                            binAswVersion.software.baseAddresses[currentBlockOperation],
-                            binAswVersion.software.checksumLocations[currentBlockOperation]
+                        //Create a variable to handle the checksummed bin through both checksum functions
+                        var checksummed = checksummedBin(bin[currentBlockOperation], "", "", false)
 
-                            )
-                        mLastString += "Original checksum: " + checksummed.fileChecksum + "\n"
-                        mLastString += "Calculatated checksum: " + checksummed.calculatedChecksum + "\n"
-                        if (checksummed.updated) mLastString += "    Checksum corrected\n"
-                        else mLastString += "    Checksum not updated\n"
-
+                        //If this is block 5, perform the ECM3 checksum, store the result in checksummed
                         if(currentBlockOperation == 5) {
                             checksummed = FlashUtilities.checksumECM3(checksummed.bin, binAswVersion.ecm3Range)
                             mLastString += "Original ECM3: " + checksummed.fileChecksum + "\n"
                             mLastString += "    Calculated ECM3: " + checksummed.calculatedChecksum + "\n"
                             if (checksummed.updated) mLastString += "Checksum corrected\n"
                             else mLastString += "    Checksum not updated\n"
-
-
                         }
+
+                        //Run through the regular checksum procedure
+                        checksummed = FlashUtilities.checksumSimos18(checksummed.bin,
+                            binAswVersion.software.baseAddresses[currentBlockOperation],
+                            binAswVersion.software.checksumLocations[currentBlockOperation]
+                            )
+
+                        mLastString += "Original checksum: " + checksummed.fileChecksum + "\n"
+                        mLastString += "Calculatated checksum: " + checksummed.calculatedChecksum + "\n"
+                        if (checksummed.updated) mLastString += "    Checksum corrected\n"
+                        else mLastString += "    Checksum not updated\n"
 
                         bin[currentBlockOperation] = checksummed.bin
 
