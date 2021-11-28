@@ -512,8 +512,8 @@ object UDSFlasher {
                             //  0x 2E 0xF15A = 0x20, 0x7, 0x17, 0x42,0x04,0x20,0x42,0xB1,0x3D,
                             mCommand = byteArrayOf(0x2E.toByte(),
                                 0xF1.toByte(), 0x5A.toByte(),
-                                convertToBCD(2000 - Calendar.getInstance().get(Calendar.YEAR)),
-                                convertToBCD(Calendar.getInstance().get(Calendar.MONTH)),
+                                convertToBCD(Calendar.getInstance().get(Calendar.YEAR) - 2000),
+                                convertToBCD(Calendar.getInstance().get(Calendar.MONTH) + 1),
                                 convertToBCD(Calendar.getInstance().get(Calendar.DAY_OF_MONTH)),
                                 0x42.toByte(),0x04.toByte(),0x20.toByte(),0x42.toByte(),0xB1.toByte(),0x3D.toByte())
                             mLastString = "Writing workshop code"
@@ -524,11 +524,7 @@ object UDSFlasher {
                                 mLastString = "Wrote workshop code"
                                 mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
 
-                                //DEBUG ONLY
-                                //mTask = FLASH_ECU_CAL_SUBTASK.PATCH_BLOCK
-                                //currentBlockOperation = 5
 
-                                //This is real
                                 mTask = mTask.next()
 
                                 return UDSReturn.COMMAND_QUEUED
