@@ -214,7 +214,11 @@ enum class ECUInfo(val str: String, val address: ByteArray) {
                 parsed += 2000 + convertFromBCD(thisBlock[0])
                 parsed += "_" + convertFromBCD(thisBlock[1])
                 parsed += "_" + convertFromBCD(thisBlock[2])
-                parsed += " : " + thisBlock.copyOfRange(3, thisBlock.size)
+                parsed += " : " + thisBlock.copyOfRange(3,4).toHex()
+                parsed += " : " + String(thisBlock.copyOfRange(4,8))
+                parsed += " : " + thisBlock.copyOfRange(8,9).toHex()
+
+
 
 
                 parsed += "\n"

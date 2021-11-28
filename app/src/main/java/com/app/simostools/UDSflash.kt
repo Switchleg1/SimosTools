@@ -13,6 +13,7 @@ object UDSFlasher {
     private var flashConfirmed: Boolean = false
     private var cancelFlash: Boolean = false
     private var bin: Array<ByteArray> = arrayOf(byteArrayOf(), byteArrayOf(), byteArrayOf(), byteArrayOf(), byteArrayOf(), byteArrayOf())
+    private var workshopCode= byteArrayOf()
     private var inputBin: ByteArray = byteArrayOf()
     private var patchBin: ByteArray = byteArrayOf()
     private var ecuAswVersion: ByteArray = byteArrayOf()
@@ -71,6 +72,7 @@ object UDSFlasher {
         inputBin =  input.readBytes()
         patchBin = byteArrayOf()
         currentBlockOperation = 0
+        workshopCode = byteArrayOf()
     }
 
     fun setFullFlash(full: Boolean) {
@@ -255,6 +257,7 @@ object UDSFlasher {
                 FLASH_ECU_CAL_SUBTASK.CHECKSUM_BIN ->{
                     mLastString = ""
                     if(currentBlockOperation == bin.size){
+                        workshopCode = FlashUtilities.buildWorkshopCode(bin, binAswVersion)
                         currentBlockOperation = 0
 
                         mTask = mTask.next()
@@ -299,6 +302,8 @@ object UDSFlasher {
                 }
 
                 FLASH_ECU_CAL_SUBTASK.COMPRESS_BIN ->{
+
+
                     mLastString = ""
                     if(currentBlockOperation == bin.size){
                         currentBlockOperation = 0
@@ -511,11 +516,8 @@ object UDSFlasher {
                             //Write workshop tool log
                             //  0x 2E 0xF15A = 0x20, 0x7, 0x17, 0x42,0x04,0x20,0x42,0xB1,0x3D,
                             mCommand = byteArrayOf(0x2E.toByte(),
-                                0xF1.toByte(), 0x5A.toByte(),
-                                convertToBCD(Calendar.getInstance().get(Calendar.YEAR) - 2000),
-                                convertToBCD(Calendar.getInstance().get(Calendar.MONTH) + 1),
-                                convertToBCD(Calendar.getInstance().get(Calendar.DAY_OF_MONTH)),
-                                0x42.toByte(),0x04.toByte(),0x20.toByte(),0x42.toByte(),0xB1.toByte(),0x3D.toByte())
+                                0xF1.toByte(), 0x5A.toByte()) +
+                                workshopCode
                             mLastString = "Writing workshop code"
                             return UDSReturn.COMMAND_QUEUED
                         }
