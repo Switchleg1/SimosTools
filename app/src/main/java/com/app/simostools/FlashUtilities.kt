@@ -630,12 +630,19 @@ object FlashUtilities {
         DebugLog.d(TAG, bin[5].copyOfRange(0,0x80).toHex())
         DebugLog.d(TAG,"Writing workshop code: " + calID.toHex())
 
+        var aswData = byteArrayOf()
+
+        for(i in 2..4){
+            if(bin[i].size > 0){
+                aswData += bin[i]
+            }
+        }
 
         var workshopCode = byteArrayOf(
             convertToBCD(Calendar.getInstance().get(Calendar.YEAR) - 2000),
             convertToBCD(Calendar.getInstance().get(Calendar.MONTH) + 1),
             convertToBCD(Calendar.getInstance().get(Calendar.DAY_OF_MONTH)),
-            0x42.toByte()) +
+            crc8Hash(aswData)) +
             calID
 
         workshopCode += crc8Hash(workshopCode)
