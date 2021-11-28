@@ -703,3 +703,23 @@ fun ByteArray.getUIntAt(idx: Int) =
             ((this[idx + 1].toUInt() and 0xFFu) shl 16) or
             ((this[idx + 2].toUInt() and 0xFFu) shl 8) or
             (this[idx + 3].toUInt() and 0xFFu)
+
+fun convertToBCD(input: Int): Byte{
+    var decimal = input
+    var bcd = 0x00
+    var place = 0
+
+    while(decimal > 0){
+        var nibble = decimal % 10
+        bcd += nibble shl place
+        decimal /= 10
+        place += 4
+    }
+
+    return bcd.toByte()
+}
+
+fun convertFromBCD(input: Byte): Int{
+    return ((input.toInt() and 0xF0) shr 4) * 10 + (input.toInt() and 0x0F)
+
+}
