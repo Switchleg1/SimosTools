@@ -290,8 +290,10 @@ object UDSFlasher {
                             if (checksummed.updated) mLastString += "Checksum corrected\n"
                             else mLastString += "    Checksum not updated\n"
 
-                            bin[currentBlockOperation] = checksummed.bin
+
                         }
+
+                        bin[currentBlockOperation] = checksummed.bin
 
                     }
 
