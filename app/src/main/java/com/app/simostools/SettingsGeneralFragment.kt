@@ -82,8 +82,10 @@ class SettingsGeneralFragment : Fragment() {
             paintRim.color = ColorList.BT_RIM.value
             setTextColor(ColorList.BT_TEXT.value)
             setOnClickListener {
-                var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
-                chooseFile.type = "text/*"
+                var chooseFile = Intent(Intent.ACTION_GET_CONTENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "text/*"
+                }
                 chooseFile = Intent.createChooser(chooseFile, "Choose a 22 A CSV")
                 mViewModel.logMode = UDSLoggingMode.MODE_22
                 resultPickLauncher.launch(chooseFile)
@@ -96,8 +98,10 @@ class SettingsGeneralFragment : Fragment() {
             paintRim.color = ColorList.BT_RIM.value
             setTextColor(ColorList.BT_TEXT.value)
             setOnClickListener {
-                var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
-                chooseFile.type = "text/*"
+                var chooseFile = Intent(Intent.ACTION_GET_CONTENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "text/*"
+                }
                 chooseFile = Intent.createChooser(chooseFile, "Choose a 3E A CSV")
                 mViewModel.logMode = UDSLoggingMode.MODE_3E
                 resultPickLauncher.launch(chooseFile)

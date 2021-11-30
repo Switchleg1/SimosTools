@@ -186,8 +186,10 @@ class FlashingFragment : Fragment() {
 
         if (mViewModel.connectionState == BLEConnectionState.CONNECTED) {
             mViewModel.flashFull = full
-            var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
-            chooseFile.type = "*/*"
+            var chooseFile = Intent(Intent.ACTION_GET_CONTENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "*/*"
+            }
             chooseFile = Intent.createChooser(chooseFile, "Choose a Fullbin")
             resultPickLauncher.launch(chooseFile)
         } else {
@@ -230,26 +232,19 @@ class FlashingFragment : Fragment() {
                         MotionEvent.ACTION_UP -> {
                             var now = SystemClock.uptimeMillis()
                             if(now - flashConfirmationHoldTime > 1000){
-
                                 sendServiceMessage(BTServiceTask.FLASH_CONFIRMED.toString())
-
-
                             }
                             else{
-
                                 sendServiceMessage(BTServiceTask.FLASH_CANCELED.toString())
-
-
                             }
-
                         }
                     }
 
                     return v?.onTouchEvent(event) ?: true
                 }
             })
-            setOnClickListener {
 
+            setOnClickListener {
             }
         }
     }

@@ -23,6 +23,10 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.lang.Exception
 import java.lang.Math.random
+import androidx.core.app.ActivityCompat.startActivityForResult
+
+
+
 
 var gPlaybackData: Array<PlayBackDataStruct?>?  = null
 
@@ -106,7 +110,7 @@ class PlaybackFragment: Fragment() {
             setOnClickListener {
                 var chooseFile = Intent(Intent.ACTION_GET_CONTENT).apply {
                     addCategory(Intent.CATEGORY_OPENABLE)
-                    type = "*/*"
+                    type = "text/*"
                 }
                 chooseFile = Intent.createChooser(chooseFile, "Choose a CSV")
                 resultPickLauncher.launch(chooseFile)
@@ -281,7 +285,7 @@ class PlaybackFragment: Fragment() {
 
         gPlaybackData?.let { playbackData ->
             playbackData.forEach {
-                it?.enabled = false
+                it?.enabled = (it?.tabs?.contains("Default")?:false)
             }
         }
 

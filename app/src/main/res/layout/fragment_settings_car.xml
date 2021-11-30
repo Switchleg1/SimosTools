@@ -12,9 +12,9 @@
         android:orientation="vertical">
 
         <View
-            android:id="@+id/divider12"
+            android:id="@+id/divider1"
             android:layout_width="match_parent"
-            android:layout_height="5dp"
+            android:layout_height="15dp"
             android:background="?android:attr/listDivider" />
 
         <TextView
@@ -31,12 +31,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <View
-            android:id="@+id/divider13"
-            android:layout_width="match_parent"
-            android:layout_height="5dp"
-            android:background="?android:attr/listDivider" />
-
         <TextView
             android:id="@+id/textViewTireDiameter"
             android:layout_width="match_parent"
@@ -50,12 +44,6 @@
             android:contentDescription="@string/textview_settings_tire_diameter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-
-        <View
-            android:id="@+id/divider14"
-            android:layout_width="match_parent"
-            android:layout_height="5dp"
-            android:background="?android:attr/listDivider" />
 
         <TextView
             android:id="@+id/textViewDragCoefficient"
@@ -72,9 +60,9 @@
             android:layout_height="wrap_content" />
 
         <View
-            android:id="@+id/divider27"
+            android:id="@+id/divider2"
             android:layout_width="match_parent"
-            android:layout_height="5dp"
+            android:layout_height="15dp"
             android:background="?android:attr/listDivider" />
 
         <LinearLayout
@@ -262,7 +250,7 @@
         </LinearLayout>
 
         <View
-            android:id="@+id/divider28"
+            android:id="@+id/divider3"
             android:layout_width="match_parent"
             android:layout_height="64dp"
             android:background="?android:attr/listDivider" />
