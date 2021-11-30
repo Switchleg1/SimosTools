@@ -111,6 +111,7 @@ class BTService: Service() {
                 BTServiceTask.DO_DISCONNECT.toString()      -> doDisconnect()
                 BTServiceTask.DO_START_LOG.toString()       -> mConnectionThread?.setTaskState(UDSTask.LOGGING)
                 BTServiceTask.DO_START_FLASH.toString()     -> mConnectionThread?.setTaskState(UDSTask.FLASHING)
+                BTServiceTask.DO_GET_TUNE_INFO.toString()     -> mConnectionThread?.setTaskState(UDSTask.TUNE_INFO)
                 BTServiceTask.DO_GET_INFO.toString()        -> mConnectionThread?.setTaskState(UDSTask.INFO)
                 BTServiceTask.DO_CLEAR_DTC.toString()       -> mConnectionThread?.setTaskState(UDSTask.DTC_CLEAR)
                 BTServiceTask.DO_GET_DTC.toString()         -> mConnectionThread?.setTaskState(UDSTask.DTC_GET)
@@ -817,6 +818,7 @@ class BTService: Service() {
             when (mTask) {
                 UDSTask.LOGGING     -> startTaskLogging()
                 UDSTask.FLASHING    -> startTaskFlashing()
+                UDSTask.TUNE_INFO   -> startTaskGetTuneInfo()
                 UDSTask.INFO        -> startTaskGetInfo()
                 UDSTask.DTC_GET     -> startTaskGetDTC()
                 UDSTask.DTC_CLEAR   -> startTaskClearDTC()
@@ -867,6 +869,10 @@ class BTService: Service() {
             writePacket(UDSInfo.startTask(0))
         }
 
+        private fun startTaskGetTuneInfo(){
+            writePacket(UDSInfo.startTask(TUNE_INFO_PIDS[0]))
+        }
+
         private fun startTaskClearDTC() {
             writePacket(UDSdtc.startTask(0, true))
         }
@@ -886,6 +892,7 @@ class BTService: Service() {
                     UDSTask.NONE        -> processPacketNone(buff)
                     UDSTask.LOGGING     -> processPacketLogging(buff)
                     UDSTask.FLASHING    -> processPacketFlashing(buff)
+                    UDSTask.TUNE_INFO   -> processPacketTuneInfo(buff)
                     UDSTask.INFO        -> processPacketGetInfo(buff)
                     UDSTask.DTC_GET     -> processPacketGetDTC(buff)
                     UDSTask.DTC_CLEAR   -> processPacketClearDTC(buff)
@@ -1110,6 +1117,28 @@ class BTService: Service() {
                 setTaskState(UDSTask.NONE)
             }
         }
+
+        private fun processPacketTuneInfo(buff: ByteArray?) {
+            buff?.let {
+                if (UDSInfo.processPacket(TUNE_INFO_PIDS[mTaskTick], buff) == UDSReturn.OK) {
+                    val intentMessage = Intent(GUIMessage.FLASH_INFO.toString())
+                    intentMessage.putExtra(GUIMessage.FLASH_INFO.toString(), UDSInfo.getInfo())
+                    sendBroadcast(intentMessage)
+
+                    if (mTaskTick < TUNE_INFO_PIDS.size - 1) {
+                        writePacket(UDSInfo.startTask(TUNE_INFO_PIDS[mTaskTick + 1]))
+                    } else {
+                        setTaskState(UDSTask.NONE)
+                    }
+                } else {
+                    setTaskState(UDSTask.NONE)
+                }
+            }?: if(UDSInfo.processPacket(mTaskTick, buff) != UDSReturn.OK) {
+                DebugLog.w(TAG, "GetInfo timeout.")
+                setTaskState(UDSTask.NONE)
+            }
+        }
+
 
         private fun processPacketGetDTC(buff: ByteArray?) {
             buff?.let {

@@ -2,6 +2,7 @@ package com.app.simostools
 
 import java.io.InputStream
 import java.lang.Math.round
+import java.util.Calendar
 
 object UDSFlasher {
     private val TAG = "UDSflash"
@@ -12,6 +13,7 @@ object UDSFlasher {
     private var flashConfirmed: Boolean = false
     private var cancelFlash: Boolean = false
     private var bin: Array<ByteArray> = arrayOf(byteArrayOf(), byteArrayOf(), byteArrayOf(), byteArrayOf(), byteArrayOf(), byteArrayOf())
+    private var workshopCode= byteArrayOf()
     private var inputBin: ByteArray = byteArrayOf()
     private var patchBin: ByteArray = byteArrayOf()
     private var ecuAswVersion: ByteArray = byteArrayOf()
@@ -78,6 +80,7 @@ object UDSFlasher {
         inputBin =  input.readBytes()
         patchBin = byteArrayOf()
         currentBlockOperation = 0
+        workshopCode = byteArrayOf()
     }
 
     fun setFullFlash(full: Boolean) {
@@ -112,6 +115,15 @@ object UDSFlasher {
             mTask = FLASH_ECU_CAL_SUBTASK.GET_ECU_BOX_CODE
 
             bin = FlashUtilities.splitBinBlocks(inputBin)
+
+            //If you didn't select a FullFlash (but selected a large bin)
+            // 0 out arrays 0-4 so we only have the CAL left over
+            if(!mFullFlash){
+                for(i in 0..4){
+                    bin[i] = byteArrayOf()
+                }
+            }
+
             return UDS_COMMAND.READ_IDENTIFIER.bytes + ECUInfo.PART_NUMBER.address
         }
         else{
@@ -181,15 +193,28 @@ object UDSFlasher {
 
                 FLASH_ECU_CAL_SUBTASK.CHECK_FILE_COMPAT -> {
 
-
-                    //val binAswVersion = bin.copyOfRange(0x60, 0x6B)
                     binAswVersion = FlashUtilities.getBoxCodeFromBin(inputBin) ?: COMPATIBLE_BOXCODE_VERSIONS._UNDEFINED
 
                     if(patchBin.size > 0){
                         //We're patching the ECU, so make sure the bin is the right H version
-                        if(binAswVersion != COMPATIBLE_BOXCODE_VERSIONS._8V0906259H){
+
+                        if(binAswVersion == COMPATIBLE_BOXCODE_VERSIONS._8V0906259H){
+                            binAswVersion = COMPATIBLE_BOXCODE_VERSIONS._8V0906259H_PATCH
+                        }
+                        else if (binAswVersion == COMPATIBLE_BOXCODE_VERSIONS._5G0906259Q){
+                            binAswVersion = COMPATIBLE_BOXCODE_VERSIONS._5G0906259Q_PATCH
+                        }
+                        else{
                             mLastString = "Wrong box code provided for patching: $binAswVersion" +
                                     "\n Exiting!!!"
+                            return UDSReturn.ERROR_RESPONSE
+                        }
+
+                        if (String(ecuAswVersion).trim() !in binAswVersion.allowedBoxCodes) {
+                            DebugLog.d(TAG,"ECU software version: ${ecuAswVersion.toHex()}, and file" +
+                                    " software version: $binAswVersion")
+                            mLastString = "Box code on selected BIN file: $binAswVersion" +
+                                    "\n File mismatch!!!"
                             return UDSReturn.ERROR_RESPONSE
                         }
 
@@ -200,7 +225,7 @@ object UDSFlasher {
                     }
 
                     //Compare the two strings:
-                    if (String(ecuAswVersion).trim() != binAswVersion.str) {
+                    if (String(ecuAswVersion).trim() !in binAswVersion.allowedBoxCodes) {
                         DebugLog.d(TAG,"ECU software version: ${ecuAswVersion.toHex()}, and file" +
                                 " software version: $binAswVersion")
                         mLastString = "Box code on selected BIN file: $binAswVersion" +
@@ -240,6 +265,7 @@ object UDSFlasher {
                 FLASH_ECU_CAL_SUBTASK.CHECKSUM_BIN ->{
                     mLastString = ""
                     if(currentBlockOperation == bin.size){
+                        workshopCode = FlashUtilities.buildWorkshopCode(bin, binAswVersion)
                         currentBlockOperation = 0
 
                         mTask = mTask.next()
@@ -284,6 +310,8 @@ object UDSFlasher {
                 }
 
                 FLASH_ECU_CAL_SUBTASK.COMPRESS_BIN ->{
+
+
                     mLastString = ""
                     if(currentBlockOperation == bin.size){
                         currentBlockOperation = 0
@@ -492,11 +520,12 @@ object UDSFlasher {
                 FLASH_ECU_CAL_SUBTASK.WRITE_WORKSHOP_LOG -> {
                     when(checkResponse(buff)){
                         UDS_RESPONSE.POSITIVE_RESPONSE -> {
+
                             //Write workshop tool log
                             //  0x 2E 0xF15A = 0x20, 0x7, 0x17, 0x42,0x04,0x20,0x42,0xB1,0x3D,
                             mCommand = byteArrayOf(0x2E.toByte(),
-                                0xF1.toByte(), 0x5A.toByte(), 0x20.toByte(), 0x07.toByte(), 0x17.toByte(),
-                                0x42.toByte(),0x04.toByte(),0x20.toByte(),0x42.toByte(),0xB1.toByte(),0x3D.toByte())
+                                0xF1.toByte(), 0x5A.toByte()) +
+                                workshopCode
                             mLastString = "Writing workshop code"
                             return UDSReturn.COMMAND_QUEUED
                         }
@@ -505,11 +534,7 @@ object UDSFlasher {
                                 mLastString = "Wrote workshop code"
                                 mCommand = UDS_COMMAND.TESTER_PRESENT.bytes
 
-                                //DEBUG ONLY
-                                //mTask = FLASH_ECU_CAL_SUBTASK.PATCH_BLOCK
-                                //currentBlockOperation = 5
 
-                                //This is real
                                 mTask = mTask.next()
 
                                 return UDSReturn.COMMAND_QUEUED
@@ -668,8 +693,8 @@ object UDSFlasher {
                             mCommand = UDS_COMMAND.REQUEST_DOWNLOAD.bytes +
                                     UDS_DOWNLOAD_PROPERTIES.ENCRYPTED_UNCOMPRESSED.bytes +
                                     UDS_DOWNLOAD_PROPERTIES.FOUR_ONE_ADDRESS_LENGTH.bytes +
-                                    binAswVersion.software.blockNumberMap[currentBlockOperation - 1].toByte() +
-                                    FlashUtilities.intToByteArray(binAswVersion.software.blockLengths[binAswVersion.software.blockNumberMap[currentBlockOperation - 1]])
+                                    binAswVersion.software.blockNumberMap[binAswVersion.software.patchBlockNum].toByte() +
+                                    FlashUtilities.intToByteArray(binAswVersion.software.blockLengths[binAswVersion.software.blockNumberMap[binAswVersion.software.patchBlockNum]])
 
                             DebugLog.d(TAG, "Executing Request download command: ${mCommand.toHex()}")
                             mLastString = "Requesting block download FOR PATCHING"
@@ -683,7 +708,7 @@ object UDSFlasher {
                             //Send bytes, 0x36 [frame number]
                             //Break the whole bin into frames of PATCH_TRANSFER_SIZE size, and
                             // we'll use that array.
-                            var transferSize = patchTransferSize(patchTransferAddress)
+                            var transferSize = binAswVersion.software.patchTransferSize(patchTransferAddress)
                             //patchTransferAddress += transferSize
 
                             mCommand = UDS_COMMAND.TRANSFER_DATA.bytes +  byteArrayOf(transferSequence.toByte()) + patchBin.copyOfRange(0, transferSize)
@@ -699,7 +724,7 @@ object UDSFlasher {
                             // the transfer
                             if(buff[1] == transferSequence.toByte()){
                                 transferSequence++
-                                patchTransferAddress += patchTransferSize(patchTransferAddress)
+                                patchTransferAddress += binAswVersion.software.patchTransferSize(patchTransferAddress)
                                 progress = round(patchTransferAddress.toFloat() / (patchBin.size) * 100)
 
                                 mLastString = ""
@@ -716,7 +741,7 @@ object UDSFlasher {
                             // start is frame size + transfer sequence
                             // end is start + frame size *OR* the end of the bin
                             var start = patchTransferAddress
-                            var end = start + patchTransferSize(patchTransferAddress)
+                            var end = start + binAswVersion.software.patchTransferSize(patchTransferAddress)
 
                             //DebugLog.d(TAG, "transferring patch between $start and $end")
 
@@ -747,7 +772,7 @@ object UDSFlasher {
                                 mLastString = ""
                                 DebugLog.d(TAG, "Negative response, try again.....")
                                 var start = patchTransferAddress
-                                var end = start + patchTransferSize(patchTransferAddress)
+                                var end = start + binAswVersion.software.patchTransferSize(patchTransferAddress)
 
 
 
@@ -853,6 +878,10 @@ object UDSFlasher {
                             bin = arrayOf(byteArrayOf(), byteArrayOf(), byteArrayOf(),
                                 byteArrayOf(), byteArrayOf(), byteArrayOf())
                             mTask = FLASH_ECU_CAL_SUBTASK.NONE
+                            patchBin = byteArrayOf()
+                            binAswVersion = COMPATIBLE_BOXCODE_VERSIONS._UNDEFINED
+                            currentBlockOperation = 0
+                            patchTransferAddress = 0
                             return UDSReturn.FLASH_COMPLETE
                         }
                         UDS_RESPONSE.NEGATIVE_RESPONSE -> {

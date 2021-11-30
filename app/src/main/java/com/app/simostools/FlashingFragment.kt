@@ -104,7 +104,7 @@ class FlashingFragment : Fragment() {
             setTextColor(ColorList.BT_TEXT.value)
             setOnClickListener {
                 if (mViewModel.connectionState == BLEConnectionState.CONNECTED) {
-                    doWriteMessage("Tune Info\n---------------\nNot implemented.")
+                    sendServiceMessage(BTServiceTask.DO_GET_TUNE_INFO.toString())
                 } else {
                     doWriteMessage("Tune Info\n---------------\nNot connected.")
                 }
@@ -175,7 +175,7 @@ class FlashingFragment : Fragment() {
                 GUIMessage.FLASH_PROGRESS_MAX.toString()  -> setProgressBarMax(intent.getIntExtra(GUIMessage.FLASH_PROGRESS_MAX.toString(), 0))
                 GUIMessage.FLASH_PROGRESS_SHOW.toString() -> setProgressBarShow(intent.getBooleanExtra(GUIMessage.FLASH_PROGRESS_SHOW.toString(), false))
                 GUIMessage.FLASH_CONFIRM.toString()       -> promptUserConfirmation()
-                GUIMessage.FLASH_BUTTON_RESET.toString()  -> resetFlashButton(UDSFlasher.getFullFlash())
+                GUIMessage.FLASH_BUTTON_RESET.toString()  -> resetFlashButton(false)
             }
         }
     }
@@ -233,10 +233,12 @@ class FlashingFragment : Fragment() {
 
                                 sendServiceMessage(BTServiceTask.FLASH_CONFIRMED.toString())
 
+
                             }
                             else{
 
                                 sendServiceMessage(BTServiceTask.FLASH_CANCELED.toString())
+
 
                             }
 

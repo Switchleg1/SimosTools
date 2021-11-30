@@ -26,7 +26,7 @@ object UDSInfo {
             resetTimeout()
 
             if (buff.count() >= 11 && buff[8] == 0x62.toByte()) {
-                mLastString = "${ECUInfo.values()[ticks].str}: ${String(buff.copyOfRange(11, buff.count()))}"
+                mLastString = "${ECUInfo.values()[ticks].str}: ${ECUInfo.values()[ticks].parseResponse(buff.copyOfRange(11, buff.count()))}"
 
                 return UDSReturn.OK
             }
