@@ -27,7 +27,7 @@ class UtilitiesViewModel : ViewModel() {
 class UtilitiesFragment : Fragment() {
     private val TAG = "UtilitiesFragment"
     private var mArrayAdapter: SwitchArrayAdapter? = null
-    private lateinit var mViewModel: FlashViewModel
+    private lateinit var mViewModel: UtilitiesViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,7 +39,7 @@ class UtilitiesFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mViewModel = ViewModelProvider(this).get(FlashViewModel::class.java)
+        mViewModel = ViewModelProvider(this).get(UtilitiesViewModel::class.java)
 
         mArrayAdapter = SwitchArrayAdapter(requireContext(), R.layout.fragment_message, gUtilitiesMsgList?: arrayOf())
         mArrayAdapter?.let { adapter ->

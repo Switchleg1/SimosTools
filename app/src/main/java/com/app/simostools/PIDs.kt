@@ -176,6 +176,19 @@ object PIDs {
         }
     }
 
+    fun clear() {
+        list22 = null
+        list3E = null
+        data22 = null
+        data3E = null
+        assign22.clear()
+        assign3E.clear()
+        tabs22.clear()
+        tabs3E.clear()
+
+        mInited = false
+    }
+
     fun loadDefaultPIDS(mode: UDSLoggingMode = UDSLogger.getMode()) {
         when (mode) {
             UDSLoggingMode.MODE_22 -> list22 = list22d?.clone()

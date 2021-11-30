@@ -28,6 +28,14 @@ object UDSLogger {
     private var mLastFrameSize      = -1
     private var mRevision           = "SimosTools [R1.4:We don't respond to emails]"
 
+    fun clear() {
+        LogFile.close()
+        mEnabledArray22 = byteArrayOf()
+        mEnabledArray3E = byteArrayOf()
+        mAddressArray22 = byteArrayOf()
+        mAddressArray3E = byteArrayOf()
+    }
+
     fun getTQ(): Float {
         return mCalculatedTQ
     }
@@ -571,11 +579,11 @@ object UDSLogger {
                             currentDateTime.format(
                                 DateTimeFormatter.ofPattern("yyyy_MM_dd-HH_mm_ss")
                             )
-                        }.csv", context
+                        }.csv", ConfigSettings.LOG_SUB_FOLDER.toString(), context
                     )
 
                     //Add time its required
-                    var strItems: String? = "Time"
+                    var strItems: String = "Time"
 
                     //Add PIDs including units
                     for (x in 0 until list.count()) {
@@ -589,7 +597,7 @@ object UDSLogger {
                 mLastEnabled = true
 
                 //Write new values to log
-                var strItems: String? = (tick.toFloat() / 1000.0f).toString()
+                var strItems: String = (tick.toFloat() / 1000.0f).toString()
                 for (x in 0 until list.count()) {
                     strItems += ",${list[x]?.value}"
                 }

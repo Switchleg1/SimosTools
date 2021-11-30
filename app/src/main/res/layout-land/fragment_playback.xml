@@ -4,29 +4,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainFragment"
-    android:id="@+id/MainLayout">
+    tools:context=".PlaybackFragment"
+    android:id="@+id/PlaybackLayout">
 
-    <ImageView
-        android:id="@+id/imageMainLogo"
+    <com.app.simostools.SwitchGraph
+        android:id="@+id/switchGraph"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:src="@drawable/simostools"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/imageMainButtons"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toStartOf="@+id/layoutButtons"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
     <LinearLayout
-        android:id="@+id/imageMainButtons"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        app:layout_constraintTop_toTopOf="parent"
+        android:id="@+id/layoutButtons"
+        android:layout_width="128dp"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toEndOf="@+id/switchGraph"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/imageMainLogo"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:orientation="horizontal">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" >
 
         <LinearLayout
             android:layout_weight="1"
@@ -35,27 +33,19 @@
             android:orientation="vertical">
 
             <com.app.simostools.SwitchButton
-                android:id="@+id/buttonMainLogging"
+                android:id="@+id/buttonSetPIDS"
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:text="@string/button_logging"
+                android:text="@string/button_set_pids"
                 android:textSize="24sp" />
 
             <com.app.simostools.SwitchButton
-                android:id="@+id/buttonMainPlayback"
+                android:id="@+id/buttonSetTabs"
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:text="@string/button_playback"
-                android:textSize="24sp" />
-
-            <com.app.simostools.SwitchButton
-                android:id="@+id/buttonMainSettings"
-                android:layout_weight="1"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:text="@string/button_settings"
+                android:text="@string/button_set_tabs"
                 android:textSize="24sp" />
 
         </LinearLayout>
@@ -67,27 +57,19 @@
             android:orientation="vertical">
 
             <com.app.simostools.SwitchButton
-                android:id="@+id/buttonMainFlashing"
+                android:id="@+id/buttonLoad"
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:text="@string/button_flashing"
+                android:text="@string/button_load_csv"
                 android:textSize="24sp" />
 
             <com.app.simostools.SwitchButton
-                android:id="@+id/buttonMainUtilities"
+                android:id="@+id/buttonBack"
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:text="@string/button_utilities"
-                android:textSize="24sp" />
-
-            <com.app.simostools.SwitchButton
-                android:id="@+id/buttonMainExit"
-                android:layout_weight="1"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:text="@string/button_exit"
+                android:text="@string/button_back"
                 android:textSize="24sp" />
 
         </LinearLayout>

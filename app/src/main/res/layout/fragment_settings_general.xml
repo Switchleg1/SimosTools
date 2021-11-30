@@ -12,10 +12,19 @@
         android:orientation="vertical">
 
         <View
-            android:id="@+id/divider12"
+            android:id="@+id/divider1"
             android:layout_width="match_parent"
-            android:layout_height="5dp"
+            android:layout_height="15dp"
             android:background="?android:attr/listDivider" />
+
+        <TextView
+            android:id="@+id/textViewConnectionSettings"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="@string/textview_settings_connection_settings"
+            android:layout_marginTop="8dp"
+            app:autoSizeTextType="uniform"
+            app:lineHeight="60dp"/>
 
         <TextView
             android:id="@+id/textViewDisplayRate"
@@ -31,12 +40,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <View
-            android:id="@+id/divider13"
-            android:layout_width="match_parent"
-            android:layout_height="5dp"
-            android:background="?android:attr/listDivider" />
-
         <TextView
             android:id="@+id/textViewLoggingRate"
             android:layout_width="match_parent"
@@ -50,12 +53,6 @@
             android:contentDescription="@string/textview_settings_logging_rate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-
-        <View
-            android:id="@+id/divider14"
-            android:layout_width="match_parent"
-            android:layout_height="5dp"
-            android:background="?android:attr/listDivider" />
 
         <TextView
             android:id="@+id/textViewQCorrection"
@@ -72,9 +69,9 @@
             android:layout_height="wrap_content" />
 
         <View
-            android:id="@+id/divider27"
+            android:id="@+id/divider2"
             android:layout_width="match_parent"
-            android:layout_height="5dp"
+            android:layout_height="15dp"
             android:background="?android:attr/listDivider" />
 
         <TextView
@@ -84,10 +81,7 @@
             android:text="@string/textview_settings_import_csv"
             android:layout_marginTop="8dp"
             app:autoSizeTextType="uniform"
-            app:lineHeight="60dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:lineHeight="60dp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -136,17 +130,17 @@
         </LinearLayout>
 
         <View
-            android:id="@+id/divider15"
+            android:id="@+id/divider3"
             android:layout_width="match_parent"
-            android:layout_height="5dp"
+            android:layout_height="15dp"
             android:background="?android:attr/listDivider" />
 
         <TextView
             android:id="@+id/textViewOutputDirectory"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:text="@string/textview_settings_directory"
             android:layout_marginTop="8dp"
+            android:text="@string/textview_settings_directory"
             app:autoSizeTextType="uniform"
             app:lineHeight="60dp" />
 
@@ -181,10 +175,32 @@
                 android:text="@string/radio_settings_mode_application" />
         </RadioGroup>
 
-        <View
-            android:id="@+id/divider22"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="5dp"
+            android:layout_height="48dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textViewLogSubFolder"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginTop="8dp"
+                android:text="@string/textview_settings_log_sub_folder"
+                android:textSize="24sp" />
+
+            <EditText
+                android:id="@+id/editTextLogSubFolder"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:inputType="text"
+                android:text=""/>
+
+        </LinearLayout>
+
+        <View
+            android:id="@+id/divider4"
+            android:layout_width="match_parent"
+            android:layout_height="15dp"
             android:background="?android:attr/listDivider" />
 
         <TextView
@@ -260,9 +276,9 @@
         </LinearLayout>
 
         <View
-            android:id="@+id/divider16"
+            android:id="@+id/divider5"
             android:layout_width="match_parent"
-            android:layout_height="5dp"
+            android:layout_height="15dp"
             android:background="?android:attr/listDivider" />
 
         <TextView
@@ -299,9 +315,9 @@
         </RadioGroup>
 
         <View
-            android:id="@+id/divider17"
+            android:id="@+id/divider6"
             android:layout_width="match_parent"
-            android:layout_height="5dp"
+            android:layout_height="15dp"
             android:background="?android:attr/listDivider" />
 
         <TextView
@@ -341,9 +357,9 @@
             android:text="@string/check_settings_auto_log" />
 
         <View
-            android:id="@+id/divider19"
+            android:id="@+id/divider7"
             android:layout_width="match_parent"
-            android:layout_height="5dp"
+            android:layout_height="15dp"
             android:background="?android:attr/listDivider" />
 
         <TextView
@@ -377,9 +393,9 @@
         </LinearLayout>
 
         <View
-            android:id="@+id/divider29"
+            android:id="@+id/divider8"
             android:layout_width="match_parent"
-            android:layout_height="5dp"
+            android:layout_height="15dp"
             android:background="?android:attr/listDivider" />
 
         <TextView
@@ -398,9 +414,9 @@
             android:text=""/>
 
         <View
-            android:id="@+id/divider30"
+            android:id="@+id/divider9"
             android:layout_width="match_parent"
-            android:layout_height="5dp"
+            android:layout_height="15dp"
             android:background="?android:attr/listDivider" />
 
         <TextView
@@ -426,9 +442,9 @@
             android:textSize="24sp" />
 
         <View
-            android:id="@+id/divider21"
+            android:id="@+id/divider10"
             android:layout_width="match_parent"
-            android:layout_height="5dp"
+            android:layout_height="15dp"
             android:background="?android:attr/listDivider" />
 
         <TextView
@@ -448,7 +464,7 @@
             android:textColor="#5E35B1" />
 
         <View
-            android:id="@+id/divider2"
+            android:id="@+id/divider11"
             android:layout_width="match_parent"
             android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
@@ -462,7 +478,7 @@
             android:textColor="#5E35B1" />
 
         <View
-            android:id="@+id/divider3"
+            android:id="@+id/divider12"
             android:layout_width="match_parent"
             android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
@@ -476,7 +492,7 @@
             android:textColor="#5E35B1" />
 
         <View
-            android:id="@+id/divider4"
+            android:id="@+id/divider13"
             android:layout_width="match_parent"
             android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
@@ -490,7 +506,7 @@
             android:textColor="#5E35B1" />
 
         <View
-            android:id="@+id/divider5"
+            android:id="@+id/divider14"
             android:layout_width="match_parent"
             android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
@@ -504,7 +520,7 @@
             android:textColor="#5E35B1" />
 
         <View
-            android:id="@+id/divider23"
+            android:id="@+id/divider15"
             android:layout_width="match_parent"
             android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
@@ -518,7 +534,7 @@
             android:textColor="#5E35B1" />
 
         <View
-            android:id="@+id/divider18"
+            android:id="@+id/divider16"
             android:layout_width="match_parent"
             android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
@@ -532,7 +548,7 @@
             android:textColor="#5E35B1" />
 
         <View
-            android:id="@+id/divider6"
+            android:id="@+id/divider17"
             android:layout_width="match_parent"
             android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
@@ -546,7 +562,7 @@
             android:textColor="#5E35B1" />
 
         <View
-            android:id="@+id/divider7"
+            android:id="@+id/divider18"
             android:layout_width="match_parent"
             android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
@@ -560,7 +576,7 @@
             android:textColor="#5E35B1" />
 
         <View
-            android:id="@+id/divider8"
+            android:id="@+id/divider19"
             android:layout_width="match_parent"
             android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
@@ -574,7 +590,7 @@
             android:textColor="#5E35B1" />
 
         <View
-            android:id="@+id/divider9"
+            android:id="@+id/divider20"
             android:layout_width="match_parent"
             android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
@@ -589,7 +605,7 @@
             tools:ignore="TextContrastCheck" />
 
         <View
-            android:id="@+id/divider10"
+            android:id="@+id/divider21"
             android:layout_width="match_parent"
             android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
@@ -603,7 +619,7 @@
             android:textColor="#5E35B1" />
 
         <View
-            android:id="@+id/divider11"
+            android:id="@+id/divider22"
             android:layout_width="match_parent"
             android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
@@ -617,7 +633,7 @@
             android:textColor="#5E35B1" />
 
         <View
-            android:id="@+id/divider24"
+            android:id="@+id/divider23"
             android:layout_width="match_parent"
             android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
@@ -631,7 +647,7 @@
             android:textColor="#5E35B1" />
 
         <View
-            android:id="@+id/divider25"
+            android:id="@+id/divider24"
             android:layout_width="match_parent"
             android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
@@ -645,7 +661,7 @@
             android:textColor="#5E35B1" />
 
         <View
-            android:id="@+id/divider26"
+            android:id="@+id/divider25"
             android:layout_width="match_parent"
             android:layout_height="5dp"
             android:background="?android:attr/listDivider" />
@@ -659,7 +675,7 @@
             android:textColor="#5E35B1" />
 
         <View
-            android:id="@+id/divider28"
+            android:id="@+id/divider26"
             android:layout_width="match_parent"
             android:layout_height="64dp"
             android:background="?android:attr/listDivider" />

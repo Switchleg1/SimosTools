@@ -277,6 +277,7 @@ enum class ConfigSettings(val cfgName: String, var value: Any) {
     DEBUG_LOG("DebugMode", DEBUG_LOG_INFO or DEBUG_LOG_WARNING or DEBUG_LOG_EXCEPTION),
     AUTO_LOG("AutoLog", false),
     LOG_NAME("LogName", "simostools"),
+    LOG_SUB_FOLDER("LogSubFolder", ""),
     ADAPTER_NAME("AdapterName", "BLE_TO_ISOTP20");
 
     fun set(newValue: String) {

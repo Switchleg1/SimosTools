@@ -14,9 +14,18 @@ import android.os.IBinder
 import android.os.Looper
 import android.os.ParcelUuid
 import android.widget.Toast
+import androidx.core.os.HandlerCompat.postDelayed
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Semaphore
+import android.R.attr.name
+import android.R.attr.name
+
+
+
+
+
+
 
 // Header we expect to receive on BLE packets
 class BLEHeader {
@@ -126,9 +135,13 @@ class BTService: Service() {
     }
 
     override fun onDestroy() {
-        Toast.makeText(this, "${getString(R.string.app_name)} Done", Toast.LENGTH_SHORT).show()
-        doDisconnect()
+        //Toast.makeText(this, "${getString(R.string.app_name)} Done", Toast.LENGTH_SHORT).show()
         super.onDestroy()
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        //Toast.makeText(this, "${getString(R.string.app_name)} Started", Toast.LENGTH_SHORT).show()
     }
 
     private val mScanCallback = object : ScanCallback() {
@@ -443,7 +456,7 @@ class BTService: Service() {
             mScanningTimer?.purge()
             mScanningTimer = null
 
-            DebugLog.i(TAG, "Stop Scanning")
+            DebugLog.i(TAG, "Stop Scanning.")
             (getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter.bluetoothLeScanner.stopScan(mScanCallback)
             mScanning = false
         }
@@ -453,9 +466,21 @@ class BTService: Service() {
     private fun doStopService(startId: Int) {
         mFinished = true
         doDisconnect()
-        LogFile.close()
+        UDSLogger.clear()
+        PIDs.clear()
+        UDSFlasher.clear()
+        DebugLog.i(TAG, "Shutting down down service.")
+        DebugLog.close()
+        /*val handler = Handler()
+        val r: Runnable = object : Runnable {
+            override fun run() {
+                stopForeground(true)
+                stopSelfResult(startId)
+            }
+        }
+        handler.postDelayed(r, 1000)*/
         stopForeground(true)
-        stopSelf(startId)
+        stopSelfResult(startId)
     }
 
     @Synchronized

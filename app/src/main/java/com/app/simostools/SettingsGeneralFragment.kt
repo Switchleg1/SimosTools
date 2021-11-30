@@ -368,6 +368,7 @@ class SettingsGeneralFragment : Fragment() {
                     DirectoryList.APP -> currentView.findViewById<RadioButton>(R.id.radioButtonApplication).isChecked = true
                 }
             }
+            currentView.findViewById<EditText>(R.id.editTextLogSubFolder).setText(ConfigSettings.LOG_SUB_FOLDER.toString())
 
             //Get draw minmax
             currentView.findViewById<CheckBox>(R.id.checkBoxDrawMinMax).isChecked = ConfigSettings.DRAW_MIN_MAX.toBoolean()
@@ -411,11 +412,13 @@ class SettingsGeneralFragment : Fragment() {
         view?.let { currentView ->
             //Set font color
             val color = ColorList.TEXT.value
+            currentView.findViewById<TextView>(R.id.textViewConnectionSettings).setTextColor(color)
             currentView.findViewById<TextView>(R.id.textViewDisplayRate).setTextColor(color)
             currentView.findViewById<TextView>(R.id.textViewLoggingRate).setTextColor(color)
             currentView.findViewById<TextView>(R.id.textViewQCorrection).setTextColor(color)
             currentView.findViewById<TextView>(R.id.textViewPIDCSV).setTextColor(color)
             currentView.findViewById<TextView>(R.id.textViewOutputDirectory).setTextColor(color)
+            currentView.findViewById<TextView>(R.id.textViewLogSubFolder).setTextColor(color)
             currentView.findViewById<TextView>(R.id.textViewDisplayType).setTextColor(color)
             currentView.findViewById<TextView>(R.id.textViewLoggingMode).setTextColor(color)
             currentView.findViewById<TextView>(R.id.textViewMiscOptions).setTextColor(color)
@@ -442,6 +445,7 @@ class SettingsGeneralFragment : Fragment() {
             currentView.findViewById<CheckBox>(R.id.checkBoxUseAccel).setTextColor(color)
 
             //Set color edit
+            currentView.findViewById<EditText>(R.id.editTextLogSubFolder).setTextColor(color)
             currentView.findViewById<EditText>(R.id.editTextLogName).setTextColor(color)
             currentView.findViewById<EditText>(R.id.editTextAdapterName).setTextColor(color)
 
@@ -478,6 +482,34 @@ class SettingsGeneralFragment : Fragment() {
             currentView.findViewById<Button>(R.id.buttonSetBTRimColor).setBackgroundColor(ColorSettings.mColorList[ColorList.BT_RIM.ordinal])
             currentView.findViewById<Button>(R.id.buttonSetBTBGColor).setTextColor(ColorSettings.mColorList[ColorList.BT_BG.ordinal].toColorInverse())
             currentView.findViewById<Button>(R.id.buttonSetBTBGColor).setBackgroundColor(ColorSettings.mColorList[ColorList.BT_BG.ordinal])
+
+            //Set dividers
+            currentView.findViewById<View>(R.id.divider1).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider2).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider3).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider4).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider5).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider6).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider7).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider8).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider9).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider10).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider11).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider12).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider13).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider14).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider15).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider16).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider17).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider18).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider19).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider20).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider21).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider22).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider23).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider24).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider25).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider26).setBackgroundColor(ColorList.BT_RIM.value)
 
             //Set background color
             currentView.setBackgroundColor(ColorList.BG_NORMAL.value)
@@ -541,6 +573,7 @@ class SettingsGeneralFragment : Fragment() {
                     DirectoryList.APP.cfgName
                 )
             }
+            ConfigFile.set(ConfigSettings.LOG_SUB_FOLDER.cfgName, currentView.findViewById<EditText>(R.id.editTextLogSubFolder).text.toString())
 
             //Set draw min/max
             ConfigFile.set(ConfigSettings.DRAW_MIN_MAX.cfgName, currentView.findViewById<CheckBox>(R.id.checkBoxDrawMinMax).isChecked.toString())

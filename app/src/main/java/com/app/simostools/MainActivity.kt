@@ -18,6 +18,13 @@ import androidx.lifecycle.ViewModel
 import android.graphics.drawable.ColorDrawable
 import androidx.lifecycle.ViewModelProvider
 import java.util.*
+import android.os.Environment
+
+import java.io.File
+
+import android.R.attr.name
+
+
 
 
 class MainViewModel : ViewModel() {
@@ -31,7 +38,7 @@ class MainViewModel : ViewModel() {
 class MainActivity : AppCompatActivity() {
     private val TAG = "MainActivity"
     private var mAskingPermission = false
-    private lateinit var mViewModel: MainViewModel
+    lateinit var mViewModel: MainViewModel
 
     var resultBTLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -71,17 +78,7 @@ class MainActivity : AppCompatActivity() {
             getPermissions()
 
             //start GUI timer
-            if(mViewModel.guiTimer == null) {
-                // creating timer task, timer
-                mViewModel.guiTimer = Timer()
-
-                val task = object : TimerTask() {
-                    override fun run() {
-                        timerCallback()
-                    }
-                }
-                mViewModel.guiTimer?.scheduleAtFixedRate(task, 1000, 1000)
-            }
+            startGUITimer()
 
             //Save started
             mViewModel.started = true
@@ -91,6 +88,17 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(findViewById(R.id.toolbar))
         window.statusBarColor = ColorList.BT_BG.value
         window.navigationBarColor = ColorList.BT_BG.value
+
+        DebugLog.d(TAG, "onCreate")
+    }
+
+    override fun onDestroy() {
+        //stop timer
+        stopGUITimer()
+
+        super.onDestroy()
+
+        DebugLog.d(TAG, "onDestroy")
     }
 
     override fun onResume() {
@@ -104,12 +112,16 @@ class MainActivity : AppCompatActivity() {
         filter.addAction(GUIMessage.WRITE_LOG.toString())
         filter.addAction(GUIMessage.TOAST.toString())
         registerReceiver(mBroadcastReceiver, filter)
+
+        DebugLog.d(TAG, "onResume")
     }
 
     override fun onPause() {
         super.onPause()
 
         unregisterReceiver(mBroadcastReceiver)
+
+        DebugLog.d(TAG, "onPause")
     }
 
     private val mBroadcastReceiver = object : BroadcastReceiver() {
@@ -308,5 +320,26 @@ class MainActivity : AppCompatActivity() {
 
         if (checkNextPermission(0))
             doConnect()
+    }
+
+    fun startGUITimer() {
+        if(mViewModel.guiTimer == null) {
+            // creating timer task, timer
+            mViewModel.guiTimer = Timer()
+
+            val task = object : TimerTask() {
+                override fun run() {
+                    timerCallback()
+                }
+            }
+            mViewModel.guiTimer?.scheduleAtFixedRate(task, 1000, 1000)
+        }
+    }
+
+    fun stopGUITimer() {
+        if(mViewModel.guiTimer != null) {
+            mViewModel.guiTimer?.cancel()
+            mViewModel.guiTimer = null
+        }
     }
 }

@@ -211,21 +211,12 @@ class LoggingBaseFragment: Fragment() {
                         gauge.setProgressBackgroundColor(ColorList.GAUGE_BG.value, false)
                         gauge.setStyle(ConfigSettings.GAUGE_TYPE.toGaugeType(), false)
                         when (ConfigSettings.GAUGE_TYPE.toGaugeType()) {
-                            GaugeType.BAR_H -> {
-                                gauge.setProgressWidth(400f, false)
-                                gauge.textSize = 30f
-                            }
-                            GaugeType.BAR_V -> {
-                                gauge.setProgressWidth(400f, false)
-                                gauge.textSize = 30f
-                            }
-                            GaugeType.BASIC -> {
-                                gauge.setProgressWidth(400f, false)
-                                gauge.textSize = 30f
-                            }
+                            GaugeType.BAR_H -> gauge.setProgressWidth(400f, false)
+                            GaugeType.BAR_V -> gauge.setProgressWidth(400f, false)
+                            GaugeType.BASIC -> gauge.setProgressWidth(400f, false)
                             GaugeType.ROUND -> {
                                 gauge.setProgressWidth(50f, false)
-                                gauge.textSize = 24f
+                                gauge.textSize = gauge.textSize * 0.25f
                             }
                         }
                         if(kotlin.math.abs(pid.progMin) == kotlin.math.abs(pid.progMax))

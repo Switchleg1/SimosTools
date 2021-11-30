@@ -9,14 +9,14 @@
 
     <com.app.simostools.SwitchGauge
         android:id="@+id/pid_gauge"
-        android:textSize="32sp"
+        android:textSize="42sp"
         android:layout_weight="1"
         android:layout_width="0dp"
         android:layout_height="250dp"/>
 
     <com.app.simostools.SwitchGauge
         android:id="@+id/pid_gauge1"
-        android:textSize="32sp"
+        android:textSize="42sp"
         android:layout_weight="1"
         android:layout_width="0dp"
         android:layout_height="250dp"

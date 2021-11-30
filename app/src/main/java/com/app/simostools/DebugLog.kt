@@ -35,6 +35,7 @@ object DebugLog {
                     logFile.createNewFile()
                 }
                 mBufferedWriter = BufferedWriter(FileWriter(logFile, true))
+                i(TAG, "Log open.")
             } catch(e: Exception) {
                 Log.e(TAG, "Error opening debug log", e)
             }
@@ -43,6 +44,7 @@ object DebugLog {
 
     fun close() {
         try {
+            i(TAG, "Closing log.")
             mBufferedWriter?.close()
             mBufferedWriter = null
         } catch (e: Exception) {

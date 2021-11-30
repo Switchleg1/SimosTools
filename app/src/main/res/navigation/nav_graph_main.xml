@@ -20,6 +20,10 @@
             app:destination="@id/FlashingFragment"/>
 
         <action
+            android:id="@+id/action_MainFragment_to_PlaybackFragment"
+            app:destination="@id/PlaybackFragment"/>
+
+        <action
             android:id="@+id/action_MainFragment_to_UtilitiesFragment"
             app:destination="@id/UtilitiesFragment"/>
 
@@ -41,6 +45,36 @@
         android:name="com.app.simostools.FlashingFragment"
         android:label="@string/nav_flashing"
         tools:layout="@layout/fragment_flashing">
+    </fragment>
+
+    <fragment
+        android:id="@+id/PlaybackFragment"
+        android:name="com.app.simostools.PlaybackFragment"
+        android:label="@string/nav_playback"
+        tools:layout="@layout/fragment_playback">
+
+        <action
+            android:id="@+id/action_PlaybackFragment_to_PlaybackEnabledFragment"
+            app:destination="@id/PlaybackEnabledFragment"/>
+
+        <action
+            android:id="@+id/action_PlaybackFragment_to_PlaybackTabsFragment"
+            app:destination="@id/PlaybackTabsFragment"/>
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/PlaybackEnabledFragment"
+        android:name="com.app.simostools.PlaybackEnabledFragment"
+        android:label="@string/nav_playback_enabled"
+        tools:layout="@layout/fragment_playback_enabled">
+    </fragment>
+
+    <fragment
+        android:id="@+id/PlaybackTabsFragment"
+        android:name="com.app.simostools.PlaybackTabsFragment"
+        android:label="@string/nav_playback_tabs"
+        tools:layout="@layout/fragment_playback_tabs">
     </fragment>
 
     <fragment
