@@ -108,11 +108,15 @@ object FlashUtilities {
         println("  Calculated checksum:   " + checksumCalculated.toHex())
 
 
+        var updated  = false
+
         if(currentChecksum contentEquals checksumCalculated){
             println("  Checksum matches!")
+            updated = false
         }
         else{
             println("  Checksum doesn't match!")
+            updated = true
         }
 
         for(i in 0..checksumCalculated.size - 1){
@@ -120,7 +124,7 @@ object FlashUtilities {
         }
 
 
-        return(checksummedBin(bin,currentChecksum.toHex(), checksumCalculated.toHex(), true))
+        return(checksummedBin(bin,currentChecksum.toHex(), checksumCalculated.toHex(), updated))
     }
 
     fun checksumECM3(bin: ByteArray, range: IntArray): checksummedBin{
@@ -142,18 +146,21 @@ object FlashUtilities {
         println("  Current ECM3:      " + checksumCurrent.toHex())
         println("  Calculated ECM3:   " + checksumCalculated.toHex())
 
+        var updated = false
         if(checksumCurrent contentEquals checksumCalculated){
             println("  ECM3 checksum matches!")
+            updated = false
         }
         else{
             println("  ECM3 checksum doesn't match!")
+            updated = true
         }
 
         for(i in 0..checksumCalculated.size - 1){
             bin[0x400 + i] = checksumCalculated[i]
         }
 
-        return(checksummedBin(bin,checksumCurrent.toHex(), checksumCalculated.toHex(), true))
+        return(checksummedBin(bin,checksumCurrent.toHex(), checksumCalculated.toHex(), updated))
     }
 
     fun encodeLZSS_orig(input: ByteArray, maxSlidingWindowSize: Int = 1023, debug: Boolean = false): ByteArray {
@@ -632,11 +639,13 @@ object FlashUtilities {
 
         var aswData = byteArrayOf()
 
-        for(i in 2..4){
-            if(bin[i].size > 0){
-                aswData += bin[i]
-            }
-        }
+        //for(i in 2..4){
+        //    if(bin[i].size > 0){
+        //        aswData += bin[i]
+        //    }
+        //}
+
+        DebugLog.d(TAG,"aswData for workshop log, size: " + aswData.size)
 
         var workshopCode = byteArrayOf(
             convertToBCD(Calendar.getInstance().get(Calendar.YEAR) - 2000),
@@ -754,6 +763,10 @@ fun convertFromBCD(input: Byte): Int{
 fun crc8Hash(input: ByteArray): Byte{
     var sum = 0
     for(i in 0..input.size -1){
+        val crcIndex = (sum.toUInt() xor input[i].toUInt())
+        DebugLog.d("CRC8HASH","UInt of crcIndex: $crcIndex")
+        DebugLog.d("CRC8HASH", "Int representation" + crcIndex.toInt())
+
         sum = crc8Table[(sum.toUInt() xor input[i].toUInt()).toInt()]
     }
 

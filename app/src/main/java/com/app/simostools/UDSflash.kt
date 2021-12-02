@@ -73,6 +73,13 @@ object UDSFlasher {
         patchBin = byteArrayOf()
         currentBlockOperation = 0
         workshopCode = byteArrayOf()
+        mCommand = byteArrayOf()
+        mLastString = ""
+        bin = arrayOf(byteArrayOf(), byteArrayOf(), byteArrayOf(), byteArrayOf(), byteArrayOf(), byteArrayOf())
+        ecuAswVersion = byteArrayOf()
+        transferSequence = -1
+        binAswVersion = COMPATIBLE_BOXCODE_VERSIONS._UNDEFINED
+        patchTransferAddress = 0
     }
 
     fun setFullFlash(full: Boolean) {

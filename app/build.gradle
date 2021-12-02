@@ -4,6 +4,14 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        debug {
+            storeFile file('C:\\Users\\Joe\\.android\\joe_desktop.jks')
+            storePassword 'ZSOEcurtN6i7v8OuNnhz'
+            keyAlias 'key1'
+            keyPassword 'ZSOEcurtN6i7v8OuNnhz'
+        }
+    }
     compileSdk 31
 
     defaultConfig {
