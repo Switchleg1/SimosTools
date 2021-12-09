@@ -10,6 +10,7 @@
     <string name="nav_playback">Playback</string>
     <string name="nav_playback_enabled">Playback Enabled</string>
     <string name="nav_playback_tabs">Playback Tabs</string>
+    <string name="nav_cockpit">Cockpit</string>
     <!-- Strings used for tabs -->
     <string name="tab_tools">Tools</string>
     <string name="tab_settings">Settings</string>
@@ -17,6 +18,10 @@
     <!-- Strings used for buttons -->
     <string name="switch_enable">Enable</string>
     <!-- Strings used for buttons -->
+    <string name="button_arrow_left">«</string>
+    <string name="button_arrow_right">»</string>
+    <string name="button_arrow_up">↑</string>
+    <string name="button_arrow_down">↓</string>
     <string name="button_playback">Log Viewer</string>
     <string name="button_none">None</string>
     <string name="button_ok">Ok</string>
@@ -67,6 +72,7 @@
     <string name="check_settings_use_accelerometers">Use Accelerometers? (3E)</string>
     <string name="check_settings_always_portrait">Always use portrait view?</string>
     <string name="check_settings_auto_log">Start logging when idle?</string>
+    <string name="check_settings_log_dsg">Log DSG?</string>
     <!-- Strings used for radio buttons -->
     <string name="radio_settings_display_bar_h">Bar horizontal</string>
     <string name="radio_settings_display_bar_v">Bar vertical</string>
@@ -106,8 +112,10 @@
     <string name="textview_settings_import_csv">Import PID CSV:</string>
     <string name="textview_settings_import_22_csv">22 CSV</string>
     <string name="textview_settings_import_3E_csv">3E CSV</string>
+    <string name="textview_settings_import_DSG_csv">DSG CSV</string>
     <string name="textview_settings_import_22_csv_reset">Reset 22 CSV</string>
     <string name="textview_settings_import_3E_csv_reset">Reset 3E CSV</string>
+    <string name="textview_settings_import_DSG_csv_reset">Reset DSG CSV</string>
     <string name="textview_settings_adapter_name">Adapter name:</string>
     <string name="textview_settings_pid_up">↑</string>
     <string name="textview_settings_pid_down">↓</string>

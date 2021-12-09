@@ -24,9 +24,6 @@ import java.io.File
 
 import android.R.attr.name
 
-
-
-
 class MainViewModel : ViewModel() {
     var started: Boolean                    = false
     var connectionState: BLEConnectionState = BLEConnectionState.NONE
@@ -70,6 +67,14 @@ class MainActivity : AppCompatActivity() {
                 if (pidList != null)
                     PIDs.setList(mode, pidList)
             }
+
+            //write DSG default
+            PIDCSVFile.write(getString(R.string.filename_pid_csv, "DSG"), applicationContext, PIDs.getDSGList(), false)
+
+            //Read DSG pid files
+            val pidList = PIDCSVFile.read(getString(R.string.filename_pid_csv, "DSG"), applicationContext, UDSLoggingMode.MODE_22.addressMin, UDSLoggingMode.MODE_22.addressMax)
+            if (pidList != null)
+                PIDs.setDSGList(pidList)
 
             //Start our BT Service
             sendServiceMessage(BTServiceTask.START_SERVICE.toString())
@@ -247,6 +252,7 @@ class MainActivity : AppCompatActivity() {
             UDSTask.DTC_GET     -> newString = "Getting DTC"
             UDSTask.DTC_CLEAR   -> newString = "Clearing DTC"
             UDSTask.SET_ADAPTER -> newString = "Setting Adapter Name"
+            UDSTask.TUNE_INFO   -> newString = "Getting Tune Info"
         }
         supportActionBar?.title = getString(R.string.app_name) + " - " + newString
     }

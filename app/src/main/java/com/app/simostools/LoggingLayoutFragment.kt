@@ -1,6 +1,5 @@
 package com.app.simostools
 
-import android.R.attr
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -16,10 +15,9 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import java.lang.Exception
 
-
 class LoggingBaseFragment: Fragment() {
     private var TAG                             = "LoggingBaseFragment"
-    private var mFragmentName                   = "All"
+    private var mFragmentName                   = "ECU"
     private var mLastWarning                    = false
     private var mLayouts: Array<View?>?         = null
     private var mGauges: Array<SwitchGauge?>?   = null
@@ -53,7 +51,6 @@ class LoggingBaseFragment: Fragment() {
 
         //check orientation and type
         checkOrientation()
-
         buildLayout()
 
         DebugLog.d(TAG, "onViewCreated")
@@ -155,12 +152,15 @@ class LoggingBaseFragment: Fragment() {
 
     private fun buildLayout() {
         view?.let { currentview ->
+
             try {
                 //Build PID List
-                buildPIDList(mFragmentName == "All")
+                buildPIDList(mFragmentName == "ECU", mFragmentName == "DSG")
 
                 //Build layout
-                PIDs.getList()?.let { list ->
+                val pidList = if(mFragmentName == "DSG") PIDs.getDSGList()
+                else PIDs.getList()
+                pidList?.let { list ->
                     var layoutCount = mPIDList.count() / mPIDsPerLayout
                     if (mPIDList.count() % mPIDsPerLayout != 0)
                         layoutCount++
@@ -182,8 +182,11 @@ class LoggingBaseFragment: Fragment() {
                             2 -> progID = R.id.pid_gauge2
                         }
 
-                        //get current pid and data
-                        val data = PIDs.getData()!![mPIDList[i].toInt()]!!
+                        //get current data
+                        val pidData = if(mFragmentName == "DSG") PIDs.getDSGData()
+                        else PIDs.getData()
+
+                        val data = pidData!![mPIDList[i].toInt()]!!
                         val pid = list[mPIDList[i].toInt()]!!
 
                         //Setup the progress bar
@@ -247,9 +250,15 @@ class LoggingBaseFragment: Fragment() {
                     DebugLog.d(TAG, "updateGauges - gauge count does not match pid count[${gauges.count()}:${mPIDList.count()}]")
                 }
                 for (i in 0 until mPIDList.count()) {
+                    //get current PID & data
+                    val pidList = if(mFragmentName == "DSG") PIDs.getDSGList()
+                    else PIDs.getList()
+                    val pidData = if(mFragmentName == "DSG") PIDs.getDSGData()
+                    else PIDs.getData()
+
                     //get the current pid
-                    val pid = PIDs.getList()!![mPIDList[i].toInt()]!!
-                    val data = PIDs.getData()!![mPIDList[i].toInt()]!!
+                    val pid = pidList!![mPIDList[i].toInt()]!!
+                    val data = pidData!![mPIDList[i].toInt()]!!
                     val gauge = gauges[i]!!
 
                     var prog = when (data.inverted) {
@@ -315,28 +324,30 @@ class LoggingBaseFragment: Fragment() {
                     mLastWarning = false
                 }
 
-                DebugLog.d(TAG, "updateGauges [$lastI:${mPIDList.count()}]")
+                DebugLog.d(TAG, "updateGauges [${lastI+1}:${mPIDList.count()}]")
             } catch (e: Exception) {
-                DebugLog.e(TAG, "updateGauges - exception [$lastI:${mPIDList.count()}]", e)
+                DebugLog.e(TAG, "updateGauges - exception [${lastI+1}:${mPIDList.count()}]", e)
             }
         }?: run {
             DebugLog.d(TAG, "updateGauges - gauges are invalid pidlist count ${mPIDList.count()}")
         }
     }
 
-    private fun buildPIDList(all: Boolean) {
+    private fun buildPIDList(all: Boolean, dsg: Boolean) {
         //Build our list of PIDS in this layout
-        PIDs.getList()?.let { list ->
+        val pidList = if(dsg) PIDs.getDSGList()
+        else PIDs.getList()
+        pidList?.let { list ->
             //get list of custom PIDS
             var customList = byteArrayOf()
             for (i in 0 until list.count()) {
                 list[i]?.let { pid ->
-                    if (pid.enabled && (all || pid.tabs.contains(mFragmentName))) {
+                    if (pid.enabled && (all || dsg || pid.tabs.contains(mFragmentName))) {
                         customList += i.toByte()
                     }
                 }
             }
-            if(!all) {
+            if(!all && !dsg) {
                 for (i in 0 until customList.count()) {
                     var movedAhead = false
                     var lastPos = -1
@@ -370,7 +381,7 @@ class LoggingBaseFragment: Fragment() {
     }
 
     private fun onGaugeClick(view: View?): Boolean {
-        PIDs.resetData()
+        PIDs.resetData(mFragmentName == "DSG")
         updateGauges()
 
         return true

@@ -21,6 +21,7 @@ class SettingsMainFragment : Fragment() {
     private var mCarFragment: SettingsCarFragment?          = null
     private var mMode22Fragment: SettingsMode22Fragment?    = null
     private var mMode3EFragment: SettingsMode3EFragment?    = null
+    private var mModeDSGFragment: SettingsModeDSGFragment?  = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -79,6 +80,10 @@ class SettingsMainFragment : Fragment() {
                         mMode3EFragment = SettingsMode3EFragment()
                     }
                     adapter.addFragment(mMode3EFragment!!, "Mode3E")
+                    if (mModeDSGFragment == null) {
+                        mModeDSGFragment = SettingsModeDSGFragment()
+                    }
+                    adapter.addFragment(mModeDSGFragment!!, "ModeDSG")
 
                     pager.adapter = adapter
                     TabLayoutMediator(tabs, pager) { tab, position ->
@@ -119,6 +124,8 @@ class SettingsMainFragment : Fragment() {
         mMode22Fragment     = null
         mMode3EFragment?.onDestroy()
         mMode3EFragment     = null
+        mModeDSGFragment?.onDestroy()
+        mModeDSGFragment     = null
 
         DebugLog.d(TAG, "onDestroy")
     }
@@ -128,6 +135,7 @@ class SettingsMainFragment : Fragment() {
         mCarFragment?.doSetColor()
         mMode22Fragment?.doSetColor()
         mMode3EFragment?.doSetColor()
+        mModeDSGFragment?.doSetColor()
 
         view?.let { currentView ->
             //Set button color
@@ -158,6 +166,7 @@ class SettingsMainFragment : Fragment() {
     fun doLoad() {
         mMode22Fragment?.doLoad()
         mMode3EFragment?.doLoad()
+        mModeDSGFragment?.doLoad()
 
         DebugLog.d(TAG, "doLoad")
     }
@@ -167,6 +176,7 @@ class SettingsMainFragment : Fragment() {
         mCarFragment?.doSave()
         mMode22Fragment?.doSave()
         mMode3EFragment?.doSave()
+        mModeDSGFragment?.doSave()
 
         //Stop all tasks
         sendServiceMessage(BTServiceTask.DO_STOP_TASK.toString())
@@ -180,6 +190,10 @@ class SettingsMainFragment : Fragment() {
             if (pidList != null)
                 PIDs.setList(mode, pidList)
         }
+
+        val pidList = PIDCSVFile.read(getString(R.string.filename_pid_csv, "DSG"), context, UDSLoggingMode.MODE_22.addressMin, UDSLoggingMode.MODE_22.addressMax)
+        if (pidList != null)
+            PIDs.setDSGList(pidList)
 
         // Write config
         ConfigFile.write(getString(R.string.filename_config), context)

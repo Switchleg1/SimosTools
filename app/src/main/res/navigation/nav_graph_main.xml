@@ -21,7 +21,7 @@
 
         <action
             android:id="@+id/action_MainFragment_to_PlaybackFragment"
-            app:destination="@id/PlaybackFragment"/>
+            app:destination="@id/ViewLogFragment"/>
 
         <action
             android:id="@+id/action_MainFragment_to_UtilitiesFragment"
@@ -38,6 +38,18 @@
         android:name="com.app.simostools.LoggingMainFragment"
         android:label="@string/nav_logging"
         tools:layout="@layout/fragment_logging_main">
+
+        <action
+            android:id="@+id/action_LoggingFragment_to_CockpitFragment"
+            app:destination="@id/CockpitFragment"/>
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/CockpitFragment"
+        android:name="com.app.simostools.CockpitFragment"
+        android:label="@string/nav_cockpit"
+        tools:layout="@layout/fragment_cockpit">
     </fragment>
 
     <fragment
@@ -48,33 +60,33 @@
     </fragment>
 
     <fragment
-        android:id="@+id/PlaybackFragment"
-        android:name="com.app.simostools.PlaybackFragment"
+        android:id="@+id/ViewLogFragment"
+        android:name="com.app.simostools.LogViewerFragment"
         android:label="@string/nav_playback"
-        tools:layout="@layout/fragment_playback">
+        tools:layout="@layout/fragment_log_viewer">
 
         <action
             android:id="@+id/action_PlaybackFragment_to_PlaybackEnabledFragment"
-            app:destination="@id/PlaybackEnabledFragment"/>
+            app:destination="@id/ViewLogEnabledFragment"/>
 
         <action
             android:id="@+id/action_PlaybackFragment_to_PlaybackTabsFragment"
-            app:destination="@id/PlaybackTabsFragment"/>
+            app:destination="@id/ViewLogTabsFragment"/>
 
     </fragment>
 
     <fragment
-        android:id="@+id/PlaybackEnabledFragment"
-        android:name="com.app.simostools.PlaybackEnabledFragment"
+        android:id="@+id/ViewLogEnabledFragment"
+        android:name="com.app.simostools.LogViewerEnabledFragment"
         android:label="@string/nav_playback_enabled"
-        tools:layout="@layout/fragment_playback_enabled">
+        tools:layout="@layout/fragment_log_viewer_enabled">
     </fragment>
 
     <fragment
-        android:id="@+id/PlaybackTabsFragment"
-        android:name="com.app.simostools.PlaybackTabsFragment"
+        android:id="@+id/ViewLogTabsFragment"
+        android:name="com.app.simostools.LogViewerTabsFragment"
         android:label="@string/nav_playback_tabs"
-        tools:layout="@layout/fragment_playback_tabs">
+        tools:layout="@layout/fragment_log_viewer_tabs">
     </fragment>
 
     <fragment

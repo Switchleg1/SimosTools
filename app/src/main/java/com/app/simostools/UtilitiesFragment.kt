@@ -125,6 +125,7 @@ class UtilitiesFragment : Fragment() {
         filter.addAction(GUIMessage.STATE_CONNECTION.toString())
         filter.addAction(GUIMessage.STATE_TASK.toString())
         filter.addAction(GUIMessage.UTILITY_INFO.toString())
+        filter.addAction(GUIMessage.UTILITY_INFO_CLEAR.toString())
         filter.addAction(GUIMessage.UTILITY_PROGRESS.toString())
         filter.addAction(GUIMessage.UTILITY_PROGRESS_MAX.toString())
         filter.addAction(GUIMessage.UTILITY_PROGRESS_SHOW.toString())
@@ -152,7 +153,6 @@ class UtilitiesFragment : Fragment() {
                 GUIMessage.UTILITY_PROGRESS.toString()      -> setProgressBar(intent.getIntExtra(GUIMessage.UTILITY_PROGRESS.toString(), 0))
                 GUIMessage.UTILITY_PROGRESS_MAX.toString()  -> setProgressBarMax(intent.getIntExtra(GUIMessage.UTILITY_PROGRESS_MAX.toString(), 0))
                 GUIMessage.UTILITY_PROGRESS_SHOW.toString() -> setProgressBarShow(intent.getBooleanExtra(GUIMessage.UTILITY_PROGRESS_SHOW.toString(), false))
-
             }
         }
     }

@@ -1,10 +1,16 @@
 package com.app.simostools
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.Color
+import android.graphics.Rect
 import android.os.Build
 import android.os.Environment
+import android.util.DisplayMetrics
+import android.view.WindowManager
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import java.util.*
 
@@ -262,7 +268,6 @@ enum class FLASH_ECU_ACTION(){
     NONE,
     FLASH,
     PATCH,
-
 }
 
 //Color List
@@ -372,6 +377,7 @@ enum class ConfigSettings(val cfgName: String, var value: Any) {
     AUTO_LOG("AutoLog", false),
     LOG_NAME("LogName", "simostools"),
     LOG_SUB_FOLDER("LogSubFolder", ""),
+    LOG_DSG("LogDSG", false),
     ADAPTER_NAME("AdapterName", "BLE_TO_ISOTP20");
 
     fun set(newValue: String) {
@@ -479,6 +485,8 @@ val BLE_HEADER_ID               = 0xF1
 val BLE_HEADER_PT               = 0xF2
 val BLE_HEADER_RX               = 0x7E8
 val BLE_HEADER_TX               = 0x7E0
+val BLE_HEADER_DSG_RX           = 0x7E9
+val BLE_HEADER_DSG_TX           = 0x7E1
 
 //Log files
 val DEBUG_LOG_NONE              = 0
@@ -495,22 +503,27 @@ val TQ_CONSTANT                 = 16.3f
 //Max allowed PID count
 val MAX_PIDS                    = 100
 
+//Max CSV size for log viewer
+val MAX_LOG_SIZE                = 2097152
+
 
 val CAL_BLOCK_TRANSFER_SIZE = 0xFFD
 
 
-enum class SIMOS_18(val version: String,
-                    val baseAddresses: UIntArray,
-                    val blockLengths: IntArray,
-                    val fullBinLocations: IntArray,
-                    val blockNumberMap: IntArray,
-                    val checksumLocations: IntArray,
-                    val sa2Script: ByteArray,
-                    val cryptoKey: ByteArray,
-                    val cryptoIV: ByteArray,
-                    val patchBlockNum: Int,
-                    ){
-    _1("Simos 18.1",
+enum class SIMOS_18(
+    val version: String,
+    val baseAddresses: UIntArray,
+    val blockLengths: IntArray,
+    val fullBinLocations: IntArray,
+    val blockNumberMap: IntArray,
+    val checksumLocations: IntArray,
+    val sa2Script: ByteArray,
+    val cryptoKey: ByteArray,
+    val cryptoIV: ByteArray,
+    val patchBlockNum: Int,
+){
+    _1(
+        "Simos 18.1",
         //baseAddresses
         uintArrayOf(
             (0x80000000).toUInt(),  // SBOOT
@@ -542,7 +555,7 @@ enum class SIMOS_18(val version: String,
         ),
         //blockNUmberMap
         intArrayOf(
-            0,1,2,3,4,5
+            0, 1, 2, 3, 4, 5
         ),
         //ChecksumLocations
         intArrayOf(
@@ -553,7 +566,7 @@ enum class SIMOS_18(val version: String,
             0x0,
             0x300,
 
-        ),
+            ),
         //SA2 Script:
         byteArrayOf(
             0x68.toByte(),
@@ -654,7 +667,8 @@ enum class SIMOS_18(val version: String,
             return 0x8
         }
      },
-    _10("Simos 18.10",
+    _10(
+        "Simos 18.10",
         //baseAddresses
         uintArrayOf(
             (0x80000000).toUInt(),  // SBOOT
@@ -686,7 +700,7 @@ enum class SIMOS_18(val version: String,
         ),
         //blockNumberMap
         intArrayOf(
-            0,1,2,3,4,5
+            0, 1, 2, 3, 4, 5
         ),
         //checksumLocaations
         intArrayOf(
@@ -811,6 +825,19 @@ enum class COMPATIBLE_BOXCODE_VERSIONS(val str: String, val allowedBoxCodes: Arr
     _5G0906259Q("5G0906259Q", arrayOf("5G0906259Q", "06K907425J"), intArrayOf(0x60, 0x6B), intArrayOf(59916,72756), SIMOS_18._10),
     _8V0906259Q("8V0906259Q", arrayOf("8V0906259Q", "06K907425J"), intArrayOf(0x60, 0x6B), intArrayOf(59916,72756), SIMOS_18._10),
     _5G0906259Q_PATCH("5G0906259Q_PATCH", arrayOf("5G0906259Q", "06K907425J"), intArrayOf(0x60, 0x6B), intArrayOf(60140,73072), SIMOS_18._10),
+}
+
+fun getScreenResolution(context: Context): Rect {
+    val dp = context.resources.configuration
+    val screenSize: Int = context.resources.configuration.screenLayout and Configuration.SCREENLAYOUT_SIZE_MASK
+    val size = when (screenSize) {
+        Configuration.SCREENLAYOUT_SIZE_LARGE -> 600
+        Configuration.SCREENLAYOUT_SIZE_NORMAL -> 400
+        Configuration.SCREENLAYOUT_SIZE_SMALL -> 200
+        else -> 0
+    }
+
+    return Rect(dp.screenWidthDp, dp.screenHeightDp, size, size)
 }
 
 //Additional properties

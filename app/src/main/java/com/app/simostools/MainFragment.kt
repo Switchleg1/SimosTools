@@ -100,8 +100,16 @@ class MainFragment : Fragment() {
                     )
                 }
 
+                //write current PID list
+                PIDCSVFile.write(
+                    getString(R.string.filename_pid_csv, "DSG"),
+                    requireActivity(),
+                    PIDs.getDSGList(),
+                    true
+                )
+
                 //clear globals
-                gPlaybackData = null
+                gLogViewerData = null
                 gUtilitiesMsgList = emptyArray()
                 gFlashMsgList = emptyArray()
 

@@ -16,9 +16,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:tabTextColor="#fff"
-        app:tabMode="scrollable" >
-    </com.google.android.material.tabs.TabLayout>
+        app:tabMode="scrollable"
+        app:tabTextAppearance="@style/TabTextLoggingNormal" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPagerLogging"
@@ -28,8 +27,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tabLayoutLogging" >
-    </androidx.viewpager2.widget.ViewPager2>
+        app:layout_constraintTop_toBottomOf="@+id/tabLayoutLogging" />
 
     <TextView
         android:id="@+id/textViewPackCount"

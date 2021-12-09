@@ -92,16 +92,16 @@
                 android:id="@+id/button22CSV"
                 android:layout_weight="1"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_height="64dp"
                 android:text="@string/textview_settings_import_22_csv"
                 android:textSize="24sp"/>
 
             <com.app.simostools.SwitchButton
-                android:id="@+id/button3ECSV"
+                android:id="@+id/button22CSVReset"
                 android:layout_weight="1"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:text="@string/textview_settings_import_3E_csv"
+                android:layout_height="64dp"
+                android:text="@string/textview_settings_import_22_csv_reset"
                 android:textSize="24sp"/>
 
         </LinearLayout>
@@ -112,19 +112,42 @@
             android:orientation="horizontal">
 
             <com.app.simostools.SwitchButton
-                android:id="@+id/button22CSVReset"
+                android:id="@+id/button3ECSV"
                 android:layout_weight="1"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:text="@string/textview_settings_import_22_csv_reset"
+                android:layout_height="64dp"
+                android:text="@string/textview_settings_import_3E_csv"
                 android:textSize="24sp"/>
 
             <com.app.simostools.SwitchButton
                 android:id="@+id/button3ECSVReset"
                 android:layout_weight="1"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_height="64dp"
                 android:text="@string/textview_settings_import_3E_csv_reset"
+                android:textSize="24sp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.app.simostools.SwitchButton
+                android:id="@+id/buttonDSGCSV"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:text="@string/textview_settings_import_DSG_csv"
+                android:textSize="24sp"/>
+
+            <com.app.simostools.SwitchButton
+                android:id="@+id/buttonDSGCSVReset"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:text="@string/textview_settings_import_DSG_csv_reset"
                 android:textSize="24sp"/>
 
         </LinearLayout>
@@ -289,6 +312,14 @@
             android:layout_marginTop="8dp"
             app:autoSizeTextType="uniform"
             app:lineHeight="60dp" />
+
+        <CheckBox
+            android:id="@+id/checkBoxLogDSG"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:minHeight="48dp"
+            android:text="@string/check_settings_log_dsg" />
 
         <RadioGroup
             android:id="@+id/radioGroupMode"
@@ -677,7 +708,7 @@
         <View
             android:id="@+id/divider26"
             android:layout_width="match_parent"
-            android:layout_height="64dp"
+            android:layout_height="15dp"
             android:background="?android:attr/listDivider" />
 
     </LinearLayout>

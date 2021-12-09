@@ -13,19 +13,9 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.os.ParcelUuid
-import android.widget.Toast
-import androidx.core.os.HandlerCompat.postDelayed
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Semaphore
-import android.R.attr.name
-import android.R.attr.name
-
-
-
-
-
-
 
 // Header we expect to receive on BLE packets
 class BLEHeader {
@@ -852,8 +842,7 @@ class BTService: Service() {
                 DebugLog.e(TAG, "Invalid logging rates.", e)
             }
 
-            val intentMessage = Intent(GUIMessage.FLASH_INFO_CLEAR.toString())
-            sendBroadcast(intentMessage)
+            UDSLogger.setModeDSG(ConfigSettings.LOG_DSG.toBoolean())
 
             //Write first frame
             writePacket(UDSLogger.startTask(0))
@@ -962,7 +951,7 @@ class BTService: Service() {
                     }
                 } else { //We are receiving data
                     if (result != UDSReturn.OK) {
-                        DebugLog.w(TAG, "Logging data error , UDS Error: $result")
+                        DebugLog.w(TAG, "Logging data error, UDS Error: $result")
                         setTaskState(UDSTask.NONE)
                     } else {
                         //Broadcast new PID data

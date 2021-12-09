@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".LogViewerFragment"
+    android:id="@+id/LogViewerLayout">
+
+    <com.app.simostools.SwitchGraph
+        android:id="@+id/switchGraph"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/buttonButtonDrawer"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <com.app.simostools.SwitchButton
+        android:id="@+id/buttonButtonDrawer"
+        android:layout_width="32dp"
+        android:layout_height="192dp"
+        android:text="@string/button_arrow_right"
+        android:textSize="24sp"
+        app:layout_constraintStart_toEndOf="@+id/switchGraph"
+        app:layout_constraintEnd_toStartOf="@+id/layoutButtons"
+        app:layout_constraintTop_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="parent"/>
+
+    <LinearLayout
+        android:id="@+id/layoutButtons"
+        android:layout_width="128dp"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toEndOf="@+id/buttonButtonDrawer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" >
+
+        <LinearLayout
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <com.app.simostools.SwitchButton
+                android:id="@+id/buttonSetPIDS"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="@string/button_set_pids"
+                android:textSize="24sp" />
+
+            <com.app.simostools.SwitchButton
+                android:id="@+id/buttonSetTabs"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="@string/button_set_tabs"
+                android:textSize="24sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <com.app.simostools.SwitchButton
+                android:id="@+id/buttonLoad"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="@string/button_load_csv"
+                android:textSize="24sp" />
+
+            <com.app.simostools.SwitchButton
+                android:id="@+id/buttonBack"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="@string/button_back"
+                android:textSize="24sp" />
+
+        </LinearLayout>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
