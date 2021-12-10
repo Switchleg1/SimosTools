@@ -93,7 +93,7 @@ class FlashingFragment : Fragment() {
             paintRim.color = ColorList.BT_RIM.value
             setTextColor(ColorList.BT_TEXT.value)
             setOnClickListener {
-                //clickFlash(true)
+                clickFlash(true)
             }
         }
 
