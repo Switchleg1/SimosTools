@@ -59,12 +59,27 @@
             android:orientation="horizontal">
 
             <com.app.simostools.SwitchButton
+                android:id="@+id/buttonLogViewer"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:text="@string/button_log_viewer"
+                android:textSize="42sp" />
+
+            <com.app.simostools.SwitchButton
                 android:id="@+id/buttonMainUtilities"
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:text="@string/button_utilities"
                 android:textSize="42sp" />
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="horizontal">
 
             <com.app.simostools.SwitchButton
                 android:id="@+id/buttonMainSettings"
@@ -74,14 +89,14 @@
                 android:text="@string/button_settings"
                 android:textSize="42sp" />
 
-        </LinearLayout>
-        <com.app.simostools.SwitchButton
-            android:id="@+id/buttonMainExit"
-            android:layout_marginHorizontal="64dp"
-            android:layout_width="match_parent"
-            android:layout_height="128dp"
-            android:text="@string/button_exit"
-            android:textSize="42sp" />
+            <com.app.simostools.SwitchButton
+                android:id="@+id/buttonMainExit"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:text="@string/button_exit"
+                android:textSize="42sp" />
 
+        </LinearLayout>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

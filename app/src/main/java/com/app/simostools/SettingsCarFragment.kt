@@ -149,6 +149,11 @@ class SettingsCarFragment : Fragment() {
             currentView.findViewById<EditText>(R.id.editTextGear7).setTextColor(color)
             currentView.findViewById<EditText>(R.id.editTextGearFinal).setTextColor(color)
 
+            //Set dividers
+            currentView.findViewById<View>(R.id.divider1).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider2).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider3).setBackgroundColor(ColorList.BT_RIM.value)
+
             //Set background color
             currentView.setBackgroundColor(ColorList.BG_NORMAL.value)
         }

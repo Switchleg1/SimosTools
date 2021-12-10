@@ -7,7 +7,7 @@ data class DTCStruct(val code: Int,
 
 object DTCs {
     private val TAG         = "DTCs"
-    var list: Array<DTCStruct?> = arrayOf(
+    var list: List<DTCStruct?> = listOf(
         DTCStruct(14823,"P060600","ECM/PCM Processor","SV_ERR_SYM_ACQ_KNK.14823"),
         DTCStruct(14824,"P157500","Right Electro-Hydraulic Engine Mount Solenoid Valve Short circuit to B+","SV_ERR_SYM_AEB_SCP_0.14824"),
         DTCStruct(14825,"P157600","Right Electro-Hydraulic Engine Mount Solenoid Valve Short circuit to ground","SV_ERR_SYM_AEB_SCG_0.14825"),

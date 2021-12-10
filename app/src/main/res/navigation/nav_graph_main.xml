@@ -20,6 +20,10 @@
             app:destination="@id/FlashingFragment"/>
 
         <action
+            android:id="@+id/action_MainFragment_to_LogViewerFragment"
+            app:destination="@id/LogViewerFragment"/>
+
+        <action
             android:id="@+id/action_MainFragment_to_UtilitiesFragment"
             app:destination="@id/UtilitiesFragment"/>
 
@@ -34,6 +38,22 @@
         android:name="com.app.simostools.LoggingMainFragment"
         android:label="@string/nav_logging"
         tools:layout="@layout/fragment_logging_main">
+
+        <action
+            android:id="@+id/action_LoggingFragment_to_CockpitFragment"
+            app:destination="@id/CockpitFragment"/>
+
+        <action
+            android:id="@+id/action_LoggingFragment_to_LogViewer"
+            app:destination="@id/LogViewerFragment"/>
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/CockpitFragment"
+        android:name="com.app.simostools.CockpitFragment"
+        android:label="@string/nav_cockpit"
+        tools:layout="@layout/fragment_cockpit">
     </fragment>
 
     <fragment
@@ -41,6 +61,36 @@
         android:name="com.app.simostools.FlashingFragment"
         android:label="@string/nav_flashing"
         tools:layout="@layout/fragment_flashing">
+    </fragment>
+
+    <fragment
+        android:id="@+id/LogViewerFragment"
+        android:name="com.app.simostools.LogViewerFragment"
+        android:label="@string/nav_log_viewer"
+        tools:layout="@layout/fragment_log_viewer">
+
+        <action
+            android:id="@+id/action_LogViewerFragment_to_LogViewerEnabledFragment"
+            app:destination="@id/LogViewerEnabledFragment"/>
+
+        <action
+            android:id="@+id/action_LogViewerFragment_to_LogViewerTabsFragment"
+            app:destination="@id/LogViewerTabsFragment"/>
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/LogViewerEnabledFragment"
+        android:name="com.app.simostools.LogViewerEnabledFragment"
+        android:label="@string/nav_log_viewer_enabled"
+        tools:layout="@layout/fragment_log_viewer_enabled">
+    </fragment>
+
+    <fragment
+        android:id="@+id/LogViewerTabsFragment"
+        android:name="com.app.simostools.LogViewerTabsFragment"
+        android:label="@string/nav_log_viewer_tabs"
+        tools:layout="@layout/fragment_log_viewer_tabs">
     </fragment>
 
     <fragment

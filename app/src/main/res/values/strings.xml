@@ -7,6 +7,10 @@
     <string name="nav_logging">Logging</string>
     <string name="nav_settings">Settings</string>
     <string name="nav_color">Color</string>
+    <string name="nav_log_viewer">Log Viewer</string>
+    <string name="nav_log_viewer_enabled">Log Viewer Enabled</string>
+    <string name="nav_log_viewer_tabs">Log Viewer Tabs</string>
+    <string name="nav_cockpit">Cockpit</string>
     <!-- Strings used for tabs -->
     <string name="tab_tools">Tools</string>
     <string name="tab_settings">Settings</string>
@@ -14,6 +18,17 @@
     <!-- Strings used for buttons -->
     <string name="switch_enable">Enable</string>
     <!-- Strings used for buttons -->
+    <string name="button_arrow_left">«</string>
+    <string name="button_arrow_right">»</string>
+    <string name="button_arrow_up">↑</string>
+    <string name="button_arrow_down">↓</string>
+    <string name="button_log_viewer">Log Viewer</string>
+    <string name="button_quick_view">Quick View</string>
+    <string name="button_none">None</string>
+    <string name="button_ok">Ok</string>
+    <string name="button_set_pids">Set PIDS</string>
+    <string name="button_set_tabs">Set Tabs</string>
+    <string name="button_load_csv">Load CSV</string>
     <string name="button_exit">Exit</string>
     <string name="button_flashing">Flashing</string>
     <string name="button_logging">Logging</string>
@@ -58,6 +73,7 @@
     <string name="check_settings_use_accelerometers">Use Accelerometers? (3E)</string>
     <string name="check_settings_always_portrait">Always use portrait view?</string>
     <string name="check_settings_auto_log">Start logging when idle?</string>
+    <string name="check_settings_log_dsg">Log DSG?</string>
     <!-- Strings used for radio buttons -->
     <string name="radio_settings_display_bar_h">Bar horizontal</string>
     <string name="radio_settings_display_bar_v">Bar vertical</string>
@@ -69,6 +85,8 @@
     <string name="radio_settings_mode_documents">Documents</string>
     <string name="radio_settings_mode_application">Application</string>
     <!-- Strings used for textview -->
+    <string name="textview_settings_log_sub_folder">Sub directory:</string>
+    <string name="textview_settings_connection_settings">Connection settings:</string>
     <string name="textview_settings_curb_weight">Curb weight: <xliff:g id="rate">%1$d</xliff:g>kg</string>
     <string name="textview_settings_driver_weight">Driver weight: <xliff:g id="rate">%1$d</xliff:g>kg</string>
     <string name="textview_settings_tire_diameter">Tire diameter: <xliff:g id="rate">%1$f</xliff:g>m</string>
@@ -95,8 +113,10 @@
     <string name="textview_settings_import_csv">Import PID CSV:</string>
     <string name="textview_settings_import_22_csv">22 CSV</string>
     <string name="textview_settings_import_3E_csv">3E CSV</string>
+    <string name="textview_settings_import_DSG_csv">DSG CSV</string>
     <string name="textview_settings_import_22_csv_reset">Reset 22 CSV</string>
     <string name="textview_settings_import_3E_csv_reset">Reset 3E CSV</string>
+    <string name="textview_settings_import_DSG_csv_reset">Reset DSG CSV</string>
     <string name="textview_settings_adapter_name">Adapter name:</string>
     <string name="textview_settings_pid_up">↑</string>
     <string name="textview_settings_pid_down">↓</string>

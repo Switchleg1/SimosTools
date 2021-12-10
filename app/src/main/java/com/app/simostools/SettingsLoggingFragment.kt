@@ -13,17 +13,20 @@ import androidx.recyclerview.widget.ItemTouchHelper
 object TempPIDS {
     var list22: Array<PIDStruct?>?  = null
     var list3E: Array<PIDStruct?>?  = null
+    var listDSG: Array<PIDStruct?>? = null
 
     fun reset(context: Context?) {
         context?.let {
-            list22 = PIDs.list22?.clone()
-            list3E = PIDs.list3E?.clone()
+            list22  = PIDs.list22?.clone()
+            list3E  = PIDs.list3E?.clone()
+            listDSG = PIDs.listDSG?.clone()
         }
     }
 
     fun clear() {
-        list22 = arrayOfNulls(0)
-        list3E = arrayOfNulls(0)
+        list22  = arrayOfNulls(0)
+        list3E  = arrayOfNulls(0)
+        listDSG = arrayOfNulls(0)
     }
 
     fun save(context: Context?) {
@@ -41,6 +44,8 @@ object TempPIDS {
                     UDSLoggingMode.MODE_3E.cfgName
                 ), context, list3E, true
             )
+            PIDCSVFile.write(context.getString(R.string.filename_pid_csv, "DSG"), context, listDSG, true
+            )
         }
     }
 }
@@ -57,9 +62,17 @@ class SettingsMode3EFragment: SettingsLoggingFragment() {
     override val mLayout    = R.layout.fragment_settings_mode3e
 }
 
+class SettingsModeDSGFragment: SettingsLoggingFragment() {
+    override val TAG        = "SettingsDSG"
+    override val mMode      = UDSLoggingMode.MODE_22
+    override val mLayout    = R.layout.fragment_settings_modedsg
+    override val mDSG       = true
+}
+
 open class SettingsLoggingFragment : Fragment() {
     open val TAG                                    = "Settings"
     open val mMode                                  = UDSLoggingMode.MODE_22
+    open val mDSG                                   = false
     open val mLayout                                = R.layout.fragment_settings_mode22
     open val mPIDLayout                             = R.id.recycleViewPID
     private var mPIDAdapter: SettingsViewAdapter?   = null
@@ -114,7 +127,8 @@ open class SettingsLoggingFragment : Fragment() {
             // set up the RecyclerView
             val recyclerView: RecyclerView = currentView.findViewById(R.id.recycleViewPID)
             recyclerView.layoutManager = LinearLayoutManager(context)
-            mPIDAdapter = when (mMode) {
+            mPIDAdapter = if(mDSG) SettingsViewAdapter(context, TempPIDS.listDSG)
+            else when (mMode) {
                 UDSLoggingMode.MODE_22 -> SettingsViewAdapter(context, TempPIDS.list22)
                 UDSLoggingMode.MODE_3E -> SettingsViewAdapter(context, TempPIDS.list3E)
             }

@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.Rect
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +18,12 @@ import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import android.util.DisplayMetrics
+
+import android.view.Display
+
+import android.view.WindowManager
+import androidx.core.view.size
 
 class LoggingViewModel : ViewModel() {
     var currentTask: UDSTask = UDSTask.NONE
@@ -48,15 +55,33 @@ class LoggingMainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         mViewModel = ViewModelProvider(this).get(LoggingViewModel::class.java)
 
-        val backButton = view.findViewById<SwitchButton>(R.id.buttonLoggingBack)
+        val backButton = view.findViewById<SwitchButton>(R.id.buttonBack)
         backButton.apply {
             paintBG.color = ColorList.BT_BG.value
             paintRim.color = ColorList.BT_RIM.value
             setTextColor(ColorList.BT_TEXT.value)
             setOnClickListener {
                 findNavController().navigateUp()
+            }
+        }
+
+        val quickViewButton = view.findViewById<SwitchButton>(R.id.buttonQuickView)
+        quickViewButton.apply {
+            paintBG.color = ColorList.BT_BG.value
+            paintRim.color = ColorList.BT_RIM.value
+            setTextColor(ColorList.BT_TEXT.value)
+            setOnClickListener {
+                gLogViewerLoadLast = true
+                findNavController().navigate(R.id.action_LoggingFragment_to_LogViewer)
+            }
+
+            setOnLongClickListener {
+                findNavController().navigate(R.id.action_LoggingFragment_to_CockpitFragment)
+
+                return@setOnLongClickListener true
             }
         }
 
@@ -72,11 +97,17 @@ class LoggingMainFragment : Fragment() {
                 mViewAdapter = LoggingViewPagerAdapter(this)
                 mViewAdapter?.let { adapter ->
                     //Add tabs
-                    adapter.add("All")
+                    if(PIDs.getTabs().contains("Default"))
+                        adapter.add("Default")
                     PIDs.getTabs().toSortedMap().forEach {
-                        if(it.key != "")
+                        if(it.key != "" && it.key != "Default")
                             adapter.add(it.key)
                     }
+                    adapter.add("ECU")
+                    if(ConfigSettings.LOG_DSG.toBoolean())
+                        adapter.add("DSG")
+
+                    adapter.add("Cockpit")
 
                     pager.adapter = adapter
                     TabLayoutMediator(tabs, pager) { tab, position ->
@@ -132,6 +163,8 @@ class LoggingMainFragment : Fragment() {
         //Clear stats are startup
         if(readCount < 50) {
             PIDs.resetData()
+            if(UDSLogger.getModeDSG())
+                PIDs.resetData(true)
         }
 
         //Update fps

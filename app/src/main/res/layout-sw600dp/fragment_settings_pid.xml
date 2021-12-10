@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="750dp"
+    android:layout_height="508dp"
     android:layout_width="match_parent"
     android:orientation="vertical"
     android:id="@+id/fragment_settings_pid"
@@ -29,7 +29,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:text="@string/textview_settings_pid_up"
-                android:textSize="32sp"/>
+                android:textSize="28sp"/>
 
             <com.app.simostools.SwitchButton
                 android:id="@+id/buttonDown"
@@ -37,7 +37,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:text="@string/textview_settings_pid_down"
-                android:textSize="32sp"/>
+                android:textSize="28sp"/>
 
         </LinearLayout>
 
@@ -47,7 +47,7 @@
             android:orientation="vertical">
 
             <LinearLayout
-                android:layout_height="96dp"
+                android:layout_height="64dp"
                 android:layout_width="match_parent"
                 android:orientation="horizontal">
 
@@ -62,7 +62,7 @@
                         android:layout_width="112dp"
                         android:layout_height="match_parent"
                         android:text="@string/textview_settings_pid_name"
-                        android:textSize="32sp"
+                        android:textSize="28sp"
                         android:layout_marginTop="16dp"/>
 
                     <EditText
@@ -84,7 +84,7 @@
                         android:layout_width="112dp"
                         android:layout_height="match_parent"
                         android:text="@string/textview_settings_pid_unit"
-                        android:textSize="32sp"
+                        android:textSize="28sp"
                         android:layout_marginTop="16dp"/>
 
                     <EditText
@@ -98,7 +98,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:layout_height="96dp"
+                android:layout_height="64dp"
                 android:layout_width="match_parent"
                 android:orientation="horizontal">
 
@@ -113,7 +113,7 @@
                         android:layout_width="128dp"
                         android:layout_height="match_parent"
                         android:text="@string/textview_settings_pid_address"
-                        android:textSize="32sp"
+                        android:textSize="28sp"
                         android:layout_marginTop="8dp"/>
 
                     <EditText
@@ -135,7 +135,7 @@
                         android:layout_width="112dp"
                         android:layout_height="match_parent"
                         android:text="@string/textview_settings_pid_length"
-                        android:textSize="32sp"
+                        android:textSize="28sp"
                         android:layout_marginTop="8dp"/>
 
                     <EditText
@@ -149,7 +149,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:layout_height="96dp"
+                android:layout_height="64dp"
                 android:layout_width="match_parent"
                 android:orientation="horizontal">
 
@@ -164,7 +164,7 @@
                         android:layout_width="112dp"
                         android:layout_height="match_parent"
                         android:text="@string/textview_settings_pid_gauge_min"
-                        android:textSize="32sp"/>
+                        android:textSize="28sp"/>
 
                     <EditText
                         android:id="@+id/editTextGaugeMin"
@@ -186,7 +186,7 @@
                         android:layout_width="112dp"
                         android:layout_height="match_parent"
                         android:text="@string/textview_settings_pid_gauge_max"
-                        android:textSize="32sp"/>
+                        android:textSize="28sp"/>
 
                     <EditText
                         android:id="@+id/editTextGaugeMax"
@@ -199,7 +199,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:layout_height="96dp"
+                android:layout_height="64dp"
                 android:layout_width="match_parent"
                 android:orientation="horizontal">
 
@@ -214,7 +214,7 @@
                         android:layout_width="112dp"
                         android:layout_height="match_parent"
                         android:text="@string/textview_settings_pid_warn_min"
-                        android:textSize="32sp"/>
+                        android:textSize="28sp"/>
 
                     <EditText
                         android:id="@+id/editTextWarnMin"
@@ -236,7 +236,7 @@
                         android:layout_width="112dp"
                         android:layout_height="match_parent"
                         android:text="@string/textview_settings_pid_warn_max"
-                        android:textSize="32sp"/>
+                        android:textSize="28sp"/>
 
                     <EditText
                         android:id="@+id/editTextWarnMax"
@@ -249,7 +249,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:layout_height="96dp"
+                android:layout_height="64dp"
                 android:layout_width="match_parent"
                 android:orientation="horizontal">
 
@@ -264,7 +264,7 @@
                         android:layout_width="148dp"
                         android:layout_height="match_parent"
                         android:text="@string/textview_settings_pid_equation"
-                        android:textSize="32sp"
+                        android:textSize="28sp"
                         android:layout_marginTop="16dp"/>
 
                     <EditText
@@ -286,7 +286,7 @@
                         android:layout_width="112dp"
                         android:layout_height="match_parent"
                         android:text="@string/textview_settings_pid_format"
-                        android:textSize="32sp"
+                        android:textSize="28sp"
                         android:layout_marginTop="16dp"/>
 
                     <EditText
@@ -300,7 +300,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:layout_height="96dp"
+                android:layout_height="64dp"
                 android:layout_width="match_parent"
                 android:orientation="horizontal">
 
@@ -315,7 +315,7 @@
                         android:layout_width="160dp"
                         android:layout_height="match_parent"
                         android:text="@string/textview_settings_pid_smoothing"
-                        android:textSize="32sp"
+                        android:textSize="28sp"
                         android:layout_marginTop="16dp"/>
 
                     <EditText
@@ -338,7 +338,7 @@
                         android:layout_width="160dp"
                         android:layout_height="match_parent"
                         android:text="@string/textview_settings_pid_assign_to"
-                        android:textSize="32sp"
+                        android:textSize="28sp"
                         android:layout_marginTop="16dp"/>
 
                     <EditText
@@ -352,7 +352,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:layout_height="96dp"
+                android:layout_height="64dp"
                 android:layout_width="match_parent"
                 android:orientation="horizontal"
                 android:baselineAligned="false">
@@ -363,7 +363,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:text="@string/textview_settings_pid_enabled"
-                    android:textSize="32sp"/>
+                    android:textSize="28sp"/>
 
                 <LinearLayout
                     android:layout_weight="1"
@@ -376,7 +376,7 @@
                         android:layout_width="100dp"
                         android:layout_height="match_parent"
                         android:text="@string/textview_settings_pid_tabs"
-                        android:textSize="32sp"
+                        android:textSize="28sp"
                         android:layout_marginTop="16dp"/>
 
                     <EditText

@@ -93,7 +93,7 @@ class FlashingFragment : Fragment() {
             paintRim.color = ColorList.BT_RIM.value
             setTextColor(ColorList.BT_TEXT.value)
             setOnClickListener {
-                clickFlash(true)
+                //clickFlash(true)
             }
         }
 
@@ -167,15 +167,15 @@ class FlashingFragment : Fragment() {
         override fun onReceive(context: Context?, intent: Intent) {
             DebugLog.d(TAG, "Flashing Fragment received action: " + intent.action.toString())
             when (intent.action) {
-                GUIMessage.STATE_CONNECTION.toString()    -> mViewModel.connectionState = intent.getSerializableExtra(GUIMessage.STATE_CONNECTION.toString()) as BLEConnectionState
-                GUIMessage.STATE_TASK.toString()          -> mViewModel.connectionState = BLEConnectionState.CONNECTED
-                GUIMessage.FLASH_INFO.toString()          -> doWriteMessage(intent.getStringExtra(GUIMessage.FLASH_INFO.toString())?: "")
-                GUIMessage.FLASH_INFO_CLEAR.toString()    -> doClearMessages()
-                GUIMessage.FLASH_PROGRESS.toString()      -> setProgressBar(intent.getIntExtra(GUIMessage.FLASH_PROGRESS.toString(), 0))
-                GUIMessage.FLASH_PROGRESS_MAX.toString()  -> setProgressBarMax(intent.getIntExtra(GUIMessage.FLASH_PROGRESS_MAX.toString(), 0))
-                GUIMessage.FLASH_PROGRESS_SHOW.toString() -> setProgressBarShow(intent.getBooleanExtra(GUIMessage.FLASH_PROGRESS_SHOW.toString(), false))
-                GUIMessage.FLASH_CONFIRM.toString()       -> promptUserConfirmation()
-                GUIMessage.FLASH_BUTTON_RESET.toString()  -> resetFlashButton(false)
+                GUIMessage.STATE_CONNECTION.toString()      -> mViewModel.connectionState = intent.getSerializableExtra(GUIMessage.STATE_CONNECTION.toString()) as BLEConnectionState
+                GUIMessage.STATE_TASK.toString()            -> mViewModel.connectionState = BLEConnectionState.CONNECTED
+                GUIMessage.FLASH_INFO.toString()            -> doWriteMessage(intent.getStringExtra(GUIMessage.FLASH_INFO.toString())?: "")
+                GUIMessage.FLASH_INFO_CLEAR.toString()      -> doClearMessages()
+                GUIMessage.FLASH_PROGRESS.toString()        -> setProgressBar(intent.getIntExtra(GUIMessage.FLASH_PROGRESS.toString(), 0))
+                GUIMessage.FLASH_PROGRESS_MAX.toString()    -> setProgressBarMax(intent.getIntExtra(GUIMessage.FLASH_PROGRESS_MAX.toString(), 0))
+                GUIMessage.FLASH_PROGRESS_SHOW.toString()   -> setProgressBarShow(intent.getBooleanExtra(GUIMessage.FLASH_PROGRESS_SHOW.toString(), false))
+                GUIMessage.FLASH_CONFIRM.toString()         -> promptUserConfirmation()
+                GUIMessage.FLASH_BUTTON_RESET.toString()    -> resetFlashButton(false)
             }
         }
     }
@@ -186,8 +186,10 @@ class FlashingFragment : Fragment() {
 
         if (mViewModel.connectionState == BLEConnectionState.CONNECTED) {
             mViewModel.flashFull = full
-            var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
-            chooseFile.type = "*/*"
+            var chooseFile = Intent(Intent.ACTION_GET_CONTENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "*/*"
+            }
             chooseFile = Intent.createChooser(chooseFile, "Choose a Fullbin")
             resultPickLauncher.launch(chooseFile)
         } else {
@@ -230,26 +232,19 @@ class FlashingFragment : Fragment() {
                         MotionEvent.ACTION_UP -> {
                             var now = SystemClock.uptimeMillis()
                             if(now - flashConfirmationHoldTime > 1000){
-
                                 sendServiceMessage(BTServiceTask.FLASH_CONFIRMED.toString())
-
-
                             }
                             else{
-
                                 sendServiceMessage(BTServiceTask.FLASH_CANCELED.toString())
-
-
                             }
-
                         }
                     }
 
                     return v?.onTouchEvent(event) ?: true
                 }
             })
-            setOnClickListener {
 
+            setOnClickListener {
             }
         }
     }

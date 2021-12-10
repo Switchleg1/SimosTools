@@ -10,6 +10,7 @@ object UDSLogger {
     private val TAG                 = "UDSlog"
     private var mLastEnabled        = false
     private var mMode               = UDSLoggingMode.MODE_22
+    private var mLogDSG             = false
     private var mTorquePID          = -1
     private var mEngineRPMPID       = -1
     private var mMS2PID             = -1
@@ -20,13 +21,25 @@ object UDSLogger {
     private var mFoundTQPIDS        = false
     private var mEnabledArray22     = byteArrayOf()
     private var mEnabledArray3E     = byteArrayOf()
+    private var mEnabledArrayDSG    = byteArrayOf()
     private var mAddressArray22     = byteArrayOf()
     private var mAddressArray3E     = byteArrayOf()
+    private var mAddressArrayDSG    = byteArrayOf()
     private var mTimeoutCounter     = TIME_OUT_LOGGING
     private var mCalculatedTQ       = 0f
     private var mCalculatedHP       = 0f
     private var mLastFrameSize      = -1
     private var mRevision           = "SimosTools [R1.4:We don't respond to emails]"
+
+    fun clear() {
+        LogFile.close()
+        mEnabledArray22     = byteArrayOf()
+        mEnabledArray3E     = byteArrayOf()
+        mEnabledArrayDSG    = byteArrayOf()
+        mAddressArray22     = byteArrayOf()
+        mAddressArray3E     = byteArrayOf()
+        mAddressArrayDSG    = byteArrayOf()
+    }
 
     fun getTQ(): Float {
         return mCalculatedTQ
@@ -48,10 +61,24 @@ object UDSLogger {
         return mMode
     }
 
+    fun setModeDSG(dsg: Boolean) {
+        mLogDSG = dsg
+    }
+
+    fun getModeDSG(): Boolean {
+        return mLogDSG
+    }
+
     fun frameCount(): Int {
         return when (mMode) {
-            UDSLoggingMode.MODE_22 -> frameCount22()
-            UDSLoggingMode.MODE_3E -> frameCount3E()
+            UDSLoggingMode.MODE_22 -> {
+                if(mLogDSG) frameCount22() + frameCountDSG()
+                else frameCount22()
+            }
+            UDSLoggingMode.MODE_3E -> {
+                if(mLogDSG) frameCount3E() + frameCountDSG()
+                else frameCount3E()
+            }
         }
     }
 
@@ -139,14 +166,14 @@ object UDSLogger {
     }
 
     private fun resetHPPIDS() {
-        mFoundTQPIDS = false
-        mFoundMS2PIDS = false
-        mTorquePID = -1
-        mEngineRPMPID = -1
-        mMS2PID = -1
-        mGearPID = -1
-        mVelocityPID = -1
-        mTireCircumference = ConfigSettings.TIRE_DIAMETER.toFloat() * 3.14f
+        mFoundTQPIDS        = false
+        mFoundMS2PIDS       = false
+        mTorquePID          = -1
+        mEngineRPMPID       = -1
+        mMS2PID             = -1
+        mGearPID            = -1
+        mVelocityPID        = -1
+        mTireCircumference  = ConfigSettings.TIRE_DIAMETER.toFloat() * 3.14f
     }
 
     private fun findHPPIDS() {
@@ -219,8 +246,15 @@ object UDSLogger {
         return (mAddressArray3E.count() / 0x8F) + 2
     }
 
-    private fun buildEnabledArray(mode: UDSLoggingMode = getMode()): ByteArray {
-        PIDs.getList(mode)?.let { list ->
+    private fun frameCountDSG(): Int {
+        return ((mAddressArrayDSG.count() - 1) / 16) + 1
+    }
+
+    private fun buildEnabledArray(mode: UDSLoggingMode = getMode(), DSG: Boolean = false): ByteArray {
+        val pidList = if(DSG) PIDs.listDSG
+        else PIDs.getList()
+
+        pidList?.let { list ->
             //build list of addresses that are enabled
             var enabledArray: ByteArray = byteArrayOf()
             for (i in 0 until list.count()) {
@@ -236,6 +270,10 @@ object UDSLogger {
         }
 
         return byteArrayOf()
+    }
+
+    private fun buildEnabledArrayDSG(): ByteArray {
+        return buildEnabledArray(UDSLoggingMode.MODE_22, true)
     }
 
     private fun buildAddress22(): ByteArray {
@@ -278,15 +316,61 @@ object UDSLogger {
         return byteArrayOf()
     }
 
+    private fun buildAddressDSG(): ByteArray {
+        PIDs.listDSG?.let { list ->
+            //build list of addresses that are enabled
+            var addressArray: ByteArray = byteArrayOf()
+            for (i in 0 until mEnabledArrayDSG.count()) {
+                val pid: PIDStruct? = list[mEnabledArrayDSG[i].toInt()]
+                pid?.let {
+                    if (it.enabled && it.address != UDSLoggingMode.MODE_22.addressMax) {
+                        addressArray += it.address.toArray2()
+                    }
+                }
+            }
+
+            return addressArray
+        }
+
+        return byteArrayOf()
+    }
+
+    private fun getMode22Buffer(index: Int, input: ByteArray?): ByteArray? {
+        var output: ByteArray? = null
+        input?.let {
+            //add pids to buffer
+            val startIndex =
+                if (index * 16 > input.count()) input.count()
+                else index * 16
+            val endIndex =
+                if (startIndex + 16 > input.count()) input.count()
+                else startIndex + 16
+
+            output = byteArrayOf(0x22.toByte()) + input.copyOfRange(startIndex, endIndex)
+        }
+
+        return output
+    }
+
     private fun buildFrame22(index: Int): ByteArray {
         if(index == 0) {
             mEnabledArray22 = buildEnabledArray()
             mAddressArray22 = buildAddress22()
             resetHPPIDS()
             findHPPIDS()
+            if(mLogDSG) {
+                mEnabledArrayDSG = buildEnabledArrayDSG()
+                mAddressArrayDSG = buildAddressDSG()
+            }
         }
 
-        val frameCount = frameCount22()
+        //get frame counts
+        val frameCount22    = frameCount22()
+        val frameCountDSG   = frameCountDSG()
+        val frameCount = if(mLogDSG) frameCount22 + frameCountDSG
+        else frameCount22
+
+        //find and send frame
         if (index in 0 until frameCount) {
             //Build header
             val bleHeader = BLEHeader()
@@ -297,19 +381,26 @@ object UDSLogger {
                 else -> BLECommandFlags.PER_ADD.value
             }
 
-            //add pids to buffer
-            val startIndex =
-                if (index * 16 > mAddressArray22.count()) mAddressArray22.count()
-                else index * 16
-            val endIndex =
-                if (startIndex + 16 > mAddressArray22.count()) mAddressArray22.count()
-                else startIndex + 16
+            //Are we sending ECU or DSG?
+            var frameType = 0
+            var frameIndex = index
+            if(mLogDSG && index >= frameCount22) {
+                frameIndex = index - frameCount22
+                frameType = 1
+            }
 
-            val buff = byteArrayOf(0x22.toByte()) + mAddressArray22.copyOfRange(startIndex, endIndex)
+            //Get Frame data
+            val buff = if(frameType == 0) { //ECU
+                getMode22Buffer(frameIndex, mAddressArray22) ?: byteArrayOf()
+            } else { //DSG
+                bleHeader.rxID = BLE_HEADER_DSG_RX
+                bleHeader.txID = BLE_HEADER_DSG_TX
+                getMode22Buffer(frameIndex, mAddressArrayDSG) ?: byteArrayOf()
+            }
             bleHeader.cmdSize = buff.count()
             val writeBuffer = bleHeader.toByteArray() + buff
 
-            DebugLog.d(TAG, "Building 22 frame $index with length ${writeBuffer.count()}: ${writeBuffer.toHex()}")
+            DebugLog.d(TAG, "Building 22 frame $frameIndex [Type: $frameType] with length ${writeBuffer.count()}: ${writeBuffer.toHex()}")
             return writeBuffer
         }
 
@@ -323,55 +414,88 @@ object UDSLogger {
             mAddressArray3E = buildAddress3E()
             resetHPPIDS()
             findHPPIDS()
+            if(mLogDSG) {
+                mEnabledArrayDSG = buildEnabledArrayDSG()
+                mAddressArrayDSG = buildAddressDSG()
+            }
         }
 
-        //Do we even have any PIDs in the range?  If not send persist message
-        if (index * 0x8F >= mAddressArray3E.count()) {
-            if(index == frameCount3E() - 1) {
-                val bleHeader = BLEHeader()
-                bleHeader.cmdSize = 6
-                bleHeader.cmdFlags =
-                    BLECommandFlags.PER_CLEAR.value or BLECommandFlags.PER_ADD.value or BLECommandFlags.PER_ENABLE.value
+        //get frame counts
+        val frameCount3E    = frameCount3E()
+        val frameCountDSG   = frameCountDSG()
+        val frameCount = if(mLogDSG) frameCount3E + frameCountDSG
+        else frameCount3E
 
-                val writeBuffer: ByteArray = bleHeader.toByteArray() + byteArrayOf(
-                    0x3e.toByte(),
-                    0x33.toByte(),
-                    0xb0.toByte(),
-                    0x01.toByte(),
-                    0xe7.toByte(),
-                    0x00.toByte()
-                )
-
-                mLastFrameSize = -1
-                DebugLog.d(TAG, "Building 3E frame $index with length ${writeBuffer.count()}: ${writeBuffer.toHex()}")
-                return writeBuffer
+        //find and send frame
+        if (index in 0 until frameCount) {
+            //Build header
+            val bleHeader = BLEHeader()
+            bleHeader.cmdSize = 1
+            bleHeader.cmdFlags = when {
+                index == frameCount - 1 -> BLECommandFlags.PER_ADD.value or BLECommandFlags.PER_ENABLE.value
+                index >= frameCount3E - 1 -> BLECommandFlags.PER_ADD.value
+                else -> BLECommandFlags.PER_CLEAR.value
             }
 
-            mLastFrameSize = -1
-            DebugLog.d(TAG, "Building 3E frame $index does not exist")
-            return byteArrayOf()
+            //Are we sending ECU or DSG?
+            var frameType = 0
+            var frameIndex = index
+            if(mLogDSG && index >= frameCount3E) {
+                frameIndex = index - frameCount3E
+                frameType = 1
+            }
+
+            //Get Frame data
+            val buff = if(frameType == 0) { //ECU
+                //Do we even have any PIDs in the range?  If not send persist message
+                if (index * 0x8F >= mAddressArray3E.count()) {
+                    var writeBuffer: ByteArray = byteArrayOf()
+                    if(index == frameCount3E - 1) {
+                        writeBuffer = byteArrayOf(
+                            0x3e.toByte(),
+                            0x33.toByte(),
+                            0xb0.toByte(),
+                            0x01.toByte(),
+                            0xe7.toByte(),
+                            0x00.toByte()
+                        )
+
+                        mLastFrameSize = -1
+                    }
+
+                    mLastFrameSize = -1
+                    writeBuffer
+                } else {
+                    //constrain copy range or we will receive an exception
+                    val endOfArray = if ((1 + index) * 0x8F > mAddressArray3E.count()) {
+                        mAddressArray3E.count()
+                    } else {
+                        (1 + index) * 0x8F
+                    }
+                    val selectArray: ByteArray = mAddressArray3E.copyOfRange(index * 0x8F, endOfArray)
+                    val memoryOffset = 0xB001E700 + (index * 0x8F)
+                    val writeBuffer: ByteArray = byteArrayOf(
+                        0x3e.toByte(),
+                        0x32.toByte()
+                    ) + memoryOffset.toArray4() + selectArray.count().toArray2() + selectArray
+
+                    mLastFrameSize = selectArray.count()
+                    writeBuffer
+                }
+            } else { //DSG
+                bleHeader.rxID = BLE_HEADER_DSG_RX
+                bleHeader.txID = BLE_HEADER_DSG_TX
+                getMode22Buffer(frameIndex, mAddressArrayDSG) ?: byteArrayOf()
+            }
+            bleHeader.cmdSize = buff.count()
+            val writeBuffer = bleHeader.toByteArray() + buff
+
+            DebugLog.d(TAG, "Building 3E frame $frameIndex [Type: $frameType] with length ${writeBuffer.count()}: ${writeBuffer.toHex()}")
+            return writeBuffer
         }
 
-        //constrain copy range or we will receive an exception
-        val endOfArray = if ((1 + index) * 0x8F > mAddressArray3E.count()) {
-            mAddressArray3E.count()
-        } else {
-            (1 + index) * 0x8F
-        }
-        val selectArray: ByteArray = mAddressArray3E.copyOfRange(index * 0x8F, endOfArray)
-        val bleHeader = BLEHeader()
-        bleHeader.cmdSize = 8 + selectArray.count()
-        bleHeader.cmdFlags = BLECommandFlags.PER_CLEAR.value
-
-        val memoryOffset = 0xB001E700 + (index * 0x8F)
-        val writeBuffer: ByteArray = bleHeader.toByteArray() + byteArrayOf(
-            0x3e.toByte(),
-            0x32.toByte()
-        ) + memoryOffset.toArray4() + selectArray.count().toArray2() + selectArray
-
-        mLastFrameSize = selectArray.count()
-        DebugLog.d(TAG, "Building 3E frame $index with length ${writeBuffer.count()}:${writeBuffer.toHex()}:$mLastFrameSize")
-        return writeBuffer
+        DebugLog.d(TAG, "Building 3E frame $index does not exist")
+        return byteArrayOf()
     }
 
     private fun processFrame22(tick: Int, buff: ByteArray?, context: Context): UDSReturn {
@@ -395,62 +519,92 @@ object UDSLogger {
 
         // make sure we received an 'OK' from the ECU
         if (bData[0] != 0x62.toByte()) {
+            DebugLog.d(TAG, "ERROR in response from ECU: " + bData.toHex())
             return UDSReturn.ERROR_RESPONSE
         }
 
+        //get frame counts
+        val frameCount22 = frameCount22()
+        val frameCountDSG = frameCountDSG()
+        val frameCount = if(mLogDSG) frameCount22 + frameCountDSG
+        else frameCount22
+
         //In init state
-        if (tick < frameCount22()) {
+        if (tick < frameCount) {
             return UDSReturn.OK
         }
 
         // process the data in the buffer
         var i = 1
         while (i <= bleHeader.cmdSize - 3) {
-            val pid: PIDStruct =
-                PIDs.getPID(((bData[i++] and 0xFF) shl 8) + (bData[i++] and 0xFF).toLong())
-                    ?: return UDSReturn.ERROR_UNKNOWN
-            if (pid.length == 1) {
-                if (pid.signed) {
-                    PIDs.setValue(pid, (bData[i++] and 0xFF).toByte().toFloat())
-                } else {
-                    PIDs.setValue(pid, (bData[i++] and 0xFF).toFloat())
-                }
-            } else {
-                if (pid.signed) {
-                    PIDs.setValue(
-                        pid,
-                        (((bData[i++] and 0xFF) shl 8) + (bData[i++] and 0xFF)).toShort()
-                            .toFloat()
-                    )
-                } else {
-                    PIDs.setValue(
-                        pid,
-                        (((bData[i++] and 0xFF) shl 8) + (bData[i++] and 0xFF)).toFloat()
-                    )
-                }
+            //Find the PID in our ECU/DSG list
+            var isDSG = false
+            val pidAddress = ((bData[i++] and 0xFF) shl 8) + (bData[i++] and 0xFF).toLong()
+            var pid: PIDStruct? = PIDs.getPID(pidAddress)
+            if(pid == null && mLogDSG) {
+                isDSG = true
+                pid = PIDs.getPID(pidAddress, UDSLoggingMode.MODE_22, true)
             }
-        }
 
-        //Calculate HP and tq PIDS?
-        calcTQ()
-        calcHP()
-
-        //Check and process non-addressable PIDS
-        PIDs.list22?.let { list ->
-            for (x in 0 until mEnabledArray22.count()) {
-                //Is this a real address?
-                list[x]?.let { pid ->
-                    if (pid.address == UDSLoggingMode.MODE_22.addressMax) {
-                        PIDs.setValue(pid, 0f)
+            //Set new PID value
+            pid?.let {
+                if (pid.length == 1) {
+                    if (pid.signed) PIDs.setValue(pid, (bData[i++] and 0xFF).toByte().toFloat())
+                    else PIDs.setValue(pid, (bData[i++] and 0xFF).toFloat())
+                } else {
+                    var d1 = bData[i++]
+                    var d2 = bData[i++]
+                    if(isDSG) {
+                        val d3 = d1
+                        d1 = d2
+                        d2 = d3
                     }
+
+                    if (pid.signed) PIDs.setValue(pid, (((d1 and 0xFF) shl 8) + (d2 and 0xFF)).toShort().toFloat())
+                    else PIDs.setValue(pid, (((d1 and 0xFF) shl 8) + (d2 and 0xFF)).toFloat())
                 }
+            } ?: run {
+                DebugLog.d(TAG, "PID Address not found: $pidAddress")
+                return UDSReturn.ERROR_UNKNOWN
             }
         }
 
         //Update Log once all pids have been updated
-        if (tick % frameCount22() == 0) {
+        if (tick % frameCount22 == 0) {
+            //Calculate HP and tq PIDS?
+            calcTQ()
+            calcHP()
+
+            //Check and process non-addressable PIDS
+            PIDs.list22?.let { list ->
+                for (x in 0 until mEnabledArray22.count()) {
+                    //Is this a real address?
+                    list[x]?.let { pid ->
+                        if (pid.address == UDSLoggingMode.MODE_22.addressMax) {
+                            PIDs.setValue(pid, 0f)
+                        }
+                    }
+                }
+            }
+
+            if(mLogDSG) {
+                //Check and process non-addressable PIDS
+                PIDs.listDSG?.let { list ->
+                    for (x in 0 until mEnabledArrayDSG.count()) {
+                        //Is this a real address?
+                        list[x]?.let { pid ->
+                            if (pid.address == UDSLoggingMode.MODE_22.addressMax) {
+                                PIDs.setValue(pid, 0f)
+                            }
+                        }
+                    }
+                }
+            }
+
             //Update PID data
             PIDs.updateData()
+            if(mLogDSG)
+                PIDs.updateDSGData()
 
             //don't log until stream is constant
             if(tick < 50)
@@ -484,74 +638,132 @@ object UDSLogger {
             }
 
             // make sure we received an 'OK' from the ECU
-            if (bData.count() < 3 || bData[0] != 0x7e.toByte()) {
+            if (bData[0] != 0x62.toByte() && (bData.count() < 3 || bData[0] != 0x7e.toByte())) {
                 DebugLog.d(TAG, "ERROR in response from ECU: " + bData.toHex())
                 return UDSReturn.ERROR_RESPONSE
             }
 
+            //get frame counts
+            val frameCount3E    = frameCount3E()
+            val frameCountDSG   = frameCountDSG()
+            val frameCount = if(mLogDSG) frameCount3E + frameCountDSG
+            else frameCount3E
+
             // make sure we received an 'OK' from the ECU while initiating
-            if(tick < frameCount3E()-1) {
+            if(tick < frameCount3E-1) {
                 if(bData[1] != 0x00.toByte() || bData[2] != (mLastFrameSize and 0xFF).toByte())
                     return UDSReturn.ERROR_RESPONSE
 
                 return UDSReturn.OK
+            } else if(tick < frameCount) {
+                return UDSReturn.OK
             }
 
-            //Update PID Values
-            var dPos = 1
-            for (i in 0 until mEnabledArray3E.count()) {
-                val pid = list[mEnabledArray3E[i].toInt()]!!
-                try {
-                    //Is this a real address?
-                    if (pid.address == UDSLoggingMode.MODE_3E.addressMax) {
-                        PIDs.setValue(pid, 0f)
-                    } else {
-                        //make sure we are in range, if not report error
-                        if (dPos + pid.length > bData.count()) {
-                            return UDSReturn.ERROR_UNKNOWN
-                        }
+            var isDSGFrame = false
+            if(mLogDSG && bData[0] == 0x62.toByte()) {
+                isDSGFrame = true
+                // process the data in the buffer
+                var i = 1
+                while (i <= bleHeader.cmdSize - 3) {
+                    //Find the PID in our ECU/DSG list
+                    val pidAddress = ((bData[i++] and 0xFF) shl 8) + (bData[i++] and 0xFF).toLong()
+                    val pid: PIDStruct? = PIDs.getPID(pidAddress, UDSLoggingMode.MODE_22, true)
 
-                        //Build the value in little endian
-                        var newValue: Int = bData[dPos + pid.length - 1] and 0xFF
-                        for (d in 1 until pid.length) {
-                            newValue = newValue shl 8
-                            newValue += bData[dPos + pid.length - d - 1] and 0xFF
-                        }
-                        dPos += pid.length
-
-                        //set pid values
-                        if (pid.signed) {
-                            when (pid.length) {
-                                1 -> PIDs.setValue(pid, newValue.toByte().toFloat())
-                                2 -> PIDs.setValue(pid, newValue.toShort().toFloat())
-                                4 -> PIDs.setValue(pid, newValue.toFloat())
-                            }
+                    //Set new PID value
+                    pid?.let {
+                        if (pid.length == 1) {
+                            if (pid.signed) PIDs.setValue(pid, (bData[i++] and 0xFF).toByte().toFloat())
+                            else PIDs.setValue(pid, (bData[i++] and 0xFF).toFloat())
                         } else {
-                            when (pid.length) {
-                                1 -> PIDs.setValue(pid, newValue.toFloat())
-                                2 -> PIDs.setValue(pid, newValue.toFloat())
-                                4 -> PIDs.setValue(pid, Float.fromBits(newValue))
+                            val d2 = bData[i++]
+                            val d1 = bData[i++]
+
+                            if (pid.signed) PIDs.setValue(pid, (((d1 and 0xFF) shl 8) + (d2 and 0xFF)).toShort().toFloat())
+                            else PIDs.setValue(pid, (((d1 and 0xFF) shl 8) + (d2 and 0xFF)).toFloat())
+                        }
+                    } ?: run {
+                        DebugLog.d(TAG, "PID Address not found: $pidAddress")
+                        return UDSReturn.ERROR_UNKNOWN
+                    }
+                }
+            } else {
+                //Update PID Values
+                var dPos = 1
+                for (i in 0 until mEnabledArray3E.count()) {
+                    val pid = list[mEnabledArray3E[i].toInt()]!!
+                    try {
+                        //Is this a real address?
+                        if (pid.address == UDSLoggingMode.MODE_3E.addressMax) {
+                            PIDs.setValue(pid, 0f)
+                        } else {
+                            //make sure we are in range, if not report error
+                            if (dPos + pid.length > bData.count()) {
+                                return UDSReturn.ERROR_UNKNOWN
+                            }
+
+                            //Build the value in little endian
+                            var newValue: Int = bData[dPos + pid.length - 1] and 0xFF
+                            for (d in 1 until pid.length) {
+                                newValue = newValue shl 8
+                                newValue += bData[dPos + pid.length - d - 1] and 0xFF
+                            }
+                            dPos += pid.length
+
+                            //set pid values
+                            if (pid.signed) {
+                                when (pid.length) {
+                                    1 -> PIDs.setValue(pid, newValue.toByte().toFloat())
+                                    2 -> PIDs.setValue(pid, newValue.toShort().toFloat())
+                                    4 -> PIDs.setValue(pid, newValue.toFloat())
+                                }
+                            } else {
+                                when (pid.length) {
+                                    1 -> PIDs.setValue(pid, newValue.toFloat())
+                                    2 -> PIDs.setValue(pid, newValue.toFloat())
+                                    4 -> PIDs.setValue(pid, Float.fromBits(newValue))
+                                }
                             }
                         }
+                    } catch (e: Exception) {
+                        return UDSReturn.ERROR_UNKNOWN
                     }
-                } catch (e: Exception) {
-                    return UDSReturn.ERROR_UNKNOWN
                 }
             }
 
-            //Calculate HP and tq PIDS?
-            calcTQ()
-            calcHP()
+            //Update Log once all pids have been updated
+            if (!isDSGFrame) {
+                //Calculate HP and tq PIDS?
+                calcTQ()
+                calcHP()
 
-            //Update PID data
-            PIDs.updateData()
+                if(mLogDSG) {
+                    //Check and process non-addressable PIDS
+                    PIDs.listDSG?.let { dsgList ->
+                        for (x in 0 until mEnabledArrayDSG.count()) {
+                            //Is this a real address?
+                            dsgList[x]?.let { pid ->
+                                if (pid.address == UDSLoggingMode.MODE_22.addressMax) {
+                                    PIDs.setValue(pid, 0f)
+                                }
+                            }
+                        }
+                    }
+                }
 
-            //don't log until stream is constant
-            if(tick < 25)
-                return UDSReturn.OK
+                //Update PID data
+                PIDs.updateData()
+                if (mLogDSG)
+                    PIDs.updateDSGData()
 
-            //Check if we need to write to log
-            return writeToLog(bleHeader.tickCount, context)
+                //don't log until stream is constant
+                if(tick < 50)
+                    return UDSReturn.OK
+
+                //Check if we need to write to log
+                return writeToLog(bleHeader.tickCount, context)
+            }
+
+            return UDSReturn.OK
         }
 
         return UDSReturn.ERROR_NULL
@@ -571,16 +783,25 @@ object UDSLogger {
                             currentDateTime.format(
                                 DateTimeFormatter.ofPattern("yyyy_MM_dd-HH_mm_ss")
                             )
-                        }.csv", context
+                        }.csv", ConfigSettings.LOG_SUB_FOLDER.toString(), context
                     )
 
                     //Add time its required
-                    var strItems: String? = "Time"
+                    var strItems: String = "Time"
 
                     //Add PIDs including units
                     for (x in 0 until list.count()) {
                         if(x != list.count()-1) strItems += ",${list[x]?.name} (${list[x]?.unit})"
                             else strItems += ",$mRevision"
+                    }
+
+                    //Add DSG PIDs including units
+                    if(mLogDSG) {
+                        PIDs.listDSG?.let { dsgList ->
+                            for (x in 0 until dsgList.count()) {
+                                strItems += ",${dsgList[x]?.name} (${dsgList[x]?.unit})"
+                            }
+                        }
                     }
 
                     //Send it
@@ -589,9 +810,18 @@ object UDSLogger {
                 mLastEnabled = true
 
                 //Write new values to log
-                var strItems: String? = (tick.toFloat() / 1000.0f).toString()
+                var strItems: String = (tick.toFloat() / 1000.0f).toString()
                 for (x in 0 until list.count()) {
                     strItems += ",${list[x]?.value}"
+                }
+
+                //Add DSG PIDs including units
+                if(mLogDSG) {
+                    PIDs.listDSG?.let { dsgList ->
+                        for (x in 0 until dsgList.count()) {
+                            strItems += ",${dsgList[x]?.value}"
+                        }
+                    }
                 }
 
                 //Send it

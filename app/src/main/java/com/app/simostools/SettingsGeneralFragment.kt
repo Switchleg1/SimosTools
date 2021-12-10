@@ -21,6 +21,7 @@ import androidx.core.content.ContextCompat
 
 class SettingsViewModel : ViewModel() {
     var logMode         = UDSLoggingMode.MODE_22
+    var logDSG          = false
     var adapterName     = ""
 }
 
@@ -37,9 +38,11 @@ class SettingsGeneralFragment : Fragment() {
                 val addMax = mViewModel.logMode.addressMax
                 val pidList = PIDCSVFile.readStream(activity?.contentResolver?.openInputStream(uri), addMin, addMax)
                 if(pidList != null) {
-                    val CSVFileName = getString(R.string.filename_pid_csv, mViewModel.logMode.cfgName)
+                    val CSVFileName = if(mViewModel.logDSG) getString(R.string.filename_pid_csv, "DSG")
+                    else getString(R.string.filename_pid_csv, mViewModel.logMode.cfgName)
                     if(PIDCSVFile.write(CSVFileName, context, pidList, true)) {
-                        PIDs.setList(mViewModel.logMode, pidList)
+
+                        PIDs.setList(mViewModel.logMode, pidList, mViewModel.logDSG)
                         TempPIDS.reset(context)
                         mLoadCallback?.invoke()
                         Toast.makeText(activity, "Success", Toast.LENGTH_SHORT).show()
@@ -82,24 +85,13 @@ class SettingsGeneralFragment : Fragment() {
             paintRim.color = ColorList.BT_RIM.value
             setTextColor(ColorList.BT_TEXT.value)
             setOnClickListener {
-                var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
-                chooseFile.type = "text/*"
+                var chooseFile = Intent(Intent.ACTION_GET_CONTENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "text/*"
+                }
                 chooseFile = Intent.createChooser(chooseFile, "Choose a 22 A CSV")
                 mViewModel.logMode = UDSLoggingMode.MODE_22
-                resultPickLauncher.launch(chooseFile)
-            }
-        }
-
-        val csv3EButton = view.findViewById<SwitchButton>(R.id.button3ECSV)
-        csv3EButton.apply {
-            paintBG.color = ColorList.BT_BG.value
-            paintRim.color = ColorList.BT_RIM.value
-            setTextColor(ColorList.BT_TEXT.value)
-            setOnClickListener {
-                var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
-                chooseFile.type = "text/*"
-                chooseFile = Intent.createChooser(chooseFile, "Choose a 3E A CSV")
-                mViewModel.logMode = UDSLoggingMode.MODE_3E
+                mViewModel.logDSG = false
                 resultPickLauncher.launch(chooseFile)
             }
         }
@@ -130,6 +122,23 @@ class SettingsGeneralFragment : Fragment() {
             }
         }
 
+        val csv3EButton = view.findViewById<SwitchButton>(R.id.button3ECSV)
+        csv3EButton.apply {
+            paintBG.color = ColorList.BT_BG.value
+            paintRim.color = ColorList.BT_RIM.value
+            setTextColor(ColorList.BT_TEXT.value)
+            setOnClickListener {
+                var chooseFile = Intent(Intent.ACTION_GET_CONTENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "text/*"
+                }
+                chooseFile = Intent.createChooser(chooseFile, "Choose a 3E A CSV")
+                mViewModel.logMode = UDSLoggingMode.MODE_3E
+                mViewModel.logDSG = false
+                resultPickLauncher.launch(chooseFile)
+            }
+        }
+
         val csv3EButtonReset = view.findViewById<SwitchButton>(R.id.button3ECSVReset)
         csv3EButtonReset.apply {
             paintBG.color = ColorList.BT_BG.value
@@ -156,6 +165,49 @@ class SettingsGeneralFragment : Fragment() {
             }
         }
 
+        val csvDSGButton = view.findViewById<SwitchButton>(R.id.buttonDSGCSV)
+        csvDSGButton.apply {
+            paintBG.color = ColorList.BT_BG.value
+            paintRim.color = ColorList.BT_RIM.value
+            setTextColor(ColorList.BT_TEXT.value)
+            setOnClickListener {
+                var chooseFile = Intent(Intent.ACTION_GET_CONTENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "text/*"
+                }
+                chooseFile = Intent.createChooser(chooseFile, "Choose a DSG A CSV")
+                mViewModel.logMode = UDSLoggingMode.MODE_22
+                mViewModel.logDSG = true
+                resultPickLauncher.launch(chooseFile)
+            }
+        }
+
+        val csvDSGButtonReset = view.findViewById<SwitchButton>(R.id.buttonDSGCSVReset)
+        csvDSGButtonReset.apply {
+            paintBG.color = ColorList.BT_BG.value
+            paintRim.color = ColorList.BT_RIM.value
+            setTextColor(ColorList.BT_TEXT.value)
+            setOnClickListener {
+                val builder = AlertDialog.Builder(context)
+                //Setting message manually and performing action on button click
+                builder.setMessage("Do you want to load mode DSG csv defaults?")
+                    .setCancelable(false)
+                    .setPositiveButton("Yes") { _, _ ->
+                        PIDs.loadDefaultPIDSDSG()
+                        TempPIDS.reset(context)
+                        TempPIDS.save(context)
+                        mLoadCallback?.invoke()
+                    }
+                    .setNegativeButton("No") { _, _ -> }
+                //Creating dialog box
+                val alert: AlertDialog = builder.create()
+
+                //Setting the title manually
+                alert.setTitle("Reset mode DSG CSV")
+                alert.show()
+            }
+        }
+
         val setAdapterButton = view.findViewById<SwitchButton>(R.id.buttonAdapterName)
         setAdapterButton.apply {
             paintBG.color = ColorList.BT_BG.value
@@ -166,9 +218,10 @@ class SettingsGeneralFragment : Fragment() {
                 var adapterName = view.findViewById<EditText>(R.id.editTextAdapterName).text.toString()
                 if(adapterName.length > MAX_GAP_LENGTH)
                     adapterName = adapterName.subSequence(0, MAX_GAP_LENGTH).toString()
+                adapterName = adapterName.uppercase()
+                adapterName = adapterName.replace(" ", "_")
 
                 if(adapterName.isNotEmpty()) {
-
                     //Setting message manually and performing action on button click
                     builder.setMessage("Are you sure you would like to set the name of the adapter to $adapterName?")
                         .setCancelable(false)
@@ -353,6 +406,7 @@ class SettingsGeneralFragment : Fragment() {
                 UDSLoggingMode.MODE_22  -> currentView.findViewById<RadioButton>(R.id.radioButton22).isChecked  = true
                 else                    -> currentView.findViewById<RadioButton>(R.id.radioButton3E).isChecked  = true
             }
+            currentView.findViewById<CheckBox>(R.id.checkBoxLogDSG).isChecked = ConfigSettings.LOG_DSG.toBoolean()
 
             //Get output directory
             if(RequiredPermissions.READ_STORAGE.result == PackageManager.PERMISSION_DENIED) {
@@ -368,6 +422,7 @@ class SettingsGeneralFragment : Fragment() {
                     DirectoryList.APP -> currentView.findViewById<RadioButton>(R.id.radioButtonApplication).isChecked = true
                 }
             }
+            currentView.findViewById<EditText>(R.id.editTextLogSubFolder).setText(ConfigSettings.LOG_SUB_FOLDER.toString())
 
             //Get draw minmax
             currentView.findViewById<CheckBox>(R.id.checkBoxDrawMinMax).isChecked = ConfigSettings.DRAW_MIN_MAX.toBoolean()
@@ -411,11 +466,13 @@ class SettingsGeneralFragment : Fragment() {
         view?.let { currentView ->
             //Set font color
             val color = ColorList.TEXT.value
+            currentView.findViewById<TextView>(R.id.textViewConnectionSettings).setTextColor(color)
             currentView.findViewById<TextView>(R.id.textViewDisplayRate).setTextColor(color)
             currentView.findViewById<TextView>(R.id.textViewLoggingRate).setTextColor(color)
             currentView.findViewById<TextView>(R.id.textViewQCorrection).setTextColor(color)
             currentView.findViewById<TextView>(R.id.textViewPIDCSV).setTextColor(color)
             currentView.findViewById<TextView>(R.id.textViewOutputDirectory).setTextColor(color)
+            currentView.findViewById<TextView>(R.id.textViewLogSubFolder).setTextColor(color)
             currentView.findViewById<TextView>(R.id.textViewDisplayType).setTextColor(color)
             currentView.findViewById<TextView>(R.id.textViewLoggingMode).setTextColor(color)
             currentView.findViewById<TextView>(R.id.textViewMiscOptions).setTextColor(color)
@@ -440,8 +497,8 @@ class SettingsGeneralFragment : Fragment() {
             currentView.findViewById<CheckBox>(R.id.checkBoxAutoLog).setTextColor(color)
             currentView.findViewById<CheckBox>(R.id.checkBoxCalcHP).setTextColor(color)
             currentView.findViewById<CheckBox>(R.id.checkBoxUseAccel).setTextColor(color)
-
-            //Set color edit
+            currentView.findViewById<CheckBox>(R.id.checkBoxLogDSG).setTextColor(color)
+            currentView.findViewById<EditText>(R.id.editTextLogSubFolder).setTextColor(color)
             currentView.findViewById<EditText>(R.id.editTextLogName).setTextColor(color)
             currentView.findViewById<EditText>(R.id.editTextAdapterName).setTextColor(color)
 
@@ -478,6 +535,34 @@ class SettingsGeneralFragment : Fragment() {
             currentView.findViewById<Button>(R.id.buttonSetBTRimColor).setBackgroundColor(ColorSettings.mColorList[ColorList.BT_RIM.ordinal])
             currentView.findViewById<Button>(R.id.buttonSetBTBGColor).setTextColor(ColorSettings.mColorList[ColorList.BT_BG.ordinal].toColorInverse())
             currentView.findViewById<Button>(R.id.buttonSetBTBGColor).setBackgroundColor(ColorSettings.mColorList[ColorList.BT_BG.ordinal])
+
+            //Set dividers
+            currentView.findViewById<View>(R.id.divider1).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider2).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider3).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider4).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider5).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider6).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider7).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider8).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider9).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider10).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider11).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider12).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider13).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider14).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider15).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider16).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider17).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider18).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider19).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider20).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider21).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider22).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider23).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider24).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider25).setBackgroundColor(ColorList.BT_RIM.value)
+            currentView.findViewById<View>(R.id.divider26).setBackgroundColor(ColorList.BT_RIM.value)
 
             //Set background color
             currentView.setBackgroundColor(ColorList.BG_NORMAL.value)
@@ -525,6 +610,7 @@ class SettingsGeneralFragment : Fragment() {
                 true -> ConfigFile.set(UDSLoggingMode.MODE_22.key, UDSLoggingMode.MODE_22.cfgName)
                 false -> ConfigFile.set(UDSLoggingMode.MODE_3E.key, UDSLoggingMode.MODE_3E.cfgName)
             }
+            ConfigFile.set(ConfigSettings.LOG_DSG.cfgName, currentView.findViewById<CheckBox>(R.id.checkBoxLogDSG).isChecked.toString())
 
             // Set default output folder
             when {
@@ -541,6 +627,7 @@ class SettingsGeneralFragment : Fragment() {
                     DirectoryList.APP.cfgName
                 )
             }
+            ConfigFile.set(ConfigSettings.LOG_SUB_FOLDER.cfgName, currentView.findViewById<EditText>(R.id.editTextLogSubFolder).text.toString())
 
             //Set draw min/max
             ConfigFile.set(ConfigSettings.DRAW_MIN_MAX.cfgName, currentView.findViewById<CheckBox>(R.id.checkBoxDrawMinMax).isChecked.toString())

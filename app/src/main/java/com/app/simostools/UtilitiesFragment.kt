@@ -27,7 +27,7 @@ class UtilitiesViewModel : ViewModel() {
 class UtilitiesFragment : Fragment() {
     private val TAG = "UtilitiesFragment"
     private var mArrayAdapter: SwitchArrayAdapter? = null
-    private lateinit var mViewModel: FlashViewModel
+    private lateinit var mViewModel: UtilitiesViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,7 +39,7 @@ class UtilitiesFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mViewModel = ViewModelProvider(this).get(FlashViewModel::class.java)
+        mViewModel = ViewModelProvider(this).get(UtilitiesViewModel::class.java)
 
         mArrayAdapter = SwitchArrayAdapter(requireContext(), R.layout.fragment_message, gUtilitiesMsgList?: arrayOf())
         mArrayAdapter?.let { adapter ->
@@ -125,6 +125,7 @@ class UtilitiesFragment : Fragment() {
         filter.addAction(GUIMessage.STATE_CONNECTION.toString())
         filter.addAction(GUIMessage.STATE_TASK.toString())
         filter.addAction(GUIMessage.UTILITY_INFO.toString())
+        filter.addAction(GUIMessage.UTILITY_INFO_CLEAR.toString())
         filter.addAction(GUIMessage.UTILITY_PROGRESS.toString())
         filter.addAction(GUIMessage.UTILITY_PROGRESS_MAX.toString())
         filter.addAction(GUIMessage.UTILITY_PROGRESS_SHOW.toString())
@@ -152,7 +153,6 @@ class UtilitiesFragment : Fragment() {
                 GUIMessage.UTILITY_PROGRESS.toString()      -> setProgressBar(intent.getIntExtra(GUIMessage.UTILITY_PROGRESS.toString(), 0))
                 GUIMessage.UTILITY_PROGRESS_MAX.toString()  -> setProgressBarMax(intent.getIntExtra(GUIMessage.UTILITY_PROGRESS_MAX.toString(), 0))
                 GUIMessage.UTILITY_PROGRESS_SHOW.toString() -> setProgressBarShow(intent.getBooleanExtra(GUIMessage.UTILITY_PROGRESS_SHOW.toString(), false))
-
             }
         }
     }

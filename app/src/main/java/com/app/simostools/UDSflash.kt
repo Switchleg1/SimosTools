@@ -25,6 +25,14 @@ object UDSFlasher {
     private var currentBlockOperation = 0
     private var patchTransferAddress = 0
 
+    fun clear() {
+        mCommand = byteArrayOf()
+        inputBin = byteArrayOf()
+        patchBin = byteArrayOf()
+        ecuAswVersion = byteArrayOf()
+        bin = arrayOf(byteArrayOf(), byteArrayOf(), byteArrayOf(), byteArrayOf(), byteArrayOf(), byteArrayOf())
+    }
+
     fun getSubtask(): FLASH_ECU_CAL_SUBTASK{
         return mTask
     }

@@ -20,21 +20,23 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tabMode="scrollable"/>
+            app:tabMode="scrollable"
+            app:tabTextAppearance="@style/TabTextLoggingLarge" />
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewPagerSettings"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:layout_marginBottom="96dp"/>
 
     </LinearLayout>
 
     <com.app.simostools.SwitchButton
         android:id="@+id/buttonSettingsBack"
         android:layout_width="0dp"
-        android:layout_height="128dp"
+        android:layout_height="96dp"
         android:text="@string/button_back"
-        android:textSize="42sp"
+        android:textSize="32sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/buttonSettingsSave" />
@@ -42,9 +44,9 @@
     <com.app.simostools.SwitchButton
         android:id="@+id/buttonSettingsSave"
         android:layout_width="0dp"
-        android:layout_height="128dp"
+        android:layout_height="96dp"
         android:text="@string/button_save"
-        android:textSize="48sp"
+        android:textSize="32sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/buttonSettingsBack"/>

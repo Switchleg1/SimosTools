@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.view.LayoutInflater
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.widget.SwitchCompat
 import java.lang.Exception
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -71,6 +70,7 @@ class SettingsViewAdapter internal constructor(context: Context?, data: Array<PI
         var mTabsEdit: EditText?            = null
         var mUpArrowButton: SwitchButton?   = null
         var mDownArrowButton: SwitchButton? = null
+        var mDivider1: View?                = null
 
         fun loadData() {
             mData.forEachIndexed() { i, it ->
@@ -154,6 +154,7 @@ class SettingsViewAdapter internal constructor(context: Context?, data: Array<PI
             mSmoothingText?.setTextColor(ColorList.TEXT.value)
             mAssignToText?.setTextColor(ColorList.TEXT.value)
             mTabsText?.setTextColor(ColorList.TEXT.value)
+            mDivider1?.setBackgroundColor(ColorList.BT_RIM.value)
         }
 
         fun saveData() {
@@ -233,6 +234,8 @@ class SettingsViewAdapter internal constructor(context: Context?, data: Array<PI
                     }
                 }
             }
+            mDivider1 = itemView.findViewById(R.id.divider1)
+            mDivider1?.setBackgroundColor(ColorList.BT_RIM.value)
             itemView.setOnClickListener(this)
         }
     }
