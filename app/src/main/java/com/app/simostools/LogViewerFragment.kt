@@ -22,7 +22,8 @@ import java.io.FileInputStream
 import java.lang.Exception
 import java.lang.Math.random
 
-var gLogViewerData: Array<LogViewerDataStruct?>?  = null
+var gLogViewerData: Array<LogViewerDataStruct?>?    = null
+var gLogViewerLoadLast: Boolean                     = false
 
 class LogViewerViewModel : ViewModel() {
     var fullScreen: Boolean = false
@@ -42,13 +43,14 @@ class LogViewerFragment: Fragment() {
     private var mGraph:SwitchGraph?     = null
     private var mButtons:LinearLayout?  = null
     private var mPortrait:Boolean       = false
+    private var mLoadLast:Boolean       = false
     private lateinit var mViewModel: LogViewerViewModel
 
     var resultPickLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val uri: Uri? = result.data?.data
             uri?.let {
-                loadPlaybackCSV(uri)
+                loadLogViewerCSV(uri)
                 Toast.makeText(activity, "Success", Toast.LENGTH_SHORT).show()
             }?: Toast.makeText(activity, "Failed", Toast.LENGTH_SHORT).show()
         } else {
@@ -104,7 +106,7 @@ class LogViewerFragment: Fragment() {
             setTextColor(ColorList.BT_TEXT.value)
             setOnClickListener {
                 gLogViewerData?.let {
-                    findNavController().navigate(R.id.action_PlaybackFragment_to_PlaybackEnabledFragment)
+                    findNavController().navigate(R.id.action_LogViewerFragment_to_LogViewerEnabledFragment)
                 }
             }
         }
@@ -116,7 +118,7 @@ class LogViewerFragment: Fragment() {
             setTextColor(ColorList.BT_TEXT.value)
             setOnClickListener {
                 gLogViewerData?.let {
-                    findNavController().navigate(R.id.action_PlaybackFragment_to_PlaybackTabsFragment)
+                    findNavController().navigate(R.id.action_LogViewerFragment_to_LogViewerTabsFragment)
                 }
             }
         }
@@ -136,10 +138,7 @@ class LogViewerFragment: Fragment() {
             }
 
             setOnLongClickListener {
-                if(LogFile.getLastUri() != null) loadPlaybackCSV(LogFile.getLastUri())
-                else loadPlaybackCSV(LogFile.getLastFile())
-
-                mGraph?.invalidate()
+                loadLastFile()
 
                 return@setOnLongClickListener true
             }
@@ -162,6 +161,10 @@ class LogViewerFragment: Fragment() {
         mGraph?.setData(gLogViewerData)
         mGraph?.setTextBGColor(ColorList.BG_NORMAL.value)
         checkOrientation()
+
+        if(gLogViewerLoadLast) {
+            loadLastFile()
+        }
 
         DebugLog.d(TAG, "onViewCreated")
     }
@@ -205,6 +208,13 @@ class LogViewerFragment: Fragment() {
         DebugLog.d(TAG, "onStop")
     }
 
+    private fun loadLastFile() {
+        if(LogFile.getLastUri() != null) loadLogViewerCSV(LogFile.getLastUri())
+        else loadLogViewerCSV(LogFile.getLastFile())
+
+        mGraph?.invalidate()
+    }
+
     private fun checkOrientation() {
         //check orientation and type
         var currentOrientation = resources.configuration.orientation
@@ -224,7 +234,7 @@ class LogViewerFragment: Fragment() {
         }
     }
 
-    private fun loadPlaybackCSV(csvFile: File?) {
+    private fun loadLogViewerCSV(csvFile: File?) {
         csvFile?.let {
             if (!csvFile.exists())
                 return
@@ -236,11 +246,11 @@ class LogViewerFragment: Fragment() {
             if(fileData.count() > MAX_LOG_SIZE)
                 fileData = fileData.copyOfRange(0, MAX_LOG_SIZE)
 
-            loadPlaybackCSV(String(fileData))
+            loadLogViewerCSV(String(fileData))
         }
     }
 
-    private fun loadPlaybackCSV(uri: Uri?) {
+    private fun loadLogViewerCSV(uri: Uri?) {
         uri?.let {
             val inputStream = activity?.contentResolver?.openInputStream(uri)
             var fileData = inputStream?.readBytes() ?: byteArrayOf()
@@ -249,11 +259,11 @@ class LogViewerFragment: Fragment() {
             if (fileData.count() > MAX_LOG_SIZE)
                 fileData = fileData.copyOfRange(0, MAX_LOG_SIZE)
 
-            loadPlaybackCSV(String(fileData))
+            loadLogViewerCSV(String(fileData))
         }
     }
 
-    private fun loadPlaybackCSV(data: String?) {
+    private fun loadLogViewerCSV(data: String?) {
         var fileData = data ?: ""
         var readHeader = false
         var readFirst = false
@@ -277,23 +287,23 @@ class LogViewerFragment: Fragment() {
                 gLogViewerData = null
 
                 gLogViewerData = arrayOfNulls(lineItems.count())
-                gLogViewerData?.let { playbackData ->
+                gLogViewerData?.let { logViewerData ->
                     for (i in 0 until lineItems.count()) {
                         val r = (random() * 255).toFloat()
                         val g = (random() * 255).toFloat()
                         val b = (random() * 255).toFloat()
                         var foundPID = false
-                        playbackData[i] = LogViewerDataStruct(lineItems[i], "", 0f, 0f, false, Color.rgb(r, g, b), "%01.1f", floatArrayOf())
+                        logViewerData[i] = LogViewerDataStruct(lineItems[i], "", 0f, 0f, false, Color.rgb(r, g, b), "%01.1f", floatArrayOf())
                         PIDs.getList()?.let { pidList ->
                             pidList.forEach { pid ->
                                 if(!foundPID) {
                                     pid?.let {
                                         if (lineItems[i].contains(pid.name) && lineItems[i].substringBefore(pid.name) == "") {
-                                            playbackData[i]?.min = pid.progMin
-                                            playbackData[i]?.max = pid.progMax
-                                            playbackData[i]?.enabled = true
-                                            playbackData[i]?.tabs = pid.tabs
-                                            playbackData[i]?.format = pid.format
+                                            logViewerData[i]?.min = pid.progMin
+                                            logViewerData[i]?.max = pid.progMax
+                                            logViewerData[i]?.enabled = true
+                                            logViewerData[i]?.tabs = pid.tabs
+                                            logViewerData[i]?.format = pid.format
                                             foundPID = true
                                         }
                                     }
@@ -307,11 +317,11 @@ class LogViewerFragment: Fragment() {
                                     if(!foundPID) {
                                         pid?.let {
                                             if (lineItems[i].contains(pid.name)) {
-                                                playbackData[i]?.min = pid.progMin
-                                                playbackData[i]?.max = pid.progMax
-                                                playbackData[i]?.enabled = true
-                                                playbackData[i]?.tabs = "DSG"
-                                                playbackData[i]?.format = pid.format
+                                                logViewerData[i]?.min = pid.progMin
+                                                logViewerData[i]?.max = pid.progMax
+                                                logViewerData[i]?.enabled = true
+                                                logViewerData[i]?.tabs = "DSG"
+                                                logViewerData[i]?.format = pid.format
                                                 foundPID = true
                                             }
                                         }
@@ -357,8 +367,8 @@ class LogViewerFragment: Fragment() {
             }
         } while(fileData.isNotEmpty())
 
-        gLogViewerData?.let { playbackData ->
-            playbackData.forEach {
+        gLogViewerData?.let { logViewerData ->
+            logViewerData.forEach {
                 it?.enabled = (it?.tabs?.contains("Default")?:false)
             }
         }

@@ -46,9 +46,9 @@ class LogViewerEnabledFragment: Fragment() {
             paintRim.color = ColorList.BT_RIM.value
             setTextColor(ColorList.BT_TEXT.value)
             setOnClickListener {
-                gLogViewerData?.let { playbackData ->
+                gLogViewerData?.let { logViewerData ->
                     mEnableList?.let { enableList ->
-                        playbackData.forEachIndexed() { i, pid ->
+                        logViewerData.forEachIndexed() { i, pid ->
                             pid?.enabled = enableList[i]?.isChecked ?: false
                         }
                     }

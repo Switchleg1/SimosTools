@@ -59,11 +59,11 @@
             android:orientation="horizontal">
 
             <com.app.simostools.SwitchButton
-                android:id="@+id/buttonMainPlayback"
+                android:id="@+id/buttonLogViewer"
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:text="@string/button_playback"
+                android:text="@string/button_log_viewer"
                 android:textSize="24sp" />
 
             <com.app.simostools.SwitchButton

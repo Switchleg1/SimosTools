@@ -64,7 +64,7 @@ class SwitchCockpit: View {
         val boostSegmentSize = 350f / boostSegmentCount
         val angleSegment = 50f / boostSegmentCount
         val strokeWidth = boostPaint.strokeWidth / 2.0f
-        val boostAmount = boost / 35f * boostSegmentCount
+        val boostAmount = boost / 300f * boostSegmentCount
         val rpmAmount = rpm / 7000f * boostSegmentCount
         val colorSegment = 1f / boostSegmentCount.toFloat()
 

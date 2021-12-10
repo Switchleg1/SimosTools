@@ -51,13 +51,14 @@ class MainFragment : Fragment() {
             }
         }
 
-        val playbackButton = view.findViewById<SwitchButton>(R.id.buttonMainPlayback)
-        playbackButton.apply {
+        val logViewerButton = view.findViewById<SwitchButton>(R.id.buttonLogViewer)
+        logViewerButton.apply {
             paintBG.color = ColorList.BT_BG.value
             paintRim.color = ColorList.BT_RIM.value
             setTextColor(ColorList.BT_TEXT.value)
             setOnClickListener {
-                findNavController().navigate(R.id.action_MainFragment_to_PlaybackFragment)
+                gLogViewerLoadLast = false
+                findNavController().navigate(R.id.action_MainFragment_to_LogViewerFragment)
             }
         }
 

@@ -46,9 +46,9 @@ class LogViewerTabsFragment: Fragment() {
             paintRim.color = ColorList.BT_RIM.value
             setTextColor(ColorList.BT_TEXT.value)
             setOnClickListener {
-                gLogViewerData?.let { playbackData ->
+                gLogViewerData?.let { logViewerData ->
                     mTabsList?.let { tabsList ->
-                        playbackData.forEachIndexed() { i, pid ->
+                        logViewerData.forEachIndexed() { i, pid ->
                             pid?.let {
                                 pid.enabled = false
                                 tabsList.forEachIndexed() { l, layout ->
@@ -75,11 +75,11 @@ class LogViewerTabsFragment: Fragment() {
             }
         }
 
-        gLogViewerData?.let { playbackData ->
+        gLogViewerData?.let { logViewerData ->
             val lLayout = view.findViewById<LinearLayout>(R.id.logviewerLayoutScroll)
             var tabStrings:Array<String> = arrayOf()
             tabStrings += "Default"
-            playbackData.forEachIndexed() { i, pid ->
+            logViewerData.forEachIndexed() { i, pid ->
                 pid?.tabs?.split(".")?.forEach { tab ->
                     val actualTab = tab.substringBefore("|")
                     if (actualTab.isNotEmpty() && tabStrings.find { it == actualTab } == null && actualTab != "DSG") {

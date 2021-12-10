@@ -7,9 +7,9 @@
     <string name="nav_logging">Logging</string>
     <string name="nav_settings">Settings</string>
     <string name="nav_color">Color</string>
-    <string name="nav_playback">Playback</string>
-    <string name="nav_playback_enabled">Playback Enabled</string>
-    <string name="nav_playback_tabs">Playback Tabs</string>
+    <string name="nav_log_viewer">Log Viewer</string>
+    <string name="nav_log_viewer_enabled">Log Viewer Enabled</string>
+    <string name="nav_log_viewer_tabs">Log Viewer Tabs</string>
     <string name="nav_cockpit">Cockpit</string>
     <!-- Strings used for tabs -->
     <string name="tab_tools">Tools</string>
@@ -22,7 +22,8 @@
     <string name="button_arrow_right">»</string>
     <string name="button_arrow_up">↑</string>
     <string name="button_arrow_down">↓</string>
-    <string name="button_playback">Log Viewer</string>
+    <string name="button_log_viewer">Log Viewer</string>
+    <string name="button_quick_view">Quick View</string>
     <string name="button_none">None</string>
     <string name="button_ok">Ok</string>
     <string name="button_set_pids">Set PIDS</string>

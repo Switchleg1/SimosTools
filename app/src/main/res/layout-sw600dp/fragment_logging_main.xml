@@ -31,22 +31,32 @@
 
     <TextView
         android:id="@+id/textViewPackCount"
-        android:layout_width="160dp"
+        android:layout_width="96dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
         android:text="@string/textview_fps_null"
-        android:textSize="32sp"
+        android:textSize="28sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <com.app.simostools.SwitchButton
-        android:id="@+id/buttonLoggingBack"
+        android:id="@+id/buttonQuickView"
+        android:layout_width="0dp"
+        android:layout_height="96dp"
+        android:text="@string/button_quick_view"
+        android:textSize="32sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/buttonBack"
+        app:layout_constraintStart_toEndOf="@+id/textViewPackCount" />
+
+    <com.app.simostools.SwitchButton
+        android:id="@+id/buttonBack"
         android:layout_width="0dp"
         android:layout_height="96dp"
         android:text="@string/button_back"
         android:textSize="32sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textViewPackCount" />
+        app:layout_constraintStart_toEndOf="@+id/buttonQuickView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

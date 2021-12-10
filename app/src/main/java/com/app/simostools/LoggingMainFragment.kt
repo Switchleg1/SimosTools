@@ -58,13 +58,24 @@ class LoggingMainFragment : Fragment() {
 
         mViewModel = ViewModelProvider(this).get(LoggingViewModel::class.java)
 
-        val backButton = view.findViewById<SwitchButton>(R.id.buttonLoggingBack)
+        val backButton = view.findViewById<SwitchButton>(R.id.buttonBack)
         backButton.apply {
             paintBG.color = ColorList.BT_BG.value
             paintRim.color = ColorList.BT_RIM.value
             setTextColor(ColorList.BT_TEXT.value)
             setOnClickListener {
                 findNavController().navigateUp()
+            }
+        }
+
+        val quickViewButton = view.findViewById<SwitchButton>(R.id.buttonQuickView)
+        quickViewButton.apply {
+            paintBG.color = ColorList.BT_BG.value
+            paintRim.color = ColorList.BT_RIM.value
+            setTextColor(ColorList.BT_TEXT.value)
+            setOnClickListener {
+                gLogViewerLoadLast = true
+                findNavController().navigate(R.id.action_LoggingFragment_to_LogViewer)
             }
 
             setOnLongClickListener {
