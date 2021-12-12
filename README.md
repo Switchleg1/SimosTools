@@ -9,6 +9,10 @@ Simple example of logging capability:<br />
 https://datazap.me/u/switchleg/log-1632161044?log=0&data=2-3<br />
 https://datazap.me/u/switchleg/log-1632680629?log=0&data=2-3<br />
 
+Imperial PID Files:<br />
+https://github.com/Switchleg1/SimosTools/blob/master/PID/PIDList22-USA.csv<br />
+https://github.com/Switchleg1/SimosTools/blob/master/PID/PIDList3E-USA.csv<br />
+
 PIDs can be modified in the config file including the min/max for realtime display.
 
 <p align="center">
