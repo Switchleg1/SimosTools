@@ -1,0 +1,49 @@
+Name,Unit,Equation,Format,Address,Length,Signed,ProgMin,ProgMax,WarnMin,WarnMax,Smoothing,Enabled,Tabs,Assign To
+AFR,AFR,x / 69.6598639456,%01.1f,0x10c0,2,FALSE,11.025,18.375,-1,5000,0,TRUE,Default,
+AFR SP,AFR,x / 2229.11564626,%01.1f,0xf444,2,FALSE,11.025,18.375,-1,5000,0,TRUE,,
+Airflow,kg/hr,x,%01.0f,0x2032,2,FALSE,0,2000,-100,50000,0,TRUE,,f
+Airmass,mg/stk,f / r * 8333.33333333,%01.0f,0xffff,1,FALSE,0,2000,-100,50000,0,TRUE,,
+Ambient Press,kPa,x / 120.6017666543982,%01.1f,0x13ca,2,FALSE,50,105,-1,120,0,TRUE,,a
+Ambient Temp,°F,x * 1.8 - 40,%01.0f,0xf446,1,FALSE,0,120,-100,200,0,TRUE,,
+Battery Volts,V,x * 0.1015625,%01.1f,0x14a6,1,FALSE,10,15,7,16,0,TRUE,,
+Boost,psi,(m - a) * 0.145077720207254,%01.1f,0xffff,1,FALSE,-14.7,35,-100,100,0,TRUE,Default,
+Coolant Temp,°F,x * 1.8 - 40,%01.0f,0xf405,1,FALSE,0,250,-100,300,0,TRUE,Default,
+Current Gear,,x + 1,%01.0f,0x210f,2,FALSE,0,6,-1,100,0,TRUE,,
+Engine Speed,rpm,x / 4,%01.0f,0xf40c,2,FALSE,0,7000,-1,10000,0,TRUE,,r
+Eth Content,%,x / 2.55,%01.1f,0xf452,1,FALSE,0,100,-100,100,0,TRUE,Default,
+Exhaust Cam,°,(x / 10) - 24,%01.1f,0x201a,2,TRUE,-45,45,-100,100,0,TRUE,,
+FP DI,psi,x * 1.45038,%01.0f,0x2027,2,FALSE,0,3500,-1,5000,0,TRUE,,
+FP DI SP,psi,x * 1.45038,%01.0f,0x293b,2,FALSE,0,3500,-1,5000,0,TRUE,,
+FP MPI,psi,x * 0.0145038,%01.2f,0x2025,2,FALSE,0,150,-1,200,0,TRUE,,
+FP MPI SP,psi,x * 0.0145038,%01.2f,0x2932,2,FALSE,0,150,-1,200,0,TRUE,,
+HPFP Eff Vol,%,x / 100,%01.1f,0x209a,2,FALSE,0,100,-1000,1000,0,TRUE,,
+IAT,°F,x * 1.35 - 54.4,%01.0f,0x1001,1,FALSE,0,200,-100,500,0,TRUE,Default,
+Ign Timing Avg,°,x / 100,%01.1f,0x2004,2,TRUE,-10,40,-100,100,0,TRUE,,
+Inj PW DI,ms,x / 250,%01.1f,0x13a0,2,FALSE,0,20,-1000,1000,0,TRUE,,
+Inj PW MPI,ms,x / 250,%01.1f,0x13ac,2,FALSE,0,20,-1000,1000,0,TRUE,,
+Intake Cam,°,30 - (x / 10),%01.1f,0x201e,2,TRUE,-45,45,-100,100,0,TRUE,,
+Knock Avg,°,(w + x + y + z) / 4,%01.2f,0xffff,1,FALSE,0,-5,-3,1,0,TRUE,Default,
+Knock Cyl 1,°,x / 100,%01.2f,0x200a,2,TRUE,0,-5,-5,1,0,TRUE,,w
+Knock Cyl 2,°,x / 100,%01.2f,0x200b,2,TRUE,0,-5,-5,1,0,TRUE,,x
+Knock Cyl 3,°,x / 100,%01.2f,0x200c,2,TRUE,0,-5,-5,1,0,TRUE,,y
+Knock Cyl 4,°,x / 100,%01.2f,0x200d,2,TRUE,0,-5,-5,1,0,TRUE,,z
+LPFP DC,%,x / 100,%01.1f,0x2028,2,FALSE,0,100,-1000,100,0,TRUE,,
+LTFT,%,x / 1.28 - 100,%01.1f,0xf407,1,FALSE,-25,25,-25,25,0,TRUE,Default,
+MAP,kPa,x / 10,%01.1f,0x39c0,2,FALSE,0,320,-1,350,0,TRUE,,m
+MAP SP,kPa,x / 10,%01.1f,0x39c1,2,FALSE,0,320,-1,350,0,TRUE,,
+Misfires,,x,%01.0f,0x2904,2,FALSE,0,10,-1000,50,0,TRUE,,
+Oil Temp,°F,x * 0.18 - 459.652,%01.0f,0x202f,2,FALSE,0,280,-1000,1000,0,TRUE,Default,
+Pedal Pos,%,x / 10.24,%01.1f,0x1070,2,FALSE,0,100,-1000,1000,0,TRUE,,
+Port Flap Pos,,x,%01.0f,0x295c,1,FALSE,0,1,-1000,1000,0,TRUE,,
+Press Ratio,,p / a,%01.2f,0xffff,1,FALSE,0,4,-1,10,0,TRUE,,
+PUT,kPa,x / 10,%01.1f,0x202a,2,FALSE,0,320,-1,350,0,TRUE,,p
+PUT SP,kPa,x / 10,%01.1f,0x2029,2,FALSE,0,320,-1,350,0,TRUE,,
+STFT,%,x / 1.28 - 100,%01.1f,0xf406,1,FALSE,-25,25,-25,25,0,TRUE,,
+Torque,lbft,x / 7.37562,%01.1f,0x437c,2,TRUE,0,450,-1000,1000,0,TRUE,,
+Torque Req,lbft,x / 7.37562,%01.1f,0x4380,2,TRUE,0,450,-1000,1000,0,TRUE,,
+TPS,%,x / 10,%01.1f,0x20ba,2,TRUE,0,100,-1000,1000,0,TRUE,,
+Turbo Speed,krpm,x / 163.8400000001536,%01.0f,0x1040,2,FALSE,0,220,-100,300,0,TRUE,,
+Valve Lift Pos,,x,%01.0f,0x3d6c,1,FALSE,0,1,-1000,1000,0,TRUE,,
+Vehicle Speed,mph,x / 160.934,%01.1f,0x2033,2,FALSE,0,150,-1000,220,0,TRUE,,
+Wastegate,%,100 - x / 100,%01.1f,0x39a2,2,FALSE,0,100,-1000,1000,0,TRUE,,
+Cruise,,x,%01.0f,0x203c,2,FALSE,0,10,-1000,1000,0,TRUE,,
