@@ -1,6 +1,6 @@
 # Simos Tools
 
-New builds are now available at:
+This project has moved and all new builds are now available at:<br />
 https://play.google.com/store/apps/details?id=com.app.simostools
 
 This requires the Macchina-A0 BLEISOTP bridge firmware originally developed by bri3d to log Simos ECUs:
